@@ -2,90 +2,82 @@ import React from 'react';
 
 export function About() {
   return (
-    <div className="py-20">
-      <div className="container mx-auto px-6">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">About Coconoto</h1>
-        <div className="prose prose-lg max-w-none">
-          <p className="text-xl text-gray-600 mb-8">
-            Coconoto is the premier B2B marketplace dedicated to the coconut value chain,
+    <div className="py-20 bg-gray-50">
+      {/* About Section - Fancy Green Background */}
+      <div className="relative bg-green-700 text-white py-16 text-center rounded-xl shadow-lg mx-4 md:mx-auto max-w-5xl">
+        <div className="absolute inset-0 bg-green-900 opacity-30 rounded-xl"></div>
+        <div className="relative z-10 container mx-auto px-6">
+          <h1 className="text-5xl font-extrabold mb-4 tracking-tight">About <span className="text-green-300">Coconoto</span></h1>
+          <p className="text-xl max-w-2xl mx-auto text-green-100 leading-relaxed">
+            Coconoto is the premier B2B marketplace dedicated to the coconut value chain, 
             connecting suppliers, buyers, and service providers worldwide.
           </p>
-          
-          <div className="grid md:grid-cols-2 gap-12 mb-12">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
-              <p className="text-gray-600">
-                To revolutionize the coconut trade industry by providing a secure,
-                efficient, and transparent platform for businesses to connect and trade globally.
-              </p>
-            </div>
-            
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Vision</h2>
-              <p className="text-gray-600">
-                To become the world's leading digital ecosystem for the coconut industry,
-                driving innovation and sustainable growth across the value chain.
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-green-50 rounded-xl p-8 mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">What Sets Us Apart</h2>
-            <ul className="space-y-4">
-              <li className="flex items-start">
-                <span className="text-green-600 font-bold mr-2">•</span>
-                <span>Specialized focus on the coconut industry</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-600 font-bold mr-2">•</span>
-                <span>Integrated financial and escrow services</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-600 font-bold mr-2">•</span>
-                <span>Verified business network</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-600 font-bold mr-2">•</span>
-                <span>End-to-end trade solutions</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Services</h2>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-2">Marketplace</h3>
-                <p className="text-gray-600">
-                  Connect with verified buyers and suppliers across the coconut value chain.
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-2">CoconotoPay</h3>
-                <p className="text-gray-600">
-                  Secure payment solutions designed for international trade.
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-2">Escrow Service</h3>
-                <p className="text-gray-600">
-                  Protected transactions for peace of mind in every trade.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Join Our Network</h2>
-            <p className="text-gray-600 mb-6">
-              Whether you're a supplier, buyer, or service provider in the coconut industry,
-              Coconoto provides the tools and network you need to grow your business.
-            </p>
-            <button className="bg-green-700 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-800 transition">
-              Get Started Today
-            </button>
-          </div>
         </div>
+      </div>
+
+      {/* Mission & Vision */}
+      <div className="container mx-auto px-6 mt-16 grid md:grid-cols-2 gap-12">
+        <div className="bg-white p-8 rounded-lg shadow-md transition duration-300 hover:shadow-lg">
+          <h2 className="text-3xl font-semibold text-green-700 mb-4">🌍 Our Mission</h2>
+          <p className="text-gray-600">
+            To revolutionize the coconut trade industry by providing a secure, 
+            efficient, and transparent platform for businesses to connect and trade globally.
+          </p>
+        </div>
+        <div className="bg-white p-8 rounded-lg shadow-md transition duration-300 hover:shadow-lg">
+          <h2 className="text-3xl font-semibold text-green-700 mb-4">🚀 Our Vision</h2>
+          <p className="text-gray-600">
+            To become the world's leading digital ecosystem for the coconut industry, 
+            driving innovation and sustainable growth across the value chain.
+          </p>
+        </div>
+      </div>
+
+      {/* What Sets Us Apart */}
+      <div className="bg-green-100 rounded-xl p-12 mt-16 container mx-auto px-6 shadow-md">
+        <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">✨ What Sets Us Apart</h2>
+        <ul className="space-y-6 text-gray-700 max-w-2xl mx-auto">
+          {[
+            "Specialized focus on the coconut industry",
+            "Integrated financial and escrow services",
+            "Verified business network",
+            "End-to-end trade solutions"
+          ].map((item, index) => (
+            <li key={index} className="flex items-center space-x-3">
+              <span className="text-green-600 text-xl">✔</span>
+              <span className="text-lg">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Services Section */}
+      <div className="container mx-auto px-6 mt-16">
+        <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">🔹 Our Services</h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            { title: "Marketplace", description: "Connect with verified buyers and suppliers across the coconut value chain." },
+            { title: "CoconotoPay", description: "Secure payment solutions designed for international trade." },
+            { title: "Escrow Service", description: "Protected transactions for peace of mind in every trade." }
+          ].map((service, index) => (
+            <div key={index} className="bg-white p-8 rounded-lg shadow-md transition duration-300 hover:shadow-lg">
+              <h3 className="text-2xl font-semibold text-green-700 mb-3">{service.title}</h3>
+              <p className="text-gray-600">{service.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Call to Action */}
+      <div className="container mx-auto px-6 mt-16 text-center">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">Join Our Network</h2>
+        <p className="text-gray-600 max-w-2xl mx-auto mb-6 leading-relaxed">
+          Whether you're a supplier, buyer, or service provider in the coconut industry, 
+          Coconoto provides the tools and network you need to grow your business.
+        </p>
+        <button className="bg-green-700 text-white px-8 py-3 rounded-full text-lg font-semibold shadow-md hover:bg-green-800 transition">
+          Get Started Today
+        </button>
       </div>
     </div>
   );
