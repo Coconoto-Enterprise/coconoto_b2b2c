@@ -4,7 +4,7 @@ import { Palmtree, ShoppingBag } from 'lucide-react';
 import { AuthModal } from './auth/AuthModal';
 import { useAuth } from '../context/AuthContext';
 
-export function Navbar() {
+export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('login');
   const { user, logout } = useAuth();

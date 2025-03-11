@@ -1,22 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Book, MessageCircle, FileText, HelpCircle } from 'lucide-react';
+import { Search, Book, MessageCircle, FileText } from 'lucide-react';
+import Navbar from '/src/components/Navbar';
+import Footer from '/src/components/Footer';
 
 export function HelpCenter() {
   const categories = [
     {
-      icon: <Book className="h-6 w-6" />,
-      title: "Getting Started",
+      icon: <Book className="h-6 w-6" />, 
+      title: "Getting Started", 
       topics: ["Account Setup", "Platform Overview", "Trading Basics"]
     },
     {
-      icon: <MessageCircle className="h-6 w-6" />,
-      title: "Trading & Transactions",
+      icon: <MessageCircle className="h-6 w-6" />, 
+      title: "Trading & Transactions", 
       topics: ["Making Offers", "Payment Methods", "Escrow Service"]
     },
     {
-      icon: <FileText className="h-6 w-6" />,
-      title: "Documentation",
+      icon: <FileText className="h-6 w-6" />, 
+      title: "Documentation", 
       topics: ["Required Documents", "Verification Process", "Trade Agreements"]
     }
   ];
@@ -37,22 +39,24 @@ export function HelpCenter() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-green-700 text-white py-12">
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      
+      <div className="bg-green-700 text-white py-16 flex flex-col items-center text-center">
         <div className="container mx-auto px-6">
-          <h1 className="text-3xl font-bold mb-6">How can we help you?</h1>
-          <div className="relative max-w-2xl">
+          <h1 className="text-5xl font-bold mb-6">How can we help you?</h1>
+          <div className="relative w-full max-w-lg">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Search for help..."
-              className="w-full pl-12 pr-4 py-3 rounded-lg text-gray-900"
+              className="w-full pl-12 pr-4 py-3 rounded-lg text-gray-900 flex flex-col items-centre"
             />
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-12">
+      <div className="container mx-auto px-6 py-12 flex-grow">
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {categories.map((category, index) => (
             <div key={index} className="bg-white p-6 rounded-lg shadow-md">
@@ -92,6 +96,8 @@ export function HelpCenter() {
           </Link>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

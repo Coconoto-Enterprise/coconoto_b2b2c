@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { Navbar } from './components/Navbar';
+import Navbar from './components/Navbar';
 import { Hero } from './components/Hero';
 import { Features } from './components/Features';
 import { Process } from './components/Process';
@@ -10,18 +10,18 @@ import { PriceExchange } from './components/PriceExchange';
 import { CoconotoPay } from './components/CoconotoPay';
 import { EscrowService } from './components/EscrowService';
 import { CTA } from './components/CTA';
-import { Footer } from './components/Footer';
+import Footer from './components/Footer';
 import { Marketplace } from './components/marketplace/Marketplace';
 import { ProductDetails } from './components/marketplace/ProductDetails';
 import { About } from './components/About';
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
 import { ServicesLayout } from './pages/services/ServicesLayout';
-import { PrivacyPolicy } from './pages/policies/PrivacyPolicy';
-import { TermsOfService } from './pages/policies/TermsOfService';
-import { CookiePolicy } from './pages/policies/CookiePolicy';
+import PrivacyPolicy from './pages/policies/PrivacyPolicy';
+import TermsOfService from './pages/policies/TermsOfService';
+import CookiePolicy from './pages/policies/CookiePolicy';
 import { HelpCenter } from './pages/support/HelpCenter';
 import { Contact } from './pages/support/Contact';
-import { Careers } from './pages/support/Careers';
+import Careers from './pages/support/Careers';
 
 function App() {
   return (
