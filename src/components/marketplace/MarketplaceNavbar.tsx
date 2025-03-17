@@ -68,7 +68,7 @@ export function MarketplaceNavbar() {
       {/* Secondary Navbar (Chat With Us) */}
       <div className="bg-green-50 py-2">
         <div className="container mx-auto px-6 flex justify-center">
-          <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer"
+          <a href="https://wa.me/08148609051" target="_blank" rel="noopener noreferrer"
             className="flex items-center space-x-2 text-green-700 hover:text-green-800">
             <FaWhatsapp className="h-5 w-5" />
             <span>Chat with us</span>
