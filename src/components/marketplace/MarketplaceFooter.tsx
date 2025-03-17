@@ -53,7 +53,7 @@ export default function MarketplaceFooter() {
         {/* Contact Section */}
         <div className="mt-8 text-center">
           <a
-            href="https://wa.me/08148609051"
+            href="https://wa.me/+2348148609051"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center space-x-2 text-green-400 hover:text-green-500"
