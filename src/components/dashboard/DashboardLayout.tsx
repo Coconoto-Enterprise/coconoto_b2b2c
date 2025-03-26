@@ -10,7 +10,6 @@ import { MyOrders } from './orders/MyOrders';
 import { Invoices } from './invoices/Invoices';
 import { Payments } from './payments/Payments';
 import { Settings } from './settings/Settings';
-/*import Footer from '../Footer'; */
 import MarketplaceFooter from '../marketplace/MarketplaceFooter';
 
 export function DashboardLayout() {
