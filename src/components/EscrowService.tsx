@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Shield, CheckCircle, Clock, DollarSign, Lock, UserCheck, TrendingUp } from 'lucide-react';
 
 export function EscrowService() {
@@ -130,9 +131,12 @@ export function EscrowService() {
           <p className="text-green-100 mb-8 max-w-2xl mx-auto">
             Join thousands of satisfied traders who use our escrow service for safe and secure transactions.
           </p>
-          <button className="bg-white text-green-700 px-12 py-4 rounded-full text-lg font-semibold hover:bg-green-50 transition">
+          <Link 
+            to="/escrow"
+            className="bg-white text-green-700 px-12 py-4 rounded-full text-lg font-semibold hover:bg-green-50 transition"
+          >
             Get Started with Escrow
-          </button>
+          </Link>
         </div>
       </div>
     </section>
