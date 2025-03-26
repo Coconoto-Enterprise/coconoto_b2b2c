@@ -17,7 +17,7 @@ interface FormData {
   email: string;
   password: string;
   name?: string;
-  accountType: 'buyer' | 'seller';
+  accountType: 'buyer' | 'seller' | 'merchant';
 }
 
 export function AuthModal({ isOpen, onClose, initialMode }: AuthModalProps) {
@@ -32,7 +32,18 @@ export function AuthModal({ isOpen, onClose, initialMode }: AuthModalProps) {
   }, [initialMode]);
 
   const onSubmit = (data: FormData) => {
-    const testAccount = data.accountType === 'buyer' ? testAccounts.buyer : testAccounts.seller;
+    let testAccount;
+    switch (data.accountType) {
+      case 'buyer':
+        testAccount = testAccounts.buyer;
+        break;
+      case 'seller':
+        testAccount = testAccounts.seller;
+        break;
+      case 'merchant':
+        testAccount = testAccounts.merchant;
+        break;
+    }
     
     if (data.email === testAccount.email && data.password === testAccount.password) {
       login({
@@ -46,7 +57,7 @@ export function AuthModal({ isOpen, onClose, initialMode }: AuthModalProps) {
       reset();
       setError('');
       onClose();
-      navigate('/marketplace'); // Redirect to marketplace after successful login
+      navigate('/marketplace');
     } else {
       setError('Invalid credentials. Please use the test account credentials.');
     }
@@ -97,7 +108,8 @@ export function AuthModal({ isOpen, onClose, initialMode }: AuthModalProps) {
                 <div className="mb-4 p-3 bg-blue-50 text-blue-700 rounded-md text-sm">
                   <strong>Test Accounts:</strong><br />
                   Buyer: {testAccounts.buyer.email} / {testAccounts.buyer.password}<br />
-                  Seller: {testAccounts.seller.email} / {testAccounts.seller.password}
+                  Seller: {testAccounts.seller.email} / {testAccounts.seller.password}<br />
+                  Merchant: {testAccounts.merchant.email} / {testAccounts.merchant.password}
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -141,6 +153,7 @@ export function AuthModal({ isOpen, onClose, initialMode }: AuthModalProps) {
                     >
                       <option value="buyer">Buyer</option>
                       <option value="seller">Seller</option>
+                      <option value="merchant">Merchant (Buyer & Seller)</option>
                     </select>
                   </div>
 

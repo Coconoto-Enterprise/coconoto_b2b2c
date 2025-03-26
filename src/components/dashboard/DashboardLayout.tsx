@@ -10,8 +10,8 @@ import { MyOrders } from './orders/MyOrders';
 import { Invoices } from './invoices/Invoices';
 import { Payments } from './payments/Payments';
 import { Settings } from './settings/Settings';
-/*import Footer from '../Footer'; */
 import MarketplaceFooter from '../marketplace/MarketplaceFooter';
+import { EscrowService } from '../EscrowService';
 
 export function DashboardLayout() {
   const { user } = useAuth();
@@ -43,6 +43,7 @@ export function DashboardLayout() {
           </div>
         </main>
       </div>
+      <EscrowService />
       <MarketplaceFooter />
     </div>
   );

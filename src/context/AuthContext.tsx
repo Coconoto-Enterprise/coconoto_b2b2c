@@ -4,7 +4,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  accountType: 'buyer' | 'seller';
+  accountType: 'buyer' | 'seller' | 'merchant';
   company?: string;
   location?: string;
 }

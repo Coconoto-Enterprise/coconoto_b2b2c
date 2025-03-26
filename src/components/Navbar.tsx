@@ -5,7 +5,6 @@ import { AuthModal } from './auth/AuthModal';
 import { useAuth } from '../context/AuthContext';
 import { GiCoconuts } from 'react-icons/gi';
 
-
 export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('login');
@@ -15,11 +14,16 @@ export default function Navbar() {
   const openAuthModal = (mode: 'signup' | 'login') => {
     setAuthMode(mode);
     setIsAuthModalOpen(true);
+    setIsMobileMenuOpen(false); // Close mobile menu when auth modal opens
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   return (
     <>
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-sm fixed w-full top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-2">
@@ -30,9 +34,15 @@ export default function Navbar() {
             {/* Mobile Menu Toggle */}
             <button
               className="md:hidden focus:outline-none"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={toggleMobileMenu}
+              aria-expanded={isMobileMenuOpen}
+              aria-label="Toggle navigation"
             >
-              <GiCoconuts className="h-8 w-8 text-green-700" />
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6 text-green-700" />
+              ) : (
+                <GiCoconuts className="h-8 w-8 text-green-700" />
+              )}
             </button>
 
             {/* Desktop Navigation */}
@@ -71,14 +81,26 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white shadow-md py-4 px-6">
-            <Link to="/marketplace" className="block py-2 text-gray-600 hover:text-green-700">
+            <Link 
+              to="/marketplace" 
+              className="block py-2 text-gray-600 hover:text-green-700"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
               Marketplace
             </Link>
-            <Link to="/services" className="block py-2 text-gray-600 hover:text-green-700">
+            <Link 
+              to="/services" 
+              className="block py-2 text-gray-600 hover:text-green-700"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
               Our Services
             </Link>
             {user ? (
-              <Link to="/dashboard" className="block py-2 text-gray-600 hover:text-green-700">
+              <Link 
+                to="/dashboard" 
+                className="block py-2 text-gray-600 hover:text-green-700"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
                 Dashboard
               </Link>
             ) : (
@@ -100,6 +122,9 @@ export default function Navbar() {
           </div>
         )}
       </nav>
+
+      {/* Add padding to the top of your main content to account for fixed navbar */}
+      <div className="pt-20"></div>
 
       <AuthModal
         isOpen={isAuthModalOpen}
