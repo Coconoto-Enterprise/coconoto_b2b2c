@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, AlertCircle } from 'lucide-react';
+import { ProSupplyModal } from './marketplace/ProSupplyModal';
 
-const buyerRequests = [
+export const buyerRequests = [
   {
     id: 1,
     product: 'Coconut Oil',
@@ -56,6 +57,14 @@ const buyerRequests = [
 ];
 
 export function ProBuyerRequests() {
+  const [selectedRequest, setSelectedRequest] = useState<typeof buyerRequests[0] | null>(null);
+  const [isSupplyModalOpen, setIsSupplyModalOpen] = useState(false);
+
+  const handleSupplyClick = (request: typeof buyerRequests[0]) => {
+    setSelectedRequest(request);
+    setIsSupplyModalOpen(true);
+  };
+
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-6">
@@ -68,7 +77,7 @@ export function ProBuyerRequests() {
             <p className="text-gray-600">Hot buyer requests from verified businesses</p>
           </div>
           <Link
-            to="/marketplace"
+            to="/marketplace/rfqs"
             className="hidden md:block text-green-700 font-semibold hover:text-green-800"
           >
             View All Requests →
@@ -112,12 +121,12 @@ export function ProBuyerRequests() {
                     <span className="block">Deadline</span>
                     <span className="font-medium">{new Date(request.deadline).toLocaleDateString()}</span>
                   </div>
-                  <Link
-                    to="/marketplace"
+                  <button
+                    onClick={() => handleSupplyClick(request)}
                     className="bg-green-700 text-white px-6 py-2 rounded-full hover:bg-green-800 transition whitespace-nowrap"
                   >
                     Supply Now
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -126,13 +135,21 @@ export function ProBuyerRequests() {
 
         <div className="mt-8 text-center md:hidden">
           <Link
-            to="/marketplace"
+            to="/marketplace/rfqs"
             className="text-green-700 font-semibold hover:text-green-800"
           >
             View All Requests →
           </Link>
         </div>
       </div>
+
+      {selectedRequest && (
+        <ProSupplyModal
+          isOpen={isSupplyModalOpen}
+          onClose={() => setIsSupplyModalOpen(false)}
+          request={selectedRequest}
+        />
+      )}
     </section>
   );
 }

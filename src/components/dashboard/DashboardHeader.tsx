@@ -5,13 +5,26 @@ import { useAuth } from '../../context/AuthContext';
 export function DashboardHeader() {
   const { user, logout } = useAuth();
 
+  const getDashboardTitle = () => {
+    switch (user?.accountType) {
+      case 'buyer':
+        return 'Buyer Dashboard';
+      case 'seller':
+        return 'Seller Dashboard';
+      case 'merchant':
+        return 'Merchant Dashboard';
+      default:
+        return 'Dashboard';
+    }
+  };
+
   return (
     <header className="bg-white shadow-sm">
       <div className="px-8 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <h1 className="text-2xl font-semibold text-gray-900">
-              {user?.accountType === 'seller' ? 'Seller Dashboard' : 'Buyer Dashboard'}
+              {getDashboardTitle()}
             </h1>
           </div>
           
