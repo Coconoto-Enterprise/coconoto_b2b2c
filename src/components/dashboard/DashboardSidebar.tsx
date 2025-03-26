@@ -34,7 +34,31 @@ export function DashboardSidebar() {
     { icon: Settings, label: 'Settings', path: '/dashboard/settings' }
   ];
 
-  const links = user?.accountType === 'seller' ? sellerLinks : buyerLinks;
+  const merchantLinks = [
+    { icon: LayoutDashboard, label: 'Overview', path: '/dashboard' },
+    { icon: Package, label: 'Products', path: '/dashboard/products' },
+    { icon: ShoppingBag, label: 'My Orders', path: '/dashboard/orders' },
+    { icon: History, label: 'Order History', path: '/dashboard/order-history' },
+    { icon: FileText, label: 'Invoices', path: '/dashboard/invoices' },
+    { icon: CreditCard, label: 'Payments', path: '/dashboard/payments' },
+    { icon: Users, label: 'Customers', path: '/dashboard/customers' },
+    { icon: Settings, label: 'Settings', path: '/dashboard/settings' }
+  ];
+
+  const getLinks = () => {
+    switch (user?.accountType) {
+      case 'buyer':
+        return buyerLinks;
+      case 'seller':
+        return sellerLinks;
+      case 'merchant':
+        return merchantLinks;
+      default:
+        return [];
+    }
+  };
+
+  const links = getLinks();
 
   return (
     <div className="w-64 bg-white h-screen shadow-sm">
