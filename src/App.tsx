@@ -13,12 +13,14 @@ import { CTA } from './components/CTA';
 import Footer from './components/Footer';
 import { Marketplace } from './components/marketplace/Marketplace';
 import { ProductDetails } from './components/marketplace/ProductDetails';
+import { RFQList } from './components/marketplace/RFQList';
 import { About } from './components/About';
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
 import { ServicesLayout } from './pages/services/ServicesLayout';
-import PrivacyPolicy from './pages/policies/PrivacyPolicy';
-import TermsOfService from './pages/policies/TermsOfService';
-import CookiePolicy from './pages/policies/CookiePolicy';
+import { EscrowLayout } from './pages/escrow/EscrowLayout';
+import { PrivacyPolicy } from './pages/policies/PrivacyPolicy';
+import { TermsOfService } from './pages/policies/TermsOfService';
+import { CookiePolicy } from './pages/policies/CookiePolicy';
 import { HelpCenter } from './pages/support/HelpCenter';
 import { Contact } from './pages/support/Contact';
 import Careers from './pages/support/Careers';
@@ -46,7 +48,9 @@ function App() {
               </>
             } />
             <Route path="/services/*" element={<ServicesLayout />} />
+            <Route path="/escrow/*" element={<EscrowLayout />} />
             <Route path="/marketplace/*" element={<Marketplace />} />
+            <Route path="/marketplace/rfqs" element={<RFQList />} />
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/about" element={
               <>
