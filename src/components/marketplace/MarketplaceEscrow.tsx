@@ -1,6 +1,6 @@
 import React from 'react';
-import { Shield, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Shield, CheckCircle } from 'lucide-react';
 
 export function MarketplaceEscrow() {
   return (
@@ -40,7 +40,7 @@ export function MarketplaceEscrow() {
                   Join thousands of satisfied traders using our escrow service
                 </p>
                 <Link 
-                  to="/#escrow-service"
+                  to="/escrow"
                   className="inline-block bg-green-600 text-white px-8 py-3 rounded-full hover:bg-green-700 transition"
                 >
                   Get Started with Escrow
