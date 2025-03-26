@@ -4,7 +4,7 @@ export const testAccounts = {
     email: 'buyer@coconoto.com',
     password: 'Buyer123!',
     type: 'buyer',
-    name: 'John Smith',
+    name: 'Jacob Coconoto',
     company: 'Global Foods Inc.',
     location: 'New York, USA'
   },
@@ -12,8 +12,16 @@ export const testAccounts = {
     email: 'seller@coconoto.com',
     password: 'Seller123!',
     type: 'seller',
-    name: 'Maria Garcia',
+    name: 'Daramola Daramola',
     company: 'Coconut Valley Farms',
     location: 'Manila, Philippines'
+  },
+  merchant: {
+    email: 'merchant@coconoto.com',
+    password: 'Merchant123!',
+    type: 'merchant',
+    name: 'David Oyeyipo',
+    company: 'Global Coconut Trading Co.',
+    location: 'Singapore'
   }
 };

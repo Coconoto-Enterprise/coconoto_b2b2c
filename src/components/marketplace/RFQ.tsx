@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function RFQ() {
   const [formData, setFormData] = useState({
@@ -81,10 +82,11 @@ export default function RFQ() {
         
         {/* Explore RFQs Link */}
         <div className="text-center mt-4">
-          <a href="/rfqs" className="text-green-600 underline hover:font-bold transition">Explore RFQs</a>
+          <Link to="/marketplace/rfqs" className="text-green-600 underline hover:font-bold transition">
+            Explore RFQs
+          </Link>
         </div>
       </div>
     </div>
   );
 }
-
