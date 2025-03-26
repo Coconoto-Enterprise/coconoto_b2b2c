@@ -61,17 +61,15 @@ export function EscrowNavbar() {
               </Link>
             </div>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Updated link styling */}
             <div className="hidden md:flex items-center space-x-8">
               {navItems.map((item) => (
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    activeSection === item.id
-                      ? 'text-green-700 bg-green-50'
-                      : 'text-gray-600 hover:text-green-700 hover:bg-green-50'
-                  } transition-colors`}
+                  className={`text-gray-600 hover:text-green-700 ${
+                    activeSection === item.id ? 'text-green-700' : ''
+                  }`}
                 >
                   {item.label}
                 </a>
@@ -80,16 +78,16 @@ export function EscrowNavbar() {
               {user ? (
                 <UserDropdown user={user} />
               ) : (
-                <div className="flex items-center space-x-4 ml-4">
+                <div className="flex items-center space-x-4">
                   <button
                     onClick={() => openAuthModal('login')}
-                    className="text-gray-600 hover:text-green-700 px-3 py-2 rounded-md text-sm font-medium"
+                    className="text-gray-600 hover:text-green-700"
                   >
                     Sign In
                   </button>
                   <button
                     onClick={() => openAuthModal('signup')}
-                    className="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors"
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
                     aria-label="Get started with Coconoto Escrow"
                   >
                     Get Started
@@ -116,7 +114,7 @@ export function EscrowNavbar() {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - Updated link styling */}
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white shadow-lg">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -124,10 +122,8 @@ export function EscrowNavbar() {
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    activeSection === item.id
-                      ? 'text-green-700 bg-green-50'
-                      : 'text-gray-600 hover:text-green-700 hover:bg-green-50'
+                  className={`block py-2 text-gray-600 hover:text-green-700 ${
+                    activeSection === item.id ? 'text-green-700' : ''
                   }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -141,7 +137,7 @@ export function EscrowNavbar() {
                       openAuthModal('login');
                       setIsMobileMenuOpen(false);
                     }}
-                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-green-700 hover:bg-green-50"
+                    className="block py-2 text-gray-600 hover:text-green-700 w-full text-left"
                   >
                     Sign In
                   </button>
@@ -150,7 +146,7 @@ export function EscrowNavbar() {
                       openAuthModal('signup');
                       setIsMobileMenuOpen(false);
                     }}
-                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium bg-green-600 text-white hover:bg-green-700"
+                    className="block w-full text-left bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-2"
                   >
                     Get Started
                   </button>
