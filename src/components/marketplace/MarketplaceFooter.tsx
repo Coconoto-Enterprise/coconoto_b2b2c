@@ -2,8 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ShoppingBag, Users, Info, ShieldCheck, Mail } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
-
+import { navItems } from "./MarketplaceNavbar";
 export default function MarketplaceFooter() {
+
   return (
     <footer className="bg-gray-900 text-white py-12">
       <div className="container mx-auto px-6">
@@ -23,12 +24,19 @@ export default function MarketplaceFooter() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Marketplace</h3>
             <ul className="space-y-2">
-              <li><Link to="/marketplace" className="text-gray-400 hover:text-white">Products</Link></li>
-              <li><Link to="/marketplace/rfq" className="text-gray-400 hover:text-white">RFQ</Link></li>
-              <li><Link to="/marketplace/suppliers" className="text-gray-400 hover:text-white">Suppliers</Link></li>
+         {navItems.map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  className="text-gray-400 hover:text-white flex items-center"
+                >
+                  {item.Icon && <item.Icon className="h-5 w-5 mr-1" />}
+                  <span>{item.label}</span>
+                </a>
+              ))}
             </ul>
           </div>
-
+    
           {/* Resources Section */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Resources</h3>

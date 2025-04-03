@@ -26,7 +26,7 @@ export default function RFQ() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-8 space-y-6">
+    <div  id="rfq" className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-8 space-y-6">
       {/* Heading and Subheading */}
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900">Request for Quote</h1>
@@ -50,7 +50,7 @@ export default function RFQ() {
       </div>
 
       {/* RFQ Form */}
-      <div className="p-6 bg-gray-50 shadow-md rounded-md">
+      <div  className="p-6 bg-gray-50 shadow-md rounded-md">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Submit Your RFQ</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

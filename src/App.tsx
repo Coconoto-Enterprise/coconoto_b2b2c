@@ -24,6 +24,8 @@ import CookiePolicy from './pages/policies/CookiePolicy';
 import { HelpCenter } from './pages/support/HelpCenter';
 import { Contact } from './pages/support/Contact';
 import Careers from './pages/support/Careers';
+import RFQ from "./components/marketplace/RFQ";
+import { ProSupplyModal } from "./components/marketplace/ProSupplyModal";
 
 function App() {
   return (
@@ -64,6 +66,9 @@ function App() {
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/help-center" element={<HelpCenter />} />
+            <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/marketplace/rfq" element={<RFQ />} />
+            <Route path="/marketplace/productsupply" element={<ProSupplyModal />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/careers" element={<Careers />} />
           </Routes>

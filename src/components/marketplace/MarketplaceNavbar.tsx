@@ -5,6 +5,13 @@ import { FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { AuthModal } from "../auth/AuthModal";
 
+
+export const navItems = [
+  { id: "products", label: "Products", Icon: ShoppingBag },
+  { id: "rfq", label: "RFQ" },
+  { id: "suppliers", label: "Suppliers" },
+  // Add more items as needed
+];
 export function MarketplaceNavbar() {
   const { user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -16,9 +23,13 @@ export function MarketplaceNavbar() {
     setIsAuthModalOpen(true);
     setIsMobileMenuOpen(false);
   };
-
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+  
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+
   };
 
   return (
@@ -38,16 +49,17 @@ export function MarketplaceNavbar() {
 
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-8">
-                <Link to="/marketplace" className="flex items-center text-gray-600 hover:text-green-700">
-                  <ShoppingBag className="h-5 w-5 mr-1" />
-                  Products
-                </Link>
-                <Link to="/marketplace/rfq" className="text-gray-600 hover:text-green-700">
-                  RFQ
-                </Link>
-                <Link to="/marketplace/suppliers" className="text-gray-600 hover:text-green-700">
-                  Suppliers
-                </Link>
+              {navItems.map((item) => (
+    <a
+      key={item.id}
+      href={`#${item.id}`}
+      className="text-gray-600 hover:text-green-700 flex items-center"
+    >
+      {item.Icon && <item.Icon className="h-5 w-5 mr-1" />}
+      <span>{item.label}</span>
+    </a>
+  ))}  
+  
                 {user ? (
                   <Link to="/dashboard" className="text-gray-600 hover:text-green-700">
                     Dashboard
@@ -122,27 +134,16 @@ export function MarketplaceNavbar() {
         {/* Mobile Menu - Consistent with other navbars */}
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white shadow-md py-4 px-6 border-t border-gray-100">
-            <Link 
-              to="/marketplace" 
-              className="block py-2 text-gray-600 hover:text-green-700"
-              onClick={toggleMobileMenu}
-            >
-              Products
-            </Link>
-            <Link 
-              to="/marketplace/rfq" 
-              className="block py-2 text-gray-600 hover:text-green-700"
-              onClick={toggleMobileMenu}
-            >
-              RFQ
-            </Link>
-            <Link 
-              to="/marketplace/suppliers" 
-              className="block py-2 text-gray-600 hover:text-green-700"
-              onClick={toggleMobileMenu}
-            >
-              Suppliers
-            </Link>
+       {navItems.map((item) => (
+  <Link
+    key={item.id}
+    to={`/${item.id}`} // Adjust the path as needed
+    className="block py-2 text-gray-600 hover:text-green-700"
+    onClick={closeMobileMenu}
+  >
+    {item.label}
+  </Link>
+))}
             {user ? (
               <Link 
                 to="/dashboard" 
