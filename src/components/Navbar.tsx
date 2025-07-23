@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, X } from 'lucide-react';
 import { AuthModal } from './auth/AuthModal';
+import { WaitlistModal } from './WaitlistModal';
 import { useAuth } from '../context/AuthContext';
 import { GiCoconuts } from 'react-icons/gi';
 import Logo from '../assets/Logo_1.png';
 
 export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('login');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
@@ -16,6 +18,11 @@ export default function Navbar() {
     setAuthMode(mode);
     setIsAuthModalOpen(true);
     setIsMobileMenuOpen(false); // Close mobile menu when auth modal opens
+  };
+
+  const openWaitlistModal = () => {
+    setIsWaitlistModalOpen(true);
+    setIsMobileMenuOpen(false); // Close mobile menu when waitlist modal opens
   };
 
   const toggleMobileMenu = () => {
@@ -67,6 +74,7 @@ export default function Navbar() {
                     Sign In
                   </button> */}
                   <button
+                    onClick={openWaitlistModal}
                     className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
                   >
                     Join Waitlist
@@ -111,6 +119,7 @@ export default function Navbar() {
                   Sign In
                 </button> */}
                 <button
+                  onClick={openWaitlistModal}
                   className="block w-full text-left bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-2"
                 >
                   Join Waitlist
@@ -126,6 +135,11 @@ export default function Navbar() {
         onClose={() => setIsAuthModalOpen(false)}
         initialMode={authMode}
       /> */}
+
+      <WaitlistModal
+        isOpen={isWaitlistModalOpen}
+        onClose={() => setIsWaitlistModalOpen(false)}
+      />
     </>
   );
 }
