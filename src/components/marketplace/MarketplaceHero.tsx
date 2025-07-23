@@ -61,7 +61,7 @@ export function MarketplaceHero() {
         </div>
 
         {/* Featured Products */}
-        <div className="mb-16">
+        {/* <div className="mb-16">
           <h2 className="text-2xl font-bold text-center mb-8">Featured Products</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {featuredProducts.map((product, index) => (
@@ -80,7 +80,7 @@ export function MarketplaceHero() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Features */}
         <div>
