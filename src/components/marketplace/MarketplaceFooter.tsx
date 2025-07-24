@@ -11,7 +11,7 @@ export default function MarketplaceFooter() {
           {/* Branding Section */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <ShoppingBag className="h-8 w-8 text-green-500" />
+              <img src="/Icon_green.png" alt="o" className="h-6 inline-block mx-[-6px] mt-[6px] ms-[1.5px] mr-[1.5px]" />
               <span className="text-2xl font-bold">Coconoto Marketplace</span>
             </div>
             <p className="text-gray-400">
