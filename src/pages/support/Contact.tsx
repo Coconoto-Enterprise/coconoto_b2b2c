@@ -1,120 +1,126 @@
 import React from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
-import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
+import { Mail, Phone, MapPin, MessageCircle, Clock, Globe } from 'lucide-react';
 import Navbar from '/src/components/Navbar';
 import Footer from '/src/components/Footer';
 
 export function Contact() {
+  const offices = [
+    {
+      city: "New York",
+      address: "123 Business Ave, NY 10001",
+      phone: "+1 234 567 8900",
+    },
+    {
+      city: "London",
+      address: "456 Trade St, London EC1A 1BB",
+      phone: "+44 20 7123 4567",
+    },
+    {
+      city: "Singapore",
+      address: "789 Market Rd, Singapore 048619",
+      phone: "+65 6789 0123",
+    },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
 
-      <main className="flex-grow pt-16">
-        <div className="bg-green-700 text-white py-12 w-full text-center">
-          <div className="container mx-auto px-6 pt-10 pb-10">
-            <h1 className="text-3xl font-bold mb-4">Contact Us</h1>
-            <p className="text-xl text-green-100">Get in touch with our team</p>
-          </div>
-        </div>
+      <main className="flex-grow grid place-items-center">
+  <div className="bg-green-700 text-white py-12 w-full text-center">
+    <div className="container mx-auto px-6">
+      <h1 className="text-3xl font-bold mb-4">Contact Us</h1>
+      <p className="text-xl text-green-100">Get in touch with our team</p>
+    </div>
+  </div>
+
 
         <div className="container mx-auto px-6 py-12">
-          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden">
-            <div className="grid md:grid-cols-3 gap-0">
-              {/* Left side - Form with black translucent background */}
-              <div className="bg-white p-8 md:col-span-2">
-                <h2 className="text-2xl font-bold mb-6 text-white">Send us a message</h2>
-                <form className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-black mb-2">Name</label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
-                        placeholder="Enter your full name"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-black mb-2">Phone Number</label>
-                      <input
-                        type="tel"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
-                        placeholder="+234 800 000 0000"
-                      />
-                    </div>
-                  </div>
-
+          <div className="grid md:grid-cols-2 gap-12 mb-12">
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Send us a message</h2>
+              <form className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-black mb-2">Email</label>
+                    <label className="block text-sm font-medium text-gray-700">Name</label>
                     <input
-                      type="email"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
-                      placeholder="your@email.com"
+                      type="text"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                     />
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-black mb-2">Message</label>
-                    <textarea
-                      rows={4}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none bg-white bg-opacity-90"
-                      placeholder="Tell us how we can help you..."
-                    ></textarea>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
-                  >
-                    Send Message
-                  </button>
-                </form>
-              </div>
-
-              {/* Right side - Contact info with green translucent background */}
-              <div className="bg-green-700 p-8">
-                <h2 className="text-2xl font-bold mb-8 text-white">Contact Information</h2>
-                
-                {/* Contact Information */}
-                <div className="space-y-8 mb-12">
-                  <div className="flex items-start space-x-4">
-                    <MapPin className="h-6 w-6 text-white" />
-                    <div>
-                      <p className="text-gray-100">No 67. Cele estate, mowo kekere, Ikorodu, Lagos, Nigeria</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start space-x-4">
-                    <Phone className="h-6 w-6 text-white" />
-                    <div>
-                      <p className="text-gray-100">+234 814 860 9051</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start space-x-4">
-                    <Mail className="h-6 w-6 text-white" />
-                    <div>
-                      <p className="text-gray-100">coconotoenterprise@gmail.com</p>
-                    </div>
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <input
+                      type="email"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                    />
                   </div>
                 </div>
 
-                {/* Social Media */}
-                <div className="mb-8">
-                  <h3 className="text-xl font-bold mb-6 text-white">Follow Us</h3>
-                  <div className="flex space-x-4">
-                    <a href="https://m.facebook.com/p/Coconoto-100092422418297/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-200 transition-colors" aria-label="Facebook">
-                      <FaFacebook className="h-8 w-8" />
-                    </a>
-                    <a href="https://www.instagram.com/_coconoto?igsh=MTNuZXh1dGF1dTd0dw==" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-200 transition-colors" aria-label="Instagram">
-                      <FaInstagram className="h-8 w-8" />
-                    </a>
-                    <a href="https://www.linkedin.com/company/coconoto/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-200 transition-colors" aria-label="LinkedIn">
-                      <FaLinkedin className="h-8 w-8" />
-                    </a>
-                    <a href="https://wa.me/qr/CTOTUF7JCEUFE1" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-200 transition-colors" aria-label="WhatsApp">
-                      <FaWhatsapp className="h-8 w-8" />
-                    </a>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Subject</label>
+                  <input
+                    type="text"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Message</label>
+                  <textarea
+                    rows={4}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                  ></textarea>
+                </div>
+
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition"
+                >
+                  Send Message
+                </button>
+              </form>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Other Ways to Connect</h2>
+              <div className="space-y-6">
+                <div className="flex items-start space-x-4">
+                  <MessageCircle className="h-6 w-6 text-green-600" />
+                  <div>
+                    <h3 className="font-semibold">Live Chat</h3>
+                    <p className="text-gray-600">Chat with our support team in real-time</p>
                   </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <Clock className="h-6 w-6 text-green-600" />
+                  <div>
+                    <h3 className="font-semibold">24/7 Support</h3>
+                    <p className="text-gray-600">We're here to help anytime</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <Globe className="h-6 w-6 text-green-600" />
+                  <div>
+                    <h3 className="font-semibold">Global Support</h3>
+                    <p className="text-gray-600">Support in multiple languages</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <h2 className="text-2xl font-bold mb-6">Our Offices</h2>
+                <div className="space-y-6">
+                  {offices.map((office, index) => (
+                    <div key={index} className="flex items-start space-x-4">
+                      <MapPin className="h-6 w-6 text-green-600" />
+                      <div>
+                        <h3 className="font-semibold">{office.city}</h3>
+                        <p className="text-gray-600">{office.address}</p>
+                        <p className="text-gray-600">{office.phone}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
