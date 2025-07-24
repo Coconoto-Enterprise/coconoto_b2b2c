@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../assets/Logo_1.png';
 import GoogleSearch1 from '../assets/coconut_google_search.jpg';
 import GoogleSearch2 from '../assets/coconut_google_search.jpeg';
+import { WaitlistModal } from './WaitlistModal';
 
 export function Hero() {
+  const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
   return (
     <section className="pt-32 md:pt-40 bg-gradient-to-b from-white to-gray-50 relative">
       <div className="max-w-full mx-auto">
@@ -16,14 +18,14 @@ export function Hero() {
             Welcome to Coconoto. <span className="md:hidden">A Smart Agritech company creating technology for the coconut value chain.</span><span className="hidden md:inline">We are a Smart Agritech company focused on creating technology, <br />Accessibility and Sustainability for the coconut value chain.</span>
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 px-4 md:px-0">
-            <Link 
-              to="/marketplace"
+            <button 
+              onClick={() => setIsWaitlistModalOpen(true)}
               className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-800 transition text-center"
             >
-              Get Started
-            </Link>
+              Join Waitlist
+            </button>
             <Link 
-              to="/about"
+              to="/services"
               className="border-2 border-green-700 text-green-700 px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-50 transition text-center"
             >
               Learn More
@@ -39,6 +41,11 @@ export function Hero() {
           </div>
         </div>
       </div>
+
+      <WaitlistModal
+        isOpen={isWaitlistModalOpen}
+        onClose={() => setIsWaitlistModalOpen(false)}
+      />
     </section>
   );
 }

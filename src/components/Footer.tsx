@@ -17,19 +17,19 @@ export default function Footer() {
               Transforming B2B trade through innovation and trust.
             </p>
             <div className="flex space-x-4 flex-wrap">
-              <a href="https://m.facebook.com/p/Coconoto-100092422418297/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" aria-label="Facebook">
+              <a href="https://m.facebook.com/p/Coconoto-100092422418297/" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-gray-600 transition-colors" aria-label="Facebook">
                 <FaFacebook className="h-6 w-6" />
               </a>
-              <a href="https://www.instagram.com/_coconoto?igsh=MTNuZXh1dGF1dTd0dw==" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" aria-label="Instagram">
+              <a href="https://www.instagram.com/_coconoto?igsh=MTNuZXh1dGF1dTd0dw==" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-gray-600 transition-colors" aria-label="Instagram">
                 <FaInstagram className="h-6 w-6" />
               </a>
-              <a href="https://www.linkedin.com/company/coconoto/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" aria-label="LinkedIn">
+              <a href="https://www.linkedin.com/company/coconoto/" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-gray-600 transition-colors" aria-label="LinkedIn">
                 <FaLinkedin className="h-6 w-6" />
               </a>
-              <a href="https://wa.me/qr/CTOTUF7JCEUFE1" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors" aria-label="WhatsApp">
+              <a href="https://wa.me/qr/CTOTUF7JCEUFE1" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-gray-600 transition-colors" aria-label="WhatsApp">
                 <FaWhatsapp className="h-6 w-6" />
               </a>
-              <a href="mailto:coconotoenterprise@gmail.com" className="text-gray-400 hover:text-white transition-colors" aria-label="Email">
+              <a href="mailto:coconotoenterprise@gmail.com" className="text-green-600 hover:text-gray-600 transition-colors" aria-label="Email">
                 <FaEnvelope className="h-6 w-6" />
               </a>
             </div>
