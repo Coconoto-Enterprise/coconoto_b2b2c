@@ -4,7 +4,6 @@ import { ShoppingBag, Search, X, Menu } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { AuthModal } from "../auth/AuthModal";
-import Logo from '../../assets/Logo_1.png';
 
 export function MarketplaceNavbar() {
   const { user } = useAuth();
@@ -32,12 +31,14 @@ export function MarketplaceNavbar() {
             <div className="flex items-center justify-between">
               {/* Logo */}
               <Link to="/" className="flex items-center space-x-2">
-              <img src={Logo} alt="Coconoto" className="h-8 md:h-10" />
+                <span className="text-2xl font-bold text-green-900">
+                  Coconoto Marketplace
+                </span>
               </Link>
 
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-8">
-                {/* <Link to="/marketplace" className="flex items-center text-gray-600 hover:text-green-700">
+                <Link to="/marketplace" className="flex items-center text-gray-600 hover:text-green-700">
                   <ShoppingBag className="h-5 w-5 mr-1" />
                   Products
                 </Link>
@@ -58,14 +59,15 @@ export function MarketplaceNavbar() {
                       className="text-gray-600 hover:text-green-700"
                     >
                       Sign In
-                    </button> */}
+                    </button>
                     <button 
+                      onClick={() => openAuthModal('signup')} 
                       className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
                     >
-                      Join Waitlist
+                      Sign Up
                     </button>
-                  {/* </div>
-                )} */}
+                  </div>
+                )}
               </div>
 
               {/* Mobile Menu Toggle - Consistent with other navbars */}
@@ -86,7 +88,7 @@ export function MarketplaceNavbar() {
         </nav>
 
         {/* Secondary Navbar (Chat With Us) */}
-        {/* <div className="bg-green-50 py-2 border-t border-green-100">
+        <div className="bg-green-50 py-2 border-t border-green-100">
           <div className="container mx-auto px-6 flex justify-center">
             <a 
               href="https://wa.me/+2348148609051" 
@@ -98,10 +100,10 @@ export function MarketplaceNavbar() {
               <span>Chat with us</span>
             </a>
           </div>
-        </div> */}
+        </div>
 
         {/* Tertiary Navbar (Search Bar) */}
-        {/* <div className="bg-white py-3 shadow-sm border-t border-gray-100">
+        <div className="bg-white py-3 shadow-sm border-t border-gray-100">
           <div className="container mx-auto px-6 flex justify-center">
             <div className="relative w-full md:w-3/4 flex">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-green-600 h-5 w-5" />
@@ -115,10 +117,10 @@ export function MarketplaceNavbar() {
               </button>
             </div>
           </div>
-        </div> */}
+        </div>
 
         {/* Mobile Menu - Consistent with other navbars */}
-        {/* {isMobileMenuOpen && (
+        {isMobileMenuOpen && (
           <div className="md:hidden bg-white shadow-md py-4 px-6 border-t border-gray-100">
             <Link 
               to="/marketplace" 
@@ -166,18 +168,18 @@ export function MarketplaceNavbar() {
               </>
             )}
           </div>
-        )} */}
+        )}
       </div>
 
       {/* Add padding to the top of your main content to account for fixed navbar */}
-      <div className="pt-20"></div> {/* Reduced padding since we removed sections */}
+      <div className="pt-40"></div> {/* Adjusted for all three navbar sections */}
 
       {/* Auth Modal */}
-      {/* <AuthModal 
+      <AuthModal 
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
         initialMode={authMode} 
-      /> */}
+      />
     </>
   );
 }

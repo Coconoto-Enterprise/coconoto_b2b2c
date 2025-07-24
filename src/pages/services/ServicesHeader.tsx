@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Palmtree, Menu, X } from 'lucide-react';
 import { GiCoconuts } from 'react-icons/gi';
 import { AuthModal } from '../../components/auth/AuthModal';
 import { useAuth } from '../../context/AuthContext';
-import Logo from '../../assets/Logo_1.png';
 
 export function ServicesHeader() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -40,17 +39,18 @@ export function ServicesHeader() {
           <div className="flex items-center justify-between">
             <Link 
               to="/" 
-              className="flex items-center"
+              className="flex items-center space-x-2"
               onClick={closeMobileMenu}
             >
-              <img src={Logo} alt="Coconoto" className="h-8 md:h-10" />
+              <Palmtree className="h-8 w-8 text-green-700" />
+              <span className="text-2xl font-bold text-green-900">Coconoto Services</span>
             </Link>
 
             {/* Mobile Menu Toggle */}
             <button
               className="md:hidden focus:outline-none"
               onClick={toggleMobileMenu}
-              aria-expanded={isMobileMenuOpen ? 'true' : 'false'}
+              aria-expanded={isMobileMenuOpen}
               aria-label="Toggle navigation"
             >
               {isMobileMenuOpen ? (

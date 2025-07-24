@@ -3,10 +3,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import { Hero } from './components/Hero';
-import { CocotechRD } from './components/CocotechRD';
-import { CococycleHub } from './components/CococycleHub';
-import { CocoConnect } from './components/CocoConnect';
-import { CocoDrinkEat } from './components/CocoDrinkEat';
 import { Features } from './components/Features';
 import { Process } from './components/Process';
 import { ProBuyerRequests } from './components/ProBuyerRequests';
@@ -27,6 +23,7 @@ import TermsOfService from './pages/policies/TermsOfService';
 import CookiePolicy from './pages/policies/CookiePolicy';
 import { HelpCenter } from './pages/support/HelpCenter';
 import { Contact } from './pages/support/Contact';
+import Careers from './pages/support/Careers';
 
 function App() {
   return (
@@ -39,11 +36,12 @@ function App() {
                 <Navbar />
                 <main>
                   <Hero />
-                  <CocotechRD />
-                  <CococycleHub />
-                  <CocoConnect />
-                  <CocoDrinkEat />
                   <Features />
+                  <Process />
+                  <ProBuyerRequests />
+                  <PriceExchange />
+                  <CoconotoPay />
+                  <EscrowService />
                   <CTA />
                 </main>
                 <Footer />
@@ -67,6 +65,7 @@ function App() {
             <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/help-center" element={<HelpCenter />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/careers" element={<Careers />} />
           </Routes>
         </div>
       </BrowserRouter>
