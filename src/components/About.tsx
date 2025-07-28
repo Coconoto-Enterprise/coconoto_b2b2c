@@ -51,22 +51,6 @@ export function About() {
         </ul>
       </div>
 
-      {/* Services Section */}
-      <div className="container mx-auto px-6 mt-16">
-        <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">🔹 Our Services</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {[
-            { title: "Marketplace", description: "Connect with verified buyers and suppliers across the coconut value chain." },
-            { title: "CoconotoPay", description: "Secure payment solutions designed for international trade." },
-            { title: "Escrow Service", description: "Protected transactions for peace of mind in every trade." }
-          ].map((service, index) => (
-            <div key={index} className="bg-white p-8 rounded-lg shadow-md transition duration-300 hover:shadow-lg">
-              <h3 className="text-2xl font-semibold text-green-700 mb-3">{service.title}</h3>
-              <p className="text-gray-600">{service.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Call to Action */}
       <div className="container mx-auto px-6 mt-16 text-center">
