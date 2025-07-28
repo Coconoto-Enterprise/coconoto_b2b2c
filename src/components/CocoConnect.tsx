@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import IMG_0036 from '../assets/IMG_0036.jpg';
-import IMG_0024 from '../assets/IMG_0024.jpg';
-import IMG_0023 from '../assets/IMG_0023.jpg';
+import coconutwater11 from '../assets/coconutwater11.jpg';
+import coconutstillinshell from '../assets/coconutstillinshell.avif';
+import browncoconut from '../assets/browncoconut.avif';
+import coconutoil from '../assets/coconutoil.jpg';
+import greencoconut from '../assets/greencoconut.jpg';
+import opencoconut from '../assets/opencoconut.jpg';
 
 export function CocoConnect() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const images = [IMG_0036, IMG_0024, IMG_0023];
+  const images = [coconutwater11, coconutstillinshell, browncoconut, coconutoil, greencoconut, opencoconut];
 
   useEffect(() => {
     const interval = setInterval(() => {

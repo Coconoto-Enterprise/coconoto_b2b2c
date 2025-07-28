@@ -5,7 +5,7 @@ export const machines: Machine[] = [
     id: 'desheller',
     name: 'Coconut Desheller',
     description: 'Advanced coconut deshelling machine with high efficiency and minimal waste.',
-    image: './src/assets/IMG_20250311_180248-removebg-preview.png',
+    image: './src/assets/IMG_20250311_180248.jpg',
     features: [
       'Processes up to 3000 coconuts per hour',
       'Stainless steel construction',
@@ -17,7 +17,7 @@ export const machines: Machine[] = [
     id: 'dehusker',
     name: 'Coconut Dehusker',
     description: 'Industrial-grade dehusking machine for quick and efficient husk removal.',
-    image: './src/assets/IMG_0325-removebg-preview.png',
+    image: './src/assets/dehusking.png',
     features: [
       'Automatic feeding system',
       'Heavy-duty construction',
@@ -29,7 +29,7 @@ export const machines: Machine[] = [
     id: 'cocopeat',
     name: 'Cocopeat Production',
     description: 'Complete cocopeat processing line for high-quality output.',
-    image: './src/assets/20250201_235819_0001.png',
+    image: './src/assets/cocpeat1.jpeg',
     features: [
       'Integrated crushing system',
       'Automatic sieving',
