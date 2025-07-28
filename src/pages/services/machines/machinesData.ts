@@ -1,5 +1,5 @@
 import { Machine } from './types';
-import dehuskingImg from '../../assets/dehusking.png';
+
 
 export const machines: Machine[] = [
   {
