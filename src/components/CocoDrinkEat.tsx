@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import IMG_0036 from '../assets/IMG_0036.jpg';
 import IMG_0024 from '../assets/IMG_0024.jpg';
 import IMG_0023 from '../assets/IMG_0023.jpg';
+import IMG_WHATSAPP from '../assets/IMG_20250718_104052.jpg';
+import IMG_STRAW from '../assets/coccdrinkit.jpg';
 
 export function CocoDrinkEat() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const images = [IMG_0036, IMG_0024, IMG_0023];
+  const images = [IMG_WHATSAPP, IMG_STRAW, IMG_0036, IMG_0024, IMG_WHATSAPP, IMG_STRAW];
 
   useEffect(() => {
     const interval = setInterval(() => {
