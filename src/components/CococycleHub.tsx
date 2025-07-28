@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import IMG_0036 from '../assets/IMG_0036.jpg';
-import IMG_0024 from '../assets/IMG_0024.jpg';
-import IMG_0023 from '../assets/IMG_0023.jpg';
+import manplanting from '../assets/manplanting.jpg';
+import cocoplant from '../assets/cocoplant.jpg';
+import cocofiber from '../assets/cocofiber.png';
+import cocopeat from '../assets/cocopeat.jpg';
+import fiber2 from '../assets/fiber2.jpg';
+import cocpeat1 from '../assets/cocpeat1.jpeg';
+import fiber from '../assets/fiber.jpeg';
+import cocopot from '../assets/cocopot.jpg';
 
 export function CococycleHub() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const images = [IMG_0036, IMG_0024, IMG_0023];
+  const images = [manplanting, cocoplant, cocofiber, cocopeat, fiber2, cocpeat1, fiber, cocopot];
 
   useEffect(() => {
     const interval = setInterval(() => {
