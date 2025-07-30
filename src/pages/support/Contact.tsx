@@ -22,7 +22,6 @@ export function Contact() {
             <div className="grid md:grid-cols-3 gap-0">
               {/* Left side - Form with black translucent background */}
               <div className="bg-white p-8 md:col-span-2">
-                <h2 className="text-2xl font-bold mb-6 text-white">Send us a message</h2>
                 <form className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>

@@ -20,7 +20,7 @@ export function CocotechRD() {
   }, [images.length]);
 
   return (
-    <section className="py-14 bg-gradient-to-b from-white to-gray-50 px-4 md:px-32">
+<section id="cocotech" className="py-14 bg-gradient-to-b from-white to-gray-50 px-4 md:px-32">
       <div className="max-w-7xl mx-auto px-5 flex flex-col lg:flex-row gap-4 lg:gap-16 items-center">
         {/* Left: Image slideshow */}
         <div className="w-full lg:w-1/2 relative overflow-hidden rounded-lg min-h-[240px] lg:min-h-[400px]">

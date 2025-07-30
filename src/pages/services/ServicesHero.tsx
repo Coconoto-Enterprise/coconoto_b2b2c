@@ -24,12 +24,12 @@ export function ServicesHero() {
             >
               Join Waitlist
             </button>
-            <Link 
-              to="/services"
-              className="border-2 border-green-700 text-green-700 px-6 md:px-8 py-2 rounded-full text-lg font-semibold hover:bg-green-50 transition text-center"
-            >
-              Learn More
-            </Link>
+<a 
+  href="#machines"
+  className="border-2 border-green-700 text-green-700 px-6 md:px-8 py-2 rounded-full text-lg font-semibold hover:bg-green-50 transition text-center"
+>
+  Learn More
+</a>
           </div>
           <div className="mt-12 md:mt-0 mb-0">
             <div className="flex flex-row absolute left-0 right-0">

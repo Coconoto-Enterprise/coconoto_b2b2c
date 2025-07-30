@@ -2,19 +2,18 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { GiCoconuts } from 'react-icons/gi';
-import { AuthModal } from '../../components/auth/AuthModal';
+import { WaitlistModal } from '../../components/WaitlistModal';
 import { useAuth } from '../../context/AuthContext';
 import Logo from '../../assets/Logo_1.png';
 
 export function ServicesHeader() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'signup' | 'login'>('login');
+  const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user } = useAuth();
 
-  const openAuthModal = (mode: 'signup' | 'login') => {
-    setAuthMode(mode);
-    setIsAuthModalOpen(true);
+
+  const openWaitlistModal = () => {
+    setIsWaitlistModalOpen(true);
     setIsMobileMenuOpen(false);
   };
 
@@ -78,16 +77,10 @@ export function ServicesHeader() {
               ) : (
                 <div className="flex items-center space-x-4">
                   <button
-                    onClick={() => openAuthModal('login')}
-                    className="text-gray-600 hover:text-green-700"
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => openAuthModal('signup')}
+                    onClick={openWaitlistModal}
                     className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
                   >
-                    Sign Up
+                    Join Waitlist
                   </button>
                 </div>
               )}
@@ -117,29 +110,20 @@ export function ServicesHeader() {
                 Dashboard
               </Link>
             ) : (
-              <>
-                <button
-                  onClick={() => openAuthModal('login')}
-                  className="block py-2 text-gray-600 hover:text-green-700 w-full text-left"
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => openAuthModal('signup')}
-                  className="block w-full text-left bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-2"
-                >
-                  Sign Up
-                </button>
-              </>
+              <button
+                onClick={openWaitlistModal}
+                className="block w-full text-left bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-2"
+              >
+                Join Waitlist
+              </button>
             )}
           </div>
         )}
       </header>
 
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        initialMode={authMode}
+      <WaitlistModal
+        isOpen={isWaitlistModalOpen}
+        onClose={() => setIsWaitlistModalOpen(false)}
       />
     </>
   );

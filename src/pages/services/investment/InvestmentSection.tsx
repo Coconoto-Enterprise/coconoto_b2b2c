@@ -1,5 +1,7 @@
 import React from 'react';
 import { TrendingUp, Users, DollarSign, Globe } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
+import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 
 export function InvestmentSection() {
   const metrics = [
@@ -32,7 +34,7 @@ export function InvestmentSection() {
   return (
     <section className="py-20 bg-gradient-to-br from-green-50 to-white">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-12">
+        <div className="text-center mb-0">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Invest in Coconoto
           </h2>
@@ -41,91 +43,146 @@ export function InvestmentSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-8 mb-16">
-          {metrics.map((metric, index) => (
-            <div key={index} className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex justify-center mb-4">{metric.icon}</div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-gray-900 mb-2">{metric.value}</div>
-                <div className="text-lg font-semibold text-gray-700 mb-2">{metric.label}</div>
-                <p className="text-gray-600">{metric.description}</p>
+
+        <div className="container mx-auto px-6 py-12">
+          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden">
+            <div className="grid md:grid-cols-3 gap-0">
+              {/* Left side - Form with black translucent background */}
+              <div className="bg-white p-8 md:col-span-2">
+                <form className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-black mb-2">Full Name *</label>
+                      <input
+                        type="text"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
+                        placeholder="Enter your full name"
+                        name="fullName"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-black mb-2">Company Name *</label>
+                      <input
+                        type="text"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
+                        placeholder="Enter your company name"
+                        name="companyName"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-black mb-2">Email *</label>
+                      <input
+                        type="email"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
+                        placeholder="your@email.com"
+                        name="email"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-black mb-2">Phone *</label>
+                      <input
+                        type="tel"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
+                        placeholder="+234 800 000 0000"
+                        name="phone"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">Investment Range *</label>
+                    <select
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
+                      name="investmentRange"
+                    >
+                      <option value="">Select range</option>
+                      <option value="$1,000 - $5,000">$1,000 - $5,000</option>
+                      <option value="$5,000 - $10,000">$5,000 - $10,000</option>
+                      <option value="$10,000 - $20,000">$10,000 - $20,000</option>
+                      <option value="$20,000 - $35,000">$20,000 - $35,000</option>
+                      <option value="$35,000 - $50,000">$35,000 - $50,000</option>
+                      <option value="$50,000 - $100,000">$50,000 - $100,000</option>
+                      <option value="$100,000 - $500,000">$100,000 - $500,000</option>
+                      <option value="$500,000 - $1,000,000">$500,000 - $1,000,000</option>
+                      <option value="$1,000,000+">$1,000,000+</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">Message</label>
+                    <textarea
+                      rows={4}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none bg-white bg-opacity-90"
+                      placeholder="Tell us about your investment interests and experience..."
+                      name="message"
+                    ></textarea>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
+                  >
+                    Send Message
+                  </button>
+                </form>
+              </div>
+
+              {/* Right side - Contact info with green translucent background */}
+              <div className="bg-green-700 p-8">
+                <h2 className="text-2xl font-bold mb-8 text-white">Contact Information</h2>
+                
+                {/* Contact Information */}
+                <div className="space-y-8 mb-12">
+                  <div className="flex items-start space-x-4">
+                    <MapPin className="h-6 w-6 text-white" />
+                    <div>
+                      <p className="text-gray-100">No 67. Cele estate, mowo kekere, Ikorodu, Lagos, Nigeria</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-4">
+                    <Phone className="h-6 w-6 text-white" />
+                    <div>
+                      <p className="text-gray-100">+234 814 860 9051</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-4">
+                    <Mail className="h-6 w-6 text-white" />
+                    <div>
+                      <p className="text-gray-100">coconotoenterprise@gmail.com</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Media */}
+                <div className="mb-8">
+                  <h3 className="text-xl font-bold mb-6 text-white">Follow Us</h3>
+                  <div className="flex space-x-4">
+                    <a href="https://m.facebook.com/p/Coconoto-100092422418297/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-200 transition-colors" aria-label="Facebook">
+                      <FaFacebook className="h-8 w-8" />
+                    </a>
+                    <a href="https://www.instagram.com/_coconoto?igsh=MTNuZXh1dGF1dTd0dw==" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-200 transition-colors" aria-label="Instagram">
+                      <FaInstagram className="h-8 w-8" />
+                    </a>
+                    <a href="https://www.linkedin.com/company/coconoto/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-200 transition-colors" aria-label="LinkedIn">
+                      <FaLinkedin className="h-8 w-8" />
+                    </a>
+                    <a href="https://wa.me/qr/CTOTUF7JCEUFE1" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-200 transition-colors" aria-label="WhatsApp">
+                      <FaWhatsapp className="h-8 w-8" />
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-center mb-6">Become an Investor</h3>
-            <form className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Company Name</label>
-                  <input
-                    type="text"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Email</label>
-                  <input
-                    type="email"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Phone</label>
-                  <input
-                    type="tel"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Investment Range</label>
-                <select
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                  required
-                >
-                  <option value="">Select range</option>
-                  <option value="50k-100k">$50,000 - $100,000</option>
-                  <option value="100k-500k">$100,000 - $500,000</option>
-                  <option value="500k-1m">$500,000 - $1,000,000</option>
-                  <option value="1m+">$1,000,000+</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Message</label>
-                <textarea
-                  rows={4}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                  placeholder="Tell us about your investment interests and experience..."
-                ></textarea>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition"
-              >
-                Submit Interest
-              </button>
-            </form>
           </div>
         </div>
       </div>
