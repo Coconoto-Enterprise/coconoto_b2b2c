@@ -9,8 +9,8 @@ export function About() {
         <div className="relative z-10 container mx-auto px-6">
           <h1 className="text-5xl font-extrabold mb-4 tracking-tight">About <span className="text-green-300">Coconoto</span></h1>
           <p className="text-xl max-w-2xl mx-auto text-green-100 leading-relaxed">
-            Coconoto is the premier B2B marketplace dedicated to the coconut value chain, 
-            connecting suppliers, buyers, and service providers worldwide.
+We are a Smart Agritech company focused on creating technology,
+Accessibility and Sustainability for the coconut value chain
           </p>
         </div>
       </div>
