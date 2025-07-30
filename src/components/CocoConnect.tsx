@@ -3,12 +3,10 @@ import coconutwater11 from '../assets/coconutwater11.jpg';
 import coconutstillinshell from '../assets/coconutstillinshell.avif';
 import browncoconut from '../assets/browncoconut.avif';
 import coconutoil from '../assets/coconutoil.jpg';
-import greencoconut from '../assets/greencoconut.jpg';
-import opencoconut from '../assets/opencoconut.jpg';
 
 export function CocoConnect() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const images = [coconutwater11, coconutstillinshell, browncoconut, coconutoil, greencoconut, opencoconut];
+  const images = [coconutwater11, coconutstillinshell, browncoconut, coconutoil];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -47,24 +45,20 @@ export function CocoConnect() {
               Marketplace
             </h3>
             <p className="text-lg md:text-xl text-gray-600 mt-4 text-center lg:text-left px-4 lg:px-0">
-              Connecting Coconut Farmers, Processors and innovators
+              A Digital Marketplace for Everything Coconut
             </p>
             <ul className="space-y-3 mt-6 text-gray-600 max-w-md mx-auto lg:mx-0">
               <li className="flex items-center  lg:justify-start">
                 <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                Find quality products and verified suppliers
+                Access Quality Coconut product From verified suppliers
               </li>
               <li className="flex items-center  lg:justify-start">
                 <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                Quick and secure payment processing
-              </li>
-              <li className="flex items-center  lg:justify-start">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
-                Streamlined documentation and compliance
+                Connect With Farmers and Processors
               </li>
             </ul>
             <p className="text-base md:text-lg text-gray-700 mt-4 italic text-center lg:text-left px-4 lg:px-0">
-              Built by traders, for traders
+              Built for Coconut Farmers, Traders and Players
             </p>
           </div>
 

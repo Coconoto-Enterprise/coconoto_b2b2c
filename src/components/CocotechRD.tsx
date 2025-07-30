@@ -53,9 +53,7 @@ export function CocotechRD() {
                 Our Machines
               </h3>
               <p className="text-gray-600 leading-relaxed text-center lg:text-left px-2 lg:px-0">
-                We design and manufacture affordable, locally built machines using steel frames, 
-                rollers, levers, and blades to remove coconut husks and shells efficiently—without 
-                damaging the kernel.
+                We design and manufacture efficient Dehusking & Deshelling Machines for the Coconut value Chain
               </p>
             </div>
 
@@ -69,11 +67,11 @@ export function CocotechRD() {
               <ul className="space-y-0.5 text-gray-600 max-w-md mx-auto lg:mx-0">
                 <li className="flex items-center justify-center lg:justify-start">
                   <span className="w-1 h-1 bg-green-500 rounded-full mr-1"></span>
-                  120 coconuts/hour dehusked
+                  500-900 coconuts/hour dehusked
                 </li>
                 <li className="flex items-center justify-center lg:justify-start">
                   <span className="w-1 h-1 bg-green-500 rounded-full mr-1"></span>
-                  195 nuts/hour deshelled
+                  240-400 nuts/hour deshelled
                 </li>
               </ul>
               <p className="text-gray-600 mt-2 text-center lg:text-left px-2 lg:px-0">

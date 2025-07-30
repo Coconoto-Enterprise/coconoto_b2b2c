@@ -18,14 +18,14 @@ export function About() {
       {/* Mission & Vision */}
       <div className="container mx-auto px-6 mt-16 grid md:grid-cols-2 gap-12">
         <div className="bg-white p-8 rounded-lg shadow-md transition duration-300 hover:shadow-lg">
-          <h2 className="text-3xl font-semibold text-green-700 mb-4">🌍 Our Mission</h2>
+          <h2 className="text-3xl font-semibold text-green-700 mb-4">Our Mission</h2>
           <p className="text-gray-600">
             To revolutionize the coconut trade industry by providing a secure, 
             efficient, and transparent platform for businesses to connect and trade globally.
           </p>
         </div>
         <div className="bg-white p-8 rounded-lg shadow-md transition duration-300 hover:shadow-lg">
-          <h2 className="text-3xl font-semibold text-green-700 mb-4">🚀 Our Vision</h2>
+          <h2 className="text-3xl font-semibold text-green-700 mb-4">Our Vision</h2>
           <p className="text-gray-600">
             To become the world's leading digital ecosystem for the coconut industry, 
             driving innovation and sustainable growth across the value chain.

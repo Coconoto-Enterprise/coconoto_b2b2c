@@ -12,10 +12,10 @@ export function Hero() {
       <div className="max-w-full mx-auto">
         <div className="text-center px-6">
           <h1 className="text-3xl md:text-3xl lg:text-4xl mt-8 font-bold text-gray-900 mb-4">
-            Experience A Full <br />Coconut Cycle With <img src={Logo} alt="Coconoto" className="h-7 md:h-8 lg:h-10 inline-block mb-2 md:mb-2 lg:mb-2 mr-2" />
+            Welcome to Coconoto
           </h1>
-          <p className="text-lg md:text-lg text-gray-600 mb-8 px-4 md:px-0">
-            Welcome to Coconoto. <span className="md:hidden">A Smart Agritech company creating technology for the coconut value chain.</span><span className="hidden md:inline">We are a Smart Agritech company focused on creating technology, <br />Accessibility and Sustainability for the coconut value chain.</span>
+          <p className="text-lg md:text-l text-gray-600 mb-8 px-4 md:px-0">
+<span className="md:hidden">A Climate Smart Agritech company creating technology for the coconut value chain.</span><span className="hidden md:inline">We are a Smart Agritech company focused on creating technology, <br />Accessibility and Sustainability for the coconut value chain.</span>
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 px-4 md:px-0">
             <button 

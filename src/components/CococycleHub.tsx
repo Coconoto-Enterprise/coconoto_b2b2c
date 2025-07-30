@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import manplanting from '../assets/manplanting.jpg';
 import cocoplant from '../assets/cocoplant.jpg';
 import cocofiber from '../assets/cocofiber.png';
 import cocopeat from '../assets/cocopeat.jpg';
@@ -7,10 +6,13 @@ import fiber2 from '../assets/fiber2.jpg';
 import cocpeat1 from '../assets/cocpeat1.jpeg';
 import fiber from '../assets/fiber.jpeg';
 import cocopot from '../assets/cocopot.jpg';
+import cocopot4 from '../assets/cocopot4.jpg';
+import cocofider3 from '../assets/cocofider3.jpg';
+import cocopot2 from '../assets/cocopot2.jpg';
 
 export function CococycleHub() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const images = [manplanting, cocoplant, cocofiber, cocopeat, fiber2, cocpeat1, fiber, cocopot];
+  const images = [cocoplant, cocofiber, cocopeat, fiber2, cocpeat1, fiber, cocopot, cocopot4, cocofider3, cocopot2];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -27,10 +29,11 @@ export function CococycleHub() {
         {/* Left: Content */}
         <div className="w-full lg:w-1/2 space-y-6 lg:space-y-8">
           <div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-green-700 mb-4 flex items-center justify-center lg:justify-start">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-green-700 mb-2 flex items-center justify-center lg:justify-start">
               C<img src="/favicon.png" alt="o" className="h-4 md:h-5 lg:h-6 inline-block mx-[-6px] mt-[8px] md:mt-[10px] lg:mt-[12px] ms-[1.5px] mr-[1.5px]" />cocycle Hub
             </h2>
-            <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 text-center lg:text-left">
+            <p className="text-base md:text-lg text-gray-700 text-center lg:text-left mb-2">Our sustainability hub where we convert waste from coconut into valuable product</p>
+            <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 text-center lg:text-left">
               Product Sales
             </h3>
           </div>
@@ -44,7 +47,7 @@ export function CococycleHub() {
 
               <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-center lg:text-left justify-center lg:justify-start flex-nowrap">
                 <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-green-800 whitespace-nowrap">Fiber</h3>
-                <span className="text-sm md:text-base text-gray-600">– durable material for crafts and packaging.</span>
+                <span className="text-sm md:text-base text-gray-600">– biodegradable material for crafts and packaging.</span>
               </div>
 
               <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-center lg:text-left justify-center lg:justify-start flex-nowrap">

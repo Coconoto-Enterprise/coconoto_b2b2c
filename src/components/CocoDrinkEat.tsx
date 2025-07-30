@@ -31,11 +31,11 @@ export function CocoDrinkEat() {
               Event Experience
             </h3>
             <p className="text-lg md:text-xl text-gray-600 mt-4 text-center lg:text-left px-4 lg:px-0">
-              We come to your event and give you the coconut experience
+              We bring you a Unique Coconut experience where you eat and drink coconut
             </p>
             <ul className="space-y-3 mt-6 text-gray-600 max-w-md mx-auto lg:mx-0">
               <li className="flex items-center  lg:justify-start">
-                <span className="w-2 h-2 bg-green-500 rounded-full mb-6 mr-3"></span>
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
                 Fresh-cut coconuts with custom serving options
               </li>
               <li className="flex items-center  lg:justify-start">
