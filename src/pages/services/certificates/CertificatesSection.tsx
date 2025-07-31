@@ -1,31 +1,35 @@
+
 import React from 'react';
 import { Award, CheckCircle, FileCheck } from 'lucide-react';
+import patent1 from '../../../assets/patent docs _page-0001.jpg';
+import patent2 from '../../../assets/patent docs _page-0002.jpg';
+import companyCert from '../../../assets/CompanyCertificate.jpg';
 
 export function CertificatesSection() {
   const certificates = [
     {
       type: 'Patent',
-      title: 'Coconut Processing Technology',
-      number: 'US10123456B2',
-      issueDate: '2023',
-      image: 'https://images.unsplash.com/photo-1589330694653-ded6df03f754?w=800',
-      description: 'Patent for innovative coconut processing machinery design'
+      title: 'Certificate of Registration of Utility Model Patent',
+      number: 'NG/PT/NC/O/2024/14257',
+      issueDate: '2024',
+      image: patent1,
+      description: 'Federal Republic of Nigeria Utility Model Patent for Coconut Deshelling Machine.'
     },
     {
-      type: 'ISO Certification',
-      title: 'ISO 9001:2015',
-      number: 'QMS-123456',
-      issueDate: '2023',
-      image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800',
-      description: 'Quality Management System Certification'
+      type: 'Patent',
+      title: 'Certificate of Registration of Utility Model Patent',
+      number: 'NG/PT/NC/2024/14256',
+      issueDate: '2024',
+      image: patent2,
+      description: 'Federal Republic of Nigeria Utility Model Patent for Coconut Dehusking Machine.'
     },
     {
       type: 'License',
-      title: 'Manufacturing License',
-      number: 'ML-789012',
-      issueDate: '2023',
-      image: 'https://images.unsplash.com/photo-1622675363311-3e1904dc1885?w=800',
-      description: 'Industrial Manufacturing Authorization'
+      title: 'Certificate of Registration',
+      number: '3674818',
+      issueDate: '2022',
+      image: companyCert,
+      description: 'Business Name Registration for Coconoto Enterprise, Nigeria.'
     }
   ];
 
@@ -67,22 +71,7 @@ export function CertificatesSection() {
           ))}
         </div>
 
-        <div className="bg-gray-50 rounded-xl p-8">
-          <div className="grid md:grid-cols-3 gap-6 text-center">
-            <div>
-              <div className="text-3xl font-bold text-green-600 mb-2">15+</div>
-              <div className="text-gray-600">Patents Registered</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-green-600 mb-2">8</div>
-              <div className="text-gray-600">ISO Certifications</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-green-600 mb-2">20+</div>
-              <div className="text-gray-600">Industry Licenses</div>
-            </div>
-          </div>
-        </div>
+
       </div>
     </section>
   );

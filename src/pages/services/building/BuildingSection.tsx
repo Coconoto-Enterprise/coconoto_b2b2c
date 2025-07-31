@@ -1,4 +1,6 @@
 import React from 'react';
+import dehuskingImg from '../../../assets/dehusking.jpg';
+import deshellingImg from '../../../assets/IMG_20250311_180248.jpg';
 
 export function BuildingSection() {
   return (
@@ -36,7 +38,7 @@ export function BuildingSection() {
             </div>
             <div>
               <img
-                src="https://5.imimg.com/data5/SELLER/Default/2021/3/UP/YE/YH/3823480/coconut-dehusking-machine.jpg"
+                src={dehuskingImg}
                 alt="Dehusking Machine"
                 className="rounded-lg shadow-md w-full h-64 object-cover"
               />
@@ -70,7 +72,7 @@ export function BuildingSection() {
               
               <div>
                 <img
-                  src="https://5.imimg.com/data5/SELLER/Default/2021/3/UP/YE/YH/3823480/coconut-deshelling-machine.jpg"
+                  src={deshellingImg}
                   alt="Deshelling Machine"
                   className="rounded-lg shadow-md w-full h-64 object-cover mb-4"
                 />

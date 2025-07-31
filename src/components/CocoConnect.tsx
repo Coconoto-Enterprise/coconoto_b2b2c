@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { WaitlistModal } from './WaitlistModal';
 import coconutwater11 from '../assets/coconutwater11.jpg';
 import coconutstillinshell from '../assets/coconutstillinshell.avif';
 import browncoconut from '../assets/browncoconut.avif';
@@ -6,6 +7,7 @@ import coconutoil from '../assets/coconutoil.jpg';
 
 export function CocoConnect() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
   const images = [coconutwater11, coconutstillinshell, browncoconut, coconutoil];
 
   useEffect(() => {
@@ -63,12 +65,19 @@ export function CocoConnect() {
           </div>
 
           <div className="flex justify-center lg:justify-start">
-            <button className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-800 transition">
-              Visit Marketplace
+            <button
+              className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-800 transition"
+              onClick={() => setIsWaitlistModalOpen(true)}
+            >
+              Join Waitlist
             </button>
           </div>
         </div>
       </div>
+      <WaitlistModal
+        isOpen={isWaitlistModalOpen}
+        onClose={() => setIsWaitlistModalOpen(false)}
+      />
     </section>
   );
 }
