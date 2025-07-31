@@ -8,7 +8,7 @@ import { WaitlistModal } from './WaitlistModal';
 export function Hero() {
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
   return (
-    <section className="pt-40 md:pt-32 bg-gradient-to-b from-white to-gray-50 relative">
+    <section className="pt-44 md:pt-32 bg-gradient-to-b from-white to-gray-50 relative">
       <div className="max-w-full mx-auto">
         <div className="text-center px-6">
           <h1 className="text-3xl md:text-3xl lg:text-4xl mt-8 font-bold text-gray-900 mb-4">
