@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../../assets/Logo_1.png';
-import GoogleSearch1 from '../../assets/coconut_google_search.jpg';
-import GoogleSearch2 from '../../assets/coconut_google_search.jpeg';
+import GoogleSearch1 from '../../assets/coconut_google_search.png';
+import GoogleSearch2 from '../../assets/coconut_google_search-2.png';
 import { WaitlistModal } from '../../components/WaitlistModal';
 
 export function ServicesHero() {

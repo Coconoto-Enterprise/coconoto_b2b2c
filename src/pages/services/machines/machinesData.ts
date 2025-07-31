@@ -1,6 +1,6 @@
 import { Machine } from './types';
 import deshellerImage from '../../../assets/IMG_20250311_180248.jpg';
-import dehuskerImage from '../../../assets/dehusking.png';
+import dehuskerImage from '../../../assets/dehusking.jpg';
 import cocopeatImage from '../../../assets/cocpeat1.jpeg';
 
 export const machines: Machine[] = [

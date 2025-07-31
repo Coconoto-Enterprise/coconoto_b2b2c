@@ -3,8 +3,8 @@ import IMG_0036 from '../assets/IMG_0036.jpg';
 import IMG_0024 from '../assets/IMG_0024.jpg';
 import IMG_0023 from '../assets/IMG_0023.jpg';
 import IMG_20250311_180248 from '../assets/IMG_20250311_180248.jpg';
-import dehusking from '../assets/dehusking.png';
-import dehusking2 from '../assets/dehusking2.png';
+import dehusking from '../assets/dehusking.jpg';
+import dehusking2 from '../assets/dehusking2.jpg';
 import IMG_0369 from '../assets/IMG_0369.jpg';
 
 export function CocotechRD() {
