@@ -8,7 +8,7 @@ import { WaitlistModal } from './WaitlistModal';
 export function Hero() {
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
   return (
-    <section className="pt-32 md:pt-28 bg-gradient-to-b from-white to-gray-50 relative">
+    <section className="pt-40 md:pt-32 bg-gradient-to-b from-white to-gray-50 relative">
       <div className="max-w-full mx-auto">
         <div className="text-center px-6">
           <h1 className="text-3xl md:text-3xl lg:text-4xl mt-8 font-bold text-gray-900 mb-4">
@@ -31,7 +31,7 @@ export function Hero() {
               Learn More
             </a>
           </div>
-          <div className="mt-12 md:mt-0 mb-0">
+          <div className="mt-24 md:mt-8 mb-0">
             <div className="flex flex-row absolute left-0 right-0">
               <div className="overflow-hidden w-[150px] md:w-[340px] h-auto md:h-[200px] rounded-lg">
                 <img src={GoogleSearch1} alt="Coconut Search 1" className="w-full" style={{marginTop: 0}} />
