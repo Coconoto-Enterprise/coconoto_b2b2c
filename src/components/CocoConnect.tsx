@@ -22,7 +22,8 @@ export function CocoConnect() {
 
   return (
     <section className="py-14 bg-gradient-to-b from-white to-gray-50 px-4 md:px-32">
-      <div className="max-w-7xl mx-auto px-5 flex flex-col lg:flex-row gap-4 lg:gap-16 items-center">
+      {/* Desktop & Tablet: flex-row, hidden on mobile */}
+      <div className="max-w-7xl mx-auto px-5 hidden lg:flex flex-col lg:flex-row gap-4 lg:gap-16 items-center">
         {/* Left: Image slideshow */}
         <div className="w-full lg:w-1/2 relative overflow-hidden rounded-lg min-h-[240px] lg:min-h-[400px]">
           {images.map((image, index) => (
@@ -74,6 +75,61 @@ export function CocoConnect() {
           </div>
         </div>
       </div>
+
+      {/* Mobile: flex-col, text on top, image below, hidden on lg+ */}
+      <div className="max-w-7xl mx-auto px-5 flex flex-col gap-4 items-center lg:hidden">
+        {/* Content on top */}
+        <div className="w-full space-y-6">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold text-green-700 mb-2 flex items-center justify-center">
+              C<img src="/favicon.png" alt="o" className="h-4 md:h-5 inline-block mx-[-6px] mt-[8px] md:mt-[10px] ms-[1.5px] mr-[1.5px]" />co-connect
+            </h2>
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 text-center">
+              Marketplace
+            </h3>
+            <p className="text-lg md:text-xl text-gray-600 mt-4 text-center px-4">
+              A Digital Marketplace for Everything Coconut
+            </p>
+            <ul className="space-y-3 mt-6 text-gray-600 max-w-md mx-auto">
+              <li className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                Access Quality Coconut product From verified suppliers
+              </li>
+              <li className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                Connect With Farmers and Processors
+              </li>
+            </ul>
+            <p className="text-base md:text-lg text-gray-700 mt-4 italic text-center px-4">
+              Built for Coconut Farmers, Traders and Players
+            </p>
+          </div>
+
+          <div className="flex justify-center">
+            <button
+              className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-800 transition"
+              onClick={() => setIsWaitlistModalOpen(true)}
+            >
+              Join Waitlist
+            </button>
+          </div>
+        </div>
+
+        {/* Image slideshow below */}
+        <div className="w-full relative overflow-hidden rounded-lg min-h-[240px]">
+          {images.map((image, index) => (
+            <img
+              key={index}
+              src={image}
+              alt={`Coconut processing ${index + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover rounded-lg transition-opacity duration-1000 ${
+                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
       <WaitlistModal
         isOpen={isWaitlistModalOpen}
         onClose={() => setIsWaitlistModalOpen(false)}
