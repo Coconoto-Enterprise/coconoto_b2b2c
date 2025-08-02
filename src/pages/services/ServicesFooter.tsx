@@ -49,8 +49,7 @@ export function ServicesFooter() {
               <li><Link to="/contact" className="text-gray-400 hover:text-white">Contact</Link></li>
               <li><a href="#" className="text-gray-400 hover:text-white">Blog</a></li>
               <li><a href="#" className="text-gray-400 hover:text-white">Patents</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">ISO Certifications</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Manufacturing Licenses</a></li>
+              <li><a href="#certifications" className="text-gray-400 hover:text-white">Certifications</a></li>
             </ul>
           </div>
           

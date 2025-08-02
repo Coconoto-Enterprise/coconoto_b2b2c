@@ -33,7 +33,7 @@ export function InvestmentSection() {
 
   return (
     <section className="py-20 bg-gradient-to-br from-green-50 to-white">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto">
         <div className="text-center mb-0(">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Invest in Coconoto

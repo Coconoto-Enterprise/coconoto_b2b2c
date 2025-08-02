@@ -57,9 +57,12 @@ export function CococycleHub() {
             </div>
 
             <div className="flex justify-center lg:justify-start">
-              <button className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-800 transition">
-                View Products
-              </button>
+<button
+  className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-800 transition"
+onClick={() => window.location.href = '/services#OurProcessingEquipment'}
+>
+  View Products
+</button>
             </div>
           </div>
         </div>
