@@ -48,7 +48,7 @@ export function ServicesFooter() {
             <ul className="space-y-2">
               <li><Link to="/contact" className="text-gray-400 hover:text-white">Contact</Link></li>
               <li><a href="#" className="text-gray-400 hover:text-white">Blog</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Patents</a></li>
+              <li><a href="#certifications" className="text-gray-400 hover:text-white">Patents</a></li>
               <li><a href="#certifications" className="text-gray-400 hover:text-white">Certifications</a></li>
             </ul>
           </div>
