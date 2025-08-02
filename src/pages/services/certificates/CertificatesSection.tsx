@@ -37,7 +37,7 @@ export function CertificatesSection() {
   const [selectedCert, setSelectedCert] = useState(null);
 
   return (
-    <section id="certificates" className="py-20 bg-white">
+    <section id="certifications" className="py-20 bg-white">
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Certifications</h2>
