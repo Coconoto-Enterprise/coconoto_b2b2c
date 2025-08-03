@@ -7,37 +7,38 @@ export const machines: Machine[] = [
   {
     id: 'desheller',
     name: 'Coconut Desheller',
-    description: 'Advanced coconut deshelling machine with high efficiency and minimal waste.',
+    description: 'High-efficiency coconut deshelling machine for removing coconut kernel from shell. We sell this machine for commercial and industrial use.',
     image: deshellerImage,
     features: [
+      'Removes kernel cleanly from shell',
       'Processes up to 3000 coconuts per hour',
       'Stainless steel construction',
       'Low maintenance design',
-      'Minimal kernel damage'
+      'Available for purchase'
     ]
   },
   {
     id: 'dehusker',
     name: 'Coconut Dehusker',
-    description: 'Industrial-grade dehusking machine for quick and efficient husk removal.',
+    description: 'Professional coconut dehusking service for farms, processors, and traders. We offer fast, safe, and efficient dehusking using industrial-grade equipment. ',
     image: dehuskerImage,
     features: [
-      'Automatic feeding system',
-      'Heavy-duty construction',
-      'Safe operation design',
-      'Easy maintenance'
+      'Quick turnaround for bulk orders',
+      'Safe and minimal kernel damage',
+      'Pickup and delivery options available',
+      'Service available for farms and businesses'
     ]
   },
   {
     id: 'cocopeat',
-    name: 'Cocopeat Production',
-    description: 'Complete cocopeat processing line for high-quality output.',
+    name: 'Cocopeat',
+    description: 'Premium cocopeat blocks and loose cocopeat for horticulture, gardening, and soil improvement. We sell high-quality cocopeat, not machinery or processing services.',
     image: cocopeatImage,
     features: [
-      'Integrated crushing system',
-      'Automatic sieving',
-      'Moisture control',
-      'Block forming capability'
+      '100% natural and organic',
+      'Excellent water retention',
+      'Ideal for seed starting and potting mixes',
+      'Bulk and retail orders accepted'
     ]
   }
 ];

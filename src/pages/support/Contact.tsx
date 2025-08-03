@@ -1,10 +1,47 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { supabase } from '../../lib/supabase';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 import Navbar from '/src/components/Navbar';
 import Footer from '/src/components/Footer';
 
 export function Contact() {
+  const [form, setForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setSuccess('');
+    setError('');
+    const { data, error: supaError } = await supabase.from('service_contacts').insert([
+      {
+        name: form.name,
+        phone: form.phone,
+        email: form.email,
+        message: form.message,
+        created_at: new Date().toISOString()
+      }
+    ]);
+    setLoading(false);
+    if (supaError) {
+      setError('Submission failed. Please try again.');
+    } else {
+      setSuccess('Your message has been sent!');
+      setForm({ name: '', phone: '', email: '', message: '' });
+    }
+  };
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
@@ -22,7 +59,7 @@ export function Contact() {
             <div className="grid md:grid-cols-3 gap-0">
               {/* Left side - Form with black translucent background */}
               <div className="bg-white p-8 md:col-span-2">
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit}>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-black mb-2">Name</label>
@@ -30,6 +67,10 @@ export function Contact() {
                         type="text"
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
                         placeholder="Enter your full name"
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                        required
                       />
                     </div>
                     <div>
@@ -38,6 +79,10 @@ export function Contact() {
                         type="tel"
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
                         placeholder="+234 800 000 0000"
+                        name="phone"
+                        value={form.phone}
+                        onChange={handleChange}
+                        required
                       />
                     </div>
                   </div>
@@ -48,6 +93,10 @@ export function Contact() {
                       type="email"
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
                       placeholder="your@email.com"
+                      name="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      required
                     />
                   </div>
 
@@ -57,15 +106,22 @@ export function Contact() {
                       rows={4}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none bg-white bg-opacity-90"
                       placeholder="Tell us how we can help you..."
+                      name="message"
+                      value={form.message}
+                      onChange={handleChange}
+                      required
                     ></textarea>
                   </div>
 
                   <button
                     type="submit"
                     className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
+                    disabled={loading}
                   >
-                    Send Message
+                    {loading ? 'Sending...' : 'Send Message'}
                   </button>
+                  {success && <p className="text-green-600 mt-4">{success}</p>}
+                  {error && <p className="text-red-600 mt-4">{error}</p>}
                 </form>
               </div>
 

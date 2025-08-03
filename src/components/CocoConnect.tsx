@@ -116,7 +116,7 @@ export function CocoConnect() {
         </div>
 
         {/* Image slideshow below */}
-        <div className="w-full relative overflow-hidden rounded-lg min-h-[240px]">
+        <div className="w-full lg:w-1/2 relative overflow-hidden rounded-lg min-h-[240px] md:min-h-[400px] lg:min-h-[400px]">
           {images.map((image, index) => (
             <img
               key={index}

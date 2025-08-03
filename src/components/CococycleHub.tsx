@@ -68,7 +68,7 @@ onClick={() => window.location.href = '/services#OurProcessingEquipment'}
         </div>
 
         {/* Right: Image slideshow */}
-        <div className="w-full lg:w-1/2 relative overflow-hidden rounded-lg min-h-[240px] lg:min-h-[400px]">
+        <div className="w-full lg:w-1/2 relative overflow-hidden rounded-lg min-h-[240px] md:min-h-[400px] lg:min-h-[400px]">
           {images.map((image, index) => (
             <img
               key={index}

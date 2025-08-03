@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BookEventModal } from './BookEventModal';
 import IMG_0036 from '../assets/IMG_0036.jpg';
 import IMG_0024 from '../assets/IMG_0024.jpg';
 import IMG_0023 from '../assets/IMG_0023.jpg';
@@ -6,6 +7,7 @@ import IMG_WHATSAPP from '../assets/IMG_20250718_104052.jpg';
 import IMG_STRAW from '../assets/coccdrinkit.jpg';
 
 export function CocoDrinkEat() {
+  const [showModal, setShowModal] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const images = [IMG_WHATSAPP, IMG_STRAW, IMG_0036, IMG_0024, IMG_WHATSAPP, IMG_STRAW];
 
@@ -54,14 +56,18 @@ export function CocoDrinkEat() {
           </div>
 
           <div className="flex justify-center lg:justify-start">
-            <button className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-800 transition">
+            <button
+              className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-800 transition"
+              onClick={() => setShowModal(true)}
+            >
               Book Event Service
             </button>
           </div>
+          <BookEventModal isOpen={showModal} onClose={() => setShowModal(false)} />
         </div>
 
         {/* Right: Image slideshow */}
-        <div className="w-full lg:w-1/2 relative overflow-hidden rounded-lg min-h-[240px] lg:min-h-[400px]">
+        <div className="w-full lg:w-1/2 relative overflow-hidden rounded-lg min-h-[240px] md:min-h-[400px] lg:min-h-[400px]">
           {images.map((image, index) => (
             <img
               key={index}

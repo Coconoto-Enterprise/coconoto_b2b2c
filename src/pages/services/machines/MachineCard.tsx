@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Machine } from './types';
-import { OrderMachineModal } from './OrderMachineModal';
+import { OrderDeshellerModal } from './OrderDeshellerModal';
+import { OrderDehuskerModal } from './OrderDehuskerModal';
+import { OrderCocopeatModal } from './OrderCocopeatModal';
 
 interface MachineCardProps {
   machine: Machine;
@@ -39,11 +41,24 @@ export function MachineCard({ machine }: MachineCardProps) {
         </div>
       </div>
 
-      <OrderMachineModal
-        isOpen={isOrderModalOpen}
-        onClose={() => setIsOrderModalOpen(false)}
-        machine={machine}
-      />
+      {machine.id === 'desheller' && (
+        <OrderDeshellerModal
+          isOpen={isOrderModalOpen}
+          onClose={() => setIsOrderModalOpen(false)}
+        />
+      )}
+      {machine.id === 'dehusker' && (
+        <OrderDehuskerModal
+          isOpen={isOrderModalOpen}
+          onClose={() => setIsOrderModalOpen(false)}
+        />
+      )}
+      {machine.id === 'cocopeat' && (
+        <OrderCocopeatModal
+          isOpen={isOrderModalOpen}
+          onClose={() => setIsOrderModalOpen(false)}
+        />
+      )}
     </>
   );
 }

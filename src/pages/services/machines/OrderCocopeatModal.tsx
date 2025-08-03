@@ -7,7 +7,7 @@ interface WaitlistModalProps {
   onClose: () => void;
 }
 
-export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
+export function OrderCocopeatModal({ isOpen, onClose }: WaitlistModalProps) {
   const [formData, setFormData] = useState({
     company: '',
     contactName: '',
@@ -101,7 +101,7 @@ export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
         <div className="sticky top-0 bg-white bg-opacity-90 border-b border-gray-100 p-6 rounded-t-2xl">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Request a Quote for Dehusking Machine</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Request a Quote for Cocopeat</h2>
               <p className="text-gray-600 mt-1">Complete the form below to place your order</p>
             </div>
             <button
@@ -180,7 +180,7 @@ export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
                   value={formData.quantity}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                  placeholder="Enter quantity"
+                  placeholder="Enter quantity in Kg"
                 />
                 {quantityError && (
                   <p className="text-red-600 text-xs mt-1">{quantityError}</p>

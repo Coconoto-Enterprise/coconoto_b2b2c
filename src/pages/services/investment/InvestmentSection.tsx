@@ -1,9 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { supabase } from '../../../lib/supabase';
 import { TrendingUp, Users, DollarSign, Globe } from 'lucide-react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 
 export function InvestmentSection() {
+  const [form, setForm] = useState({
+    fullName: '',
+    companyName: '',
+    email: '',
+    phone: '',
+    investmentRange: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setSuccess('');
+    setError('');
+    const { data, error: supaError } = await supabase.from('investment_inquiries').insert([
+      {
+        full_name: form.fullName,
+        company_name: form.companyName,
+        email: form.email,
+        phone: form.phone,
+        investment_range: form.investmentRange,
+        message: form.message,
+        created_at: new Date().toISOString()
+      }
+    ]);
+    setLoading(false);
+    if (supaError) {
+      setError('Submission failed. Please try again.');
+    } else {
+      setSuccess('Your inquiry has been sent!');
+      setForm({
+        fullName: '',
+        companyName: '',
+        email: '',
+        phone: '',
+        investmentRange: '',
+        message: ''
+      });
+    }
+  };
   const metrics = [
     {
       icon: <TrendingUp className="h-8 w-8 text-green-600" />,
@@ -49,7 +97,7 @@ export function InvestmentSection() {
             <div className="grid md:grid-cols-3 gap-0">
               {/* Left side - Form with black translucent background */}
               <div className="bg-white p-8 md:col-span-2">
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit}>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-black mb-2">Full Name *</label>
@@ -59,6 +107,8 @@ export function InvestmentSection() {
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
                         placeholder="Enter your full name"
                         name="fullName"
+                        value={form.fullName}
+                        onChange={handleChange}
                       />
                     </div>
                     <div>
@@ -69,6 +119,8 @@ export function InvestmentSection() {
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
                         placeholder="Enter your company name"
                         name="companyName"
+                        value={form.companyName}
+                        onChange={handleChange}
                       />
                     </div>
                   </div>
@@ -82,6 +134,8 @@ export function InvestmentSection() {
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
                         placeholder="your@email.com"
                         name="email"
+                        value={form.email}
+                        onChange={handleChange}
                       />
                     </div>
                     <div>
@@ -92,6 +146,8 @@ export function InvestmentSection() {
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
                         placeholder="+234 800 000 0000"
                         name="phone"
+                        value={form.phone}
+                        onChange={handleChange}
                       />
                     </div>
                   </div>
@@ -102,6 +158,8 @@ export function InvestmentSection() {
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white bg-opacity-90"
                       name="investmentRange"
+                      value={form.investmentRange}
+                      onChange={handleChange}
                     >
                       <option value="">Select range</option>
                       <option value="$1,000 - $5,000">$1,000 - $5,000</option>
@@ -123,15 +181,20 @@ export function InvestmentSection() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none bg-white bg-opacity-90"
                       placeholder="Tell us about your investment interests and experience..."
                       name="message"
+                      value={form.message}
+                      onChange={handleChange}
                     ></textarea>
                   </div>
 
                   <button
                     type="submit"
                     className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
+                    disabled={loading}
                   >
-                    Send Message
+                    {loading ? 'Sending...' : 'Send Message'}
                   </button>
+                  {success && <p className="text-green-600 mt-4">{success}</p>}
+                  {error && <p className="text-red-600 mt-4">{error}</p>}
                 </form>
               </div>
 
