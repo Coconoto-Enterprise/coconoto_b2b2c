@@ -345,10 +345,14 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
               <label className="block text-sm font-medium text-gray-700 mb-2">How did you hear about us?</label>
               <select name="hearAbout" value={formData.hearAbout} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
                 <option value="">Select</option>
-                <option value="Social Media">Social Media</option>
-                <option value="Referral">Referral</option>
-                <option value="Web Search">Web Search</option>
-                <option value="Other">Other</option>
+                <option value="facebook">Facebook</option>
+                <option value="instagram">Instagram</option>
+                <option value="tiktok">TikTok</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="referral">Referral</option>
+                <option value="google_search">Google Search</option>
+                <option value="ads">Ads</option>
+                <option value="other">Other</option>
               </select>
             </div>
           </div>
