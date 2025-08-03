@@ -39,18 +39,19 @@ export function CococycleHub() {
           </div>
 
           <div className="space-y-4 lg:space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-center lg:text-left justify-center lg:justify-start flex-nowrap">
+            <div className="space-y-4 max-w-md mx-auto">
+              <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-center lg:text-left justify-start flex-nowrap">
                 <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-green-800 whitespace-nowrap">Cocopeat</h3>
                 <span className="text-sm md:text-base text-gray-600">– nutrient‑rich growing medium.</span>
               </div>
 
-              <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-center lg:text-left justify-center lg:justify-start flex-nowrap">
+              <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-center lg:text-left justify-start flex-nowrap">
                 <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-green-800 whitespace-nowrap">Fiber</h3>
-                <span className="text-sm md:text-base text-gray-600">– biodegradable material for crafts and packaging.</span>
+                <span className="text-sm md:text-base text-gray-600 block md:hidden">– Eco-friendly material for crafts and packs. </span>
+                <span className="hidden md:block text-sm md:text-base text-gray-600">– biodegradable material for crafts and packaging.</span>
               </div>
 
-              <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-center lg:text-left justify-center lg:justify-start flex-nowrap">
+              <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-center lg:text-left justify-start flex-nowrap">
                 <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-green-800 whitespace-nowrap">Cocopot</h3>
                 <span className="text-sm md:text-base text-gray-600">– eco‑friendly plant containers.</span>
               </div>

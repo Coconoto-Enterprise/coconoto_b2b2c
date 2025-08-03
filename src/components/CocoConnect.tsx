@@ -91,16 +91,16 @@ export function CocoConnect() {
               A Digital Marketplace for Everything Coconut
             </p>
             <ul className="space-y-3 mt-6 text-gray-600 max-w-md mx-auto">
-              <li className="flex items-center justify-center">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+              <li className="flex items-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-3 mb-5 md:mb-0"></span>
                 Access Quality Coconut product From verified suppliers
               </li>
-              <li className="flex items-center justify-center">
+              <li className="flex items-center justify-start">
                 <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
                 Connect With Farmers and Processors
               </li>
             </ul>
-            <p className="text-base md:text-lg text-gray-700 mt-4 italic text-center px-4">
+            <p className="text-base md:text-lg text-gray-700 mt-4 italic px-4 lg:px-0 max-w-md mx-auto">
               Built for Coconut Farmers, Traders and Players
             </p>
           </div>

@@ -94,10 +94,10 @@ export function CocotechRD() {
         {/* Content on top */}
         <div className="w-full space-y-6">
           <div>
-            <h2 className="text-xl md:text-2xl font-bold text-green-700 mb-0 flex items-center justify-center">
+            <h2 className="text-xl md:text-4xl font-bold text-green-700 mb-0 flex items-center justify-center">
               C<img src="/favicon.png" alt="o" className="h-3 md:h-4 inline-block mx-[-5px] mt-[6px] md:mt-[8px] ms-[1px] mr-[1px]" />co-Tech
             </h2>
-            <h3 className="text-lg md:text-xl font-bold text-gray-900 text-center">
+            <h3 className="text-lg md:text-2xl font-bold text-gray-900 text-center">
               Dehusking & Deshelling
             </h3>
           </div>
@@ -117,16 +117,18 @@ export function CocotechRD() {
               <p className="text-gray-600 mb-2 text-center px-2">
                 Fast, cost-effective coconut processing
               </p>
-              <ul className="space-y-0.5 text-gray-600 max-w-md mx-auto">
-                <li className="flex items-center justify-center">
+              <div className='flex'>
+                              <ul className="space-y-0.5 text-gray-600 max-w-md mx-auto">
+                <li className="flex items-center justify-start">
                   <span className="w-1 h-1 bg-green-500 rounded-full mr-1"></span>
                   500-900 coconuts/hour dehusked
                 </li>
-                <li className="flex items-center justify-center">
+                <li className="flex items-center justify-start">
                   <span className="w-1 h-1 bg-green-500 rounded-full mr-1"></span>
                   240-400 nuts/hour deshelled
                 </li>
               </ul>
+              </div>
               <p className="text-gray-600 mt-2 text-center px-2">
                 Ideal for smallholder farmers and processors who want to scale efficiently.
               </p>
@@ -134,7 +136,7 @@ export function CocotechRD() {
             <div className="flex justify-center">
               <a
                 href="/services"
-                className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-sm font-semibold hover:bg-green-800 transition"
+                className="bg-green-700 text-white px-6 md:px-10 py-3 md:py-4 rounded-full text-sm md:text-lg font-semibold hover:bg-green-800 transition mb-0 mt-0 md:mt-1 md:mb-1"
               >
                 Learn More
               </a>
