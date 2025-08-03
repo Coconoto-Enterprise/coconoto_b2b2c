@@ -11,12 +11,12 @@ export default function Footer() {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <img src="/Icon_green.png" alt="o" className="h-8 inline-block mx-[-6px] mt-[6px] ms-[1.5px] mr-[1.5px]" />
-              <span className="text-4xl font-bold">Coconoto</span>
+              <span className="text-4xl md:text-2xl font-bold">Coconoto</span>
             </div>
             <p className="text-gray-400 mb-4">
               Transforming B2B trade through innovation and trust.
             </p>
-            <div className="flex space-x-4 flex-wrap">
+            <div className="flex space-x-4 md:space-x-2 flex-wrap">
               <a href="https://m.facebook.com/p/Coconoto-100092422418297/" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-gray-600 transition-colors" aria-label="Facebook">
                 <FaFacebook className="h-6 w-6" />
               </a>
