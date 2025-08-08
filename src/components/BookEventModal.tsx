@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { supabase } from '../lib/supabase';
 import { X } from 'lucide-react';
 
 interface BookEventModalProps {
@@ -90,7 +91,7 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage(null);
@@ -100,40 +101,74 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
       setIsSubmitting(false);
       return;
     }
-    setSubmitMessage({ type: 'success', text: 'Your event request has been submitted!' });
-    setFormData({
-      fullName: '',
-      company: '',
-      email: '',
-      phone: '',
-      eventType: '',
-      eventTypeOther: '',
-      eventDate: '',
-      startTime: '',
-      endTime: '',
-      guests: '',
-      venue: '',
-      venueType: '',
-      servingStyle: [],
-      servingStyleCustom: '',
-      branding: '',
-      brandingFiles: '',
-      aesthetic: '',
-      additionalServices: [],
-      staffCount: '',
-      dietaryNeeds: '',
-      wasteHandling: [],
-      wasteHandlingOther: '',
-      budget: '',
-      notes: '',
-      contactMethod: '',
-      hearAbout: '',
-    });
-    setTimeout(() => {
-      onClose();
-      setSubmitMessage(null);
+    // Prepare data for Supabase
+    const insertData = {
+      full_name: formData.fullName,
+      company: formData.company,
+      email: formData.email,
+      phone: formData.phone,
+      event_type: formData.eventType,
+      event_type_other: formData.eventTypeOther,
+      event_date: formData.eventDate,
+      start_time: formData.startTime,
+      end_time: formData.endTime,
+      guests: formData.guests ? parseInt(formData.guests) : null,
+      venue: formData.venue,
+      venue_type: formData.venueType,
+      serving_style: formData.servingStyle,
+      serving_style_custom: formData.servingStyleCustom,
+      branding: formData.branding,
+      branding_files: formData.brandingFiles,
+      notes: formData.notes,
+      contact_method: formData.contactMethod,
+      hear_about: formData.hearAbout,
+    };
+    try {
+      const { error } = await supabase.from('book_event_requests').insert([insertData]);
+      if (error) {
+        console.error('Supabase insert error:', error);
+        setSubmitMessage({ type: 'error', text: `Submission failed. ${error.message || 'Please try again.'}` });
+        setIsSubmitting(false);
+        return;
+      }
+      setSubmitMessage({ type: 'success', text: 'Your event request has been submitted!' });
+      setFormData({
+        fullName: '',
+        company: '',
+        email: '',
+        phone: '',
+        eventType: '',
+        eventTypeOther: '',
+        eventDate: '',
+        startTime: '',
+        endTime: '',
+        guests: '',
+        venue: '',
+        venueType: '',
+        servingStyle: [],
+        servingStyleCustom: '',
+        branding: '',
+        brandingFiles: '',
+        aesthetic: '',
+        additionalServices: [],
+        staffCount: '',
+        dietaryNeeds: '',
+        wasteHandling: [],
+        wasteHandlingOther: '',
+        budget: '',
+        notes: '',
+        contactMethod: '',
+        hearAbout: '',
+      });
+      setTimeout(() => {
+        onClose();
+        setSubmitMessage(null);
+        setIsSubmitting(false);
+      }, 2000);
+    } catch (err) {
+      setSubmitMessage({ type: 'error', text: 'Submission failed. Please try again.' });
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -263,66 +298,12 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
                 )}
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Aesthetic</label>
-              <div className="flex flex-wrap gap-4">
-                {['Rustic/Eco-Friendly','Modern','Themed'].map(aesthetic => (
-                  <label key={aesthetic} className="flex items-center gap-2">
-                    <input type="radio" name="aesthetic" value={aesthetic} checked={formData.aesthetic === aesthetic} onChange={handleInputChange} /> {aesthetic}
-                  </label>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Additional Services Needed</label>
-              <div className="flex flex-wrap gap-4">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" name="additionalServices" value="Staff for serving" checked={formData.additionalServices.includes('Staff for serving')} onChange={handleInputChange} /> Staff for serving
-                  <input type="number" name="staffCount" value={formData.staffCount} onChange={handleInputChange} className="ml-2 px-2 py-1 border rounded" placeholder="Number of attendants" />
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" name="additionalServices" value="Coconut-themed decor" checked={formData.additionalServices.includes('Coconut-themed decor')} onChange={handleInputChange} /> Coconut-themed decor
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" name="additionalServices" value="Photography/video coverage" checked={formData.additionalServices.includes('Photography/video coverage')} onChange={handleInputChange} /> Photography/video coverage
-                </label>
-              </div>
-            </div>
+
           </div>
-          {/* Sustainability Preferences */}
-          <div className="space-y-4 pt-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Waste Handling</label>
-              <div className="flex flex-wrap gap-4">
-                {['Compostable serving materials','Recycling bins provided'].map(waste => (
-                  <label key={waste} className="flex items-center gap-2">
-                    <input type="checkbox" name="wasteHandling" value={waste} checked={formData.wasteHandling.includes(waste)} onChange={handleInputChange} /> {waste}
-                  </label>
-                ))}
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" name="wasteHandling" value="Other" checked={formData.wasteHandling.includes('Other')} onChange={handleInputChange} /> Other:
-                  <input type="text" name="wasteHandlingOther" value={formData.wasteHandlingOther} onChange={handleInputChange} className="ml-2 px-2 py-1 border rounded" placeholder="Specify" />
-                </label>
-              </div>
-            </div>
-          </div>
+
           {/* Budget & Special Requests */}
           <div className="space-y-4 pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Budget Range *</label>
-                <select name="budget" required value={formData.budget} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
-                  <option value="">Select range</option>
-                  <option value="$500–$1K">$500–$1K</option>
-                  <option value="$1K–$3K">$1K–$3K</option>
-                  <option value="$3K+">$3K+</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Special Dietary Needs</label>
-                <input type="text" name="dietaryNeeds" value={formData.dietaryNeeds} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all" placeholder="e.g., allergies" />
-              </div>
-            </div>
+            {/* Removed Budget Range and Special Dietary Needs fields */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
               <textarea name="notes" value={formData.notes} onChange={handleInputChange} rows={3} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none" placeholder="Any other requests or info..." />
