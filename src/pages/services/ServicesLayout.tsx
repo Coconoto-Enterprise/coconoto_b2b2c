@@ -14,11 +14,9 @@ export function ServicesLayout() {
     <div className="min-h-screen bg-gray-50">
       <ServicesHeader />
       <main>
-        <ServicesHero />
         <MachinesList />
         <BuildingSection />
         <ProductionSection />
-        <InvestmentSection />
         <CertificatesSection />
         <ServicesContact />
       </main>

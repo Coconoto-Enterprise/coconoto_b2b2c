@@ -1,7 +1,7 @@
 import { Machine } from './types';
 import deshellerImage from '../../../assets/IMG_20250311_180248.jpg';
 import dehuskerImage from '../../../assets/dehusking.jpg';
-import cocopeatImage from '../../../assets/cocpeat1.jpeg';
+import cocopeatImage from '../../../assets/coconut-milk.jpg';
 
 export const machines: Machine[] = [
   {
@@ -11,10 +11,10 @@ export const machines: Machine[] = [
     image: deshellerImage,
     features: [
       'Removes kernel cleanly from shell',
-      'Processes up to 3000 coconuts per hour',
+      'Processes up to 240-400 coconuts per hour',
       'Stainless steel construction',
-      'Low maintenance design',
-      'Available for purchase'
+      'Available for purchase : ₦1,000,000',
+      '60% Upfront 40% Payment on delivery'
     ]
   },
   {
@@ -31,14 +31,14 @@ export const machines: Machine[] = [
   },
   {
     id: 'cocopeat',
-    name: 'Cocopeat',
-    description: 'Premium cocopeat blocks and loose cocopeat for horticulture, gardening, and soil improvement. We sell high-quality cocopeat, not machinery or processing services.',
+    name: 'Coconut Milk Extractor (Automatic)',
+    description: 'Premium coconut milk extractor for efficient coconut milk production. We sell high-quality coconut milk extractors.',
     image: cocopeatImage,
     features: [
-      '100% natural and organic',
-      'Excellent water retention',
-      'Ideal for seed starting and potting mixes',
-      'Bulk and retail orders accepted'
+      'Pure stainless steel construction',
+      'Low maintenance design',
+      'Hydraulic press operation',
+      'Available for purchase on request'
     ]
   }
 ];
