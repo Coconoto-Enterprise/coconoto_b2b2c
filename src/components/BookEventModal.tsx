@@ -10,7 +10,6 @@ interface BookEventModalProps {
 export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
   type FormDataType = {
     fullName: string;
-    company: string;
     email: string;
     phone: string;
     eventType: string;
@@ -22,9 +21,6 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
     venue: string;
     venueType: string;
     servingStyle: string[];
-    servingStyleCustom: string;
-    branding: string;
-    brandingFiles: string;
     aesthetic: string;
     additionalServices: string[];
     staffCount: string;
@@ -33,13 +29,11 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
     wasteHandlingOther: string;
     budget: string;
     notes: string;
-    contactMethod: string;
     hearAbout: string;
   };
 
   const [formData, setFormData] = useState<FormDataType>({
     fullName: '',
-    company: '',
     email: '',
     phone: '',
     eventType: '',
@@ -51,9 +45,6 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
     venue: '',
     venueType: '',
     servingStyle: [],
-    servingStyleCustom: '',
-    branding: '',
-    brandingFiles: '',
     aesthetic: '',
     additionalServices: [],
     staffCount: '',
@@ -62,7 +53,6 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
     wasteHandlingOther: '',
     budget: '',
     notes: '',
-    contactMethod: '',
     hearAbout: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -104,7 +94,6 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
     // Prepare data for Supabase
     const insertData = {
       full_name: formData.fullName,
-      company: formData.company,
       email: formData.email,
       phone: formData.phone,
       event_type: formData.eventType,
@@ -116,11 +105,7 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
       venue: formData.venue,
       venue_type: formData.venueType,
       serving_style: formData.servingStyle,
-      serving_style_custom: formData.servingStyleCustom,
-      branding: formData.branding,
-      branding_files: formData.brandingFiles,
       notes: formData.notes,
-      contact_method: formData.contactMethod,
       hear_about: formData.hearAbout,
     };
     try {
@@ -134,7 +119,6 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
       setSubmitMessage({ type: 'success', text: 'Your event request has been submitted!' });
       setFormData({
         fullName: '',
-        company: '',
         email: '',
         phone: '',
         eventType: '',
@@ -146,9 +130,6 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
         venue: '',
         venueType: '',
         servingStyle: [],
-        servingStyleCustom: '',
-        branding: '',
-        brandingFiles: '',
         aesthetic: '',
         additionalServices: [],
         staffCount: '',
@@ -157,7 +138,6 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
         wasteHandlingOther: '',
         budget: '',
         notes: '',
-        contactMethod: '',
         hearAbout: '',
       });
       setTimeout(() => {
@@ -200,15 +180,11 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
                 <input type="text" name="fullName" required value={formData.fullName} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all" placeholder="Enter your full name" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Company/Organization</label>
-                <input type="text" name="company" value={formData.company} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all" placeholder="Enter company/organization" />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                 <input type="email" name="email" required value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all" placeholder="your@email.com" />
               </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
                 <input type="tel" name="phone" required value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all" placeholder="+234 800 000 0000" />
@@ -278,50 +254,15 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
                     <input type="checkbox" name="servingStyle" value={style} checked={formData.servingStyle.includes(style)} onChange={handleInputChange} /> {style}
                   </label>
                 ))}
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" name="servingStyle" value="Custom" checked={formData.servingStyle.includes('Custom')} onChange={handleInputChange} /> Custom:
-                  <input type="text" name="servingStyleCustom" value={formData.servingStyleCustom} onChange={handleInputChange} className="ml-2 px-2 py-1 border rounded" placeholder="Describe" />
-                </label>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Would you like custom-branded serving stations?</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2">
-                  <input type="radio" name="branding" value="Yes" checked={formData.branding === 'Yes'} onChange={handleInputChange} /> Yes
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="radio" name="branding" value="No" checked={formData.branding === 'No'} onChange={handleInputChange} /> No
-                </label>
-                {formData.branding === 'Yes' && (
-                  <input type="text" name="brandingFiles" value={formData.brandingFiles} onChange={handleInputChange} className="ml-2 px-2 py-1 border rounded" placeholder="Provide logo/files" />
-                )}
               </div>
             </div>
 
           </div>
 
           {/* Budget & Special Requests */}
-          <div className="space-y-4 pt-4">
-            {/* Removed Budget Range and Special Dietary Needs fields */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
-              <textarea name="notes" value={formData.notes} onChange={handleInputChange} rows={3} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none" placeholder="Any other requests or info..." />
-            </div>
-          </div>
+
           {/* Confirmation & Submission */}
           <div className="space-y-4 pt-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Contact Method</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2">
-                  <input type="radio" name="contactMethod" value="Email" checked={formData.contactMethod === 'Email'} onChange={handleInputChange} /> Email
-                </label>
-                <label className="flex items-center gap-2">
-                  <input type="radio" name="contactMethod" value="Phone" checked={formData.contactMethod === 'Phone'} onChange={handleInputChange} /> Phone
-                </label>
-              </div>
-            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">How did you hear about us?</label>
               <select name="hearAbout" value={formData.hearAbout} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
@@ -337,7 +278,15 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
               </select>
             </div>
           </div>
-          {/* Message Display */}
+
+                    <div className="space-y-4 pt-4">
+            {/* Removed Budget Range and Special Dietary Needs fields */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
+              <textarea name="notes" value={formData.notes} onChange={handleInputChange} rows={3} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none" placeholder="Any other requests or info..." />
+            </div>
+          </div>
+                    {/* Message Display */}
           {submitMessage && (
             <div className={`p-4 rounded-lg ${
               submitMessage.type === 'success' 

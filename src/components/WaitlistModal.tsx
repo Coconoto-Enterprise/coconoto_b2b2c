@@ -58,7 +58,8 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
       return;
     }
 
-    if (formData.products_interested.length === 0) {
+    // Only require products_interested for buyers (or both)
+    if ((formData.account_type === 'buyer' || formData.account_type === 'both') && formData.products_interested.length === 0) {
       setSubmitMessage({ type: 'error', text: 'Please select at least one product.' });
       setIsSubmitting(false);
       return;
@@ -153,7 +154,27 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     'Coconut Oil',
     'Coconut Fiber/Coir',
     'Cocopeat',
-    'Coconut Shell Products'
+    'Coconut Shell Products',
+    'Briquette charcoal',
+    'Biochar',
+    'Cocopot coconut husk'
+  ];
+
+  // Business type options by account type
+  const sellerBusinessTypes = [
+    { value: 'coconut_farm', label: 'Coconut Farm/Plantation' },
+    { value: 'processing_company', label: 'Coconut Processing Company' },
+    { value: 'wholesaler', label: 'Wholesaler/Distributor' },
+    { value: 'retailer', label: 'Retailer' },
+    { value: 'individual_farmer', label: 'Individual Farmer' }
+  ];
+  const buyerBusinessTypes = [
+    { value: 'food_beverage', label: 'Food & Beverage Company' },
+    { value: 'cosmetics', label: 'Cosmetics/Beauty Brand' },
+    { value: 'agriculture', label: 'Agriculture/Gardening Business' },
+    { value: 'manufacturing', label: 'Manufacturing Company' },
+    { value: 'retail_buyer', label: 'Retailer' },
+    { value: 'individual_consumer', label: 'Individual Consumer' }
   ];
 
   return (
@@ -275,7 +296,6 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                 <option value="">Select your role</option>
                 <option value="seller">Seller</option>
                 <option value="buyer">Buyer</option>
-                <option value="both">Both</option>
               </select>
             </div>
           </div>
@@ -332,125 +352,165 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
           {/* Business Specific Fields */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Business Information</h3>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Business Type
-              </label>
-              <select
-                name="business_type"
-                value={formData.business_type}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              >
-                <option value="">Select business type</option>
-                <optgroup label="For Sellers">
-                  <option value="coconut_farm">Coconut Farm/Plantation</option>
-                  <option value="processing_company">Coconut Processing Company</option>
-                  <option value="wholesaler">Wholesaler/Distributor</option>
-                  <option value="retailer">Retailer</option>
-                  <option value="individual_farmer">Individual Farmer</option>
-                </optgroup>
-                <optgroup label="For Buyers">
-                  <option value="food_beverage">Food & Beverage Company</option>
-                  <option value="cosmetics">Cosmetics/Beauty Brand</option>
-                  <option value="agriculture">Agriculture/Gardening Business</option>
-                  <option value="manufacturing">Manufacturing Company</option>
-                  <option value="retail_buyer">Retailer</option>
-                  <option value="individual_consumer">Individual Consumer</option>
-                </optgroup>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Products of Interest *
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {products.map((product) => (
-                  <label key={product} className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.products_interested.includes(product)}
-                      onChange={() => handleProductChange(product)}
-                      className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                    />
-                    <span className="text-sm text-gray-700">{product}</span>
-                  </label>
-                ))}
+            {/* Seller: Business Type only */}
+            {formData.account_type === 'seller' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Type
+                </label>
+                <select
+                  name="business_type"
+                  value={formData.business_type}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                >
+                  <option value="">Select business type</option>
+                  {sellerBusinessTypes.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
               </div>
-            </div>
+            )}
+            {/* Buyer: Primary Use Case only */}
+            {formData.account_type === 'buyer' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Primary Use Case
+                </label>
+                <select
+                  name="primary_use_case"
+                  value={formData.primary_use_case}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                >
+                  <option value="">Select primary use case</option>
+                  <option value="manufacturing">Manufacturing</option>
+                  <option value="resale">Resale</option>
+                  <option value="personal_use">Personal use</option>
+                  <option value="export">Export</option>
+                  <option value="processing">Processing</option>
+                  <option value="research">Research & Development</option>
+                </select>
+              </div>
+            )}
+            {/* Both: Show both fields */}
+            {formData.account_type === 'both' && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Business Type
+                  </label>
+                  <select
+                    name="business_type"
+                    value={formData.business_type}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  >
+                    <option value="">Select business type</option>
+                    {sellerBusinessTypes.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Primary Use Case
+                  </label>
+                  <select
+                    name="primary_use_case"
+                    value={formData.primary_use_case}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  >
+                    <option value="">Select primary use case</option>
+                    <option value="manufacturing">Manufacturing</option>
+                    <option value="resale">Resale</option>
+                    <option value="personal_use">Personal use</option>
+                    <option value="export">Export</option>
+                    <option value="processing">Processing</option>
+                    <option value="research">Research & Development</option>
+                  </select>
+                </div>
+              </>
+            )}
+            {/* Products of Interest and other fields for buyer or both */}
+            {(formData.account_type === 'buyer' || formData.account_type === 'both') && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Products of Interest *
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {products.map((product) => (
+                      <label key={product} className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.products_interested.includes(product)}
+                          onChange={() => handleProductChange(product)}
+                          className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                        />
+                        <span className="text-sm text-gray-700">{product}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Other Products (if not listed above)
-              </label>
-              <input
-                type="text"
-                name="products_other"
-                value={formData.products_other}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="Specify other coconut products..."
-              />
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Other Products (if not listed above)
+                  </label>
+                  <input
+                    type="text"
+                    name="products_other"
+                    value={formData.products_other}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    placeholder="Specify other coconut products..."
+                  />
+                </div>
+              </>
+            )}
+            {/* Seller fields for seller or both */}
+            {(formData.account_type === 'seller' || formData.account_type === 'both') && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Monthly Volume Capacity/Purchase
+                  </label>
+                  <select
+                    name="monthly_volume"
+                    value={formData.monthly_volume}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  >
+                    <option value="">Select volume range</option>
+                    <option value="less_than_1">Less than 1 ton</option>
+                    <option value="1_to_10">1-10 tons</option>
+                    <option value="10_to_50">10-50 tons</option>
+                    <option value="50_plus">50+ tons</option>
+                  </select>
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Monthly Volume Capacity/Purchase
-              </label>
-              <select
-                name="monthly_volume"
-                value={formData.monthly_volume}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              >
-                <option value="">Select volume range</option>
-                <option value="less_than_1">Less than 1 ton</option>
-                <option value="1_to_10">1-10 tons</option>
-                <option value="10_to_50">10-50 tons</option>
-                <option value="50_plus">50+ tons</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Years of Experience in Coconut Industry
-              </label>
-              <select
-                name="years_experience"
-                value={formData.years_experience}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              >
-                <option value="">Select experience level</option>
-                <option value="new">New to the industry</option>
-                <option value="1_to_3">1-3 years</option>
-                <option value="3_to_5">3-5 years</option>
-                <option value="5_to_10">5-10 years</option>
-                <option value="10_plus">10+ years</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Primary Use Case
-              </label>
-              <select
-                name="primary_use_case"
-                value={formData.primary_use_case}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              >
-                <option value="">Select primary use case</option>
-                <option value="manufacturing">Manufacturing</option>
-                <option value="resale">Resale</option>
-                <option value="personal_use">Personal use</option>
-                <option value="export">Export</option>
-                <option value="processing">Processing</option>
-                <option value="research">Research & Development</option>
-              </select>
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Years of Experience in Coconut Industry
+                  </label>
+                  <select
+                    name="years_experience"
+                    value={formData.years_experience}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  >
+                    <option value="">Select experience level</option>
+                    <option value="new">New to the industry</option>
+                    <option value="1_to_3">1-3 years</option>
+                    <option value="3_to_5">3-5 years</option>
+                    <option value="5_to_10">5-10 years</option>
+                    <option value="10_plus">10+ years</option>
+                  </select>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Additional Information */}
