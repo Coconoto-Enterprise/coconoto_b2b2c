@@ -114,6 +114,24 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
       });
 
       if (result.success) {
+        // Get current waitlist count from Supabase
+        let waitlistCount = 1;
+        try {
+          const { count } = await WaitlistService.getWaitlistCount?.();
+          if (typeof count === 'number') waitlistCount = count;
+        } catch (e) {}
+
+        // Send notification to Google Apps Script
+  fetch('/.netlify/functions/waitlist-proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            waitlistCount
+          })
+        });
+
         setSubmitMessage({ type: 'success', text: 'Thank you for joining our waitlist! We\'ll be in touch soon.' });
         // Reset form
         setFormData({

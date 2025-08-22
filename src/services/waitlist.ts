@@ -1,3 +1,4 @@
+// ...existing code...
 import { supabase } from '../lib/supabase'
 
 export interface WaitlistEntry {
