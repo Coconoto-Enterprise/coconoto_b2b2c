@@ -39,6 +39,17 @@ export function Contact() {
       setError('Submission failed. Please try again.');
     } else {
       setSuccess('Your message has been sent!');
+      // Send notification email via Netlify proxy
+      fetch('/.netlify/functions/waitlist-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          type: 'Contact Form',
+          details: form
+        })
+      });
       setForm({ name: '', phone: '', email: '', message: '' });
     }
   };

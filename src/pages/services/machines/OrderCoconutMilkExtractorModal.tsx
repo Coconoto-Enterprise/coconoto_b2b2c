@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { WaitlistService } from '../../../services/waitlist';
 
-interface WaitlistModalProps {
+interface OrderCoconutMilkExtractorModalProps {
   isOpen: boolean;
   onClose: () => void;
+  type: 'Automatic' | 'Manual';
 }
 
-export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
+export function OrderCoconutMilkExtractorModal({ isOpen, onClose, type }: OrderCoconutMilkExtractorModalProps) {
   const [formData, setFormData] = useState({
-    company: '',
-    contactName: '',
+    name: '',
     email: '',
     phone: '',
     quantity: '',
@@ -18,7 +17,6 @@ export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
     additionalRequirements: ''
   });
   const [quantityError, setQuantityError] = useState('');
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -36,15 +34,13 @@ export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
     }
   };
 
-  // Removed: handleProductChange and products_interested logic (no longer needed)
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage(null);
 
     // Validate required fields
-    if (!formData.company || !formData.contactName || !formData.email || !formData.phone || !formData.installationAddress) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.installationAddress) {
       setSubmitMessage({ type: 'error', text: 'Please fill in all required fields.' });
       setIsSubmitting(false);
       return;
@@ -57,21 +53,20 @@ export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
     setQuantityError('');
 
     // Simulate successful submission
-    setSubmitMessage({ type: 'success', text: 'Your machine order has been submitted!' });
+    setSubmitMessage({ type: 'success', text: `Your Coconut Milk Extractor (${type}) order has been submitted!` });
     // Send notification email via Netlify proxy
     fetch('/.netlify/functions/waitlist-proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: formData.contactName,
+        name: formData.name,
         email: formData.email,
-        type: 'Machine Order',
+        type: `Coconut Milk Extractor Order (${type})`,
         details: formData
       })
     });
     setFormData({
-      company: '',
-      contactName: '',
+      name: '',
       email: '',
       phone: '',
       quantity: '',
@@ -84,15 +79,6 @@ export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
       setIsSubmitting(false);
     }, 2000);
   };
-
-  const products = [
-    'Fresh Coconuts',
-    'Coconut Water',
-    'Coconut Oil',
-    'Coconut Fiber/Coir',
-    'Cocopeat',
-    'Coconut Shell Products'
-  ];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
@@ -112,7 +98,7 @@ export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
         <div className="sticky top-0 bg-white bg-opacity-90 border-b border-gray-100 p-6 rounded-t-2xl">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Request a Quote for Dehusking Machine</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Order Coconut Milk Extractor ({type})</h2>
               <p className="text-gray-600 mt-1">Complete the form below to place your order</p>
             </div>
             <button
@@ -130,31 +116,17 @@ export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Company Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
                 <input
                   type="text"
-                  name="company"
+                  name="name"
                   required
-                  value={formData.company}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                  placeholder="Enter your company name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Contact Name *</label>
-                <input
-                  type="text"
-                  name="contactName"
-                  required
-                  value={formData.contactName}
+                  value={formData.name}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                   placeholder="Enter your name"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                 <input
@@ -167,6 +139,8 @@ export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
                   placeholder="your@email.com"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
                 <input
@@ -179,8 +153,6 @@ export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
                   placeholder="+1 (555) 000-0000"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Quantity *</label>
                 <input
@@ -191,13 +163,12 @@ export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
                   value={formData.quantity}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                  placeholder="Enter quantity"
+                  placeholder="Enter quantity in Kg"
                 />
                 {quantityError && (
                   <p className="text-red-600 text-xs mt-1">{quantityError}</p>
                 )}
               </div>
-              <div></div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Installation Address *</label>

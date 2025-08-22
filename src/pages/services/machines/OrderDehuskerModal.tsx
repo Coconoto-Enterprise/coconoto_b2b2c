@@ -9,8 +9,7 @@ interface WaitlistModalProps {
 
 export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
   const [formData, setFormData] = useState({
-    company: '',
-    contactName: '',
+    name: '',
     email: '',
     phone: '',
     quantity: '',
@@ -44,7 +43,7 @@ export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
     setSubmitMessage(null);
 
     // Validate required fields
-    if (!formData.company || !formData.contactName || !formData.email || !formData.phone || !formData.installationAddress) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.installationAddress) {
       setSubmitMessage({ type: 'error', text: 'Please fill in all required fields.' });
       setIsSubmitting(false);
       return;
@@ -58,9 +57,19 @@ export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
 
     // Simulate successful submission
     setSubmitMessage({ type: 'success', text: 'Your machine order has been submitted!' });
+    // Send notification email via Netlify proxy
+    fetch('/.netlify/functions/waitlist-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        type: 'Machine Order',
+        details: formData
+      })
+    });
     setFormData({
-      company: '',
-      contactName: '',
+      name: '',
       email: '',
       phone: '',
       quantity: '',
@@ -119,31 +128,17 @@ export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Company Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
                 <input
                   type="text"
-                  name="company"
+                  name="name"
                   required
-                  value={formData.company}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                  placeholder="Enter your company name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Contact Name *</label>
-                <input
-                  type="text"
-                  name="contactName"
-                  required
-                  value={formData.contactName}
+                  value={formData.name}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                   placeholder="Enter your name"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                 <input
@@ -156,6 +151,8 @@ export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
                   placeholder="your@email.com"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
                 <input
@@ -168,8 +165,6 @@ export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
                   placeholder="+1 (555) 000-0000"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Quantity *</label>
                 <input
@@ -186,7 +181,6 @@ export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
                   <p className="text-red-600 text-xs mt-1">{quantityError}</p>
                 )}
               </div>
-              <div></div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Installation Address *</label>

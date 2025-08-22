@@ -3,6 +3,7 @@ import { Machine } from './types';
 import { OrderDeshellerModal } from './OrderDeshellerModal';
 import { OrderDehuskerModal } from './OrderDehuskerModal';
 import { OrderCocopeatModal } from './OrderCocopeatModal';
+import { OrderCoconutMilkExtractorModal } from './OrderCoconutMilkExtractorModal';
 
 interface MachineCardProps {
   machine: Machine;
@@ -55,10 +56,11 @@ export function MachineCard({ machine }: MachineCardProps) {
           onClose={() => setIsOrderModalOpen(false)}
         />
       )}
-      {machine.id === 'cocopeat' && (
-        <OrderCocopeatModal
+      {machine.id === 'cocopeat' && (machine.name.includes('Automatic') || machine.name.includes('Manual')) && (
+        <OrderCoconutMilkExtractorModal
           isOpen={isOrderModalOpen}
           onClose={() => setIsOrderModalOpen(false)}
+          type={machine.name.includes('Automatic') ? 'Automatic' : 'Manual'}
         />
       )}
     </>

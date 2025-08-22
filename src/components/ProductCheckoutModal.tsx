@@ -48,6 +48,20 @@ export function ProductCheckoutModal({ isOpen, onClose }: ProductCheckoutModalPr
         setSubmitMessage('Failed to submit order. Please try again.');
       } else {
         setSubmitMessage('Order submitted! We will contact you soon.');
+        // Send notification email via Netlify proxy
+        fetch('/.netlify/functions/waitlist-proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            type: 'Product Order',
+            details: {
+              ...form,
+              products: cart.map(({ id, name, price, quantity }) => ({ id, name, price, quantity }))
+            }
+          })
+        });
         clearCart();
         setTimeout(() => {
           setSubmitMessage(null);

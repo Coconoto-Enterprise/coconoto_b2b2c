@@ -21,12 +21,17 @@ export function ContactSellerModal({ isOpen, onClose, seller }: ContactSellerMod
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>();
 
   const onSubmit = (data: ContactFormData) => {
-    // Here you would typically send the message to your backend
-    console.log('Message sent:', {
-      seller: seller.email,
-      ...data
+    // Send notification email via Netlify proxy
+    fetch('/.netlify/functions/waitlist-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: seller.name,
+        email: seller.email,
+        type: 'Contact Seller',
+        details: data
+      })
     });
-    
     reset();
     onClose();
   };
