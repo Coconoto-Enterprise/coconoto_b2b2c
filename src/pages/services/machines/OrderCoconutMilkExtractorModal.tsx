@@ -1,5 +1,7 @@
+
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { supabase } from '../../../lib/supabase';
 
 interface OrderCoconutMilkExtractorModalProps {
   isOpen: boolean;
@@ -34,7 +36,7 @@ export function OrderCoconutMilkExtractorModal({ isOpen, onClose, type }: OrderC
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage(null);
@@ -52,19 +54,36 @@ export function OrderCoconutMilkExtractorModal({ isOpen, onClose, type }: OrderC
     }
     setQuantityError('');
 
-    // Simulate successful submission
-    setSubmitMessage({ type: 'success', text: `Your Coconut Milk Extractor (${type}) order has been submitted!` });
-    // Send notification email via Netlify proxy
-    fetch('/.netlify/functions/waitlist-proxy', {
+    // 1. Store in Supabase directly
+    const { error } = await supabase.from('machine_orders').insert([
+      {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        quantity: formData.quantity,
+        installation_address: formData.installationAddress,
+        additional_requirements: formData.additionalRequirements,
+        type: `Coconut Milk Extractor Order (${type})`,
+        submitted_at: new Date().toISOString()
+      }
+    ]);
+    if (error) {
+      setSubmitMessage({ type: 'error', text: 'Failed to submit order. Please try again.' });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // 2. Send notification email via Netlify proxy
+    fetch('/.netlify/functions/mail-proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        type: `Coconut Milk Extractor Order (${type})`,
-        details: formData
+        subject: `New Coconut Milk Extractor Order (${type})`,
+        message: `Coconut Milk Extractor order (${type}):\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nQuantity: ${formData.quantity}\nAddress: ${formData.installationAddress}\nRequirements: ${formData.additionalRequirements}`
       })
     });
+
+    setSubmitMessage({ type: 'success', text: `Your Coconut Milk Extractor (${type}) order has been submitted!` });
     setFormData({
       name: '',
       email: '',

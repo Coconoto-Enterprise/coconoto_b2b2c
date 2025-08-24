@@ -40,14 +40,12 @@ export function Contact() {
     } else {
       setSuccess('Your message has been sent!');
       // Send notification email via Netlify proxy
-      fetch('/.netlify/functions/waitlist-proxy', {
+      fetch('/.netlify/functions/mail-proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          type: 'Contact Form',
-          details: form
+          subject: 'New Contact Message',
+          message: `Contact message:\nName: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone}\nMessage: ${form.message}`
         })
       });
       setForm({ name: '', phone: '', email: '', message: '' });

@@ -49,17 +49,12 @@ export function ProductCheckoutModal({ isOpen, onClose }: ProductCheckoutModalPr
       } else {
         setSubmitMessage('Order submitted! We will contact you soon.');
         // Send notification email via Netlify proxy
-        fetch('/.netlify/functions/waitlist-proxy', {
+        fetch('/.netlify/functions/mail-proxy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name: form.name,
-            email: form.email,
-            type: 'Product Order',
-            details: {
-              ...form,
-              products: cart.map(({ id, name, price, quantity }) => ({ id, name, price, quantity }))
-            }
+            subject: 'New Product Order',
+            message: `Product order:\nName: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone}\nProducts: ${cart.map(p => `${p.name} (x${p.quantity})`).join(', ')}\nAddress: ${form.address}`
           })
         });
         clearCart();

@@ -122,13 +122,12 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
         } catch (e) {}
 
         // Send notification to Google Apps Script
-  fetch('/.netlify/functions/waitlist-proxy', {
+  fetch('/.netlify/functions/mail-proxy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            waitlistCount
+            subject: 'New Waitlist Signup',
+            message: `A new person joined the waitlist!\nName: ${formData.name}\nEmail: ${formData.email}\nCurrent waitlist count: ${waitlistCount}`
           })
         });
 

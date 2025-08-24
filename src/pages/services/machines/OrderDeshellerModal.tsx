@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { WaitlistService } from '../../../services/waitlist';
+import { supabase } from '../../../lib/supabase';
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -37,7 +37,7 @@ export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
 
   // Removed: handleProductChange and products_interested logic (no longer needed)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage(null);
@@ -55,19 +55,36 @@ export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
     }
     setQuantityError('');
 
-    // Simulate successful submission
-    setSubmitMessage({ type: 'success', text: 'Your machine order has been submitted!' });
-    // Send notification email via Netlify proxy
-    fetch('/.netlify/functions/waitlist-proxy', {
+    // 1. Store in Supabase directly
+    const { error } = await supabase.from('machine_orders').insert([
+      {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        quantity: formData.quantity,
+        installation_address: formData.installationAddress,
+        additional_requirements: formData.additionalRequirements,
+        type: 'Desheller Machine Order',
+        submitted_at: new Date().toISOString()
+      }
+    ]);
+    if (error) {
+      setSubmitMessage({ type: 'error', text: 'Failed to submit order. Please try again.' });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // 2. Send notification email via Netlify proxy
+    fetch('/.netlify/functions/mail-proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        type: 'Machine Order',
-        details: formData
+        subject: 'New Desheller Machine Order',
+        message: `Desheller order:\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nQuantity: ${formData.quantity}\nAddress: ${formData.installationAddress}\nRequirements: ${formData.additionalRequirements}`
       })
     });
+
+    setSubmitMessage({ type: 'success', text: 'Your machine order has been submitted!' });
     setFormData({
       name: '',
       email: '',
