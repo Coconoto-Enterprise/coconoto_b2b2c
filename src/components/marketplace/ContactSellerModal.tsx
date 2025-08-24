@@ -22,14 +22,12 @@ export function ContactSellerModal({ isOpen, onClose, seller }: ContactSellerMod
 
   const onSubmit = (data: ContactFormData) => {
     // Send notification email via Netlify proxy
-    fetch('/.netlify/functions/waitlist-proxy', {
+    fetch('/.netlify/functions/mail-proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: seller.name,
-        email: seller.email,
-        type: 'Contact Seller',
-        details: data
+        subject: 'Contact Seller Message',
+        message: `Contact seller:\nSeller: ${seller.name}\nSeller Email: ${seller.email}\nSubject: ${data.subject}\nMessage: ${data.message}\nUrgency: ${data.urgency}`
       })
     });
     reset();
