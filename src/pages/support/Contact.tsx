@@ -40,7 +40,7 @@ export function Contact() {
     } else {
       setSuccess('Your message has been sent!');
       // Send notification email via Netlify proxy
-      fetch('/.netlify/functions/mail-proxy', {
+  fetch('/.netlify/functions/mail-proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -74,7 +74,7 @@ export function OrderCoconutMilkExtractorModal({ isOpen, onClose, type }: OrderC
     }
 
     // 2. Send notification email via Netlify proxy
-    fetch('/.netlify/functions/mail-proxy', {
+  fetch('/.netlify/functions/mail-proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

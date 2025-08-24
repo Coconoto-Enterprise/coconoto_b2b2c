@@ -75,7 +75,7 @@ export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
     }
 
     // 2. Send notification email via Netlify proxy
-    fetch('/.netlify/functions/mail-proxy', {
+  fetch('/.netlify/functions/mail-proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

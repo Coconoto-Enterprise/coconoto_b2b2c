@@ -22,7 +22,7 @@ export function ContactSellerModal({ isOpen, onClose, seller }: ContactSellerMod
 
   const onSubmit = (data: ContactFormData) => {
     // Send notification email via Netlify proxy
-    fetch('/.netlify/functions/mail-proxy', {
+  fetch('/.netlify/functions/mail-proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

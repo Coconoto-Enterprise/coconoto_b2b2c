@@ -118,7 +118,7 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
       }
       setSubmitMessage({ type: 'success', text: 'Your event request has been submitted!' });
       // Send notification email via Netlify proxy
-      fetch('/.netlify/functions/mail-proxy', {
+  fetch('/.netlify/functions/mail-proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

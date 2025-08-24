@@ -49,7 +49,7 @@ export function ProductCheckoutModal({ isOpen, onClose }: ProductCheckoutModalPr
       } else {
         setSubmitMessage('Order submitted! We will contact you soon.');
         // Send notification email via Netlify proxy
-        fetch('/.netlify/functions/mail-proxy', {
+  fetch('/.netlify/functions/mail-proxy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

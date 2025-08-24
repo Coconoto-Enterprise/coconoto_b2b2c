@@ -59,7 +59,7 @@ export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
     // Simulate successful submission
     setSubmitMessage({ type: 'success', text: 'Your machine order has been submitted!' });
     // Send notification email via Netlify proxy
-    fetch('/.netlify/functions/mail-proxy', {
+  fetch('/.netlify/functions/mail-proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
