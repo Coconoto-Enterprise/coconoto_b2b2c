@@ -21,6 +21,7 @@ import { RFQList } from './components/marketplace/RFQList';
 import { About } from './components/About';
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
 import { ServicesLayout } from './pages/services/ServicesLayout';
+import { ProductLayout } from './pages/product/ProductLayout';
 import { EscrowLayout } from './pages/escrow/EscrowLayout';
 import PrivacyPolicy from './pages/policies/PrivacyPolicy';
 import TermsOfService from './pages/policies/TermsOfService';
@@ -50,6 +51,7 @@ function App() {
               </>
             } />
             <Route path="/services/*" element={<ServicesLayout />} />
+            <Route path="/product/*" element={<ProductLayout />} />
             <Route path="/escrow/*" element={<EscrowLayout />} />
             <Route path="/marketplace/*" element={<Marketplace />} />
             <Route path="/marketplace/rfqs" element={<RFQList />} />

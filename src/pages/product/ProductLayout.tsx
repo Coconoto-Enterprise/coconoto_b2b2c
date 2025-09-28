@@ -1,26 +1,26 @@
 import React from 'react';
-import { ServicesHeader } from './ServicesHeader';
-import { ServicesHero } from './ServicesHero';
-import { MachinesList } from './machines/MachinesList';
+import { ProductHeader } from './ProductHeader';
+import { ProductHero } from './ProductHero';
+import { ProductsList } from './products/ProductsList';
 import { BuildingSection } from './building/BuildingSection';
 import { ProductionSection } from './production/ProductionSection';
 import { InvestmentSection } from './investment/InvestmentSection';
 import { CertificatesSection } from './certificates/CertificatesSection';
-import { ServicesContact } from './ServicesContact';
-import { ServicesFooter } from './ServicesFooter';
+import { ProductContact } from './ProductContact';
+import { ProductFooter } from './ProductFooter';
 
-export function ServicesLayout() {
+export function ProductLayout() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <ServicesHeader />
+      <ProductHeader />
       <main>
-        <MachinesList />
+        <ProductsList />
         <BuildingSection />
         <ProductionSection />
         <CertificatesSection />
-        <ServicesContact />
+        <ProductContact />
       </main>
-      <ServicesFooter />
+      <ProductFooter />
     </div>
   );
 }

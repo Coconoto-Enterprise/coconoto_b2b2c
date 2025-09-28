@@ -61,6 +61,9 @@ export default function Navbar() {
               <Link to="/services" className="text-gray-600 hover:text-green-700">
                 Our Services
               </Link>
+              <Link to="/product" className="text-gray-600 hover:text-green-700">
+                Our Product
+              </Link>
               {user ? (
                 <Link to="/dashboard" className="text-gray-600 hover:text-green-700">
                   Dashboard
@@ -101,6 +104,13 @@ export default function Navbar() {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Our Services
+            </Link>
+            <Link 
+              to="/product" 
+              className="block py-2 text-gray-600 hover:text-green-700"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Our Product
             </Link>
             {user ? (
               <Link 
