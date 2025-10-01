@@ -73,15 +73,30 @@ export function OrderCoconutMilkExtractorModal({ isOpen, onClose, type }: OrderC
       return;
     }
 
-    // 2. Send notification email via Netlify proxy
-  fetch('/.netlify/functions/mail-proxy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subject: `New Coconut Milk Extractor Order (${type})`,
-        message: `Coconut Milk Extractor order (${type}):\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nQuantity: ${formData.quantity}\nAddress: ${formData.installationAddress}\nRequirements: ${formData.additionalRequirements}`
-      })
-    });
+    // 2. Send notification email via Resend API
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: `New Coconut Milk Extractor Order (${type}) - Coconoto`,
+          message: `New Coconut Milk Extractor Order Received:
+
+Type: ${type}
+Name: ${formData.name}
+Email: ${formData.email}
+Phone: ${formData.phone}
+Quantity: ${formData.quantity}
+Installation Address: ${formData.installationAddress}
+Additional Requirements: ${formData.additionalRequirements || 'None'}
+
+Order submitted at: ${new Date().toLocaleString()}`
+        })
+      });
+    } catch (emailError) {
+      console.error('Failed to send notification email:', emailError);
+      // Don't fail the entire process if email fails
+    }
 
     setSubmitMessage({ type: 'success', text: `Your Coconut Milk Extractor (${type}) order has been submitted!` });
     setFormData({

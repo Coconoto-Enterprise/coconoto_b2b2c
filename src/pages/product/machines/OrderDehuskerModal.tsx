@@ -75,15 +75,29 @@ export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
       return;
     }
 
-    // 2. Send notification email via Netlify proxy
-  fetch('/.netlify/functions/mail-proxy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subject: 'New Dehusker Machine Order',
-        message: `Dehusker order:\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nQuantity: ${formData.quantity}\nAddress: ${formData.installationAddress}\nRequirements: ${formData.additionalRequirements}`
-      })
-    });
+    // 2. Send notification email via Resend API
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: 'New Dehusker Service Request - Coconoto',
+          message: `New Dehusker Service Request Received:
+
+Name: ${formData.name}
+Email: ${formData.email}
+Phone: ${formData.phone}
+Quantity: ${formData.quantity}
+Installation Address: ${formData.installationAddress}
+Additional Requirements: ${formData.additionalRequirements || 'None'}
+
+Request submitted at: ${new Date().toLocaleString()}`
+        })
+      });
+    } catch (emailError) {
+      console.error('Failed to send notification email:', emailError);
+      // Don't fail the entire process if email fails
+    }
 
     setSubmitMessage({ type: 'success', text: 'Your machine order has been submitted!' });
     setFormData({

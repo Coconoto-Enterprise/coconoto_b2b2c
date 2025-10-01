@@ -20,16 +20,31 @@ interface ContactFormData {
 export function ContactSellerModal({ isOpen, onClose, seller }: ContactSellerModalProps) {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>();
 
-  const onSubmit = (data: ContactFormData) => {
-    // Send notification email via Netlify proxy
-  fetch('/.netlify/functions/mail-proxy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subject: 'Contact Seller Message',
-        message: `Contact seller:\nSeller: ${seller.name}\nSeller Email: ${seller.email}\nSubject: ${data.subject}\nMessage: ${data.message}\nUrgency: ${data.urgency}`
-      })
-    });
+  const onSubmit = async (data: ContactFormData) => {
+    // Send notification email via Resend API
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: 'Contact Seller Message - Coconoto',
+          message: `Contact Seller Message Received:
+
+Seller Information:
+Name: ${seller.name}
+Email: ${seller.email}
+
+Message Details:
+Subject: ${data.subject}
+Message: ${data.message}
+Urgency: ${data.urgency}
+
+Message sent at: ${new Date().toLocaleString()}`
+        })
+      });
+    } catch (emailError) {
+      console.error('Failed to send notification email:', emailError);
+    }
     reset();
     onClose();
   };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
+import { sendEmail } from '../../../utils/emailService';
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -55,34 +56,53 @@ export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
     }
     setQuantityError('');
 
-    // 1. Store in Supabase directly
-    const { error } = await supabase.from('machine_orders').insert([
-      {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        quantity: formData.quantity,
-        installation_address: formData.installationAddress,
-        additional_requirements: formData.additionalRequirements,
-        type: 'Desheller Machine Order',
-        submitted_at: new Date().toISOString()
+    // 1. Try to store in Supabase with retry logic
+    let supabaseSuccess = false;
+    try {
+      const { error } = await supabase.from('machine_orders').insert([
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          quantity: formData.quantity,
+          installation_address: formData.installationAddress,
+          additional_requirements: formData.additionalRequirements,
+          type: 'Desheller Machine Order',
+          submitted_at: new Date().toISOString()
+        }
+      ]);
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
       }
-    ]);
-    if (error) {
-      setSubmitMessage({ type: 'error', text: 'Failed to submit order. Please try again.' });
-      setIsSubmitting(false);
-      return;
+      
+      supabaseSuccess = true;
+    } catch (supabaseError) {
+      console.error('Failed to save to Supabase:', supabaseError);
+      // Continue with email notification even if Supabase fails
+      supabaseSuccess = false;
     }
 
-    // 2. Send notification email via Netlify proxy
-  fetch('/.netlify/functions/mail-proxy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subject: 'New Desheller Machine Order',
-        message: `Desheller order:\nName: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nQuantity: ${formData.quantity}\nAddress: ${formData.installationAddress}\nRequirements: ${formData.additionalRequirements}`
-      })
-    });
+    // 2. Send notification email
+    try {
+      await sendEmail(
+        'New Desheller Machine Order - Coconoto',
+        `New Desheller Machine Order Received:
+
+Name: ${formData.name}
+Email: ${formData.email}
+Phone: ${formData.phone}
+Quantity: ${formData.quantity}
+Installation Address: ${formData.installationAddress}
+Additional Requirements: ${formData.additionalRequirements || 'None'}
+
+Order submitted at: ${new Date().toLocaleString()}`
+      );
+    } catch (emailError) {
+      console.error('Failed to send notification email:', emailError);
+      // Don't fail the entire process if email fails
+    }
 
     setSubmitMessage({ type: 'success', text: 'Your machine order has been submitted!' });
     setFormData({

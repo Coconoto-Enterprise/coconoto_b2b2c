@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, ShoppingBag } from 'lucide-react';
 import { useProductCart } from './ProductCartContext';
 import { submitProductOrder } from '../services/productOrder';
+import { sendEmail } from '../utils/emailService';
 
 interface ProductCheckoutModalProps {
   isOpen: boolean;
@@ -48,15 +49,26 @@ export function ProductCheckoutModal({ isOpen, onClose }: ProductCheckoutModalPr
         setSubmitMessage('Failed to submit order. Please try again.');
       } else {
         setSubmitMessage('Order submitted! We will contact you soon.');
-        // Send notification email via Netlify proxy
-  fetch('/.netlify/functions/mail-proxy', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            subject: 'New Product Order',
-            message: `Product order:\nName: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone}\nProducts: ${cart.map(p => `${p.name} (x${p.quantity})`).join(', ')}\nAddress: ${form.address}`
-          })
-        });
+        // Send notification email via Resend API
+        try {
+          await sendEmail(
+            'New Product Order - Coconoto',
+            `New Product Order Received:
+
+Customer Details:
+Name: ${form.name}
+Email: ${form.email}
+Phone: ${form.phone}
+Delivery Address: ${form.address}
+
+Products Ordered:
+${cart.map(p => `- ${p.name} (x${p.quantity})`).join('\n')}
+
+Order submitted at: ${new Date().toLocaleString()}`
+          );
+        } catch (emailError) {
+          console.error('Failed to send notification email:', emailError);
+        }
         clearCart();
         setTimeout(() => {
           setSubmitMessage(null);

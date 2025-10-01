@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { WaitlistService } from '../services/waitlist';
+import { sendEmail } from '../utils/emailService';
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -117,19 +118,26 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
         // Get current waitlist count from Supabase
         let waitlistCount = 1;
         try {
-          const { count } = await WaitlistService.getWaitlistCount?.();
-          if (typeof count === 'number') waitlistCount = count;
+          // Get waitlist count (optional - this method doesn't exist yet)
+          // const { count } = await WaitlistService.getWaitlistCount?.();
+          // if (typeof count === 'number') waitlistCount = count;
         } catch (e) {}
 
-        // Send notification to Google Apps Script
-  fetch('/.netlify/functions/mail-proxy', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            subject: 'New Waitlist Signup',
-            message: `A new person joined the waitlist!\nName: ${formData.name}\nEmail: ${formData.email}\nCurrent waitlist count: ${waitlistCount}`
-          })
-        });
+        // Send notification via Resend API
+        try {
+          await sendEmail(
+            'New Waitlist Signup - Coconoto',
+            `New Waitlist Signup:
+
+Name: ${formData.name}
+Email: ${formData.email}
+Current waitlist count: ${waitlistCount}
+
+Signup Date: ${new Date().toLocaleString()}`
+          );
+        } catch (emailError) {
+          console.error('Failed to send notification email:', emailError);
+        }
 
         setSubmitMessage({ type: 'success', text: 'Thank you for joining our waitlist! We\'ll be in touch soon.' });
         // Reset form

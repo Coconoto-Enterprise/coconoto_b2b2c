@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
-import Navbar from '/src/components/Navbar';
-import Footer from '/src/components/Footer';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
 export function Contact() {
   const [form, setForm] = useState({
@@ -39,15 +39,26 @@ export function Contact() {
       setError('Submission failed. Please try again.');
     } else {
       setSuccess('Your message has been sent!');
-      // Send notification email via Netlify proxy
-  fetch('/.netlify/functions/mail-proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subject: 'New Contact Message',
-          message: `Contact message:\nName: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone}\nMessage: ${form.message}`
-        })
-      });
+      // Send notification email via Resend API
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subject: 'New Contact Form Submission - Coconoto',
+            message: `New Contact Form Submission:
+
+Name: ${form.name}
+Email: ${form.email}
+Phone: ${form.phone}
+Message: ${form.message}
+
+Submitted at: ${new Date().toLocaleString()}`
+          })
+        });
+      } catch (emailError) {
+        console.error('Failed to send notification email:', emailError);
+      }
       setForm({ name: '', phone: '', email: '', message: '' });
     }
   };

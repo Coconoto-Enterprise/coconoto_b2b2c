@@ -117,15 +117,31 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
         return;
       }
       setSubmitMessage({ type: 'success', text: 'Your event request has been submitted!' });
-      // Send notification email via Netlify proxy
-  fetch('/.netlify/functions/mail-proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subject: 'New Event Booking',
-          message: `Event booking:\nName: ${formData.fullName}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nEvent Type: ${formData.eventType}\nEvent Date: ${formData.eventDate}\nGuests: ${formData.guests}\nVenue: ${formData.venue}\nNotes: ${formData.notes}`
-        })
-      });
+      // Send notification email via Resend API
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subject: 'New Event Booking - Coconoto',
+            message: `New Event Booking Received:
+
+Event Details:
+Name: ${formData.fullName}
+Email: ${formData.email}
+Phone: ${formData.phone}
+Event Type: ${formData.eventType}
+Event Date: ${formData.eventDate}
+Number of Guests: ${formData.guests}
+Venue: ${formData.venue}
+Special Notes: ${formData.notes || 'None'}
+
+Booking submitted at: ${new Date().toLocaleString()}`
+          })
+        });
+      } catch (emailError) {
+        console.error('Failed to send notification email:', emailError);
+      }
       setFormData({
         fullName: '',
         email: '',

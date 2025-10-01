@@ -38,7 +38,7 @@ export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
 
   // Removed: handleProductChange and products_interested logic (no longer needed)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage(null);
@@ -58,15 +58,30 @@ export function OrderMachineModal({ isOpen, onClose }: WaitlistModalProps) {
 
     // Simulate successful submission
     setSubmitMessage({ type: 'success', text: 'Your machine order has been submitted!' });
-    // Send notification email via Netlify proxy
-  fetch('/.netlify/functions/mail-proxy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subject: 'New Machine Order',
-        message: `Machine order:\nCompany: ${formData.company}\nContact: ${formData.contactName}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nQuantity: ${formData.quantity}\nAddress: ${formData.installationAddress}\nRequirements: ${formData.additionalRequirements}`
-      })
-    });
+    // Send notification email via Resend API
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: 'New Machine Order - Coconoto',
+          message: `New Machine Order Received:
+
+Company: ${formData.company}
+Contact Person: ${formData.contactName}
+Email: ${formData.email}
+Phone: ${formData.phone}
+Quantity: ${formData.quantity}
+Installation Address: ${formData.installationAddress}
+Additional Requirements: ${formData.additionalRequirements || 'None'}
+
+Order submitted at: ${new Date().toLocaleString()}`
+        })
+      });
+    } catch (emailError) {
+      console.error('Failed to send notification email:', emailError);
+      // Don't fail the entire process if email fails
+    }
     setFormData({
       company: '',
       contactName: '',
