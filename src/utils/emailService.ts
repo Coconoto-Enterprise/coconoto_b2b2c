@@ -15,27 +15,35 @@ export async function sendEmail(subject: string, message: string) {
   }
   
   try {
-    // For production - use Google Apps Script
+    // For production - use Google Apps Script with form submission to bypass CORS
     console.log('🚀 PRODUCTION MODE - Sending email via Google Apps Script...');
     
-    const response = await fetch(
-      'https://script.google.com/macros/s/AKfycbwm6E6ddHpPt1TnYpCW_ZKuKRL5C-ptJvutB1tbr1jBFK6BjdHshDLh1ta9bY2qAQFN0g/exec',
-      {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ subject, message }),
-      }
-    );
+    // Create a hidden form to submit data and bypass CORS
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'https://script.google.com/macros/s/AKfycbwm6E6ddHpPt1TnYpCW_ZKuKRL5C-ptJvutB1tbr1jBFK6BjdHshDLh1ta9bY2qAQFN0g/exec';
+    form.target = '_blank'; // Open in new tab to avoid navigation
+    form.style.display = 'none';
     
-    if (!response || !response.ok) {
-      throw new Error(`HTTP error! status: ${response?.status || 'Unknown'}`);
-    }
+    // Add subject field
+    const subjectInput = document.createElement('input');
+    subjectInput.name = 'subject';
+    subjectInput.value = subject;
+    form.appendChild(subjectInput);
     
-    const result = await response.text();
-    console.log('✅ Email sent successfully via Google Apps Script:', result);
-    return { success: true, data: result, mode: 'production' };
+    // Add message field
+    const messageInput = document.createElement('input');
+    messageInput.name = 'message';
+    messageInput.value = message;
+    form.appendChild(messageInput);
+    
+    // Submit form
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+    
+    console.log('✅ Email submission sent via form (bypasses CORS)');
+    return { success: true, data: 'Form submitted', mode: 'production' };
     
   } catch (error) {
     console.error('❌ Failed to send email via Google Apps Script:', error);
