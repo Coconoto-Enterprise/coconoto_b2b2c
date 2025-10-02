@@ -4,6 +4,7 @@ import { Fragment } from 'react';
 import { useForm } from 'react-hook-form';
 import { X, AlertTriangle } from 'lucide-react';
 import { Seller } from '../../types/product';
+import { sendEmail } from '../../utils/emailService';
 
 interface ContactSellerModalProps {
   isOpen: boolean;
@@ -21,14 +22,11 @@ export function ContactSellerModal({ isOpen, onClose, seller }: ContactSellerMod
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>();
 
   const onSubmit = async (data: ContactFormData) => {
-    // Send notification email via Resend API
+    // Send notification email via Google Apps Script
     try {
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subject: 'Contact Seller Message - Coconoto',
-          message: `Contact Seller Message Received:
+      await sendEmail(
+        'Contact Seller Message - Coconoto',
+        `Contact Seller Message Received:
 
 Seller Information:
 Name: ${seller.name}
@@ -40,8 +38,8 @@ Message: ${data.message}
 Urgency: ${data.urgency}
 
 Message sent at: ${new Date().toLocaleString()}`
-        })
-      });
+        // Note: This form doesn't collect user email, so no customer confirmation
+      );
     } catch (emailError) {
       console.error('Failed to send notification email:', emailError);
     }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { X } from 'lucide-react';
 import { WaitlistService } from '../../../services/waitlist';
+import { sendEmail } from '../../../utils/emailService';
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -75,14 +76,11 @@ export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
       return;
     }
 
-    // 2. Send notification email via Resend API
+    // 2. Send notification email via Google Apps Script
     try {
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subject: 'New Dehusker Service Request - Coconoto',
-          message: `New Dehusker Service Request Received:
+      await sendEmail(
+        'New Dehusker Service Request - Coconoto',
+        `New Dehusker Service Request Received:
 
 Name: ${formData.name}
 Email: ${formData.email}
@@ -91,9 +89,9 @@ Quantity: ${formData.quantity}
 Installation Address: ${formData.installationAddress}
 Additional Requirements: ${formData.additionalRequirements || 'None'}
 
-Request submitted at: ${new Date().toLocaleString()}`
-        })
-      });
+Request submitted at: ${new Date().toLocaleString()}`,
+        formData.email // Send confirmation to customer
+      );
     } catch (emailError) {
       console.error('Failed to send notification email:', emailError);
       // Don't fail the entire process if email fails

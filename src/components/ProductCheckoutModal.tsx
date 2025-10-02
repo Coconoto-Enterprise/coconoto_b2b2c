@@ -64,7 +64,8 @@ Delivery Address: ${form.address}
 Products Ordered:
 ${cart.map(p => `- ${p.name} (x${p.quantity})`).join('\n')}
 
-Order submitted at: ${new Date().toLocaleString()}`
+Order submitted at: ${new Date().toLocaleString()}`,
+            form.email // Send confirmation to customer
           );
         } catch (emailError) {
           console.error('Failed to send notification email:', emailError);

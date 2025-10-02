@@ -133,7 +133,8 @@ Name: ${formData.name}
 Email: ${formData.email}
 Current waitlist count: ${waitlistCount}
 
-Signup Date: ${new Date().toLocaleString()}`
+Signup Date: ${new Date().toLocaleString()}`,
+            formData.email // Send confirmation to customer
           );
         } catch (emailError) {
           console.error('Failed to send notification email:', emailError);

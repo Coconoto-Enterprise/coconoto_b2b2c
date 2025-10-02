@@ -89,7 +89,8 @@ Quantity: ${formData.quantity}
 Installation Address: ${formData.installationAddress}
 Additional Requirements: ${formData.additionalRequirements || 'None'}
 
-Request submitted at: ${new Date().toLocaleString()}`
+Request submitted at: ${new Date().toLocaleString()}`,
+        formData.email // Send confirmation to customer
       );
     } catch (emailError) {
       console.error('Failed to send notification email:', emailError);

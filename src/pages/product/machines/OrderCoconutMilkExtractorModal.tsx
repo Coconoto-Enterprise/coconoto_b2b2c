@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
+import { sendEmail } from '../../../utils/emailService';
 
 interface OrderCoconutMilkExtractorModalProps {
   isOpen: boolean;
@@ -73,14 +74,11 @@ export function OrderCoconutMilkExtractorModal({ isOpen, onClose, type }: OrderC
       return;
     }
 
-    // 2. Send notification email via Resend API
+    // 2. Send notification email via Google Apps Script
     try {
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subject: `New Coconut Milk Extractor Order (${type}) - Coconoto`,
-          message: `New Coconut Milk Extractor Order Received:
+      await sendEmail(
+        `New Coconut Milk Extractor Order (${type}) - Coconoto`,
+        `New Coconut Milk Extractor Order Received:
 
 Type: ${type}
 Name: ${formData.name}
@@ -90,9 +88,9 @@ Quantity: ${formData.quantity}
 Installation Address: ${formData.installationAddress}
 Additional Requirements: ${formData.additionalRequirements || 'None'}
 
-Order submitted at: ${new Date().toLocaleString()}`
-        })
-      });
+Order submitted at: ${new Date().toLocaleString()}`,
+        formData.email // Send confirmation to customer
+      );
     } catch (emailError) {
       console.error('Failed to send notification email:', emailError);
       // Don't fail the entire process if email fails

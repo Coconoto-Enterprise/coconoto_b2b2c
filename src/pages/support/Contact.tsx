@@ -4,6 +4,7 @@ import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import { sendEmail } from '../../utils/emailService';
 
 export function Contact() {
   const [form, setForm] = useState({
@@ -39,23 +40,20 @@ export function Contact() {
       setError('Submission failed. Please try again.');
     } else {
       setSuccess('Your message has been sent!');
-      // Send notification email via Resend API
+      // Send notification email via Google Apps Script
       try {
-        await fetch('/api/send-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            subject: 'New Contact Form Submission - Coconoto',
-            message: `New Contact Form Submission:
+        await sendEmail(
+          'New Contact Form Submission - Coconoto',
+          `New Contact Form Submission:
 
 Name: ${form.name}
 Email: ${form.email}
 Phone: ${form.phone}
 Message: ${form.message}
 
-Submitted at: ${new Date().toLocaleString()}`
-          })
-        });
+Submitted at: ${new Date().toLocaleString()}`,
+          form.email // Send confirmation to customer
+        );
       } catch (emailError) {
         console.error('Failed to send notification email:', emailError);
       }

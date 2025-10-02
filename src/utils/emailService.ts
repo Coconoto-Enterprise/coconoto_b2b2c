@@ -1,4 +1,4 @@
-export async function sendEmail(subject: string, message: string) {
+export async function sendEmail(subject: string, message: string, customerEmail?: string) {
   const isDevelopment = window.location.hostname === 'localhost';
   
   if (isDevelopment) {
@@ -7,6 +7,9 @@ export async function sendEmail(subject: string, message: string) {
     console.log('📧 Subject:', subject);
     console.log('📄 Message:', message);
     console.log('📬 To: bamigboyeayomide095@gmail.com');
+    if (customerEmail) {
+      console.log('📬 Customer Email: ', customerEmail);
+    }
     console.log('⚠️ Note: CORS blocks Google Apps Script in development. This will work in production.');
     
     // Simulate delay
@@ -36,6 +39,14 @@ export async function sendEmail(subject: string, message: string) {
     messageInput.name = 'message';
     messageInput.value = message;
     form.appendChild(messageInput);
+    
+    // Add customer email if provided
+    if (customerEmail) {
+      const customerEmailInput = document.createElement('input');
+      customerEmailInput.name = 'customerEmail';
+      customerEmailInput.value = customerEmail;
+      form.appendChild(customerEmailInput);
+    }
     
     // Submit form
     document.body.appendChild(form);

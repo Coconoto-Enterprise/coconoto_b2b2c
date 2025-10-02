@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { WaitlistService } from '../../../services/waitlist';
+import { sendEmail } from '../../../utils/emailService';
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -38,7 +39,7 @@ export function OrderCocopeatModal({ isOpen, onClose }: WaitlistModalProps) {
 
   // Removed: handleProductChange and products_interested logic (no longer needed)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage(null);
@@ -56,7 +57,28 @@ export function OrderCocopeatModal({ isOpen, onClose }: WaitlistModalProps) {
     }
     setQuantityError('');
 
-    // Simulate successful submission
+    // Send notification email via Google Apps Script
+    try {
+      await sendEmail(
+        'New Cocopeat Equipment Order - Coconoto',
+        `New Cocopeat Equipment Order Received:
+
+Company: ${formData.company}
+Contact Name: ${formData.contactName}
+Email: ${formData.email}
+Phone: ${formData.phone}
+Quantity: ${formData.quantity}
+Installation Address: ${formData.installationAddress}
+Additional Requirements: ${formData.additionalRequirements || 'None'}
+
+Order submitted at: ${new Date().toLocaleString()}`,
+        formData.email // Send confirmation to customer
+      );
+    } catch (emailError) {
+      console.error('Failed to send notification email:', emailError);
+      // Don't fail the entire process if email fails
+    }
+
     setSubmitMessage({ type: 'success', text: 'Your machine order has been submitted!' });
     setFormData({
       company: '',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
+import { sendEmail } from '../../../utils/emailService';
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -74,14 +75,11 @@ export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
       return;
     }
 
-    // 2. Send notification email via Resend API
+    // 2. Send notification email via Google Apps Script
     try {
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subject: 'New Desheller Machine Order - Coconoto',
-          message: `New Desheller Machine Order Received:
+      await sendEmail(
+        'New Desheller Machine Order - Coconoto',
+        `New Desheller Machine Order Received:
 
 Name: ${formData.name}
 Email: ${formData.email}
@@ -90,9 +88,9 @@ Quantity: ${formData.quantity}
 Installation Address: ${formData.installationAddress}
 Additional Requirements: ${formData.additionalRequirements || 'None'}
 
-Order submitted at: ${new Date().toLocaleString()}`
-        })
-      });
+Order submitted at: ${new Date().toLocaleString()}`,
+        formData.email // Send confirmation to customer
+      );
     } catch (emailError) {
       console.error('Failed to send notification email:', emailError);
       // Don't fail the entire process if email fails

@@ -3,6 +3,7 @@ import { supabase } from '../../../lib/supabase';
 import { TrendingUp, Users, DollarSign, Globe } from 'lucide-react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
+import { sendEmail } from '../../../utils/emailService';
 
 export function InvestmentSection() {
   const [form, setForm] = useState({
@@ -42,6 +43,25 @@ export function InvestmentSection() {
       setError('Submission failed. Please try again.');
     } else {
       setSuccess('Your inquiry has been sent!');
+      // Send notification email via Google Apps Script
+      try {
+        await sendEmail(
+          'New Investment Inquiry - Coconoto Services',
+          `New Investment Inquiry Received:
+
+Full Name: ${form.fullName}
+Company Name: ${form.companyName}
+Email: ${form.email}
+Phone: ${form.phone}
+Investment Range: ${form.investmentRange}
+Message: ${form.message}
+
+Submitted at: ${new Date().toLocaleString()}`,
+          form.email // Send confirmation to customer
+        );
+      } catch (emailError) {
+        console.error('Failed to send notification email:', emailError);
+      }
       setForm({
         fullName: '',
         companyName: '',
