@@ -72,7 +72,7 @@ async function sendEmailViaInvisibleIframe(
     // Create invisible form
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = 'https://script.google.com/macros/s/AKfycbwm6E6ddHpPt1TnYpCW_ZKuKRL5C-ptJvutB1tbr1jBFK6BjdHshDLh1ta9bY2qAQFN0g/exec';
+    form.action = 'https://script.google.com/macros/s/AKfycbw4YgFvdWBy1bNlEo6PRjxEfV5VuNjJhCcbEG3QZkEMNTmUaTsQM6zedalp9a5WYH1dHg/exec';
     form.target = iframeName;
     form.style.display = 'none';
 
