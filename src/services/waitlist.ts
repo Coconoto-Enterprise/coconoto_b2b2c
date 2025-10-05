@@ -26,7 +26,7 @@ export interface WaitlistEntry {
 export class WaitlistService {
   static async addToWaitlist(entry: Omit<WaitlistEntry, 'id' | 'created_at'>): Promise<{ success: boolean; error?: string }> {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('waitlist')
         .insert([{
           name: entry.name,
@@ -47,7 +47,6 @@ export class WaitlistService {
           hear_about_us: entry.hear_about_us,
           additional_info: entry.additional_info
         }])
-        .select()
 
       if (error) {
         console.error('Supabase error:', error)
@@ -80,19 +79,25 @@ export class WaitlistService {
 
   static async checkEmailExists(email: string): Promise<boolean> {
     try {
-      const { data, error } = await supabase
+      // Clean and validate the email first
+      const cleanEmail = email.trim().toLowerCase();
+      
+      // Use count instead of single record to avoid 406 errors
+      const { count, error } = await supabase
         .from('waitlist')
-        .select('email')
-        .eq('email', email)
-        .single()
+        .select('*', { count: 'exact', head: true })
+        .eq('email', cleanEmail)
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found" error
+      if (error) {
         console.error('Error checking email:', error)
+        // Return false on error to allow signup attempt
+        return false
       }
 
-      return !!data
+      return (count ?? 0) > 0
     } catch (err) {
       console.error('Network error:', err)
+      // Return false on network error to allow signup attempt
       return false
     }
   }

@@ -32,6 +32,7 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #8CC63F;">
                 <tr>
                     <td align="center" style="padding: 25px 0;">
+                        <img src="https://coconoto-b2b2c.vercel.app/Logo_1.png" alt="Coconoto Logo" style="height: 40px; margin-bottom: 10px;" />
                         <h2 style="color: white; font-family: Arial, sans-serif; font-size: 18px; margin: 10px 0 0 0;">Thank you for choosing Coconoto!</h2>
                     </td>
                 </tr>
@@ -136,6 +137,7 @@ export function getBusinessEmailTemplate(
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 700px; background-color: #694C39;">
                 <tr>
                     <td align="left" style="padding: 15px 25px;">
+                        <img src="https://coconoto-b2b2c.vercel.app/Logo_1.png" alt="Coconoto Logo" style="height: 30px; margin-right: 15px; vertical-align: middle;" />
                         <span style="color: white; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">COCONOTO - INTERNAL NOTIFICATION</span>
                     </td>
                     <td align="right" style="padding: 15px 25px;">
