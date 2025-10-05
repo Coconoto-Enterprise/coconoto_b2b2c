@@ -1,11 +1,11 @@
-# Google Apps Script Update Instructions
+# Google Apps Script Update Instructions - Professional HTML Emails
 
-Your current Google Apps Script needs to be updated to send emails to both you and your customers.
+Your Google Apps Script needs to be updated to send professional HTML emails using your Coconoto templates.
 
 ## Current Google Apps Script URL
 https://script.google.com/macros/s/AKfycbwm6E6ddHpPt1TnYpCW_ZKuKRL5C-ptJvutB1tbr1jBFK6BjdHshDLh1ta9bY2qAQFN0g/exec
 
-## Updated Google Apps Script Code
+## Updated Google Apps Script Code with HTML Templates
 
 Replace your current Google Apps Script code with this updated version:
 
@@ -15,50 +15,59 @@ function doPost(e) {
     const params = e.parameter;
     const subject = params.subject || 'No Subject';
     const message = params.message || 'No Message';
-    const customerEmail = params.customerEmail; // New parameter for customer email
+    const customerEmail = params.customerEmail;
+    const customerName = params.customerName || 'Valued Customer';
+    const customerEmailHtml = params.customerEmailHtml;
     
     // Your business email
     const businessEmail = 'bamigboyeayomide095@gmail.com';
     
-    // Send notification to business owner
+    // Send HTML notification to business owner
     MailApp.sendEmail({
       to: businessEmail,
       subject: subject,
-      body: message
+      htmlBody: message, // Now sends professional HTML email
+      body: extractTextFromHtml(message) // Fallback plain text
     });
     
-    // If customer email is provided, send confirmation to customer
-    if (customerEmail) {
+    // If customer email is provided, send professional HTML confirmation
+    if (customerEmail && customerEmailHtml) {
       const customerSubject = 'Order Confirmation - Coconoto';
-      const customerMessage = `Dear Customer,
-
-Thank you for your interest in Coconoto! We have received your inquiry/order and will get back to you within 24 hours.
-
-Your submission details:
-${message}
-
-Best regards,
-The Coconoto Team
-
----
-This is an automated confirmation email. Please do not reply to this email.
-For questions, contact us at: bamigboyeayomide095@gmail.com`;
-
+      
       MailApp.sendEmail({
         to: customerEmail,
         subject: customerSubject,
-        body: customerMessage
+        htmlBody: customerEmailHtml, // Professional HTML template
+        body: `Dear ${customerName},
+
+Thank you for your interest in Coconoto! We have received your inquiry/order and will get back to you within 24 hours.
+
+Need immediate assistance?
+📞 +234 814 860 9051
+📧 bamigboyeayomide095@gmail.com
+🌐 www.coconoto.com
+
+Best regards,
+The Coconoto Customer Care Team
+Your trusted partner in coconut excellence
+
+---
+This is an automated confirmation email.
+© 2025 Coconoto Enterprise | All Rights Reserved`
       });
     }
     
     return ContentService
       .createTextOutput(JSON.stringify({
         success: true,
-        message: 'Emails sent successfully'
+        message: 'Professional HTML emails sent successfully',
+        businessEmail: businessEmail,
+        customerEmail: customerEmail || 'none'
       }))
       .setMimeType(ContentService.MimeType.JSON);
       
   } catch (error) {
+    Logger.log('Error sending email: ' + error.toString());
     return ContentService
       .createTextOutput(JSON.stringify({
         success: false,
@@ -68,10 +77,22 @@ For questions, contact us at: bamigboyeayomide095@gmail.com`;
   }
 }
 
+// Helper function to extract plain text from HTML (fallback)
+function extractTextFromHtml(html) {
+  if (!html) return '';
+  
+  // Simple HTML tag removal for plain text fallback
+  return html
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .trim();
+}
+
 function doGet(e) {
   return ContentService
     .createTextOutput(JSON.stringify({
-      status: 'Google Apps Script is working!'
+      status: 'Coconoto Professional Email System Active!',
+      features: ['HTML Business Notifications', 'HTML Customer Confirmations', 'Professional Templates']
     }))
     .setMimeType(ContentService.MimeType.JSON);
 }

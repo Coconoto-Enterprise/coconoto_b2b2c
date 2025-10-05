@@ -1,4 +1,13 @@
-export async function sendEmail(subject: string, message: string, customerEmail?: string) {
+import { getCustomerEmailTemplate, getBusinessEmailTemplate } from './emailTemplates';
+
+// Enhanced email service with HTML templates
+export async function sendEmail(
+  subject: string, 
+  message: string, 
+  customerEmail?: string,
+  customerName?: string,
+  orderType: string = 'Order'
+) {
   const isDevelopment = window.location.hostname === 'localhost';
   
   if (isDevelopment) {
@@ -9,6 +18,7 @@ export async function sendEmail(subject: string, message: string, customerEmail?
     console.log('📬 To: bamigboyeayomide095@gmail.com');
     if (customerEmail) {
       console.log('📬 Customer Email: ', customerEmail);
+      console.log('📬 Customer Name: ', customerName);
     }
     console.log('⚠️ Note: CORS blocks Google Apps Script in development. This will work in production.');
     
@@ -20,7 +30,7 @@ export async function sendEmail(subject: string, message: string, customerEmail?
   try {
     // For production - use invisible iframe method to bypass CORS without opening new tabs
     console.log('🚀 PRODUCTION MODE - Sending email via invisible iframe...');
-    return await sendEmailViaInvisibleIframe(subject, message, customerEmail);
+    return await sendEmailViaInvisibleIframe(subject, message, customerEmail, customerName, orderType);
     
   } catch (error) {
     console.error('❌ Failed to send email via Google Apps Script:', error);
@@ -35,7 +45,13 @@ export async function sendEmail(subject: string, message: string, customerEmail?
   }
 }
 
-async function sendEmailViaInvisibleIframe(subject: string, message: string, customerEmail?: string): Promise<{ success: boolean; mode: string }> {
+async function sendEmailViaInvisibleIframe(
+  subject: string, 
+  message: string, 
+  customerEmail?: string,
+  customerName?: string,
+  orderType?: string
+): Promise<{ success: boolean; mode: string }> {
   return new Promise((resolve, reject) => {
     // Create completely invisible iframe
     const iframe = document.createElement('iframe');
@@ -60,14 +76,40 @@ async function sendEmailViaInvisibleIframe(subject: string, message: string, cus
     form.target = iframeName;
     form.style.display = 'none';
 
+    // Prepare HTML email templates if customer email exists
+    let businessEmailHtml = message;
+    let customerEmailHtml = '';
+    
+    if (customerEmail && customerName) {
+      // Create HTML emails using templates
+      const customerInfo = { name: customerName, email: customerEmail };
+      const timestamp = new Date().toLocaleString();
+      
+      businessEmailHtml = getBusinessEmailTemplate(
+        subject,
+        customerInfo,
+        message,
+        timestamp,
+        'HIGH'
+      );
+      
+      customerEmailHtml = getCustomerEmailTemplate(
+        customerName,
+        message,
+        orderType || 'Request'
+      );
+    }
+
     // Add form fields
     const fields = [
       { name: 'subject', value: subject },
-      { name: 'message', value: message }
+      { name: 'message', value: businessEmailHtml },
     ];
     
     if (customerEmail) {
       fields.push({ name: 'customerEmail', value: customerEmail });
+      fields.push({ name: 'customerName', value: customerName || 'Valued Customer' });
+      fields.push({ name: 'customerEmailHtml', value: customerEmailHtml });
     }
 
     fields.forEach(field => {

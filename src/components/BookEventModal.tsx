@@ -135,7 +135,9 @@ Venue: ${formData.venue}
 Special Notes: ${formData.notes || 'None'}
 
 Booking submitted at: ${new Date().toLocaleString()}`,
-          formData.email // Send confirmation to customer
+          formData.email, // Send confirmation to customer
+          formData.fullName, // Customer name for personalization
+          'Event Booking' // Order type
         );
       } catch (emailError) {
         console.error('Failed to send notification email:', emailError);

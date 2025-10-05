@@ -65,7 +65,9 @@ Products Ordered:
 ${cart.map(p => `- ${p.name} (x${p.quantity})`).join('\n')}
 
 Order submitted at: ${new Date().toLocaleString()}`,
-            form.email // Send confirmation to customer
+            form.email, // Send confirmation to customer
+            form.name, // Customer name
+            'Product Order' // Order type
           );
         } catch (emailError) {
           console.error('Failed to send notification email:', emailError);

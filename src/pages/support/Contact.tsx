@@ -52,7 +52,9 @@ Phone: ${form.phone}
 Message: ${form.message}
 
 Submitted at: ${new Date().toLocaleString()}`,
-          form.email // Send confirmation to customer
+          form.email, // Send confirmation to customer
+          form.name, // Customer name
+          'Contact Inquiry' // Order type
         );
       } catch (emailError) {
         console.error('Failed to send notification email:', emailError);
