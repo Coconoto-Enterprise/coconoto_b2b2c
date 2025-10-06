@@ -56,13 +56,6 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
                         </div>
 
                         <p>
-                            <strong>What happens next?</strong><br>
-                            • Our team will review your request within 24 hours<br>
-                            • You'll receive a detailed response with pricing and availability<br>
-                            • We'll coordinate delivery based on your preferred timeline
-                        </p>
-
-                        <p>
                             <strong>Need immediate assistance?</strong><br>
                             📞 <strong>+234 814 860 9051</strong><br>
                             📧 <strong>bamigboyeayomide095@gmail.com</strong><br>
@@ -71,10 +64,67 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
 
                         <div style="background-color: #fff8e7; padding: 15px; border-radius: 5px; margin: 20px 0; border: 1px solid #f0d000;">
                             <p style="margin: 0; font-size: 14px; color: #b8860b;">
-                                <strong>💡 Did you know?</strong> Coconoto provides premium coconut products sourced directly from local farmers, ensuring quality and supporting sustainable agriculture.
+                                <strong>💡 Did you know?</strong><br>
+                                Coconoto provides premium coconut products sourced directly from local farmers, ensuring quality and supporting sustainable agriculture.
                             </p>
                         </div>
 
+                        <!-- Featured Products Section -->
+                        <div style="margin: 30px 0;">
+                            <h3 style="color: #618A42; text-align: center; margin-bottom: 25px; font-size: 20px;">🥥 Featured Premium Products</h3>
+                            
+                            <!-- Product Cards Container -->
+                            <table border="0" cellpadding="0" cellspacing="10" width="100%" style="margin: 20px 0;">
+                                <tr>
+                                    <!-- Product 1: Cocopeat -->
+                                    <td width="33%" style="vertical-align: top;">
+                                        <div style="background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                            <img src="https://www.coconoto.africa/assets/cocpeat1-03oJOxP8.jpeg" alt="Cocopeat" width="120" height="120" style="border-radius: 8px; object-fit: cover; margin-bottom: 10px;">
+                                            <h4 style="color: #694C39; margin: 10px 0 5px 0; font-size: 16px;">Cocopeat</h4>
+                                            <p style="font-size: 12px; color: #666; margin: 5px 0; line-height: 16px;">Nutrient‑rich growing medium.</p>
+                                            <div style="margin: 10px 0;">
+                                                <span style="color: #8CC63F; font-size: 18px; font-weight: bold;">₦5,000.</span>
+                                                <span style="color: #999; font-size: 12px;">/5KG</span>
+                                            </div>
+                                            <a href="https://www.coconoto.africa/product" style="background-color: #8CC63F; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;">Order Now</a>
+                                        </div>
+                                    </td>
+
+                                    <!-- Product 2: Fresh Coconut Water -->
+                                    <td width="33%" style="vertical-align: top;">
+                                        <div style="background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                            <img src="[COCONUT_WATER_IMAGE_URL]" alt="Fresh Coconut Water" width="120" height="120" style="border-radius: 8px; object-fit: cover; margin-bottom: 10px;">
+                                            <h4 style="color: #694C39; margin: 10px 0 5px 0; font-size: 16px;">Fresh Coconut Water</h4>
+                                            <p style="font-size: 12px; color: #666; margin: 5px 0; line-height: 16px;">100% natural coconut water. Refreshing and packed with electrolytes.</p>
+                                            <div style="margin: 10px 0;">
+                                                <span style="color: #8CC63F; font-size: 18px; font-weight: bold;">₦15,500.</span>
+                                                <span style="color: #999; font-size: 12px;">/1 Sack</span>
+                                            </div>
+                                            <a href="https://www.coconoto.africa/product" style="background-color: #8CC63F; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;">Order Now</a>
+                                        </div>
+                                    </td>
+
+                                    <!-- Product 3: Coconut Fiber -->
+                                    <td width="33%" style="vertical-align: top;">
+                                        <div style="background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                            <img src="https://www.coconoto.africa/assets/fiber-Cx0Hxqe5.jpeg" alt="Coconut Fiber" width="120" height="120" style="border-radius: 8px; object-fit: cover; margin-bottom: 10px;">
+                                            <h4 style="color: #694C39; margin: 10px 0 5px 0; font-size: 16px;">Coconut Fiber</h4>
+                                            <p style="font-size: 12px; color: #666; margin: 5px 0; line-height: 16px;">Premium coconut fiber. Ideal for gardening and crafts.</p>
+                                            <div style="margin: 10px 0;">
+                                                <span style="color: #8CC63F; font-size: 18px; font-weight: bold;">₦15,500</span>
+                                                <span style="color: #999; font-size: 12px;">/1 Sack</span>
+                                            </div>
+                                            <a href="https://www.coconoto.africa/product" style="background-color: #8CC63F; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;">Order Now</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- View All Products Link -->
+                            <div style="text-align: center; margin: 20px 0;">
+                                <a href="https://www.coconoto.africa/product" style="color: #8CC63F; text-decoration: none; font-weight: bold; font-size: 14px; border-bottom: 2px solid #8CC63F;">View All Products →</a>
+                            </div>
+                        </div>
                         <p style="margin-top: 30px;">
                             Warm regards,<br>
                             <strong>The Coconoto Customer Care Team</strong><br>

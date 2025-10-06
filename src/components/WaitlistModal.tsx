@@ -115,25 +115,12 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
       });
 
       if (result.success) {
-        // Get current waitlist count from Supabase
-        let waitlistCount = 1;
-        try {
-          // Get waitlist count (optional - this method doesn't exist yet)
-          // const { count } = await WaitlistService.getWaitlistCount?.();
-          // if (typeof count === 'number') waitlistCount = count;
-        } catch (e) {}
-
         // Send notification via Resend API
         try {
           await sendEmail(
             'New Waitlist Signup - Coconoto',
-            `New Waitlist Signup:
-
-Name: ${formData.name}
-Email: ${formData.email}
-Current waitlist count: ${waitlistCount}
-
-Signup Date: ${new Date().toLocaleString()}`,
+            `Name: ${formData.name}
+Email: ${formData.email}`,
             formData.email, // Send confirmation to customer
             formData.name, // Customer name
             'Waitlist Registration' // Order type
