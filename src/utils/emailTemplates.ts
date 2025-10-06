@@ -189,10 +189,16 @@ export function getBusinessEmailTemplate(
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 700px; background-color: #694C39;">
                 <tr>
                     <td align="center" style="padding: 15px 25px;">
-                        <div style="text-align: center;">
-                            <img src="https://www.coconoto.africa/assets/Logo_1-B3jf7GJB.png" alt="Coconoto Logo" style="height: 30px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" />
-                            <div style="color: white; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">New Waitlist Signup</div>
-                        </div>
+                        <img src="https://www.coconoto.africa/assets/Logo_1-B3jf7GJB.png" alt="Coconoto Logo" style="height: 30px;" />
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Title Section -->
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 700px; background-color: #ffffff; padding: 20px 25px 0 25px;">
+                <tr>
+                    <td align="center">
+                        <h1 style="color: #333333; font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; margin: 0 0 5px 0; text-decoration: underline;">New Waitlist Signup</h1>
                     </td>
                 </tr>
             </table>
@@ -202,9 +208,11 @@ export function getBusinessEmailTemplate(
                 <tr>
                     <td style="font-family: Arial, sans-serif; font-size: 14px; line-height: 20px; color: #333333;">
 
+                        <h2 style="color: #694C39; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; margin: 0 0 15px 0;">Customer Details:</h2>
+
                         <!-- Customer Information -->
-                        <div style="background-color: #f8f9fa; border-left: 4px solid #694C39; padding: 20px; margin: 20px 0;">
-                            <div style="font-family: monospace; font-size: 14px; line-height: 1.6; white-space: pre-line;">
+                        <div style="background-color: #f8f9fa; border-left: 4px solid #694C39; padding: 20px; margin: 0;">
+                            <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; white-space: pre-line;">
 ${orderDetails}
                             </div>
                         </div>
