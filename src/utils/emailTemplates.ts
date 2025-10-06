@@ -62,12 +62,7 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
                             🌐 <strong>www.coconoto.com</strong>
                         </p>
 
-                        <div style="background-color: #fff8e7; padding: 15px; border-radius: 5px; margin: 20px 0; border: 1px solid #f0d000;">
-                            <p style="margin: 0; font-size: 14px; color: #b8860b;">
-                                <strong>💡 Did you know?</strong><br>
-                                Coconoto provides premium coconut products sourced directly from local farmers, ensuring quality and supporting sustainable agriculture.
-                            </p>
-                        </div>
+
 
                         <!-- Featured Products Section -->
                         <div style="margin: 30px 0;">
@@ -81,7 +76,7 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
                                         <div style="background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                             <img src="https://www.coconoto.africa/assets/cocpeat1-03oJOxP8.jpeg" alt="Cocopeat" width="120" height="120" style="border-radius: 8px; object-fit: cover; margin-bottom: 10px;">
                                             <h4 style="color: #694C39; margin: 10px 0 5px 0; font-size: 16px;">Cocopeat</h4>
-                                            <p style="font-size: 12px; color: #666; margin: 5px 0; line-height: 16px;">Nutrient‑rich growing medium.</p>
+                                            <p style="font-size: 12px; color: #666; margin: 5px 0; line-height: 16px;">Natural and organic. Perfect for healthy plant growth.</p>
                                             <div style="margin: 10px 0;">
                                                 <span style="color: #8CC63F; font-size: 18px; font-weight: bold;">₦5,000.</span>
                                                 <span style="color: #999; font-size: 12px;">/5KG</span>
@@ -97,8 +92,8 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
                                             <h4 style="color: #694C39; margin: 10px 0 5px 0; font-size: 16px;">Cocopot</h4>
                                             <p style="font-size: 12px; color: #666; margin: 5px 0; line-height: 16px;">100% natural coconut water. Refreshing and packed with electrolytes.</p>
                                             <div style="margin: 10px 0;">
-                                                <span style="color: #8CC63F; font-size: 18px; font-weight: bold;">₦15,500.</span>
-                                                <span style="color: #999; font-size: 12px;">/1 Sack</span>
+                                                <span style="color: #8CC63F; font-size: 18px; font-weight: bold;">₦5,500.</span>
+                                                <span style="color: #999; font-size: 12px;">/1 POT</span>
                                             </div>
                                             <a href="https://www.coconoto.africa/product" style="background-color: #8CC63F; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;">Order Now</a>
                                         </div>
@@ -125,6 +120,14 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
                                 <a href="https://www.coconoto.africa/product" style="color: #8CC63F; text-decoration: none; font-weight: bold; font-size: 14px; border-bottom: 2px solid #8CC63F;">View All Products →</a>
                             </div>
                         </div>
+
+                                                <div style="background-color: #fff8e7; padding: 15px; border-radius: 5px; margin: 20px 0; border: 1px solid #f0d000;">
+                            <p style="margin: 0; font-size: 14px; color: #b8860b;">
+                                <strong>💡 Did you know?</strong><br>
+                                Coconoto provides premium coconut products sourced directly from local farmers, ensuring quality and supporting sustainable agriculture.
+                            </p>
+                        </div>
+
                         <p style="margin-top: 30px;">
                             Warm regards,<br>
                             <strong>The Coconoto Customer Care Team</strong><br>
