@@ -119,7 +119,7 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
         try {
           await sendEmail(
             'New Waitlist Signup - Coconoto',
-            `Name: ${formData.name}<br>Email: ${formData.email}`,
+            `Name: ${formData.name}<br>Email: ${formData.email}<br>Phone: ${formData.phone}`,
             formData.email, // Send confirmation to customer
             formData.name, // Customer name
             'Waitlist Registration' // Order type

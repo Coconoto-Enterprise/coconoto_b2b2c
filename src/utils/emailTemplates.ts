@@ -188,9 +188,11 @@ export function getBusinessEmailTemplate(
             <!-- Header -->
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 700px; background-color: #694C39;">
                 <tr>
-                    <td align="center" style="padding: 15px 25px;" colspan="2">
-                        <img src="https://www.coconoto.africa/assets/Logo_1-B3jf7GJB.png" alt="Coconoto Logo" style="height: 30px; margin-right: 15px; vertical-align: middle;" />
-                        <span style="color: white; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">New Waitlist Signup</span>
+                    <td align="center" style="padding: 15px 25px;">
+                        <div style="text-align: center;">
+                            <img src="https://www.coconoto.africa/assets/Logo_1-B3jf7GJB.png" alt="Coconoto Logo" style="height: 30px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" />
+                            <div style="color: white; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">New Waitlist Signup</div>
+                        </div>
                     </td>
                 </tr>
             </table>
