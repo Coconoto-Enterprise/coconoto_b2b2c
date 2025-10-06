@@ -45,7 +45,7 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
 
                         <h1 style="font-size: 24px; color: #618A42; margin: 0 0 20px 0;">Dear ${customerName},</h1>
 
-                        <p style="margin-bottom: 20px;">We appreciate your interest in Coconoto and are excited to assist you with your coconut product needs.</p>
+                        <p style="margin-bottom: 20px;">We appreciate your interest in Coco-Connect! Watch out for updates on our product offerings and launch.</p>
 
                         <!-- Order Details -->
                         <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #8CC63F;">
@@ -164,7 +164,6 @@ export function getBusinessEmailTemplate(
   timestamp: string,
   priority: string = 'HIGH'
 ): string {
-  const priorityColor = priority === 'HIGH' ? '#ff4444' : priority === 'MEDIUM' ? '#ffaa00' : '#8CC63F';
   
   return `
 <!DOCTYPE html>
@@ -189,23 +188,9 @@ export function getBusinessEmailTemplate(
             <!-- Header -->
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 700px; background-color: #694C39;">
                 <tr>
-                    <td align="left" style="padding: 15px 25px;">
+                    <td align="center" style="padding: 15px 25px;" colspan="2">
                         <img src="https://www.coconoto.africa/assets/Logo_1-B3jf7GJB.png" alt="Coconoto Logo" style="height: 30px; margin-right: 15px; vertical-align: middle;" />
-                        <span style="color: white; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">COCONOTO - INTERNAL NOTIFICATION</span>
-                    </td>
-                    <td align="right" style="padding: 15px 25px;">
-                        <div style="background-color: ${priorityColor}; color: white; padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: bold;">
-                            ${priority} PRIORITY
-                        </div>
-                    </td>
-                </tr>
-            </table>
-
-            <!-- Alert Banner -->
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 700px; background-color: #fff3cd; border-bottom: 3px solid #ffc107;">
-                <tr>
-                    <td style="padding: 15px 25px; font-family: Arial, sans-serif; font-size: 14px; color: #856404;">
-                        <strong>🚨 New Activity Alert:</strong> ${notificationType} | Time: ${timestamp} | Action Required: YES
+                        <span style="color: white; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">New Waitlist Signup</span>
                     </td>
                 </tr>
             </table>
@@ -215,43 +200,11 @@ export function getBusinessEmailTemplate(
                 <tr>
                     <td style="font-family: Arial, sans-serif; font-size: 14px; line-height: 20px; color: #333333;">
 
-                        <h2 style="font-size: 20px; color: #694C39; margin: 0 0 20px 0; border-bottom: 2px solid #8CC63F; padding-bottom: 10px;">
-                            ${notificationType}
-                        </h2>
-
-                        <!-- Key Information -->
+                        <!-- Customer Information -->
                         <div style="background-color: #f8f9fa; border-left: 4px solid #694C39; padding: 20px; margin: 20px 0;">
-                            <h3 style="color: #694C39; margin-top: 0; font-size: 16px;">Customer Details:</h3>
-                            <p style="margin: 5px 0;"><strong>Name:</strong> ${customerInfo.name || 'Not provided'}</p>
-                            <p style="margin: 5px 0;"><strong>Email:</strong> <a href="mailto:${customerInfo.email}">${customerInfo.email}</a></p>
-                            <p style="margin: 5px 0;"><strong>Phone:</strong> ${customerInfo.phone || 'Not provided'}</p>
-                        </div>
-
-                        <!-- Order Details -->
-                        <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #8CC63F;">
-                            <h3 style="color: #694C39; margin-top: 0;">Order/Request Details:</h3>
-                            <div style="font-family: monospace; font-size: 13px; line-height: 1.6; white-space: pre-line;">
+                            <div style="font-family: monospace; font-size: 14px; line-height: 1.6; white-space: pre-line;">
 ${orderDetails}
                             </div>
-                        </div>
-
-                        <!-- Action Items -->
-                        <div style="background-color: #e8f4fd; border: 1px solid #b8daff; border-radius: 5px; padding: 20px; margin: 20px 0;">
-                            <h3 style="color: #004085; margin-top: 0; font-size: 16px;">📋 Action Items Required:</h3>
-                            <ul style="margin: 10px 0; color: #004085;">
-                                <li>Review customer request details</li>
-                                <li>Prepare quote/response within 24 hours</li>
-                                <li>Follow up with customer via email or phone</li>
-                            </ul>
-                            <p style="margin-bottom: 0; font-weight: bold;">Deadline: Within 24 hours</p>
-                        </div>
-
-                        <!-- System Information -->
-                        <div style="background-color: #f8f8f8; padding: 15px; border-radius: 3px; margin: 20px 0; font-size: 12px; color: #666;">
-                            <strong>System Info:</strong> 
-                            Generated on ${timestamp} | 
-                            Source: Website Form | 
-                            Auto-notification from Coconoto System
                         </div>
 
                     </td>
