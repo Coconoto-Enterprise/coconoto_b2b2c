@@ -90,11 +90,11 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
                                         </div>
                                     </td>
 
-                                    <!-- Product 2: Fresh Coconut Water -->
+                                    <!-- Product 2: Cocopot -->
                                     <td width="33%" style="vertical-align: top;">
                                         <div style="background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                            <img src="[COCONUT_WATER_IMAGE_URL]" alt="Fresh Coconut Water" width="120" height="120" style="border-radius: 8px; object-fit: cover; margin-bottom: 10px;">
-                                            <h4 style="color: #694C39; margin: 10px 0 5px 0; font-size: 16px;">Fresh Coconut Water</h4>
+                                            <img src="https://www.coconoto.africa/assets/cocopot2-DJXRmWOe.jpg" alt="Cocopot" width="120" height="120" style="border-radius: 8px; object-fit: cover; margin-bottom: 10px;">
+                                            <h4 style="color: #694C39; margin: 10px 0 5px 0; font-size: 16px;">Cocopot</h4>
                                             <p style="font-size: 12px; color: #666; margin: 5px 0; line-height: 16px;">100% natural coconut water. Refreshing and packed with electrolytes.</p>
                                             <div style="margin: 10px 0;">
                                                 <span style="color: #8CC63F; font-size: 18px; font-weight: bold;">₦15,500.</span>
