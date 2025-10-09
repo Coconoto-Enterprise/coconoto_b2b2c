@@ -186,3 +186,40 @@ async function sendEmailViaInvisibleIframe(
     }
   });
 }
+
+// Test function to debug Google Apps Script connection
+export async function testEmailService(): Promise<void> {
+  const scriptUrl = 'https://script.google.com/macros/s/AKfycbyFcb-FowyS39lkPVUrAhLJe7ItLTqTqdCqvSyaf6e9KhouC8lY0EwXxjpp0gKAXqDvQg/exec';
+  
+  console.log('🧪 Testing Google Apps Script connection...');
+  console.log('🌐 Script URL:', scriptUrl);
+  
+  try {
+    const formData = new FormData();
+    formData.append('subject', 'Test Email from Coconoto');
+    formData.append('message', 'This is a test email to verify the connection is working.');
+    
+    console.log('📤 Sending test request...');
+    
+    const response = await fetch(scriptUrl, {
+      method: 'POST',
+      body: formData,
+      mode: 'no-cors'
+    });
+    
+    console.log('✅ Test request sent successfully');
+    console.log('📊 Response status:', response.status);
+    console.log('📋 Response type:', response.type);
+    console.log('🔗 Response:', response);
+    
+  } catch (error) {
+    console.error('❌ Test failed:', error);
+    if (error instanceof Error) {
+      console.error('🔍 Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+    }
+  }
+}
