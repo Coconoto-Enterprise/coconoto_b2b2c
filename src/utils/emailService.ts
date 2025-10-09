@@ -115,7 +115,9 @@ async function sendEmailViaInvisibleIframe(
       fields.push({ name: 'customerEmailHtml', value: customerEmailHtml });
     }
 
+    console.log('📋 Form fields being sent:');
     fields.forEach(field => {
+      console.log(`  - ${field.name}: ${field.value.substring(0, 100)}${field.value.length > 100 ? '...' : ''}`);
       const input = document.createElement('input');
       input.type = 'hidden';
       input.name = field.name;
