@@ -70,9 +70,12 @@ async function sendEmailViaInvisibleIframe(
     iframe.name = iframeName;
 
     // Create invisible form
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbyFcb-FowyS39lkPVUrAhLJe7ItLTqTqdCqvSyaf6e9KhouC8lY0EwXxjpp0gKAXqDvQg/exec';
+    console.log('🌐 Using Google Apps Script URL:', scriptUrl);
+    
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = 'https://script.google.com/macros/s/AKfycbyFcb-FowyS39lkPVUrAhLJe7ItLTqTqdCqvSyaf6e9KhouC8lY0EwXxjpp0gKAXqDvQg/exec';
+    form.action = scriptUrl;
     form.target = iframeName;
     form.style.display = 'none';
 
@@ -174,6 +177,9 @@ async function sendEmailViaInvisibleIframe(
       
       // Small delay to ensure iframe is ready
       setTimeout(() => {
+        console.log('📤 Form action URL:', form.action);
+        console.log('📤 Form target:', form.target);
+        console.log('📤 Form method:', form.method);
         form.submit();
         console.log('📤 Form submitted to invisible iframe');
       }, 100);
