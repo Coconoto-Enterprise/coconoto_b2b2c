@@ -86,39 +86,53 @@ export default async function handler(req, res) {
           }
         });
       } else {
-        // Test orders table specifically
-        const { data: orders, error: ordersError } = await supabase
-          .from('orders')
-          .select('*')
-          .limit(5);
+        // Test YOUR ACTUAL tables
+        const actualTables = ['machine_orders', 'waitlist', 'product_orders'];
+        let tablesStatus = [];
+        let totalOrders = 0;
 
-        if (ordersError) {
-          results.tests.push({
-            name: 'Supabase Orders Test',
-            status: 'warning',
-            details: {
-              connected: true,
-              tablesFound: tables?.map(t => t.table_name) || [],
-              ordersTableExists: false,
-              error: ordersError.message,
-              suggestion: 'Orders table may not exist. Create it or use a different table name.'
+        for (const tableName of actualTables) {
+          try {
+            const { data, error } = await supabase
+              .from(tableName)
+              .select('*', { count: 'exact' })
+              .limit(5);
+
+            if (!error) {
+              tablesStatus.push({
+                table: tableName,
+                status: 'exists',
+                count: data?.length || 0
+              });
+              totalOrders += data?.length || 0;
+            } else {
+              tablesStatus.push({
+                table: tableName,
+                status: 'error',
+                error: error.message
+              });
             }
-          });
-        } else {
-          results.tests.push({
-            name: 'Supabase Orders Test',
-            status: 'success',
-            details: {
-              connected: true,
-              ordersTableExists: true,
-              orderCount: orders?.length || 0,
-              orders: orders || [],
-              message: orders?.length > 0 
-                ? `Found ${orders.length} orders` 
-                : 'Table exists but no orders found'
-            }
-          });
+          } catch (err) {
+            tablesStatus.push({
+              table: tableName,
+              status: 'missing',
+              error: err.message
+            });
+          }
         }
+
+        results.tests.push({
+          name: 'Supabase Tables Test',
+          status: totalOrders > 0 ? 'success' : 'warning',
+          details: {
+            connected: true,
+            tables: tablesStatus,
+            totalOrders: totalOrders,
+            message: totalOrders > 0 
+              ? `Found ${totalOrders} total orders across your tables` 
+              : 'Connected but no orders found in your tables'
+          }
+        });
       }
     } catch (error) {
       console.error('❌ Supabase Error:', error);
