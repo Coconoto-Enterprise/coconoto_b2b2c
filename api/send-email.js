@@ -166,10 +166,14 @@ function getBusinessEmailTemplate(notificationType, customerInfo, orderDetails, 
 }
 
 module.exports = async function handler(req, res) {
-  // Add CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  console.log('🚀 API endpoint called:', req.method, req.url);
+  
+  try {
+    // Add CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Content-Type', 'application/json');
 
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
@@ -276,10 +280,36 @@ Form Data: ${JSON.stringify(formData, null, 2)}`,
 
   } catch (error) {
     console.error('❌ API Route - Email sending failed:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      code: error.code
+    });
     
+    // Make sure we always return valid JSON
+    res.setHeader('Content-Type', 'application/json');
     return res.status(500).json({ 
       success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      timestamp: new Date().toISOString(),
+      endpoint: 'send-email'
     });
   }
+} catch (criticalError) {
+  // Handle any errors that occur before we even get to the main logic
+  console.error('💥 Critical error in API handler:', criticalError);
+  try {
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(500).json({
+      success: false,
+      error: 'Critical server error',
+      message: criticalError.message,
+      timestamp: new Date().toISOString()
+    });
+  } catch (responseError) {
+    // If we can't even send JSON, send plain text
+    return res.status(500).send('Critical server error occurred');
+  }
+}
 }
