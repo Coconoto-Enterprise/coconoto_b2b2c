@@ -28,6 +28,8 @@ import TermsOfService from './pages/policies/TermsOfService';
 import CookiePolicy from './pages/policies/CookiePolicy';
 import { HelpCenter } from './pages/support/HelpCenter';
 import { Contact } from './pages/support/Contact';
+import VintageLogin from './pages/VintageLogin';
+import VintageDashboard from './pages/VintageDashboard';
 
 function App() {
   return (
@@ -69,6 +71,8 @@ function App() {
             <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/help-center" element={<HelpCenter />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/vintage" element={<VintageLogin />} />
+            <Route path="/vintage-dashboard" element={<VintageDashboard />} />
           </Routes>
         </div>
       </BrowserRouter>
