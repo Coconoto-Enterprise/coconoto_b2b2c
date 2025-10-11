@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { X } from 'lucide-react';
-import { sendEmail } from '../utils/emailService';
+import { sendEventBookingEmails } from '../utils/apiEmailService';
 
 interface BookEventModalProps {
   isOpen: boolean;
@@ -120,25 +120,14 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
       setSubmitMessage({ type: 'success', text: 'Your event request has been submitted!' });
       // Send notification email via Google Apps Script
       try {
-        await sendEmail(
-          'New Event Booking - Coconoto',
-          `New Event Booking Received:
-
-Event Details:
-Name: ${formData.fullName}
-Email: ${formData.email}
-Phone: ${formData.phone}
-Event Type: ${formData.eventType}
-Event Date: ${formData.eventDate}
-Number of Guests: ${formData.guests}
-Venue: ${formData.venue}
-Special Notes: ${formData.notes || 'None'}
-
-Booking submitted at: ${new Date().toLocaleString()}`,
-          formData.email, // Send confirmation to customer
-          formData.fullName, // Customer name for personalization
-          'Event Booking' // Order type
-        );
+        await sendEventBookingEmails({
+          customerName: formData.fullName,
+          customerEmail: formData.email,
+          eventType: `${formData.eventType} - ${formData.eventDate}`,
+          message: `Phone: ${formData.phone}, Guests: ${formData.guests}, Venue: ${formData.venue}`,
+          formType: 'Event Booking',
+          formData: formData
+        });
       } catch (emailError) {
         console.error('Failed to send notification email:', emailError);
       }

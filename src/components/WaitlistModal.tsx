@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { WaitlistService } from '../services/waitlist';
-import { sendEmail } from '../utils/resendEmailService';
+import { sendWaitlistEmails } from '../utils/apiEmailService';
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -117,13 +117,14 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
       if (result.success) {
         // Send notification via Resend API
         try {
-          await sendEmail(
-            'New Waitlist Signup - Coconoto',
-            `Name: ${formData.name}<br>Email: ${formData.email}<br>Phone: ${formData.phone}`,
-            formData.email, // Send confirmation to customer
-            formData.name, // Customer name
-            'Waitlist Registration' // Order type
-          );
+          await sendWaitlistEmails({
+            customerName: formData.name,
+            customerEmail: formData.email,
+            eventType: 'Waitlist Registration',
+            message: `Phone: ${formData.phone}, Company: ${formData.company}`,
+            formType: 'Waitlist Signup',
+            formData: formData
+          });
         } catch (emailError) {
           console.error('Failed to send notification email:', emailError);
         }
