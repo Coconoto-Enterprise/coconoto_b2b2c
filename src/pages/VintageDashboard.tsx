@@ -143,12 +143,12 @@ const VintageDashboard: React.FC = () => {
   };
 
   // Filter emails by type
-  const customerEmails = emails.filter(email => 
-    email.from.includes('support@') || email.to.some(recipient => !recipient.includes('coconoto'))
-  );
-  const businessEmails = emails.filter(email => 
-    email.from.includes('team@') || email.to.some(recipient => recipient.includes('coconoto'))
-  );
+  const customerEmails = Array.isArray(emails) ? emails.filter(email => 
+    email?.from?.includes('support@') || email?.to?.some(recipient => !recipient.includes('coconoto'))
+  ) : [];
+  const businessEmails = Array.isArray(emails) ? emails.filter(email => 
+    email?.from?.includes('team@') || email?.to?.some(recipient => recipient.includes('coconoto'))
+  ) : [];
 
   useEffect(() => {
     fetchData();
@@ -243,7 +243,7 @@ const VintageDashboard: React.FC = () => {
                 <div className="flex items-center">
                   <Mail className="h-8 w-8 text-blue-600" />
                   <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{emails.length}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">{Array.isArray(emails) ? emails.length : 0}</h3>
                     <p className="text-gray-600">Total Emails</p>
                   </div>
                 </div>
@@ -263,7 +263,7 @@ const VintageDashboard: React.FC = () => {
                 <div className="flex items-center">
                   <ShoppingCart className="h-8 w-8 text-purple-600" />
                   <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{orders.length}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">{Array.isArray(orders) ? orders.length : 0}</h3>
                     <p className="text-gray-600">Total Orders</p>
                   </div>
                 </div>
@@ -274,9 +274,9 @@ const VintageDashboard: React.FC = () => {
                   <Calendar className="h-8 w-8 text-orange-600" />
                   <div className="ml-4">
                     <h3 className="text-2xl font-bold text-gray-900">
-                      {emails.filter(e => 
-                        new Date(e.created_at).toDateString() === new Date().toDateString()
-                      ).length}
+                      {Array.isArray(emails) ? emails.filter(e => 
+                        e?.created_at && new Date(e.created_at).toDateString() === new Date().toDateString()
+                      ).length : 0}
                     </h3>
                     <p className="text-gray-600">Today's Activity</p>
                   </div>
@@ -291,17 +291,19 @@ const VintageDashboard: React.FC = () => {
                   <h2 className="text-lg font-semibold text-gray-900">Recent Emails</h2>
                 </div>
                 <div className="p-6">
-                  {emails.slice(0, 5).map((email) => (
-                    <div key={email.id} className="flex items-center justify-between py-3 border-b last:border-b-0">
+                  {Array.isArray(emails) && emails.length > 0 ? emails.slice(0, 5).map((email) => (
+                    <div key={email?.id || Math.random()} className="flex items-center justify-between py-3 border-b last:border-b-0">
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{email.subject}</p>
-                        <p className="text-xs text-gray-500">{email.to.join(', ')}</p>
+                        <p className="text-sm font-medium text-gray-900">{email?.subject || 'No Subject'}</p>
+                        <p className="text-xs text-gray-500">{email?.to ? email.to.join(', ') : 'No recipients'}</p>
                       </div>
-                      <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(email.last_event)}`}>
-                        {email.last_event}
+                      <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(email?.last_event || 'unknown')}`}>
+                        {email?.last_event || 'Unknown'}
                       </span>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-center text-gray-500 py-4">No emails yet</div>
+                  )}
                 </div>
               </div>
 
@@ -310,17 +312,19 @@ const VintageDashboard: React.FC = () => {
                   <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
                 </div>
                 <div className="p-6">
-                  {orders.slice(0, 5).map((order) => (
-                    <div key={order.id} className="flex items-center justify-between py-3 border-b last:border-b-0">
+                  {Array.isArray(orders) && orders.length > 0 ? orders.slice(0, 5).map((order) => (
+                    <div key={order?.id || Math.random()} className="flex items-center justify-between py-3 border-b last:border-b-0">
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{order.customer_name}</p>
-                        <p className="text-xs text-gray-500">{order.product_type} x{order.quantity}</p>
+                        <p className="text-sm font-medium text-gray-900">{order?.customer_name || 'Unknown Customer'}</p>
+                        <p className="text-xs text-gray-500">{order?.product_type || 'Unknown'} x{order?.quantity || 0}</p>
                       </div>
-                      <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}>
-                        {order.status}
+                      <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order?.status || 'unknown')}`}>
+                        {order?.status || 'Unknown'}
                       </span>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-center text-gray-500 py-4">No orders yet</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -345,19 +349,19 @@ const VintageDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {customerEmails.map((email) => (
-                    <tr key={email.id} className="hover:bg-gray-50">
+                  {customerEmails.length > 0 ? customerEmails.map((email) => (
+                    <tr key={email?.id || Math.random()} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">{email.subject || 'No Subject'}</div>
-                        <div className="text-sm text-gray-500">From: {email.from}</div>
+                        <div className="text-sm font-medium text-gray-900">{email?.subject || 'No Subject'}</div>
+                        <div className="text-sm text-gray-500">From: {email?.from || 'Unknown'}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{email.to.join(', ')}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{email?.to ? email.to.join(', ') : 'No recipients'}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(email.last_event)}`}>
-                          {email.last_event}
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(email?.last_event || 'unknown')}`}>
+                          {email?.last_event || 'Unknown'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{formatDate(email.created_at)}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{email?.created_at ? formatDate(email.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <button 
                           onClick={() => setSelectedEmail(email)}
@@ -368,7 +372,13 @@ const VintageDashboard: React.FC = () => {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                  )) : (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                        No customer emails found
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -393,19 +403,19 @@ const VintageDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {businessEmails.map((email) => (
-                    <tr key={email.id} className="hover:bg-gray-50">
+                  {businessEmails.length > 0 ? businessEmails.map((email) => (
+                    <tr key={email?.id || Math.random()} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">{email.subject || 'No Subject'}</div>
-                        <div className="text-sm text-gray-500">From: {email.from}</div>
+                        <div className="text-sm font-medium text-gray-900">{email?.subject || 'No Subject'}</div>
+                        <div className="text-sm text-gray-500">From: {email?.from || 'Unknown'}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{email.to.join(', ')}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{email?.to ? email.to.join(', ') : 'No recipients'}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(email.last_event)}`}>
-                          {email.last_event}
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(email?.last_event || 'unknown')}`}>
+                          {email?.last_event || 'Unknown'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{formatDate(email.created_at)}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{email?.created_at ? formatDate(email.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <button 
                           onClick={() => setSelectedEmail(email)}
@@ -416,7 +426,13 @@ const VintageDashboard: React.FC = () => {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                  )) : (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                        No business emails found
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -442,25 +458,31 @@ const VintageDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {orders.map((order) => (
-                    <tr key={order.id} className="hover:bg-gray-50">
+                  {Array.isArray(orders) && orders.length > 0 ? orders.map((order) => (
+                    <tr key={order?.id || Math.random()} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">{order.customer_name}</div>
-                        <div className="text-sm text-gray-500">{order.customer_email}</div>
+                        <div className="text-sm font-medium text-gray-900">{order?.customer_name || 'Unknown Customer'}</div>
+                        <div className="text-sm text-gray-500">{order?.customer_email || 'No email'}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{order.product_type}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{order.quantity}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{order?.product_type || 'Unknown Product'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{order?.quantity || 0}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}>
-                          {order.status}
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order?.status || 'unknown')}`}>
+                          {order?.status || 'Unknown'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{formatDate(order.created_at)}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{order?.created_at ? formatDate(order.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        ${order.total_amount?.toFixed(2) || 'N/A'}
+                        ${order?.total_amount?.toFixed(2) || 'N/A'}
                       </td>
                     </tr>
-                  ))}
+                  )) : (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                        No orders found
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
