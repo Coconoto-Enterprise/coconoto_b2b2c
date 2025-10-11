@@ -50,9 +50,9 @@ export default async function handler(req, res) {
     // Send business notification
     console.log('📤 Sending business notification...');
     
-    // Use your verified custom domain
+    // Use your VERIFIED domain (same as Supabase SMTP)
     const businessResult = await resend.emails.send({
-      from: 'Coconoto <notifications@send.coconoto.africa>',
+      from: 'Coconoto <team@coconoto.africa>',
       to: ['info@coconoto.africa'],
       subject: `New ${formType} - ${customerName}`,
       html: businessEmailHtml,
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
       
       // Use your verified custom domain
       const customerResult = await resend.emails.send({
-        from: 'Coconoto <hello@send.coconoto.africa>',
+        from: 'Coconoto <support@coconoto.africa>',
         to: [customerEmail],
         subject: 'Thank you for your interest - Coconoto',
         html: customerEmailHtml,
