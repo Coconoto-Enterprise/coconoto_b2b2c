@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     // Send business notification
     console.log('📤 Sending business notification...');
     const businessResult = await resend.emails.send({
-      from: 'Coconoto <onboarding@resend.dev>',
+      from: 'Coconoto <notifications@send.coconoto.africa>',
       to: ['info@coconoto.africa'],
       subject: `New ${formType} - ${customerName}`,
       html: businessEmailHtml,
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
     if (customerEmail && customerName) {
       console.log('📤 Sending customer confirmation...');
       const customerResult = await resend.emails.send({
-        from: 'Coconoto <onboarding@resend.dev>',
+        from: 'Coconoto <hello@send.coconoto.africa>',
         to: [customerEmail],
         subject: 'Thank you for your interest - Coconoto',
         html: customerEmailHtml,
