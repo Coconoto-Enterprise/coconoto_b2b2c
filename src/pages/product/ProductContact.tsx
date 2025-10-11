@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
-import { sendEmail } from '../../utils/emailService';
+import { sendContactEmails } from '../../utils/apiEmailService';
 
 export function ProductContact() {
   const [form, setForm] = useState({
@@ -40,18 +40,14 @@ export function ProductContact() {
       setSuccess('Your message has been sent!');
       // Send notification email via Google Apps Script
       try {
-        await sendEmail(
-          'New Product Contact Form Submission - Coconoto',
-          `New Product Contact Form Submission:
-
-Name: ${form.name}
-Email: ${form.email}
-Phone: ${form.phone}
-Message: ${form.message}
-
-Submitted at: ${new Date().toLocaleString()}`,
-          form.email // Send confirmation to customer
-        );
+        await sendContactEmails({
+          customerName: form.name,
+          customerEmail: form.email,
+          eventType: 'Product Inquiry',
+          message: `Phone: ${form.phone}, Message: ${form.message}`,
+          formType: 'Product Contact',
+          formData: form
+        });
       } catch (emailError) {
         console.error('Failed to send notification email:', emailError);
       }
