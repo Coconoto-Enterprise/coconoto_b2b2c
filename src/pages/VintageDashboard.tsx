@@ -194,16 +194,56 @@ const VintageDashboard: React.FC = () => {
               <button
                 onClick={async () => {
                   try {
-                    const response = await fetch('/api/env-check');
+                    const response = await fetch('/api/debug-services');
                     const data = await response.json();
-                    alert(`Environment Check:\n${JSON.stringify(data.environment, null, 2)}`);
-                  } catch (err) {
-                    alert('Failed to check environment variables');
+                    
+                    let message = '🔍 Service Debug Results:\n\n';
+                    data.tests.forEach((test: any) => {
+                      const status = test.status === 'success' ? '✅' : 
+                                   test.status === 'warning' ? '⚠️' : '❌';
+                      message += `${status} ${test.name}\n`;
+                      if (test.details.message) {
+                        message += `   ${test.details.message}\n`;
+                      }
+                      if (test.details.error) {
+                        message += `   Error: ${test.details.error}\n`;
+                      }
+                      if (test.details.suggestion) {
+                        message += `   💡 ${test.details.suggestion}\n`;
+                      }
+                      message += '\n';
+                    });
+                    
+                    alert(message);
+                  } catch (err: any) {
+                    alert('Failed to run debug test: ' + err.message);
                   }
                 }}
                 className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors text-sm"
               >
-                Check Env
+                Debug APIs
+              </button>
+              <button
+                onClick={async () => {
+                  if (confirm('Send a test email to coconotoenterprise@gmail.com?')) {
+                    try {
+                      const response = await fetch('/api/debug-services?sendTest=true');
+                      const data = await response.json();
+                      
+                      const emailTest = data.tests.find((t: any) => t.name.includes('Email'));
+                      if (emailTest?.status === 'success') {
+                        alert('✅ Test email sent successfully! Check your inbox.');
+                      } else {
+                        alert('❌ Failed to send test email: ' + emailTest?.details?.error);
+                      }
+                    } catch (err: any) {
+                      alert('Failed to send test email: ' + err.message);
+                    }
+                  }
+                }}
+                className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors text-sm"
+              >
+                Test Email
               </button>
               <button
                 onClick={handleLogout}
