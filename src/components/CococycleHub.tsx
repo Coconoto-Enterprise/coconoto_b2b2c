@@ -47,7 +47,7 @@ export function CococycleHub() {
 
               <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-center lg:text-left justify-start flex-nowrap">
                 <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-green-800 whitespace-nowrap">Fiber</h3>
-                <span className="text-sm md:text-base text-gray-600 block md:hidden">– Eco-friendly material for crafts and packs. </span>
+                <span className="text-xs sm:text-sm md:text-base text-gray-600 block md:hidden">– Eco-friendly material for crafts and packs. </span>
                 <span className="hidden md:block text-sm md:text-base text-gray-600">– biodegradable material for crafts and packaging.</span>
               </div>
 
@@ -60,7 +60,7 @@ export function CococycleHub() {
             <div className="flex justify-center lg:justify-start">
 <button
   className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-800 transition"
-onClick={() => window.location.href = '/services#OurProcessingEquipment'}
+onClick={() => window.location.href = '/product'}
 >
   View Products
 </button>

@@ -53,7 +53,10 @@ export default async function handler(req, res) {
     // Use your VERIFIED domain (same as Supabase SMTP)
     const businessResult = await resend.emails.send({
       from: 'Coconoto <team@coconoto.africa>',
-      to: ['info@coconoto.africa'],
+      to: [
+        'coconotoenterprise@gmail.com',     // Business Gmail
+        'bamigboyeayomide095@gmail.com'     // Your personal email
+      ],
       subject: `New ${formType} - ${customerName}`,
       html: businessEmailHtml,
     });

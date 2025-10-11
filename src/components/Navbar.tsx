@@ -58,6 +58,9 @@ export default function Navbar() {
                 <ShoppingBag className="h-5 w-5 mr-1" />
                 Marketplace
               </Link> */}
+              <Link to="/" className="text-gray-600 hover:text-green-700">
+                Home
+              </Link>
               <Link to="/services" className="text-gray-600 hover:text-green-700">
                 Our Services
               </Link>
@@ -98,6 +101,13 @@ export default function Navbar() {
             >
               Marketplace
             </Link> */}
+            <Link 
+              to="/" 
+              className="block py-2 text-gray-600 hover:text-green-700"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
             <Link 
               to="/services" 
               className="block py-2 text-gray-600 hover:text-green-700"

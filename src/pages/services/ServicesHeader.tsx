@@ -32,6 +32,11 @@ export function ServicesHeader() {
     { id: 'contact', label: 'Contact' }
   ];
 
+  const pageNavItems = [
+    { to: '/', label: 'Home' },
+    { to: '/product', label: 'Our Products' }
+  ];
+
   return (
     <>
       <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -61,6 +66,15 @@ export function ServicesHeader() {
 
             {/* Desktop Navigation - Updated to match original Navbar link styles */}
             <nav className="hidden md:flex items-center space-x-8">
+              {pageNavItems.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="text-gray-600 hover:text-green-700"
+                >
+                  {item.label}
+                </Link>
+              ))}
               {navItems.map((item) => (
                 <a
                   key={item.id}
@@ -91,6 +105,16 @@ export function ServicesHeader() {
         {/* Mobile Menu - Updated to match original Navbar link styles */}
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white shadow-md py-4 px-6">
+            {pageNavItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="block py-2 text-gray-600 hover:text-green-700"
+                onClick={closeMobileMenu}
+              >
+                {item.label}
+              </Link>
+            ))}
             {navItems.map((item) => (
               <a
                 key={item.id}

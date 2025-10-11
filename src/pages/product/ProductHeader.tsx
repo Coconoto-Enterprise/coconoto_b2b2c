@@ -26,10 +26,15 @@ export function ProductHeader() {
   };
 
   const navItems = [
-    { id: 'machines', label: 'Machines' },
+    { id: 'products', label: 'Product' },
     { id: 'building', label: 'Building' },
     { id: 'production', label: 'Production' },
     { id: 'contact', label: 'Contact' }
+  ];
+
+  const pageNavItems = [
+    { to: '/', label: 'Home' },
+    { to: '/services', label: 'Our Services' }
   ];
 
   return (
@@ -61,6 +66,15 @@ export function ProductHeader() {
 
             {/* Desktop Navigation - Updated to match original Navbar link styles */}
             <nav className="hidden md:flex items-center space-x-8">
+              {pageNavItems.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="text-gray-600 hover:text-green-700"
+                >
+                  {item.label}
+                </Link>
+              ))}
               {navItems.map((item) => (
                 <a
                   key={item.id}
@@ -91,6 +105,16 @@ export function ProductHeader() {
         {/* Mobile Menu - Updated to match original Navbar link styles */}
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white shadow-md py-4 px-6">
+            {pageNavItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="block py-2 text-gray-600 hover:text-green-700"
+                onClick={closeMobileMenu}
+              >
+                {item.label}
+              </Link>
+            ))}
             {navItems.map((item) => (
               <a
                 key={item.id}
