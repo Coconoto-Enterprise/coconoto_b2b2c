@@ -1,3 +1,7 @@
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -15,24 +19,69 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Basic test response for debugging
-    console.log('📧 API Debug - Request received');
-    console.log('📧 Method:', req.method);
-    console.log('📧 Body:', req.body);
-    console.log('📧 Environment - API Key exists:', !!process.env.RESEND_API_KEY);
+    const { customerName, customerEmail, eventType, message, formType, formData } = req.body;
+
+    console.log('📧 Processing email request');
+    console.log('📧 Customer:', customerName, customerEmail);
+    console.log('📧 Form Type:', formType);
+
+    const results = [];
+
+    // Create simple email templates
+    const businessEmailHtml = `
+      <h2>New ${formType} - Coconoto</h2>
+      <p><strong>Customer:</strong> ${customerName}</p>
+      <p><strong>Email:</strong> ${customerEmail}</p>
+      <p><strong>Type:</strong> ${eventType}</p>
+      <p><strong>Message:</strong> ${message}</p>
+      <p><strong>Details:</strong></p>
+      <pre>${JSON.stringify(formData, null, 2)}</pre>
+      <p>Submitted: ${new Date().toISOString()}</p>
+    `;
+
+    const customerEmailHtml = `
+      <h2>Thank you for your interest - Coconoto 🥥</h2>
+      <p>Dear ${customerName},</p>
+      <p>We have received your ${formType.toLowerCase()} and will be in touch soon!</p>
+      <p>Your request for: ${eventType}</p>
+      <p>Best regards,<br>Coconoto Team</p>
+    `;
+
+    // Send business notification
+    console.log('📤 Sending business notification...');
+    const businessResult = await resend.emails.send({
+      from: 'Coconoto <onboarding@resend.dev>',
+      to: ['info@coconoto.africa'],
+      subject: `New ${formType} - ${customerName}`,
+      html: businessEmailHtml,
+    });
+
+    console.log('✅ Business email sent:', businessResult);
+    results.push({ type: 'business', result: businessResult });
+
+    // Send customer confirmation
+    if (customerEmail && customerName) {
+      console.log('📤 Sending customer confirmation...');
+      const customerResult = await resend.emails.send({
+        from: 'Coconoto <onboarding@resend.dev>',
+        to: [customerEmail],
+        subject: 'Thank you for your interest - Coconoto',
+        html: customerEmailHtml,
+      });
+
+      console.log('✅ Customer email sent:', customerResult);
+      results.push({ type: 'customer', result: customerResult });
+    }
 
     return res.status(200).json({
       success: true,
-      message: 'API endpoint is working - Debug Mode',
-      timestamp: new Date().toISOString(),
-      hasApiKey: !!process.env.RESEND_API_KEY,
-      apiKeyLength: process.env.RESEND_API_KEY ? process.env.RESEND_API_KEY.length : 0,
-      requestBody: req.body,
-      requestMethod: req.method
+      message: 'Emails sent successfully!',
+      results: results,
+      timestamp: new Date().toISOString()
     });
 
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('❌ Email sending failed:', error);
     return res.status(500).json({
       success: false,
       error: error.message,
