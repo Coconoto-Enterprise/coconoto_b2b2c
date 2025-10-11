@@ -1,4 +1,4 @@
-import { sendContactEmails } from './apiEmailService';
+import { sendContactEmails } from './supabaseEmailService';
 
 export async function sendEmail(
   subject: string,
@@ -7,12 +7,11 @@ export async function sendEmail(
   customerName?: string,
   orderType?: string
 ): Promise<void> {
+  console.log('📧 Legacy sendEmail redirecting to Supabase Edge Function');
   return sendContactEmails({
-    customerName: customerName || 'Unknown',
-    customerEmail: customerEmail || '',
-    eventType: orderType || 'General Inquiry',
+    name: customerName || 'Unknown',
+    email: customerEmail || '',
     message: message || '',
-    formType: 'Legacy Form',
-    formData: { subject, message, customerEmail, customerName, orderType }
+    subject: subject || orderType || 'General Inquiry'
   });
 }

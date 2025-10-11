@@ -4,7 +4,7 @@ import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { sendContactEmails } from '../../utils/apiEmailService';
+import { sendContactEmails } from '../../utils/supabaseEmailService';
 
 export function Contact() {
   const [form, setForm] = useState({
@@ -26,7 +26,7 @@ export function Contact() {
     setLoading(true);
     setSuccess('');
     setError('');
-    const { data, error: supaError } = await supabase.from('service_contacts').insert([
+    const { error: supaError } = await supabase.from('service_contacts').insert([
       {
         name: form.name,
         phone: form.phone,
@@ -43,12 +43,10 @@ export function Contact() {
       // Send notification email via Google Apps Script
       try {
         await sendContactEmails({
-          customerName: form.name,
-          customerEmail: form.email,
-          eventType: 'Contact Inquiry',
+          name: form.name,
+          email: form.email,
           message: `Phone: ${form.phone}, Message: ${form.message}`,
-          formType: 'Contact Form',
-          formData: form
+          subject: 'Contact Inquiry'
         });
       } catch (emailError) {
         console.error('Failed to send notification email:', emailError);

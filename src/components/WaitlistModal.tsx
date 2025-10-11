@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { WaitlistService } from '../services/waitlist';
-import { sendWaitlistEmails } from '../utils/apiEmailService';
+import { sendWaitlistEmails } from '../utils/supabaseEmailService';
 
 interface WaitlistModalProps {
   isOpen: boolean;

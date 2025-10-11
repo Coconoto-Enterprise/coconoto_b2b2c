@@ -1,0 +1,23 @@
+# Supabase Config
+project_id = "your-project-id"
+
+[api]
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://coconoto.africa"]
+jwt_expiry = 3600
+
+[db]
+port = 54324
+major_version = 15
+
+[studio]
+port = 54326
+
+[inbucket]
+port = 54327

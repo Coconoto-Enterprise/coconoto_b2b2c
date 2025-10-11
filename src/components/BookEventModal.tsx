@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { X } from 'lucide-react';
-import { sendEventBookingEmails } from '../utils/apiEmailService';
+import { sendWaitlistEmails } from '../utils/supabaseEmailService';
 
 interface BookEventModalProps {
   isOpen: boolean;
@@ -120,7 +120,7 @@ export function BookEventModal({ isOpen, onClose }: BookEventModalProps) {
       setSubmitMessage({ type: 'success', text: 'Your event request has been submitted!' });
       // Send notification email via Google Apps Script
       try {
-        await sendEventBookingEmails({
+        await sendWaitlistEmails({
           customerName: formData.fullName,
           customerEmail: formData.email,
           eventType: `${formData.eventType} - ${formData.eventDate}`,
