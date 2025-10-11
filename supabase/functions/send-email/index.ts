@@ -15,12 +15,24 @@ serve(async (req) => {
   console.log('🔍 Request headers:', Object.fromEntries(req.headers.entries()))
 
   try {
-    const { name, email, message, subject } = await req.json()
+    const requestData = await req.json()
+    console.log('📧 Raw request data:', requestData)
 
-    console.log('📧 Processing email request:', { name, email, subject })
+    // Handle both new and legacy data structures
+    const { 
+      name, email, message, subject,
+      customerName, customerEmail, eventType, formType, formData 
+    } = requestData
+
+    const finalName = name || customerName || 'Unknown'
+    const finalEmail = email || customerEmail || ''
+    const finalMessage = message || `${eventType || 'General Inquiry'}: ${formData ? JSON.stringify(formData) : 'No additional data'}`
+    const finalSubject = subject || eventType || formType || 'General Inquiry'
+
+    console.log('📧 Processing email for:', finalName, finalEmail, finalSubject)
 
     // Validate required fields
-    if (!name || !email || !message) {
+    if (!finalName || !finalEmail || !finalMessage) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields: name, email, message' }), 
         { 
@@ -47,25 +59,32 @@ serve(async (req) => {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
         <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #059669; margin: 0; font-size: 28px;">🥥 New Contact Form Submission</h1>
+            <h1 style="color: #059669; margin: 0; font-size: 28px;">🥥 New ${finalSubject}</h1>
           </div>
           
           <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #059669; margin-bottom: 20px;">
             <h2 style="color: #065f46; margin: 0 0 15px 0; font-size: 20px;">Contact Details</h2>
-            <p style="margin: 8px 0; color: #374151;"><strong>Name:</strong> ${name}</p>
-            <p style="margin: 8px 0; color: #374151;"><strong>Email:</strong> ${email}</p>
-            <p style="margin: 8px 0; color: #374151;"><strong>Subject:</strong> ${subject || 'General Inquiry'}</p>
+            <p style="margin: 8px 0; color: #374151;"><strong>Name:</strong> ${finalName}</p>
+            <p style="margin: 8px 0; color: #374151;"><strong>Email:</strong> ${finalEmail}</p>
+            <p style="margin: 8px 0; color: #374151;"><strong>Type:</strong> ${finalSubject}</p>
           </div>
 
           <div style="background: #fff7ed; padding: 20px; border-radius: 8px; border-left: 4px solid #ea580c;">
             <h3 style="color: #9a3412; margin: 0 0 15px 0; font-size: 18px;">Message</h3>
-            <p style="color: #374151; line-height: 1.6; margin: 0;">${message}</p>
+            <p style="color: #374151; line-height: 1.6; margin: 0;">${finalMessage}</p>
           </div>
+
+          ${formData ? `
+          <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin-top: 20px;">
+            <h3 style="color: #475569; margin: 0 0 15px 0; font-size: 16px;">Additional Details</h3>
+            <pre style="color: #374151; font-size: 12px; background: white; padding: 10px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(formData, null, 2)}</pre>
+          </div>
+          ` : ''}
 
           <div style="margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 8px; text-align: center;">
             <p style="color: #64748b; margin: 0; font-size: 14px;">
-              This email was sent from your Coconoto website contact form.<br>
-              Please respond to the customer at: <strong>${email}</strong>
+              This email was sent from your Coconoto website.<br>
+              Please respond to the customer at: <strong>${finalEmail}</strong>
             </p>
           </div>
         </div>
@@ -80,13 +99,13 @@ serve(async (req) => {
           </div>
           
           <div style="color: #374151; line-height: 1.6; margin-bottom: 25px;">
-            <p>Dear ${name},</p>
-            <p>Thank you for reaching out to us! We have received your message and truly appreciate your interest in Coconoto's sustainable coconut solutions.</p>
+            <p>Dear ${finalName},</p>
+            <p>Thank you for your interest in our <strong>${finalSubject}</strong>! We have received your message and truly appreciate your interest in Coconoto's sustainable coconut solutions.</p>
             
             <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #059669; margin: 20px 0;">
               <h3 style="color: #065f46; margin: 0 0 10px 0;">What happens next?</h3>
               <ul style="color: #374151; margin: 0; padding-left: 20px;">
-                <li>Our team will review your inquiry within 24 hours</li>
+                <li>Our team will review your ${finalSubject.toLowerCase()} within 24 hours</li>
                 <li>We'll respond with detailed information tailored to your needs</li>
                 <li>For urgent matters, feel free to contact us directly</li>
               </ul>
@@ -121,7 +140,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: 'Coconoto <notifications@send.coconoto.africa>',
         to: ['info@coconoto.africa'],
-        subject: `New Contact Form: ${subject || 'General Inquiry'} - ${name}`,
+        subject: `New ${finalSubject} - ${finalName}`,
         html: businessEmailHtml,
       }),
     })
@@ -146,7 +165,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         from: 'Coconoto <hello@send.coconoto.africa>',
-        to: [email],
+        to: [finalEmail],
         subject: 'Thank you for your interest - Coconoto',
         html: customerEmailHtml,
       }),
