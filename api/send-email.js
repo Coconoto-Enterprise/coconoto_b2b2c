@@ -50,27 +50,13 @@ export default async function handler(req, res) {
     // Send business notification
     console.log('📤 Sending business notification...');
     
-    // Try with your domain first, fallback to default if it fails
-    let businessResult;
-    try {
-      businessResult = await resend.emails.send({
-        from: 'Coconoto <notifications@send.coconoto.africa>',
-        to: ['info@coconoto.africa'],
-        subject: `New ${formType} - ${customerName}`,
-        html: businessEmailHtml,
-      });
-    } catch (domainError) {
-      console.log('⚠️ Custom domain failed, trying default domain...');
-      console.error('Domain error:', domainError);
-      
-      // Fallback to working domain
-      businessResult = await resend.emails.send({
-        from: 'Coconoto <onboarding@resend.dev>',
-        to: ['info@coconoto.africa'],
-        subject: `New ${formType} - ${customerName}`,
-        html: businessEmailHtml,
-      });
-    }
+    // Use working domain until custom domain is verified
+    const businessResult = await resend.emails.send({
+      from: 'Coconoto <onboarding@resend.dev>',
+      to: ['info@coconoto.africa'],
+      subject: `New ${formType} - ${customerName}`,
+      html: businessEmailHtml,
+    });
 
     console.log('✅ Business email sent:', businessResult);
     
@@ -90,27 +76,13 @@ export default async function handler(req, res) {
     if (customerEmail && customerName) {
       console.log('📤 Sending customer confirmation...');
       
-      // Try with your domain first, fallback to default if it fails
-      let customerResult;
-      try {
-        customerResult = await resend.emails.send({
-          from: 'Coconoto <hello@send.coconoto.africa>',
-          to: [customerEmail],
-          subject: 'Thank you for your interest - Coconoto',
-          html: customerEmailHtml,
-        });
-      } catch (domainError) {
-        console.log('⚠️ Custom domain failed for customer email, trying default...');
-        console.error('Customer domain error:', domainError);
-        
-        // Fallback to working domain
-        customerResult = await resend.emails.send({
-          from: 'Coconoto <onboarding@resend.dev>',
-          to: [customerEmail],
-          subject: 'Thank you for your interest - Coconoto',
-          html: customerEmailHtml,
-        });
-      }
+      // Use working domain until custom domain is verified
+      const customerResult = await resend.emails.send({
+        from: 'Coconoto <onboarding@resend.dev>',
+        to: [customerEmail],
+        subject: 'Thank you for your interest - Coconoto',
+        html: customerEmailHtml,
+      });
 
       console.log('✅ Customer email sent:', customerResult);
       
