@@ -49,28 +49,79 @@ export default async function handler(req, res) {
 
     // Send business notification
     console.log('📤 Sending business notification...');
-    const businessResult = await resend.emails.send({
-      from: 'Coconoto <notifications@send.coconoto.africa>',
-      to: ['info@coconoto.africa'],
-      subject: `New ${formType} - ${customerName}`,
-      html: businessEmailHtml,
-    });
+    
+    // Try with your domain first, fallback to default if it fails
+    let businessResult;
+    try {
+      businessResult = await resend.emails.send({
+        from: 'Coconoto <notifications@send.coconoto.africa>',
+        to: ['info@coconoto.africa'],
+        subject: `New ${formType} - ${customerName}`,
+        html: businessEmailHtml,
+      });
+    } catch (domainError) {
+      console.log('⚠️ Custom domain failed, trying default domain...');
+      console.error('Domain error:', domainError);
+      
+      // Fallback to working domain
+      businessResult = await resend.emails.send({
+        from: 'Coconoto <onboarding@resend.dev>',
+        to: ['info@coconoto.africa'],
+        subject: `New ${formType} - ${customerName}`,
+        html: businessEmailHtml,
+      });
+    }
 
     console.log('✅ Business email sent:', businessResult);
+    
+    // Check if there was an error in the Resend response
+    if (businessResult.error) {
+      console.error('❌ Business email error:', businessResult.error);
+      return res.status(500).json({
+        success: false,
+        error: `Business email failed: ${businessResult.error.message}`,
+        details: businessResult.error
+      });
+    }
+    
     results.push({ type: 'business', result: businessResult });
 
     // Send customer confirmation
     if (customerEmail && customerName) {
       console.log('📤 Sending customer confirmation...');
-      const customerResult = await resend.emails.send({
-        from: 'Coconoto <hello@send.coconoto.africa>',
-        to: [customerEmail],
-        subject: 'Thank you for your interest - Coconoto',
-        html: customerEmailHtml,
-      });
+      
+      // Try with your domain first, fallback to default if it fails
+      let customerResult;
+      try {
+        customerResult = await resend.emails.send({
+          from: 'Coconoto <hello@send.coconoto.africa>',
+          to: [customerEmail],
+          subject: 'Thank you for your interest - Coconoto',
+          html: customerEmailHtml,
+        });
+      } catch (domainError) {
+        console.log('⚠️ Custom domain failed for customer email, trying default...');
+        console.error('Customer domain error:', domainError);
+        
+        // Fallback to working domain
+        customerResult = await resend.emails.send({
+          from: 'Coconoto <onboarding@resend.dev>',
+          to: [customerEmail],
+          subject: 'Thank you for your interest - Coconoto',
+          html: customerEmailHtml,
+        });
+      }
 
       console.log('✅ Customer email sent:', customerResult);
-      results.push({ type: 'customer', result: customerResult });
+      
+      // Check if there was an error in the customer email
+      if (customerResult.error) {
+        console.error('❌ Customer email error:', customerResult.error);
+        // Still return success for business email but note the customer email issue
+        results.push({ type: 'customer', result: customerResult, error: customerResult.error });
+      } else {
+        results.push({ type: 'customer', result: customerResult });
+      }
     }
 
     return res.status(200).json({
