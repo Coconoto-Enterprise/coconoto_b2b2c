@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 
+console.log('🔑 Resend API Key:', process.env.RESEND_API_KEY ? 'Set' : 'Missing');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
@@ -17,10 +18,14 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('🔍 Getting emails from Resend...');
+    
     // Get emails from Resend
     const emails = await resend.emails.list({
       limit: 100,
     });
+
+    console.log('📧 Resend response:', emails);
 
     return res.status(200).json({
       success: true,

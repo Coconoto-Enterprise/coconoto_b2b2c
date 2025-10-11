@@ -192,6 +192,20 @@ const VintageDashboard: React.FC = () => {
                 Refresh
               </button>
               <button
+                onClick={async () => {
+                  try {
+                    const response = await fetch('/api/env-check');
+                    const data = await response.json();
+                    alert(`Environment Check:\n${JSON.stringify(data.environment, null, 2)}`);
+                  } catch (err) {
+                    alert('Failed to check environment variables');
+                  }
+                }}
+                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors text-sm"
+              >
+                Check Env
+              </button>
+              <button
                 onClick={handleLogout}
                 className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors inline-flex items-center gap-2"
               >

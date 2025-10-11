@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
 let supabase = null;
 
@@ -26,9 +26,13 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('🔍 Getting orders from Supabase...');
+    console.log('Supabase URL:', process.env.VITE_SUPABASE_URL ? 'Set' : 'Missing');
+    console.log('Supabase Key:', process.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Missing');
+    
     // If Supabase is not configured, return empty orders
     if (!supabase) {
-      console.log('Supabase not configured - returning empty orders');
+      console.log('❌ Supabase not configured - returning empty orders');
       return res.status(200).json({
         success: true,
         orders: []
@@ -41,6 +45,8 @@ export default async function handler(req, res) {
       .select('*')
       .order('created_at', { ascending: false })
       .limit(100);
+
+    console.log('📦 Supabase orders response:', { orders, error });
 
     if (error) {
       console.error('Supabase error:', error);
