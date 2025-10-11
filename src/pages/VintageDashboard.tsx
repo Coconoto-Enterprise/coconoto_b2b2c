@@ -35,13 +35,42 @@ interface Order {
   total_amount?: number;
 }
 
+interface AllData {
+  bookEventRequests: any[];
+  investmentInquiries: any[];
+  machineOrders: any[];
+  productOrders: any[];
+  serviceContacts: any[];
+  toxicResults: any[];
+  waitlist: any[];
+}
+
+interface DetailModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  data: any;
+}
+
 const VintageDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [emails, setEmails] = useState<Email[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [allData, setAllData] = useState<AllData>({
+    bookEventRequests: [],
+    investmentInquiries: [],
+    machineOrders: [],
+    productOrders: [],
+    serviceContacts: [],
+    toxicResults: [],
+    waitlist: []
+  });
   const [loading, setLoading] = useState(true);
   const [showComposer, setShowComposer] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [detailModalTitle, setDetailModalTitle] = useState('');
   const [sending, setSending] = useState(false);
   const navigate = useNavigate();
 
@@ -73,12 +102,28 @@ const VintageDashboard: React.FC = () => {
         setEmails(emailData.emails || []);
       }
 
-      // Fetch orders from Supabase
+      // Fetch old format orders (for backward compatibility)
       const orderResponse = await fetch('/api/get-orders');
       const orderData = await orderResponse.json();
       
       if (orderData.success) {
         setOrders(orderData.orders || []);
+      }
+
+      // Fetch ALL data from new API
+      const allDataResponse = await fetch('/api/get-all-data');
+      const allDataResult = await allDataResponse.json();
+      
+      if (allDataResult.success) {
+        setAllData(allDataResult.data || {
+          bookEventRequests: [],
+          investmentInquiries: [],
+          machineOrders: [],
+          productOrders: [],
+          serviceContacts: [],
+          toxicResults: [],
+          waitlist: []
+        });
       }
 
     } catch (err) {
@@ -140,6 +185,56 @@ const VintageDashboard: React.FC = () => {
       case 'processing': return 'text-yellow-600 bg-yellow-100';
       default: return 'text-gray-600 bg-gray-100';
     }
+  };
+
+  // Open detail modal for any table item
+  const openDetailModal = (title: string, item: any) => {
+    setDetailModalTitle(title);
+    setSelectedItem(item);
+    setShowDetailModal(true);
+  };
+
+  // Detail Modal Component
+  const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, title, data }) => {
+    if (!isOpen || !data) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+          <div className="flex items-center justify-between p-6 border-b">
+            <h2 className="text-xl font-bold text-gray-900">{title}</h2>
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+          <div className="p-6 overflow-y-auto max-h-96">
+            <div className="space-y-4">
+              {Object.entries(data).map(([key, value]) => (
+                <div key={key} className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div className="font-medium text-gray-700 capitalize">
+                    {key.replace(/_/g, ' ')}:
+                  </div>
+                  <div className="sm:col-span-2 text-gray-900">
+                    {typeof value === 'object' && value !== null ? 
+                      JSON.stringify(value, null, 2) : 
+                      String(value || 'N/A')
+                    }
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-end p-6 border-t">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // Filter emails by type
@@ -260,12 +355,18 @@ const VintageDashboard: React.FC = () => {
       {/* Navigation Tabs */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8" aria-label="Tabs">
+          <nav className="flex space-x-4 overflow-x-auto" aria-label="Tabs">
             {[
               { id: 'overview', name: 'Overview', icon: BarChart3 },
               { id: 'customer-emails', name: 'Customer Emails', icon: Mail },
               { id: 'business-emails', name: 'Business Emails', icon: Users },
-              { id: 'orders', name: 'Orders', icon: ShoppingCart },
+              { id: 'book-events', name: `Event Requests (${allData.bookEventRequests.length})`, icon: Calendar },
+              { id: 'investments', name: `Investments (${allData.investmentInquiries.length})`, icon: BarChart3 },
+              { id: 'machine-orders', name: `Machine Orders (${allData.machineOrders.length})`, icon: ShoppingCart },
+              { id: 'product-orders', name: `Product Orders (${allData.productOrders.length})`, icon: ShoppingCart },
+              { id: 'service-contacts', name: `Service Contacts (${allData.serviceContacts.length})`, icon: Mail },
+              { id: 'toxic-results', name: `Toxic Results (${allData.toxicResults.length})`, icon: Users },
+              { id: 'waitlist', name: `Waitlist (${allData.waitlist.length})`, icon: Users },
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -292,7 +393,7 @@ const VintageDashboard: React.FC = () => {
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="flex items-center">
                   <Mail className="h-8 w-8 text-blue-600" />
@@ -305,10 +406,10 @@ const VintageDashboard: React.FC = () => {
               
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="flex items-center">
-                  <Users className="h-8 w-8 text-green-600" />
+                  <Calendar className="h-8 w-8 text-green-600" />
                   <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{customerEmails.length}</h3>
-                    <p className="text-gray-600">Customer Emails</p>
+                    <h3 className="text-2xl font-bold text-gray-900">{allData.bookEventRequests.length}</h3>
+                    <p className="text-gray-600">Event Requests</p>
                   </div>
                 </div>
               </div>
@@ -317,7 +418,7 @@ const VintageDashboard: React.FC = () => {
                 <div className="flex items-center">
                   <ShoppingCart className="h-8 w-8 text-purple-600" />
                   <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{Array.isArray(orders) ? orders.length : 0}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">{allData.machineOrders.length + allData.productOrders.length}</h3>
                     <p className="text-gray-600">Total Orders</p>
                   </div>
                 </div>
@@ -325,59 +426,118 @@ const VintageDashboard: React.FC = () => {
 
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="flex items-center">
-                  <Calendar className="h-8 w-8 text-orange-600" />
+                  <Users className="h-8 w-8 text-orange-600" />
+                  <div className="ml-4">
+                    <h3 className="text-2xl font-bold text-gray-900">{allData.waitlist.length}</h3>
+                    <p className="text-gray-600">Waitlist Entries</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="flex items-center">
+                  <BarChart3 className="h-8 w-8 text-indigo-600" />
+                  <div className="ml-4">
+                    <h3 className="text-2xl font-bold text-gray-900">{allData.investmentInquiries.length}</h3>
+                    <p className="text-gray-600">Investment Inquiries</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="flex items-center">
+                  <Mail className="h-8 w-8 text-pink-600" />
+                  <div className="ml-4">
+                    <h3 className="text-2xl font-bold text-gray-900">{allData.serviceContacts.length}</h3>
+                    <p className="text-gray-600">Service Contacts</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="flex items-center">
+                  <Users className="h-8 w-8 text-red-600" />
+                  <div className="ml-4">
+                    <h3 className="text-2xl font-bold text-gray-900">{allData.toxicResults.length}</h3>
+                    <p className="text-gray-600">Toxic Results</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="flex items-center">
+                  <Calendar className="h-8 w-8 text-yellow-600" />
                   <div className="ml-4">
                     <h3 className="text-2xl font-bold text-gray-900">
-                      {Array.isArray(emails) ? emails.filter(e => 
-                        e?.created_at && new Date(e.created_at).toDateString() === new Date().toDateString()
-                      ).length : 0}
+                      {Object.values(allData).reduce((sum, arr) => sum + arr.length, 0)}
                     </h3>
-                    <p className="text-gray-600">Today's Activity</p>
+                    <p className="text-gray-600">Total Entries</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="bg-white rounded-lg shadow-sm">
                 <div className="px-6 py-4 border-b">
-                  <h2 className="text-lg font-semibold text-gray-900">Recent Emails</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">Recent Event Requests</h2>
                 </div>
                 <div className="p-6">
-                  {Array.isArray(emails) && emails.length > 0 ? emails.slice(0, 5).map((email) => (
-                    <div key={email?.id || Math.random()} className="flex items-center justify-between py-3 border-b last:border-b-0">
+                  {allData.bookEventRequests.length > 0 ? allData.bookEventRequests.slice(0, 5).map((request) => (
+                    <div key={request?.id || Math.random()} className="flex items-center justify-between py-3 border-b last:border-b-0">
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{email?.subject || 'No Subject'}</p>
-                        <p className="text-xs text-gray-500">{email?.to ? email.to.join(', ') : 'No recipients'}</p>
+                        <p className="text-sm font-medium text-gray-900">{request?.full_name || 'Unknown'}</p>
+                        <p className="text-xs text-gray-500">{request?.event_type || 'Unknown Event'} - {request?.event_date || 'No date'}</p>
                       </div>
-                      <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(email?.last_event || 'unknown')}`}>
-                        {email?.last_event || 'Unknown'}
+                      <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-600">
+                        New
                       </span>
                     </div>
                   )) : (
-                    <div className="text-center text-gray-500 py-4">No emails yet</div>
+                    <div className="text-center text-gray-500 py-4">No event requests yet</div>
                   )}
                 </div>
               </div>
 
               <div className="bg-white rounded-lg shadow-sm">
                 <div className="px-6 py-4 border-b">
-                  <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">Recent Machine Orders</h2>
                 </div>
                 <div className="p-6">
-                  {Array.isArray(orders) && orders.length > 0 ? orders.slice(0, 5).map((order) => (
+                  {allData.machineOrders.length > 0 ? allData.machineOrders.slice(0, 5).map((order) => (
                     <div key={order?.id || Math.random()} className="flex items-center justify-between py-3 border-b last:border-b-0">
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{order?.customer_name || 'Unknown Customer'}</p>
-                        <p className="text-xs text-gray-500">{order?.product_type || 'Unknown'} x{order?.quantity || 0}</p>
+                        <p className="text-sm font-medium text-gray-900">{order?.name || 'Unknown Customer'}</p>
+                        <p className="text-xs text-gray-500">{order?.type || 'Unknown Machine'} x{order?.quantity || 1}</p>
                       </div>
-                      <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order?.status || 'unknown')}`}>
-                        {order?.status || 'Unknown'}
+                      <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-600">
+                        Pending
                       </span>
                     </div>
                   )) : (
-                    <div className="text-center text-gray-500 py-4">No orders yet</div>
+                    <div className="text-center text-gray-500 py-4">No machine orders yet</div>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm">
+                <div className="px-6 py-4 border-b">
+                  <h2 className="text-lg font-semibold text-gray-900">Recent Waitlist Entries</h2>
+                </div>
+                <div className="p-6">
+                  {allData.waitlist.length > 0 ? allData.waitlist.slice(0, 5).map((entry) => (
+                    <div key={entry?.id || Math.random()} className="flex items-center justify-between py-3 border-b last:border-b-0">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{entry?.name || 'Unknown'}</p>
+                        <p className="text-xs text-gray-500">{entry?.company || 'No company'} - {entry?.account_type || 'Unknown'}</p>
+                      </div>
+                      <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-600">
+                        Waitlist
+                      </span>
+                    </div>
+                  )) : (
+                    <div className="text-center text-gray-500 py-4">No waitlist entries yet</div>
                   )}
                 </div>
               </div>
@@ -493,47 +653,351 @@ const VintageDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Orders Tab */}
-        {activeTab === 'orders' && (
+        {/* Book Event Requests Tab */}
+        {activeTab === 'book-events' && (
           <div className="bg-white rounded-lg shadow-sm">
             <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Orders ({orders.length})</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Event Booking Requests ({allData.bookEventRequests.length})</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Guests</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {Array.isArray(orders) && orders.length > 0 ? orders.map((order) => (
-                    <tr key={order?.id || Math.random()} className="hover:bg-gray-50">
+                  {allData.bookEventRequests.length > 0 ? allData.bookEventRequests.map((request) => (
+                    <tr key={request?.id || Math.random()} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">{order?.customer_name || 'Unknown Customer'}</div>
-                        <div className="text-sm text-gray-500">{order?.customer_email || 'No email'}</div>
+                        <div className="text-sm font-medium text-gray-900">{request?.full_name || 'Unknown'}</div>
+                        <div className="text-sm text-gray-500">{request?.email || 'No email'}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{order?.product_type || 'Unknown Product'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{order?.quantity || 0}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{request?.event_type || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{request?.event_date || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{request?.guests || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{request?.created_at ? formatDate(request.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order?.status || 'unknown')}`}>
-                          {order?.status || 'Unknown'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{order?.created_at ? formatDate(order.created_at) : 'Unknown'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        ${order?.total_amount?.toFixed(2) || 'N/A'}
+                        <button 
+                          onClick={() => openDetailModal('Event Request Details', request)}
+                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
                       </td>
                     </tr>
                   )) : (
                     <tr>
                       <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                        No orders found
+                        No event requests found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Investment Inquiries Tab */}
+        {activeTab === 'investments' && (
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">Investment Inquiries ({allData.investmentInquiries.length})</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Investment Range</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {allData.investmentInquiries.length > 0 ? allData.investmentInquiries.map((inquiry) => (
+                    <tr key={inquiry?.id || Math.random()} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">{inquiry?.full_name || 'Unknown'}</div>
+                        <div className="text-sm text-gray-500">{inquiry?.email || 'No email'}</div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{inquiry?.company_name || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{inquiry?.investment_range || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{inquiry?.created_at ? formatDate(inquiry.created_at) : 'Unknown'}</td>
+                      <td className="px-6 py-4">
+                        <button 
+                          onClick={() => openDetailModal('Investment Inquiry Details', inquiry)}
+                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                        No investment inquiries found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Machine Orders Tab */}
+        {activeTab === 'machine-orders' && (
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">Machine Orders ({allData.machineOrders.length})</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Machine Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Installation Address</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {allData.machineOrders.length > 0 ? allData.machineOrders.map((order) => (
+                    <tr key={order?.id || Math.random()} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">{order?.name || 'Unknown'}</div>
+                        <div className="text-sm text-gray-500">{order?.email || 'No email'}</div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{order?.type || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{order?.quantity || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{order?.installation_address || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{order?.created_at ? formatDate(order.created_at) : 'Unknown'}</td>
+                      <td className="px-6 py-4">
+                        <button 
+                          onClick={() => openDetailModal('Machine Order Details', order)}
+                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                        No machine orders found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Product Orders Tab */}
+        {activeTab === 'product-orders' && (
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">Product Orders ({allData.productOrders.length})</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Products</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Address</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {allData.productOrders.length > 0 ? allData.productOrders.map((order) => (
+                    <tr key={order?.id || Math.random()} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">{order?.name || 'Unknown'}</div>
+                        <div className="text-sm text-gray-500">{order?.email || 'No email'}</div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {Array.isArray(order?.products) ? order.products.map(p => p.name).join(', ') : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{order?.address || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{order?.created_at ? formatDate(order.created_at) : 'Unknown'}</td>
+                      <td className="px-6 py-4">
+                        <button 
+                          onClick={() => openDetailModal('Product Order Details', order)}
+                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                        No product orders found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Service Contacts Tab */}
+        {activeTab === 'service-contacts' && (
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">Service Contacts ({allData.serviceContacts.length})</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Message Preview</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {allData.serviceContacts.length > 0 ? allData.serviceContacts.map((contact) => (
+                    <tr key={contact?.id || Math.random()} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{contact?.name || 'Unknown'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{contact?.email || 'No email'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{contact?.phone || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {contact?.message ? contact.message.substring(0, 50) + '...' : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{contact?.created_at ? formatDate(contact.created_at) : 'Unknown'}</td>
+                      <td className="px-6 py-4">
+                        <button 
+                          onClick={() => openDetailModal('Service Contact Details', contact)}
+                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                        No service contacts found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Toxic Results Tab */}
+        {activeTab === 'toxic-results' && (
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">Toxic Analysis Results ({allData.toxicResults.length})</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {allData.toxicResults.length > 0 ? allData.toxicResults.map((result) => (
+                    <tr key={result?.id || Math.random()} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{result?.id || 'Unknown'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{result?.created_at ? formatDate(result.created_at) : 'Unknown'}</td>
+                      <td className="px-6 py-4">
+                        <button 
+                          onClick={() => openDetailModal('Toxic Analysis Result', result)}
+                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
+                        No toxic analysis results found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Waitlist Tab */}
+        {activeTab === 'waitlist' && (
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">Waitlist Entries ({allData.waitlist.length})</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Account Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Business Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Country</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {allData.waitlist.length > 0 ? allData.waitlist.map((entry) => (
+                    <tr key={entry?.id || Math.random()} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">{entry?.name || 'Unknown'}</div>
+                        <div className="text-sm text-gray-500">{entry?.email || 'No email'}</div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{entry?.company || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{entry?.account_type || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{entry?.business_type || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{entry?.country || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{entry?.created_at ? formatDate(entry.created_at) : 'Unknown'}</td>
+                      <td className="px-6 py-4">
+                        <button 
+                          onClick={() => openDetailModal('Waitlist Entry Details', entry)}
+                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                        No waitlist entries found
                       </td>
                     </tr>
                   )}
@@ -543,6 +1007,14 @@ const VintageDashboard: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Detail Modal */}
+      <DetailModal 
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        title={detailModalTitle}
+        data={selectedItem}
+      />
 
       {/* Email Composer Modal */}
       {showComposer && (
