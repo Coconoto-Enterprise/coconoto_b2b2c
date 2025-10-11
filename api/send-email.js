@@ -1,7 +1,7 @@
 const { Resend } = require('resend');
 
-// Initialize Resend with API key from environment variables
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend - will be done inside handler for better error handling
+let resend;
 
 // Import email templates (inline for serverless function)
 function getCustomerEmailTemplate(customerName, orderDetails, orderType) {
@@ -166,12 +166,36 @@ function getBusinessEmailTemplate(notificationType, customerInfo, orderDetails, 
 }
 
 module.exports = async function handler(req, res) {
+  // Add CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Check if API key is available
+  if (!process.env.RESEND_API_KEY) {
+    console.error('❌ RESEND_API_KEY environment variable not set');
+    return res.status(500).json({ 
+      success: false, 
+      error: 'Email service configuration error' 
+    });
+  }
+
   try {
+    // Initialize Resend inside the handler
+    if (!resend) {
+      resend = new Resend(process.env.RESEND_API_KEY);
+    }
+
     const { 
       subject, 
       customerEmail, 
@@ -183,6 +207,7 @@ module.exports = async function handler(req, res) {
     } = req.body;
 
     console.log('📧 API Route - Processing email request');
+    console.log('📧 Environment check - API Key exists:', !!process.env.RESEND_API_KEY);
     console.log('📧 Subject:', subject);
     console.log('� Form Type:', formType);
     console.log('�📬 Customer Email:', customerEmail);
