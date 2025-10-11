@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
-import { sendContactEmails } from '../../utils/supabaseEmailService';
+import { sendContactEmails } from '../../utils/vercelEmailService';
 
 export function ProductContact() {
   const [form, setForm] = useState({

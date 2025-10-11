@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { X } from 'lucide-react';
-import { sendWaitlistEmails } from '../utils/supabaseEmailService';
+import { sendWaitlistEmails } from '../utils/vercelEmailService';
 
 interface BookEventModalProps {
   isOpen: boolean;

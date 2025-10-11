@@ -1,6 +1,4 @@
-// Supabase Edge Function email service
-
-import { supabase } from '../lib/supabase';
+// BACK TO WORKING VERCEL API - No more 500 errors!
 
 interface EmailData {
   customerName?: string;
