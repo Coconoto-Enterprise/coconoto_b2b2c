@@ -148,7 +148,7 @@ export default async function handler(req, res) {
     try {
       const testEmail = await resend.emails.send({
         from: 'team@coconoto.africa',
-        to: ['coconotoenterprise@gmail.com'],
+        to: ['bamigboyeayomide095@gmail.com'],
         subject: 'Dashboard Test Email - ' + new Date().toLocaleString(),
         html: `
           <h2>🥥 Coconoto Dashboard Test</h2>

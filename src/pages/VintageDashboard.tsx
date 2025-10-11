@@ -225,7 +225,7 @@ const VintageDashboard: React.FC = () => {
               </button>
               <button
                 onClick={async () => {
-                  if (confirm('Send a test email to coconotoenterprise@gmail.com?')) {
+                  if (confirm('Send a test email to bamigboyeayomide095@gmail.com?')) {
                     try {
                       const response = await fetch('/api/debug-services?sendTest=true');
                       const data = await response.json();
