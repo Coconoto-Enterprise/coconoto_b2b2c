@@ -172,7 +172,8 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     'Coconut Shell Products',
     'Briquette charcoal',
     'Biochar',
-    'Cocopot coconut husk'
+    'Cocopot',
+    'Coconut Husk'
   ];
 
   // Business type options by account type

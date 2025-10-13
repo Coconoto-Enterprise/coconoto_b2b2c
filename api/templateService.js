@@ -1,5 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Template service to load and process HTML email templates
 export class TemplateService {
@@ -59,12 +65,53 @@ export class TemplateService {
     return processedTemplate;
   }
 
+  // Get waitlist count from database
+  static async getWaitlistCount() {
+    try {
+      const { count, error } = await supabase
+        .from('waitlist')
+        .select('*', { count: 'exact', head: true });
+      
+      if (error) {
+        console.error('Error getting waitlist count:', error);
+        return 'Unable to fetch';
+      }
+      
+      const totalCount = count || 0;
+      console.log(`📊 Current waitlist count: ${totalCount}`);
+      
+      // Format the count nicely
+      if (totalCount === 0) {
+        return 'First member! 🎉';
+      } else if (totalCount < 100) {
+        return `${totalCount} members and growing!`;
+      } else if (totalCount < 1000) {
+        return `${totalCount}+ members strong!`;
+      } else {
+        return `${Math.floor(totalCount/1000)}K+ members!`;
+      }
+    } catch (error) {
+      console.error('Error connecting to database:', error);
+      return 'Growing community!';
+    }
+  }
+
   // Get waitlist email templates
-  static getWaitlistTemplates(formData) {
+  static async getWaitlistTemplates(formData) {
     console.log('📧 Getting waitlist templates for:', JSON.stringify(formData, null, 2));
     
     const systemTemplate = this.loadTemplate('system/waitlist_templet.html');
     const userTemplate = this.loadTemplate('users/user-waitlist.html');
+
+    // Convert primary_use_case to readable format
+    const formatPrimaryUseCase = (value) => {
+      if (!value) return 'N/A';
+      return value.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    };
+
+    // Determine what fields to show based on account type
+    const isSeller = formData.account_type === 'seller' || formData.account_type === 'both';
+    const isBuyer = formData.account_type === 'buyer' || formData.account_type === 'both';
 
     const templateData = {
       // System template placeholders
@@ -76,15 +123,20 @@ export class TemplateService {
       country: formData.country || 'N/A',
       state_province: formData.state || 'N/A',
       city: formData.city || 'N/A',
-      seller_business_type: formData.business_type || 'N/A',
-      monthly_volume_capacity: formData.monthly_volume || 'N/A',
-      years_of_experience: formData.years_experience || 'N/A',
-      products_of_interest: Array.isArray(formData.products_interested) 
+      
+      // Seller-specific fields (only show if seller)
+      seller_business_type: isSeller ? (formData.business_type || 'N/A') : '',
+      monthly_volume_capacity: isSeller ? (formData.monthly_volume || 'N/A') : '',
+      years_of_experience: isSeller ? (formData.years_experience || 'N/A') : '',
+      
+      // Buyer-specific fields (only show if buyer)
+      products_of_interest: isBuyer ? (Array.isArray(formData.products_interested) 
         ? formData.products_interested.join(', ') 
-        : (formData.products_interested || 'N/A'),
-      primary_use_case: formData.primary_use_case || 'N/A',
-      buyer_business_type: formData.business_type || 'N/A',
-      total_waitlist_count: '---', // This would come from database
+        : (formData.products_interested || 'N/A')) : '',
+      primary_use_case: isBuyer ? formatPrimaryUseCase(formData.primary_use_case) : '',
+      buyer_business_type: isBuyer ? (formData.business_type || 'N/A') : '',
+      
+      total_waitlist_count: await this.getWaitlistCount(),
       
       // User template placeholders (simpler format)
       name: formData.name || 'N/A',
@@ -95,8 +147,27 @@ export class TemplateService {
 
     console.log('📧 Template data for waitlist:', JSON.stringify(templateData, null, 2));
 
+    // Handle conditional sections for waitlist template
+    let processedSystemTemplate = systemTemplate;
+    
+    // Remove seller-specific rows if not a seller
+    if (!isSeller) {
+      processedSystemTemplate = processedSystemTemplate
+        .replace(/<tr>\s*<td[^>]*>Business Type<\/td>\s*<td[^>]*>\[SELLER_BUSINESS_TYPE\]<\/td>\s*<\/tr>/gs, '')
+        .replace(/<tr>\s*<td[^>]*>Monthly Volume Capacity<\/td>\s*<td[^>]*>\[MONTHLY_VOLUME_CAPACITY\]<\/td>\s*<\/tr>/gs, '')
+        .replace(/<tr>\s*<td[^>]*>Years of Experience<\/td>\s*<td[^>]*>\[YEARS_OF_EXPERIENCE\]<\/td>\s*<\/tr>/gs, '');
+    }
+    
+    // Remove buyer-specific rows if not a buyer
+    if (!isBuyer) {
+      processedSystemTemplate = processedSystemTemplate
+        .replace(/<tr>\s*<td[^>]*>Products of Interest \*<\/td>\s*<td[^>]*>\[PRODUCTS_OF_INTEREST\]<\/td>\s*<\/tr>/gs, '')
+        .replace(/<tr>\s*<td[^>]*>Primary Use Case<\/td>\s*<td[^>]*>\[PRIMARY_USE_CASE\]<\/td>\s*<\/tr>/gs, '')
+        .replace(/<tr>\s*<td[^>]*>Business Type \(Buyer\)<\/td>\s*<td[^>]*>\[BUYER_BUSINESS_TYPE\]<\/td>\s*<\/tr>/gs, '');
+    }
+
     return {
-      systemHtml: this.replacePlaceholders(systemTemplate, templateData),
+      systemHtml: this.replacePlaceholders(processedSystemTemplate, templateData),
       userHtml: this.replacePlaceholders(userTemplate, templateData)
     };
   }

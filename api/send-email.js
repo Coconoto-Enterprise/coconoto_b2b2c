@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     switch (formType.toLowerCase()) {
       case 'waitlist signup':
       case 'waitlist':
-        templates = TemplateService.getWaitlistTemplates(formData);
+        templates = await TemplateService.getWaitlistTemplates(formData);
         break;
       case 'contact form':
       case 'contact':
