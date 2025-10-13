@@ -631,7 +631,7 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.event_date || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.guests || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        {request?.price ? `${request?.currency || '₦'}${Number(request.price).toLocaleString()}` : 'No price set'}
+                        {request?.price ? `₦${Number(request.price).toLocaleString()}` : 'No price set'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.created_at ? formatDate(request.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
@@ -697,7 +697,7 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.type || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.quantity || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        {order?.price ? `${order?.currency || '₦'}${Number(order.price).toLocaleString()}` : 'No price set'}
+                        {order?.price ? `₦${Number(order.price).toLocaleString()}` : 'No price set'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.installation_address || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.submitted_at ? formatDate(order.submitted_at) : 'Unknown'}</td>
@@ -762,7 +762,7 @@ const VintageDashboard: React.FC = () => {
                         {Array.isArray(order?.products) ? order.products.map((p: any) => p.name).join(', ') : 'N/A'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        {order?.total_price ? `${order?.currency || '₦'}${Number(order.total_price).toLocaleString()}` : 'No price set'}
+                        {order?.total_price ? `₦${Number(order.total_price).toLocaleString()}` : 'No price set'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.address || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.created_at ? formatDate(order.created_at) : 'Unknown'}</td>

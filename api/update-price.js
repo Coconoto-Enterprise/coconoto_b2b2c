@@ -67,14 +67,14 @@ export default async function handler(req, res) {
     let priceColumn = '';
 
     if (table === 'machine_orders') {
-      priceColumn = 'price';
-      updateData = { price: priceValue, currency: '₦' };
+      priceColumn = 'total_price';
+      updateData = { total_price: priceValue };
     } else if (table === 'product_orders') {
       priceColumn = 'total_price';
-      updateData = { total_price: priceValue, currency: '₦' };
+      updateData = { total_price: priceValue };
     } else if (table === 'book_event_requests') {
       priceColumn = 'price';
-      updateData = { price: priceValue, currency: '₦' };
+      updateData = { price: priceValue };
     }
 
     const { data, error } = await supabase

@@ -28,8 +28,7 @@ export async function submitProductOrder(order: {
       country: order.country,
       notes: order.notes,
       products: order.products,
-      total_price: calculatedTotal, // Save calculated total to database with correct field name
-      currency: '₦' // Add currency field
+      total_price: calculatedTotal // Save calculated total to database with correct field name
     }
   ]);
   return { data, error };

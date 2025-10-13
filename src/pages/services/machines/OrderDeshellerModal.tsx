@@ -74,7 +74,6 @@ export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
           additional_requirements: formData.additionalRequirements,
           type: 'Desheller Machine Order',
           total_price: calculatedTotal, // Save calculated total to database
-          currency: '₦', // Add currency
           submitted_at: new Date().toISOString()
         }
       ]);
