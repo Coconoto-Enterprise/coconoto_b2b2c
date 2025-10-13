@@ -153,6 +153,7 @@ export class TemplateService {
       
       // Additional information
       additional_info: formData.additional_info || 'None',
+      hear_about_us: formData.hear_about_us || 'Not specified',
       
       total_waitlist_count: await this.getWaitlistCount(),
       

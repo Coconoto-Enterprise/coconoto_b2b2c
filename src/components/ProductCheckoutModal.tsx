@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, ShoppingBag } from 'lucide-react';
 import { useProductCart } from './ProductCartContext';
 import { submitProductOrder } from '../services/productOrder';
-import { sendEmail } from '../utils/emailService';
+import { sendProductOrderEmails } from '../utils/vercelEmailService';
 
 interface ProductCheckoutModalProps {
   isOpen: boolean;
@@ -51,24 +51,15 @@ export function ProductCheckoutModal({ isOpen, onClose }: ProductCheckoutModalPr
         setSubmitMessage('Order submitted! We will contact you soon.');
         // Send notification email via Resend API
         try {
-          await sendEmail(
-            'New Product Order - Coconoto',
-            `New Product Order Received:
-
-Customer Details:
-Name: ${form.name}
-Email: ${form.email}
-Phone: ${form.phone}
-Delivery Address: ${form.address}
-
-Products Ordered:
-${cart.map(p => `- ${p.name} (x${p.quantity})`).join('\n')}
-
-Order submitted at: ${new Date().toLocaleString()}`,
-            form.email, // Send confirmation to customer
-            form.name, // Customer name
-            'Product Order' // Order type
-          );
+          await sendProductOrderEmails({
+            name: form.name,
+            email: form.email,
+            phone: form.phone,
+            address: form.address,
+            products: cart.map(p => `${p.name} (x${p.quantity})`).join(', '),
+            orderType: 'Product Order',
+            submittedAt: new Date().toLocaleString()
+          });
         } catch (emailError) {
           console.error('Failed to send notification email:', emailError);
         }

@@ -88,3 +88,81 @@ export const sendContactEmails = async (contactData: ContactFormData): Promise<v
     throw error;
   }
 };
+
+export const sendMachineOrderEmails = async (orderData: any): Promise<void> => {
+  console.log('📧 Frontend - Sending machine order emails via WORKING Vercel API');
+  
+  try {
+    const emailData: EmailData = {
+      customerName: orderData.name,
+      customerEmail: orderData.email,
+      eventType: `${orderData.machineType || 'Machine'} Order`,
+      message: `Phone: ${orderData.phone}, Quantity: ${orderData.quantity}`,
+      formType: 'Machine Order',
+      formData: orderData
+    };
+
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Vercel API failed: ${errorData.error || response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('✅ Machine order emails sent via Vercel API:', result);
+
+    if (!result.success) {
+      throw new Error(result.error || 'Machine order email sending failed');
+    }
+
+  } catch (error) {
+    console.error('❌ Machine order service error:', error);
+    throw error;
+  }
+};
+
+export const sendProductOrderEmails = async (orderData: any): Promise<void> => {
+  console.log('📧 Frontend - Sending product order emails via WORKING Vercel API');
+  
+  try {
+    const emailData: EmailData = {
+      customerName: orderData.name,
+      customerEmail: orderData.email,
+      eventType: 'Product Order',
+      message: `Phone: ${orderData.phone}, Products: ${orderData.products}`,
+      formType: 'Product Order',
+      formData: orderData
+    };
+
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Vercel API failed: ${errorData.error || response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('✅ Product order emails sent via Vercel API:', result);
+
+    if (!result.success) {
+      throw new Error(result.error || 'Product order email sending failed');
+    }
+
+  } catch (error) {
+    console.error('❌ Product order service error:', error);
+    throw error;
+  }
+};

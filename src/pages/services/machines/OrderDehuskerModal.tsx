@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { X } from 'lucide-react';
 import { WaitlistService } from '../../../services/waitlist';
-import { sendEmail } from '../../../utils/emailService';
+import { sendMachineOrderEmails } from '../../../utils/vercelEmailService';
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -78,20 +78,12 @@ export function OrderDehuskerModal({ isOpen, onClose }: WaitlistModalProps) {
 
     // 2. Send notification email via Resend API
     try {
-      await sendEmail(
-        'New Dehusker Service Request - Coconoto',
-        `New Dehusker Service Request Received:
-
-Name: ${formData.name}
-Email: ${formData.email}
-Phone: ${formData.phone}
-Quantity: ${formData.quantity}
-Installation Address: ${formData.installationAddress}
-Additional Requirements: ${formData.additionalRequirements || 'None'}
-
-Request submitted at: ${new Date().toLocaleString()}`,
-        formData.email // Send confirmation to customer
-      );
+      await sendMachineOrderEmails({
+        ...formData,
+        machineType: 'Dehusker',
+        orderType: 'Dehusker Machine Order',
+        submittedAt: new Date().toLocaleString()
+      });
     } catch (emailError) {
       console.error('Failed to send notification email:', emailError);
       // Don't fail the entire process if email fails
