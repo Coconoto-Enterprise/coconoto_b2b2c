@@ -24,16 +24,7 @@ interface Email {
   html?: string;
 }
 
-interface Order {
-  id: string;
-  customer_name: string;
-  customer_email: string;
-  product_type: string;
-  quantity: number;
-  status: string;
-  created_at: string;
-  total_amount?: number;
-}
+
 
 interface AllData {
   bookEventRequests: any[];
@@ -55,7 +46,6 @@ interface DetailModalProps {
 const VintageDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [emails, setEmails] = useState<Email[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
   const [allData, setAllData] = useState<AllData>({
     bookEventRequests: [],
     investmentInquiries: [],
@@ -102,13 +92,7 @@ const VintageDashboard: React.FC = () => {
         setEmails(emailData.emails || []);
       }
 
-      // Fetch old format orders (for backward compatibility)
-      const orderResponse = await fetch('/api/get-orders');
-      const orderData = await orderResponse.json();
-      
-      if (orderData.success) {
-        setOrders(orderData.orders || []);
-      }
+
 
       // Fetch ALL data from new API
       const allDataResponse = await fetch('/api/get-all-data');
@@ -203,7 +187,7 @@ const VintageDashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
           <div className="flex items-center justify-between p-6 border-b">
             <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600" title="Close">
               <X className="h-6 w-6" />
             </button>
           </div>
@@ -238,9 +222,6 @@ const VintageDashboard: React.FC = () => {
   };
 
   // Filter emails by type
-  const customerEmails = Array.isArray(emails) ? emails.filter(email => 
-    email?.from?.includes('support@') || email?.to?.some(recipient => !recipient.includes('coconoto'))
-  ) : [];
   const businessEmails = Array.isArray(emails) ? emails.filter(email => 
     email?.from?.includes('team@') || email?.to?.some(recipient => recipient.includes('coconoto'))
   ) : [];
@@ -286,60 +267,8 @@ const VintageDashboard: React.FC = () => {
                 <RefreshCw className="h-4 w-4" />
                 Refresh
               </button>
-              <button
-                onClick={async () => {
-                  try {
-                    const response = await fetch('/api/debug-services');
-                    const data = await response.json();
-                    
-                    let message = '🔍 Service Debug Results:\n\n';
-                    data.tests.forEach((test: any) => {
-                      const status = test.status === 'success' ? '✅' : 
-                                   test.status === 'warning' ? '⚠️' : '❌';
-                      message += `${status} ${test.name}\n`;
-                      if (test.details.message) {
-                        message += `   ${test.details.message}\n`;
-                      }
-                      if (test.details.error) {
-                        message += `   Error: ${test.details.error}\n`;
-                      }
-                      if (test.details.suggestion) {
-                        message += `   💡 ${test.details.suggestion}\n`;
-                      }
-                      message += '\n';
-                    });
-                    
-                    alert(message);
-                  } catch (err: any) {
-                    alert('Failed to run debug test: ' + err.message);
-                  }
-                }}
-                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors text-sm"
-              >
-                Debug APIs
-              </button>
-              <button
-                onClick={async () => {
-                  if (confirm('Send a test email to bamigboyeayomide095@gmail.com?')) {
-                    try {
-                      const response = await fetch('/api/debug-services?sendTest=true');
-                      const data = await response.json();
-                      
-                      const emailTest = data.tests.find((t: any) => t.name.includes('Email'));
-                      if (emailTest?.status === 'success') {
-                        alert('✅ Test email sent successfully! Check your inbox.');
-                      } else {
-                        alert('❌ Failed to send test email: ' + emailTest?.details?.error);
-                      }
-                    } catch (err: any) {
-                      alert('Failed to send test email: ' + err.message);
-                    }
-                  }
-                }}
-                className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors text-sm"
-              >
-                Test Email
-              </button>
+
+
               <button
                 onClick={handleLogout}
                 className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors inline-flex items-center gap-2"
@@ -358,14 +287,14 @@ const VintageDashboard: React.FC = () => {
           <nav className="flex space-x-4 overflow-x-auto" aria-label="Tabs">
             {[
               { id: 'overview', name: 'Overview', icon: BarChart3 },
-              { id: 'customer-emails', name: 'Customer Emails', icon: Mail },
+
               { id: 'business-emails', name: 'Business Emails', icon: Users },
               { id: 'book-events', name: `Event Requests (${allData.bookEventRequests.length})`, icon: Calendar },
-              { id: 'investments', name: `Investments (${allData.investmentInquiries.length})`, icon: BarChart3 },
+
               { id: 'machine-orders', name: `Machine Orders (${allData.machineOrders.length})`, icon: ShoppingCart },
               { id: 'product-orders', name: `Product Orders (${allData.productOrders.length})`, icon: ShoppingCart },
               { id: 'service-contacts', name: `Service Contacts (${allData.serviceContacts.length})`, icon: Mail },
-              { id: 'toxic-results', name: `Toxic Results (${allData.toxicResults.length})`, icon: Users },
+
               { id: 'waitlist', name: `Waitlist (${allData.waitlist.length})`, icon: Users },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -436,30 +365,10 @@ const VintageDashboard: React.FC = () => {
 
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <div className="flex items-center">
-                  <BarChart3 className="h-8 w-8 text-indigo-600" />
-                  <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{allData.investmentInquiries.length}</h3>
-                    <p className="text-gray-600">Investment Inquiries</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="flex items-center">
                   <Mail className="h-8 w-8 text-pink-600" />
                   <div className="ml-4">
                     <h3 className="text-2xl font-bold text-gray-900">{allData.serviceContacts.length}</h3>
                     <p className="text-gray-600">Service Contacts</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <Users className="h-8 w-8 text-red-600" />
-                  <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{allData.toxicResults.length}</h3>
-                    <p className="text-gray-600">Toxic Results</p>
                   </div>
                 </div>
               </div>
@@ -545,59 +454,7 @@ const VintageDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Customer Emails Tab */}
-        {activeTab === 'customer-emails' && (
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Customer Emails ({customerEmails.length})</h2>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">To</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {customerEmails.length > 0 ? customerEmails.map((email) => (
-                    <tr key={email?.id || Math.random()} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">{email?.subject || 'No Subject'}</div>
-                        <div className="text-sm text-gray-500">From: {email?.from || 'Unknown'}</div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{email?.to ? email.to.join(', ') : 'No recipients'}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(email?.last_event || 'unknown')}`}>
-                          {email?.last_event || 'Unknown'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{email?.created_at ? formatDate(email.created_at) : 'Unknown'}</td>
-                      <td className="px-6 py-4">
-                        <button 
-                          onClick={() => setSelectedEmail(email)}
-                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                        No customer emails found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+
 
         {/* Business Emails Tab */}
         {activeTab === 'business-emails' && (
@@ -705,55 +562,7 @@ const VintageDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Investment Inquiries Tab */}
-        {activeTab === 'investments' && (
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Investment Inquiries ({allData.investmentInquiries.length})</h2>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Investment Range</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {allData.investmentInquiries.length > 0 ? allData.investmentInquiries.map((inquiry) => (
-                    <tr key={inquiry?.id || Math.random()} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">{inquiry?.full_name || 'Unknown'}</div>
-                        <div className="text-sm text-gray-500">{inquiry?.email || 'No email'}</div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{inquiry?.company_name || 'N/A'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{inquiry?.investment_range || 'N/A'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{inquiry?.created_at ? formatDate(inquiry.created_at) : 'Unknown'}</td>
-                      <td className="px-6 py-4">
-                        <button 
-                          onClick={() => openDetailModal('Investment Inquiry Details', inquiry)}
-                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                        No investment inquiries found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+
 
         {/* Machine Orders Tab */}
         {activeTab === 'machine-orders' && (
@@ -832,7 +641,7 @@ const VintageDashboard: React.FC = () => {
                         <div className="text-sm text-gray-500">{order?.email || 'No email'}</div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        {Array.isArray(order?.products) ? order.products.map(p => p.name).join(', ') : 'N/A'}
+                        {Array.isArray(order?.products) ? order.products.map((p: any) => p.name).join(', ') : 'N/A'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.address || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.created_at ? formatDate(order.created_at) : 'Unknown'}</td>
@@ -910,48 +719,7 @@ const VintageDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Toxic Results Tab */}
-        {activeTab === 'toxic-results' && (
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Toxic Analysis Results ({allData.toxicResults.length})</h2>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {allData.toxicResults.length > 0 ? allData.toxicResults.map((result) => (
-                    <tr key={result?.id || Math.random()} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{result?.id || 'Unknown'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{result?.created_at ? formatDate(result.created_at) : 'Unknown'}</td>
-                      <td className="px-6 py-4">
-                        <button 
-                          onClick={() => openDetailModal('Toxic Analysis Result', result)}
-                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
-                        No toxic analysis results found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+
 
         {/* Waitlist Tab */}
         {activeTab === 'waitlist' && (

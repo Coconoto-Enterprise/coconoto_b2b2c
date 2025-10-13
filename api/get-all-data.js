@@ -75,25 +75,9 @@ export default async function handler(req, res) {
       console.log('❌ book_event_requests table error:', err.message);
     }
 
-    // 2. Investment Inquiries
-    try {
-      console.log('💰 Fetching investment_inquiries...');
-      const { data: investments, error: investError } = await supabase
-        .from('investment_inquiries')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (!investError && investments) {
-        allData.investmentInquiries = investments;
-        console.log(`✅ Found ${investments.length} investment inquiries`);
-      } else if (investError) {
-        console.log('❌ investment_inquiries error:', investError.message);
-      }
-    } catch (err) {
-      console.log('❌ investment_inquiries table error:', err.message);
-    }
 
-    // 3. Machine Orders
+
+    // 2. Machine Orders
     try {
       console.log('🏭 Fetching machine_orders...');
       const { data: machineOrders, error: machineError } = await supabase
@@ -111,7 +95,7 @@ export default async function handler(req, res) {
       console.log('❌ machine_orders table error:', err.message);
     }
 
-    // 4. Product Orders
+    // 3. Product Orders
     try {
       console.log('🛒 Fetching product_orders...');
       const { data: productOrders, error: productError } = await supabase
@@ -129,7 +113,7 @@ export default async function handler(req, res) {
       console.log('❌ product_orders table error:', err.message);
     }
 
-    // 5. Service Contacts
+    // 4. Service Contacts
     try {
       console.log('📞 Fetching service_contacts...');
       const { data: serviceContacts, error: serviceError } = await supabase
@@ -145,6 +129,24 @@ export default async function handler(req, res) {
       }
     } catch (err) {
       console.log('❌ service_contacts table error:', err.message);
+    }
+
+    // 5. Investment Inquiries
+    try {
+      console.log('💰 Fetching investment_inquiries...');
+      const { data: investmentInquiries, error: investmentError } = await supabase
+        .from('investment_inquiries')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (!investmentError && investmentInquiries) {
+        allData.investmentInquiries = investmentInquiries;
+        console.log(`✅ Found ${investmentInquiries.length} investment inquiries`);
+      } else if (investmentError) {
+        console.log('❌ investment_inquiries error:', investmentError.message);
+      }
+    } catch (err) {
+      console.log('❌ investment_inquiries table error:', err.message);
     }
 
     // 6. Toxic Results
@@ -200,7 +202,7 @@ export default async function handler(req, res) {
       success: true,
       data: allData,
       total: totalEntries,
-      tables_checked: ['book_event_requests', 'investment_inquiries', 'machine_orders', 'product_orders', 'service_contacts', 'toxic_results', 'waitlist'],
+      tables_checked: ['book_event_requests', 'machine_orders', 'product_orders', 'service_contacts', 'waitlist'],
       message: `Found ${totalEntries} total entries across all tables`
     });
 
