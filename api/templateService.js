@@ -139,6 +139,7 @@ export class TemplateService {
       
       // Seller-specific fields (only show if seller)
       seller_business_type: isSeller ? formatBusinessType(formData.business_type) : '',
+      business_type: isSeller ? formatBusinessType(formData.business_type) : '', // For system template
       monthly_volume_capacity: isSeller ? (formData.monthly_volume || 'N/A') : '',
       years_of_experience: isSeller ? (formData.years_experience || 'N/A') : '',
       
@@ -146,6 +147,7 @@ export class TemplateService {
       products_of_interest: isBuyer ? (Array.isArray(formData.products_interested) 
         ? formData.products_interested.join(', ') 
         : (formData.products_interested || 'N/A')) : '',
+      other_products: isBuyer && formData.products_other ? formData.products_other : '',
       primary_use_case: isBuyer ? formatPrimaryUseCase(formData.primary_use_case) : '',
       buyer_business_type: '', // Remove this field entirely for buyers
       
@@ -178,16 +180,32 @@ export class TemplateService {
     if (!isBuyer) {
       processedSystemTemplate = processedSystemTemplate
         .replace(/<tr>\s*<td[^>]*>Products of Interest \*<\/td>\s*<td[^>]*>\[PRODUCTS_OF_INTEREST\]<\/td>\s*<\/tr>/gs, '')
+        .replace(/<tr>\s*<td[^>]*>Other Products<\/td>\s*<td[^>]*>\[OTHER_PRODUCTS\]<\/td>\s*<\/tr>/gs, '')
         .replace(/<tr>\s*<td[^>]*>Primary Use Case<\/td>\s*<td[^>]*>\[PRIMARY_USE_CASE\]<\/td>\s*<\/tr>/gs, '');
+    }
+    
+    // Remove "Other Products" row if no other products specified
+    if (!formData.products_other || formData.products_other.trim() === '') {
+      processedSystemTemplate = processedSystemTemplate
+        .replace(/<tr>\s*<td[^>]*>Other Products<\/td>\s*<td[^>]*>\[OTHER_PRODUCTS\]<\/td>\s*<\/tr>/gs, '');
     }
     
     // Always remove "Business Type (Buyer)" row since we only show business type for sellers
     processedSystemTemplate = processedSystemTemplate
       .replace(/<tr>\s*<td[^>]*>Business Type \(Buyer\)<\/td>\s*<td[^>]*>\[BUYER_BUSINESS_TYPE\]<\/td>\s*<\/tr>/gs, '');
 
+    // Process user template similarly
+    let processedUserTemplate = userTemplate;
+    
+    // Remove "Other Products" row from user template if no other products specified
+    if (!formData.products_other || formData.products_other.trim() === '') {
+      processedUserTemplate = processedUserTemplate
+        .replace(/<tr>\s*<td[^>]*>Other Products<\/td>\s*<td[^>]*>\[OTHER_PRODUCTS\]<\/td>\s*<\/tr>/gs, '');
+    }
+
     return {
       systemHtml: this.replacePlaceholders(processedSystemTemplate, templateData),
-      userHtml: this.replacePlaceholders(userTemplate, templateData)
+      userHtml: this.replacePlaceholders(processedUserTemplate, templateData)
     };
   }
 
