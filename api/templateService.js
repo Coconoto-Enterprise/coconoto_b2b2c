@@ -160,7 +160,7 @@ export class TemplateService {
       name: formData.name || 'N/A',
       email: formData.email || 'N/A',
       company: formData.company || 'N/A',
-      business_type: formatBusinessType(formData.business_type)
+      business_type: isSeller ? formatBusinessType(formData.business_type) : '' // Only for sellers
     };
 
     console.log('📧 Template data for waitlist:', JSON.stringify(templateData, null, 2));
@@ -196,6 +196,12 @@ export class TemplateService {
 
     // Process user template similarly
     let processedUserTemplate = userTemplate;
+    
+    // Remove "Business Type" row from user template if not a seller
+    if (!isSeller) {
+      processedUserTemplate = processedUserTemplate
+        .replace(/<tr>\s*<td[^>]*>Business Type<\/td>\s*<td[^>]*>\[BUSINESS_TYPE\]<\/td>\s*<\/tr>/gs, '');
+    }
     
     // Remove "Other Products" row from user template if no other products specified
     if (!formData.products_other || formData.products_other.trim() === '') {
