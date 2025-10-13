@@ -25,6 +25,7 @@ export default async function handler(req, res) {
     console.log('📧 Processing email request');
     console.log('📧 Customer:', customerName, customerEmail);
     console.log('📧 Form Type:', formType);
+    console.log('📧 Form Data:', JSON.stringify(formData, null, 2));
 
     const results = [];
 

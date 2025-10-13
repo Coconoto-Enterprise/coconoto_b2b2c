@@ -26,46 +26,74 @@ export class TemplateService {
   static replacePlaceholders(template, data) {
     let processedTemplate = template;
 
-    // Replace all placeholders with actual data
-    Object.entries(data).forEach(([key, value]) => {
-      const placeholder = `[${key.toUpperCase()}]`;
-      const replacement = value?.toString() || 'N/A';
-      processedTemplate = processedTemplate.replace(new RegExp(placeholder, 'g'), replacement);
-    });
-
-    // Replace common placeholders
+    // First, replace common placeholders to avoid conflicts
     processedTemplate = processedTemplate.replace(/\[DATE_TIME\]/g, new Date().toLocaleString());
     processedTemplate = processedTemplate.replace(/\[REF_ID\]/g, Math.random().toString(36).substr(2, 9));
+    
+    // Create a safe replacement map to avoid recursive replacements
+    const replacements = new Map();
+    
+    // Prepare all replacements first
+    Object.entries(data).forEach(([key, value]) => {
+      const placeholder = `[${key.toUpperCase()}]`;
+      let replacement = '';
+      
+      if (value !== null && value !== undefined) {
+        replacement = String(value).trim();
+        // Clean up any potential circular replacement issues
+        replacement = replacement.replace(/\[.*?\]/g, ''); // Remove any brackets that might cause issues
+      } else {
+        replacement = 'N/A';
+      }
+      
+      replacements.set(placeholder, replacement);
+    });
+    
+    // Apply all replacements
+    replacements.forEach((replacement, placeholder) => {
+      // Use a more precise regex that matches the exact placeholder
+      const regex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+      processedTemplate = processedTemplate.replace(regex, replacement);
+    });
 
     return processedTemplate;
   }
 
   // Get waitlist email templates
   static getWaitlistTemplates(formData) {
+    console.log('📧 Getting waitlist templates for:', JSON.stringify(formData, null, 2));
+    
     const systemTemplate = this.loadTemplate('system/waitlist_templet.html');
     const userTemplate = this.loadTemplate('users/user-waitlist.html');
 
     const templateData = {
-      full_name: formData.name,
-      email_address: formData.email,
-      phone_number: formData.phone,
-      company_organization: formData.company,
-      account_type: formData.account_type,
-      country: formData.country,
-      state_province: formData.state,
-      city: formData.city,
-      seller_business_type: formData.business_type,
-      monthly_volume_capacity: formData.monthly_volume,
-      years_of_experience: formData.years_experience,
-      products_of_interest: formData.products_interested,
-      primary_use_case: formData.primary_use_case,
-      buyer_business_type: formData.business_type,
+      // System template placeholders
+      full_name: formData.name || 'N/A',
+      email_address: formData.email || 'N/A',
+      phone_number: formData.phone || 'N/A',
+      company_organization: formData.company || 'N/A',
+      account_type: formData.account_type || 'N/A',
+      country: formData.country || 'N/A',
+      state_province: formData.state || 'N/A',
+      city: formData.city || 'N/A',
+      seller_business_type: formData.business_type || 'N/A',
+      monthly_volume_capacity: formData.monthly_volume || 'N/A',
+      years_of_experience: formData.years_experience || 'N/A',
+      products_of_interest: Array.isArray(formData.products_interested) 
+        ? formData.products_interested.join(', ') 
+        : (formData.products_interested || 'N/A'),
+      primary_use_case: formData.primary_use_case || 'N/A',
+      buyer_business_type: formData.business_type || 'N/A',
       total_waitlist_count: '---', // This would come from database
-      name: formData.name,
-      email: formData.email,
-      company: formData.company,
-      business_type: formData.business_type
+      
+      // User template placeholders (simpler format)
+      name: formData.name || 'N/A',
+      email: formData.email || 'N/A',
+      company: formData.company || 'N/A',
+      business_type: formData.business_type || 'N/A'
     };
+
+    console.log('📧 Template data for waitlist:', JSON.stringify(templateData, null, 2));
 
     return {
       systemHtml: this.replacePlaceholders(systemTemplate, templateData),
@@ -79,15 +107,17 @@ export class TemplateService {
     const userTemplate = this.loadTemplate('users/user-contact.html');
 
     const templateData = {
-      customer_name: formData.name,
-      customer_email: formData.email,
-      customer_phone: formData.phone,
-      user_message: formData.message,
+      // System template placeholders (from ServicesContact form)
+      customer_name: formData.name || 'N/A',
+      customer_email: formData.email || 'N/A', 
+      customer_phone: formData.phone || 'N/A',
+      user_message: formData.message || 'N/A',
+      
       // User template fields
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      message: formData.message,
+      name: formData.name || 'N/A',
+      email: formData.email || 'N/A',
+      phone: formData.phone || 'N/A',
+      message: formData.message || 'N/A',
       subject: formData.subject || 'Contact Inquiry'
     };
 
@@ -103,22 +133,24 @@ export class TemplateService {
     const userTemplate = this.loadTemplate('users/user-machine.html');
 
     const templateData = {
+      // System template placeholders (from OrderDeshellerModal, etc.)
       machine_name: machineType,
-      amount_quantity: formData.quantity,
+      amount_quantity: formData.quantity || 'N/A',
       total_price: 'Quote Required',
-      customer_name: formData.name || formData.contactName,
-      customer_email: formData.email,
-      customer_phone: formData.phone,
-      customer_location: formData.installationAddress || formData.installation_address,
+      customer_name: formData.name || formData.contactName || 'N/A',
+      customer_email: formData.email || 'N/A',
+      customer_phone: formData.phone || 'N/A',
+      customer_location: formData.installationAddress || formData.installation_address || 'N/A',
       additional_requirements: formData.additionalRequirements || formData.additional_requirements || 'None',
+      
       // User template fields
-      name: formData.name || formData.contactName,
-      email: formData.email,
-      phone: formData.phone,
-      company: formData.company,
+      name: formData.name || formData.contactName || 'N/A',
+      email: formData.email || 'N/A',
+      phone: formData.phone || 'N/A',
+      company: formData.company || 'N/A',
       machine_type: machineType,
-      quantity: formData.quantity,
-      installation_address: formData.installationAddress || formData.installation_address
+      quantity: formData.quantity || 'N/A',
+      installation_address: formData.installationAddress || formData.installation_address || 'N/A'
     };
 
     return {
@@ -127,31 +159,38 @@ export class TemplateService {
     };
   }
 
-  // Get product order email templates
+  // Get product order email templates  
   static getProductTemplates(formData) {
     const systemTemplate = this.loadTemplate('system/product_templet.html');
     const userTemplate = this.loadTemplate('users/user-product.html');
 
+    // Extract cart items if available (from ProductCheckoutModal)
+    const cartItems = formData.cart || [];
+    const product1 = cartItems[0] || {};
+    const product2 = cartItems[1] || {};
+
     const templateData = {
-      product_name: formData.productName || formData.product_name,
-      product_name_2: formData.productName2 || '',
-      product_quantity: formData.quantity || formData.product_quantity,
-      product_quantity_2: formData.quantity2 || '',
-      unit_price: formData.unitPrice || formData.unit_price || 'Quote Required',
-      unit_price_2: formData.unitPrice2 || '',
-      total_price: formData.totalAmount || formData.total_price || 'Quote Required',
-      customer_name: formData.name,
-      customer_email: formData.email,
-      customer_phone: formData.phone,
-      customer_location: formData.deliveryAddress || formData.address,
-      additional_requirements: formData.additionalRequirements || 'None',
+      // System template placeholders (from ProductCheckoutModal)
+      product_name: product1.name || formData.productName || formData.product_name || 'N/A',
+      product_name_2: product2.name || formData.productName2 || '',
+      product_quantity: product1.quantity || formData.quantity || formData.product_quantity || 'N/A',
+      product_quantity_2: product2.quantity || formData.quantity2 || '',
+      unit_price: product1.price || formData.unitPrice || formData.unit_price || 'Quote Required',
+      unit_price_2: product2.price || formData.unitPrice2 || '',
+      total_price: formData.total || formData.totalAmount || formData.total_price || 'Quote Required',
+      customer_name: formData.name || 'N/A',
+      customer_email: formData.email || 'N/A',
+      customer_phone: formData.phone || 'N/A',
+      customer_location: formData.address || formData.deliveryAddress || 'N/A',
+      additional_requirements: formData.notes || formData.additionalRequirements || 'None',
+      
       // User template fields
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      quantity: formData.quantity,
-      total_amount: formData.totalAmount,
-      delivery_address: formData.deliveryAddress
+      name: formData.name || 'N/A',
+      email: formData.email || 'N/A',
+      phone: formData.phone || 'N/A',
+      quantity: formData.quantity || product1.quantity || 'N/A',
+      total_amount: formData.total || formData.totalAmount || 'N/A',
+      delivery_address: formData.address || formData.deliveryAddress || 'N/A'
     };
 
     return {
@@ -166,27 +205,31 @@ export class TemplateService {
     const userTemplate = this.loadTemplate('users/user-booking.html');
 
     const templateData = {
-      event_type: formData.eventType,
-      event_date: formData.eventDate,
-      start_time: formData.startTime || formData.eventTime,
+      // System template placeholders (from BookEventModal)
+      event_type: formData.eventType || 'N/A',
+      event_date: formData.eventDate || 'N/A',
+      start_time: formData.startTime || formData.eventTime || 'N/A',
       end_time: formData.endTime || 'TBD',
-      number_of_guests: formData.numberOfGuests || 'TBD',
-      venue_address: formData.venueAddress || formData.location,
+      number_of_guests: formData.guests || formData.numberOfGuests || 'TBD',
+      venue_address: formData.venue || formData.venueAddress || formData.location || 'N/A',
       venue_type: formData.venueType || 'TBD',
-      serving_style: formData.servingStyle || 'TBD',
-      additional_notes: formData.additionalNotes || formData.additionalInfo || 'None',
-      customer_name: formData.name,
-      customer_email: formData.email,
-      customer_phone: formData.phone,
-      customer_location: formData.location,
-      additional_requirements: formData.additionalInfo || 'None',
+      serving_style: Array.isArray(formData.servingStyle) 
+        ? formData.servingStyle.join(', ') 
+        : (formData.servingStyle || 'TBD'),
+      additional_notes: formData.notes || formData.additionalNotes || formData.additionalInfo || 'None',
+      customer_name: formData.fullName || formData.name || 'N/A',
+      customer_email: formData.email || 'N/A',
+      customer_phone: formData.phone || 'N/A',
+      customer_location: formData.venue || formData.location || 'N/A',
+      additional_requirements: formData.notes || formData.additionalInfo || 'None',
+      
       // User template fields
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      event_date: formData.eventDate,
-      event_time: formData.eventTime,
-      location: formData.location
+      name: formData.fullName || formData.name || 'N/A',
+      email: formData.email || 'N/A',
+      phone: formData.phone || 'N/A',
+      event_date: formData.eventDate || 'N/A',
+      event_time: formData.startTime || formData.eventTime || 'N/A',
+      location: formData.venue || formData.location || 'N/A'
     };
 
     return {
