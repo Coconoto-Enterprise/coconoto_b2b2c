@@ -11,7 +11,8 @@ import {
   RefreshCw,
   LogOut,
   Plus,
-  X
+  X,
+  Edit
 } from 'lucide-react';
 
 interface Email {
@@ -267,10 +268,32 @@ const VintageDashboard: React.FC = () => {
                     {key.replace(/_/g, ' ')}:
                   </div>
                   <div className="sm:col-span-2 text-gray-900">
-                    {typeof value === 'object' && value !== null ? 
-                      JSON.stringify(value, null, 2) : 
+                    {typeof value === 'object' && value !== null ? (
+                      Array.isArray(value) ? (
+                        <div className="space-y-2">
+                          {value.map((item: any, index: number) => (
+                            <div key={index} className="bg-gray-50 p-3 rounded-lg border">
+                              <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div><span className="font-medium">Name:</span> {item.name || 'N/A'}</div>
+                                <div><span className="font-medium">Price:</span> {item.price || 'N/A'}</div>
+                                <div><span className="font-medium">Quantity:</span> {item.quantity || 'N/A'}</div>
+                                <div><span className="font-medium">ID:</span> {item.id || 'N/A'}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="bg-gray-50 p-3 rounded-lg border text-sm">
+                          {Object.entries(value).map(([k, v]) => (
+                            <div key={k} className="mb-1">
+                              <span className="font-medium">{k}:</span> {String(v)}
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    ) : (
                       String(value || 'N/A')
-                    }
+                    )}
                   </div>
                 </div>
               ))}
@@ -623,8 +646,9 @@ const VintageDashboard: React.FC = () => {
                           <button 
                             onClick={() => openEditPriceModal('Event Request', request)}
                             className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                            title="Edit Price"
                           >
-                            Edit Price
+                            <Edit className="h-4 w-4" />
                           </button>
                         </div>
                       </td>
@@ -689,8 +713,9 @@ const VintageDashboard: React.FC = () => {
                           <button 
                             onClick={() => openEditPriceModal('Machine Order', order)}
                             className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                            title="Edit Price"
                           >
-                            Edit Price
+                            <Edit className="h-4 w-4" />
                           </button>
                         </div>
                       </td>
@@ -753,8 +778,9 @@ const VintageDashboard: React.FC = () => {
                           <button 
                             onClick={() => openEditPriceModal('Product Order', order)}
                             className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                            title="Edit Price"
                           >
-                            Edit Price
+                            <Edit className="h-4 w-4" />
                           </button>
                         </div>
                       </td>
