@@ -109,6 +109,19 @@ export class TemplateService {
       return value.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     };
 
+    // Convert account_type to readable format
+    const formatAccountType = (value) => {
+      if (!value) return 'N/A';
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    };
+
+    // Convert business_type to readable format
+    const formatBusinessType = (value) => {
+      if (!value) return 'N/A';
+      const formatted = value.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      return formatted;
+    };
+
     // Determine what fields to show based on account type
     const isSeller = formData.account_type === 'seller' || formData.account_type === 'both';
     const isBuyer = formData.account_type === 'buyer' || formData.account_type === 'both';
@@ -119,22 +132,25 @@ export class TemplateService {
       email_address: formData.email || 'N/A',
       phone_number: formData.phone || 'N/A',
       company_organization: formData.company || 'N/A',
-      account_type: formData.account_type || 'N/A',
+      account_type: formatAccountType(formData.account_type),
       country: formData.country || 'N/A',
       state_province: formData.state || 'N/A',
       city: formData.city || 'N/A',
       
       // Seller-specific fields (only show if seller)
-      seller_business_type: isSeller ? (formData.business_type || 'N/A') : '',
+      seller_business_type: isSeller ? formatBusinessType(formData.business_type) : '',
       monthly_volume_capacity: isSeller ? (formData.monthly_volume || 'N/A') : '',
       years_of_experience: isSeller ? (formData.years_experience || 'N/A') : '',
       
-      // Buyer-specific fields (only show if buyer)
+      // Buyer-specific fields (only show if buyer)  
       products_of_interest: isBuyer ? (Array.isArray(formData.products_interested) 
         ? formData.products_interested.join(', ') 
         : (formData.products_interested || 'N/A')) : '',
       primary_use_case: isBuyer ? formatPrimaryUseCase(formData.primary_use_case) : '',
-      buyer_business_type: isBuyer ? (formData.business_type || 'N/A') : '',
+      buyer_business_type: '', // Remove this field entirely for buyers
+      
+      // Additional information
+      additional_info: formData.additional_info || 'None',
       
       total_waitlist_count: await this.getWaitlistCount(),
       
@@ -142,7 +158,7 @@ export class TemplateService {
       name: formData.name || 'N/A',
       email: formData.email || 'N/A',
       company: formData.company || 'N/A',
-      business_type: formData.business_type || 'N/A'
+      business_type: formatBusinessType(formData.business_type)
     };
 
     console.log('📧 Template data for waitlist:', JSON.stringify(templateData, null, 2));
@@ -162,9 +178,12 @@ export class TemplateService {
     if (!isBuyer) {
       processedSystemTemplate = processedSystemTemplate
         .replace(/<tr>\s*<td[^>]*>Products of Interest \*<\/td>\s*<td[^>]*>\[PRODUCTS_OF_INTEREST\]<\/td>\s*<\/tr>/gs, '')
-        .replace(/<tr>\s*<td[^>]*>Primary Use Case<\/td>\s*<td[^>]*>\[PRIMARY_USE_CASE\]<\/td>\s*<\/tr>/gs, '')
-        .replace(/<tr>\s*<td[^>]*>Business Type \(Buyer\)<\/td>\s*<td[^>]*>\[BUYER_BUSINESS_TYPE\]<\/td>\s*<\/tr>/gs, '');
+        .replace(/<tr>\s*<td[^>]*>Primary Use Case<\/td>\s*<td[^>]*>\[PRIMARY_USE_CASE\]<\/td>\s*<\/tr>/gs, '');
     }
+    
+    // Always remove "Business Type (Buyer)" row since we only show business type for sellers
+    processedSystemTemplate = processedSystemTemplate
+      .replace(/<tr>\s*<td[^>]*>Business Type \(Buyer\)<\/td>\s*<td[^>]*>\[BUYER_BUSINESS_TYPE\]<\/td>\s*<\/tr>/gs, '');
 
     return {
       systemHtml: this.replacePlaceholders(processedSystemTemplate, templateData),
