@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { TemplateService } from './templateService.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -27,25 +28,59 @@ export default async function handler(req, res) {
 
     const results = [];
 
-    // Create simple email templates
-    const businessEmailHtml = `
-      <h2>New ${formType} - Coconoto</h2>
-      <p><strong>Customer:</strong> ${customerName}</p>
-      <p><strong>Email:</strong> ${customerEmail}</p>
-      <p><strong>Type:</strong> ${eventType}</p>
-      <p><strong>Message:</strong> ${message}</p>
-      <p><strong>Details:</strong></p>
-      <pre>${JSON.stringify(formData, null, 2)}</pre>
-      <p>Submitted: ${new Date().toISOString()}</p>
-    `;
+    // Get appropriate templates based on form type
+    let templates;
+    
+    switch (formType.toLowerCase()) {
+      case 'waitlist signup':
+      case 'waitlist':
+        templates = TemplateService.getWaitlistTemplates(formData);
+        break;
+      case 'contact form':
+      case 'contact':
+        templates = TemplateService.getContactTemplates(formData);
+        break;
+      case 'machine order':
+      case 'desheller machine order':
+      case 'dehusker machine order':
+      case 'cocopeat equipment order':
+        const machineType = eventType.includes('Desheller') ? 'Desheller' : 
+                           eventType.includes('Dehusker') ? 'Dehusker' : 
+                           eventType.includes('Cocopeat') ? 'Cocopeat Equipment' : 'Machine';
+        templates = TemplateService.getMachineTemplates(formData, machineType);
+        break;
+      case 'product order':
+        templates = TemplateService.getProductTemplates(formData);
+        break;
+      case 'event booking':
+      case 'booking':
+        templates = TemplateService.getBookingTemplates(formData);
+        break;
+      default:
+        // Fallback to simple templates for unknown types
+        templates = {
+          systemHtml: `
+            <h2>New ${formType} - Coconoto</h2>
+            <p><strong>Customer:</strong> ${customerName}</p>
+            <p><strong>Email:</strong> ${customerEmail}</p>
+            <p><strong>Type:</strong> ${eventType}</p>
+            <p><strong>Message:</strong> ${message}</p>
+            <p><strong>Details:</strong></p>
+            <pre>${JSON.stringify(formData, null, 2)}</pre>
+            <p>Submitted: ${new Date().toISOString()}</p>
+          `,
+          userHtml: `
+            <h2>Thank you for your interest - Coconoto 🥥</h2>
+            <p>Dear ${customerName},</p>
+            <p>We have received your ${formType.toLowerCase()} and will be in touch soon!</p>
+            <p>Your request for: ${eventType}</p>
+            <p>Best regards,<br>Coconoto Team</p>
+          `
+        };
+    }
 
-    const customerEmailHtml = `
-      <h2>Thank you for your interest - Coconoto 🥥</h2>
-      <p>Dear ${customerName},</p>
-      <p>We have received your ${formType.toLowerCase()} and will be in touch soon!</p>
-      <p>Your request for: ${eventType}</p>
-      <p>Best regards,<br>Coconoto Team</p>
-    `;
+    const businessEmailHtml = templates.systemHtml;
+    const customerEmailHtml = templates.userHtml;
 
     // Send business notification
     console.log('📤 Sending business notification...');
