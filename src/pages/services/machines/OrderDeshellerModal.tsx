@@ -59,6 +59,11 @@ export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
     // 1. Try to store in Supabase with retry logic
     let supabaseSuccess = false;
     try {
+      // Calculate total price for Desheller
+      const quantity = parseInt(formData.quantity) || 1;
+      const unitPrice = 1000000; // ₦1,000,000 for Desheller
+      const calculatedTotal = unitPrice * quantity;
+
       const { error } = await supabase.from('machine_orders').insert([
         {
           name: formData.name,
@@ -68,6 +73,8 @@ export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
           installation_address: formData.installationAddress,
           additional_requirements: formData.additionalRequirements,
           type: 'Desheller Machine Order',
+          total_price: calculatedTotal, // Save calculated total to database
+          currency: '₦', // Add currency
           submitted_at: new Date().toISOString()
         }
       ]);

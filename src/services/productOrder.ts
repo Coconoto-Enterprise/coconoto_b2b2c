@@ -28,8 +28,8 @@ export async function submitProductOrder(order: {
       country: order.country,
       notes: order.notes,
       products: order.products,
-      total_amount: calculatedTotal, // Save calculated total to database
-      formatted_total: `₦${calculatedTotal.toLocaleString()}` // Save formatted total too
+      total_price: calculatedTotal, // Save calculated total to database with correct field name
+      currency: '₦' // Add currency field
     }
   ]);
   return { data, error };
