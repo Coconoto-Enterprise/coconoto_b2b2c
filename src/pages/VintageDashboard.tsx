@@ -62,6 +62,10 @@ const VintageDashboard: React.FC = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [detailModalTitle, setDetailModalTitle] = useState('');
   const [sending, setSending] = useState(false);
+  const [showEditPriceModal, setShowEditPriceModal] = useState(false);
+  const [editPriceItem, setEditPriceItem] = useState<any>(null);
+  const [editPriceType, setEditPriceType] = useState('');
+  const [newPrice, setNewPrice] = useState('');
   const navigate = useNavigate();
 
   const [composer, setComposer] = useState({
@@ -176,6 +180,70 @@ const VintageDashboard: React.FC = () => {
     setDetailModalTitle(title);
     setSelectedItem(item);
     setShowDetailModal(true);
+  };
+
+  // Open edit price modal
+  const openEditPriceModal = (type: string, item: any) => {
+    setEditPriceType(type);
+    setEditPriceItem(item);
+    
+    // Get current price based on item type
+    let currentPrice = '';
+    if (type === 'Machine Order' || type === 'Event Request') {
+      currentPrice = item?.price ? item.price.toString() : '';
+    } else if (type === 'Product Order') {
+      currentPrice = item?.total_price ? item.total_price.toString() : '';
+    }
+    
+    setNewPrice(currentPrice);
+    setShowEditPriceModal(true);
+  };
+
+  // Update price function
+  const updatePrice = async () => {
+    if (!editPriceItem || !newPrice) {
+      alert('Please enter a valid price');
+      return;
+    }
+
+    try {
+      const priceValue = parseFloat(newPrice);
+      if (isNaN(priceValue) || priceValue < 0) {
+        alert('Please enter a valid positive number');
+        return;
+      }
+
+      // Determine which table to update based on type
+      let tableName = '';
+      if (editPriceType === 'Machine Order') tableName = 'machine_orders';
+      else if (editPriceType === 'Product Order') tableName = 'product_orders';
+      else if (editPriceType === 'Event Request') tableName = 'book_event_requests';
+
+      console.log('Updating price:', { tableName, id: editPriceItem.id, price: priceValue });
+
+      // Update price via API
+      const response = await fetch('/api/update-price', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: tableName,
+          id: editPriceItem.id,
+          price: priceValue
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert(`Price updated successfully to ₦${priceValue.toLocaleString()}!`);
+        setShowEditPriceModal(false);
+        fetchData(); // Refresh data
+      } else {
+        alert(`Failed to update price: ${data.error}`);
+      }
+    } catch (err) {
+      console.error('Update price error:', err);
+      alert('Network error occurred while updating price');
+    }
   };
 
   // Detail Modal Component
@@ -524,6 +592,7 @@ const VintageDashboard: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event Type</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Guests</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
@@ -538,20 +607,31 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.event_type || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.event_date || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.guests || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {request?.price ? `${request?.currency || '₦'}${Number(request.price).toLocaleString()}` : 'No price set'}
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.created_at ? formatDate(request.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
-                        <button 
-                          onClick={() => openDetailModal('Event Request Details', request)}
-                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => openDetailModal('Event Request Details', request)}
+                            className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </button>
+                          <button 
+                            onClick={() => openEditPriceModal('Event Request', request)}
+                            className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                          >
+                            Edit Price
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )) : (
                     <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                         No event requests found
                       </td>
                     </tr>
@@ -577,6 +657,7 @@ const VintageDashboard: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Machine Type</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Installation Address</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -591,21 +672,32 @@ const VintageDashboard: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.type || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.quantity || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {order?.price ? `${order?.currency || '₦'}${Number(order.price).toLocaleString()}` : 'No price set'}
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.installation_address || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.submitted_at ? formatDate(order.submitted_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
-                        <button 
-                          onClick={() => openDetailModal('Machine Order Details', order)}
-                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => openDetailModal('Machine Order Details', order)}
+                            className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </button>
+                          <button 
+                            onClick={() => openEditPriceModal('Machine Order', order)}
+                            className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                          >
+                            Edit Price
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )) : (
                     <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                         No machine orders found
                       </td>
                     </tr>
@@ -628,6 +720,7 @@ const VintageDashboard: React.FC = () => {
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Products</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Price</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Address</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -643,21 +736,32 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">
                         {Array.isArray(order?.products) ? order.products.map((p: any) => p.name).join(', ') : 'N/A'}
                       </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {order?.total_price ? `${order?.currency || '₦'}${Number(order.total_price).toLocaleString()}` : 'No price set'}
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.address || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.created_at ? formatDate(order.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
-                        <button 
-                          onClick={() => openDetailModal('Product Order Details', order)}
-                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => openDetailModal('Product Order Details', order)}
+                            className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </button>
+                          <button 
+                            onClick={() => openEditPriceModal('Product Order', order)}
+                            className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                          >
+                            Edit Price
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )) : (
                     <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                         No product orders found
                       </td>
                     </tr>
@@ -909,6 +1013,69 @@ const VintageDashboard: React.FC = () => {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Price Modal */}
+      {showEditPriceModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Edit Price - {editPriceType}</h3>
+              <button 
+                onClick={() => setShowEditPriceModal(false)}
+                title="Close price editor"
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Customer: {editPriceItem?.name || 'Unknown'}
+                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {editPriceType === 'Machine Order' && `Machine: ${editPriceItem?.type || 'Unknown'}`}
+                  {editPriceType === 'Product Order' && 'Product Order'}
+                  {editPriceType === 'Event Request' && `Event: ${editPriceItem?.event_type || 'Unknown'}`}
+                </label>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Price (₦)</label>
+                <input
+                  type="number"
+                  value={newPrice}
+                  onChange={(e) => setNewPrice(e.target.value)}
+                  placeholder="Enter price in Naira"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <div className="text-sm text-gray-600">
+                <p>Current price: {
+                  editPriceType === 'Product Order' 
+                    ? (editPriceItem?.total_price ? `₦${Number(editPriceItem.total_price).toLocaleString()}` : 'Not set')
+                    : (editPriceItem?.price ? `₦${Number(editPriceItem.price).toLocaleString()}` : 'Not set')
+                }</p>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t flex justify-end gap-3">
+              <button
+                onClick={() => setShowEditPriceModal(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={updatePrice}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
+                Update Price
+              </button>
             </div>
           </div>
         </div>
