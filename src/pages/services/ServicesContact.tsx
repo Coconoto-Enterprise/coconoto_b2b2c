@@ -43,7 +43,8 @@ export function ServicesContact() {
         await sendContactEmails({
           name: form.name,
           email: form.email,
-          message: `Phone: ${form.phone}, Message: ${form.message}`,
+          phone: form.phone,
+          message: form.message,
           subject: 'Services Inquiry'
         });
       } catch (emailError) {

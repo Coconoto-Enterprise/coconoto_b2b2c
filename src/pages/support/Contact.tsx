@@ -45,7 +45,8 @@ export function Contact() {
         await sendContactEmails({
           name: form.name,
           email: form.email,
-          message: `Phone: ${form.phone}, Message: ${form.message}`,
+          phone: form.phone,
+          message: form.message,
           subject: 'Contact Inquiry'
         });
       } catch (emailError) {

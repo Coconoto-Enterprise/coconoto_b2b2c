@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
+import { sendMachineOrderEmails } from '../../../utils/vercelEmailService';
 
 interface OrderCoconutMilkExtractorModalProps {
   isOpen: boolean;
@@ -75,23 +76,11 @@ export function OrderCoconutMilkExtractorModal({ isOpen, onClose, type }: OrderC
 
     // 2. Send notification email via Resend API
     try {
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          subject: `New Coconut Milk Extractor Order (${type}) - Coconoto`,
-          message: `New Coconut Milk Extractor Order Received:
-
-Type: ${type}
-Name: ${formData.name}
-Email: ${formData.email}
-Phone: ${formData.phone}
-Quantity: ${formData.quantity}
-Installation Address: ${formData.installationAddress}
-Additional Requirements: ${formData.additionalRequirements || 'None'}
-
-Order submitted at: ${new Date().toLocaleString()}`
-        })
+      await sendMachineOrderEmails({
+        ...formData,
+        machineType: `Coconut Milk Extractor (${type})`,
+        orderType: `Coconut Milk Extractor Order (${type})`,
+        submittedAt: new Date().toLocaleString()
       });
     } catch (emailError) {
       console.error('Failed to send notification email:', emailError);
