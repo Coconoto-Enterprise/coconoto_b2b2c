@@ -51,7 +51,10 @@ export function ProductCheckoutModal({ isOpen, onClose }: ProductCheckoutModalPr
         setSubmitMessage('Order submitted! We will contact you soon.');
         // Send notification email via Resend API
         try {
-          const totalAmount = cart.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
+          const totalAmount = cart.reduce((sum, item) => {
+            const price = parseInt(item.price.replace(/[^\d]/g, '')) || 0;
+            return sum + (price * item.quantity);
+          }, 0);
           await sendProductOrderEmails({
             name: form.name,
             email: form.email,
@@ -60,6 +63,7 @@ export function ProductCheckoutModal({ isOpen, onClose }: ProductCheckoutModalPr
             cart: cart, // Send full cart data for template
             products: cart.map(p => `${p.name} (x${p.quantity})`).join(', '),
             total: totalAmount,
+            totalFormatted: `₦${totalAmount.toLocaleString()}`,
             orderType: 'Product Order',
             submittedAt: new Date().toLocaleString()
           });

@@ -247,11 +247,20 @@ export class TemplateService {
     const systemTemplate = this.loadTemplate('system/machine_templet.html');
     const userTemplate = this.loadTemplate('users/user-machine.html');
 
+    // Determine price based on machine type
+    let totalPrice = 'Quote Required';
+    if (machineType === 'Desheller' || machineType === 'Coconut Desheller') {
+      const quantity = parseInt(formData.quantity) || 1;
+      const unitPrice = 1000000; // ₦1,000,000 for Desheller
+      const calculatedTotal = unitPrice * quantity;
+      totalPrice = `₦${calculatedTotal.toLocaleString()}`;
+    }
+
     const templateData = {
       // System template placeholders (from OrderDeshellerModal, etc.)
       machine_name: machineType,
       amount_quantity: formData.quantity || 'N/A',
-      total_price: 'Quote Required',
+      total_price: totalPrice,
       customer_name: formData.name || formData.contactName || 'N/A',
       customer_email: formData.email || 'N/A',
       customer_phone: formData.phone || 'N/A',
@@ -284,6 +293,23 @@ export class TemplateService {
     const product1 = cartItems[0] || {};
     const product2 = cartItems[1] || {};
 
+    // Calculate dynamic total if prices are available
+    let calculatedTotal = 0;
+    let totalPrice = 'Quote Required';
+
+    if (cartItems.length > 0) {
+      cartItems.forEach(item => {
+        if (item.price && item.quantity) {
+          const price = parseInt(item.price.replace(/[^\d]/g, '')) || 0;
+          calculatedTotal += price * item.quantity;
+        }
+      });
+      
+      if (calculatedTotal > 0) {
+        totalPrice = `₦${calculatedTotal.toLocaleString()}`;
+      }
+    }
+
     const templateData = {
       // System template placeholders (from ProductCheckoutModal)
       product_name: product1.name || formData.productName || formData.product_name || 'N/A',
@@ -292,7 +318,8 @@ export class TemplateService {
       product_quantity_2: product2.quantity || formData.quantity2 || '',
       unit_price: product1.price || formData.unitPrice || formData.unit_price || 'Quote Required',
       unit_price_2: product2.price || formData.unitPrice2 || '',
-      total_price: formData.total || formData.totalAmount || formData.total_price || 'Quote Required',
+      total_price: totalPrice,
+      calculated_total: calculatedTotal, // For database storage
       customer_name: formData.name || 'N/A',
       customer_email: formData.email || 'N/A',
       customer_phone: formData.phone || 'N/A',
@@ -304,12 +331,31 @@ export class TemplateService {
       email: formData.email || 'N/A',
       phone: formData.phone || 'N/A',
       quantity: formData.quantity || product1.quantity || 'N/A',
-      total_amount: formData.total || formData.totalAmount || 'N/A',
+      total_amount: totalPrice,
       delivery_address: formData.address || formData.deliveryAddress || 'N/A'
     };
 
+    // Handle single product vs multiple products template processing
+    let processedSystemTemplate = systemTemplate;
+    
+    // If only one product, remove the "Product 2" column
+    if (cartItems.length <= 1 || !product2.name) {
+      // Remove the "Product 2" header column
+      processedSystemTemplate = processedSystemTemplate
+        .replace(/<th[^>]*>Product 2<\/th>/g, '')
+        // Remove all "Product 2" data cells
+        .replace(/<td[^>]*>\[PRODUCT_NAME_2\]<\/td>/g, '')
+        .replace(/<td[^>]*>\[PRODUCT_QUANTITY_2\]<\/td>/g, '')
+        .replace(/<td[^>]*>\[UNIT_PRICE_2\]<\/td>/g, '');
+      
+      // Update table structure for single product
+      processedSystemTemplate = processedSystemTemplate
+        .replace(/Product 1/g, 'Product')
+        .replace(/colspan="2"/g, 'colspan="1"');
+    }
+
     return {
-      systemHtml: this.replacePlaceholders(systemTemplate, templateData),
+      systemHtml: this.replacePlaceholders(processedSystemTemplate, templateData),
       userHtml: this.replacePlaceholders(userTemplate, templateData)
     };
   }

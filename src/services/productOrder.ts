@@ -11,6 +11,12 @@ export async function submitProductOrder(order: {
   notes?: string;
   products: Array<{ id: string; name: string; price: string; quantity: number; }>;
 }) {
+  // Calculate total dynamically
+  const calculatedTotal = order.products.reduce((sum, product) => {
+    const price = parseInt(product.price.replace(/[^\d]/g, '')) || 0;
+    return sum + (price * product.quantity);
+  }, 0);
+
   const { data, error } = await supabase.from('product_orders').insert([
     {
       name: order.name,
@@ -22,6 +28,8 @@ export async function submitProductOrder(order: {
       country: order.country,
       notes: order.notes,
       products: order.products,
+      total_amount: calculatedTotal, // Save calculated total to database
+      formatted_total: `₦${calculatedTotal.toLocaleString()}` // Save formatted total too
     }
   ]);
   return { data, error };
