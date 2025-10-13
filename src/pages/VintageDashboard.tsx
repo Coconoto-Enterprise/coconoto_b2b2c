@@ -262,7 +262,33 @@ const VintageDashboard: React.FC = () => {
           </div>
           <div className="p-6 overflow-y-auto max-h-96">
             <div className="space-y-4">
-              {Object.entries(data).map(([key, value]) => (
+              {Object.entries(data)
+                .filter(([key, value]) => {
+                  // Hide seller-specific fields for buyers when they're N/A, empty, or not applicable
+                  if (data.account_type === 'buyer') {
+                    const sellerFields = ['monthly_volume', 'years_experience', 'business_type', 'business_category', 'products'];
+                    if (sellerFields.includes(key) && (!value || value === 'N/A' || value === '' || 
+                        (Array.isArray(value) && value.every(item => !item || !item.name || item.name === 'N/A')))) {
+                      return false;
+                    }
+                  }
+                  // Hide buyer-specific fields for sellers when they're N/A, empty, or not applicable
+                  if (data.account_type === 'seller') {
+                    const buyerFields = ['products_interested', 'products_other', 'primary_use_case'];
+                    if (buyerFields.includes(key) && (!value || value === 'N/A' || value === '' ||
+                        (Array.isArray(value) && value.length === 0))) {
+                      return false;
+                    }
+                  }
+                  // Hide any field that is explicitly N/A, empty, or null
+                  if (!value || value === 'N/A' || value === '' || 
+                      (Array.isArray(value) && value.length === 0) ||
+                      (Array.isArray(value) && value.every(item => !item || item === 'N/A'))) {
+                    return false;
+                  }
+                  return true;
+                })
+                .map(([key, value]) => (
                 <div key={key} className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div className="font-medium text-gray-700 capitalize">
                     {key.replace(/_/g, ' ')}:
@@ -270,18 +296,26 @@ const VintageDashboard: React.FC = () => {
                   <div className="sm:col-span-2 text-gray-900">
                     {typeof value === 'object' && value !== null ? (
                       Array.isArray(value) ? (
-                        <div className="space-y-2">
-                          {value.map((item: any, index: number) => (
-                            <div key={index} className="bg-gray-50 p-3 rounded-lg border">
-                              <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div><span className="font-medium">Name:</span> {item.name || 'N/A'}</div>
-                                <div><span className="font-medium">Price:</span> {item.price || 'N/A'}</div>
-                                <div><span className="font-medium">Quantity:</span> {item.quantity || 'N/A'}</div>
-                                <div><span className="font-medium">ID:</span> {item.id || 'N/A'}</div>
+                        // Check if this is a products array from product orders (has name, price, etc.)
+                        value.length > 0 && value[0]?.name ? (
+                          <div className="space-y-2">
+                            {value.map((item: any, index: number) => (
+                              <div key={index} className="bg-gray-50 p-3 rounded-lg border">
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                  <div><span className="font-medium">Name:</span> {item.name || 'N/A'}</div>
+                                  <div><span className="font-medium">Price:</span> {item.price || 'N/A'}</div>
+                                  <div><span className="font-medium">Quantity:</span> {item.quantity || 'N/A'}</div>
+                                  <div><span className="font-medium">ID:</span> {item.id || 'N/A'}</div>
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
+                            ))}
+                          </div>
+                        ) : (
+                          // For simple arrays like products_interested
+                          <div className="bg-gray-50 p-3 rounded-lg border text-sm">
+                            {value.length > 0 ? value.join(', ') : 'N/A'}
+                          </div>
+                        )
                       ) : (
                         <div className="bg-gray-50 p-3 rounded-lg border text-sm">
                           {Object.entries(value).map(([k, v]) => (
@@ -295,7 +329,10 @@ const VintageDashboard: React.FC = () => {
                       // Format price fields with ₦ symbol and commas
                       (key === 'total_price' || key === 'price') && typeof value === 'number' && value > 0 ? 
                         `₦${Number(value).toLocaleString()}` : 
-                        String(value || 'N/A')
+                        // Format string values: convert underscores to spaces and capitalize
+                        typeof value === 'string' && value !== 'N/A' ? 
+                          value.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) :
+                          String(value || 'N/A')
                     )}
                   </div>
                 </div>
