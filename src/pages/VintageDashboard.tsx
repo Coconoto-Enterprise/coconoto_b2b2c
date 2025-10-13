@@ -592,7 +592,7 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.type || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.quantity || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.installation_address || 'N/A'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{order?.created_at ? formatDate(order.created_at) : 'Unknown'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{order?.submitted_at ? formatDate(order.submitted_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <button 
                           onClick={() => openDetailModal('Machine Order Details', order)}

@@ -83,7 +83,7 @@ export default async function handler(req, res) {
       const { data: machineOrders, error: machineError } = await supabase
         .from('machine_orders')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('submitted_at', { ascending: false });
 
       if (!machineError && machineOrders) {
         allData.machineOrders = machineOrders;
