@@ -60,6 +60,7 @@ export function ProductCheckoutModal({ isOpen, onClose }: ProductCheckoutModalPr
             email: form.email,
             phone: form.phone,
             address: form.address,
+            notes: form.notes, // Include the notes field
             cart: cart, // Send full cart data for template
             products: cart.map(p => `${p.name} (x${p.quantity})`).join(', '),
             total: totalAmount,
