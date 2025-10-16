@@ -264,6 +264,11 @@ const VintageDashboard: React.FC = () => {
             <div className="space-y-4">
               {Object.entries(data)
                 .filter(([key, value]) => {
+                  // Always hide the id field
+                  if (key === 'id') {
+                    return false;
+                  }
+
                   // For buyers: show products they're interested in
                   if (data.account_type === 'buyer' && key === 'products') {
                     // Show products if it's an array with items
@@ -344,7 +349,6 @@ const VintageDashboard: React.FC = () => {
                                   <div><span className="font-medium">Name:</span> {item.name || 'N/A'}</div>
                                   <div><span className="font-medium">Price:</span> {item.price || 'N/A'}</div>
                                   <div><span className="font-medium">Quantity:</span> {item.quantity || 'N/A'}</div>
-                                  <div><span className="font-medium">ID:</span> {item.id || 'N/A'}</div>
                                 </div>
                               </div>
                             ))}
@@ -943,7 +947,6 @@ const VintageDashboard: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Account Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Business Type</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Country</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -958,7 +961,6 @@ const VintageDashboard: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{entry?.company || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{entry?.account_type || 'N/A'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{entry?.business_type || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{entry?.country || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{entry?.created_at ? formatDate(entry.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
