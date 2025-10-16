@@ -264,28 +264,67 @@ const VintageDashboard: React.FC = () => {
             <div className="space-y-4">
               {Object.entries(data)
                 .filter(([key, value]) => {
-                  // Hide seller-specific fields for buyers when they're N/A, empty, or not applicable
-                  if (data.account_type === 'buyer') {
-                    const sellerFields = ['monthly_volume', 'years_experience', 'business_type', 'business_category', 'products'];
-                    if (sellerFields.includes(key) && (!value || value === 'N/A' || value === '' || 
-                        (Array.isArray(value) && value.every(item => !item || !item.name || item.name === 'N/A')))) {
-                      return false;
+                  // For buyers: show products they're interested in
+                  if (data.account_type === 'buyer' && key === 'products') {
+                    // Show products if it's an array with items
+                    if (Array.isArray(value) && value.length > 0) {
+                      // Check if it's a string array (waitlist) or object array (orders)
+                      if (typeof value[0] === 'string') {
+                        return true; // Show products_interested
+                      }
+                      // For object arrays, check if they have valid data
+                      if (value[0]?.name && value[0].name !== 'N/A') {
+                        return true;
+                      }
                     }
+                    return false; // Hide empty product arrays
                   }
-                  // Hide buyer-specific fields for sellers when they're N/A, empty, or not applicable
+
+                  // For sellers: show their business info
                   if (data.account_type === 'seller') {
-                    const buyerFields = ['products_interested', 'products_other', 'primary_use_case'];
-                    if (buyerFields.includes(key) && (!value || value === 'N/A' || value === '' ||
-                        (Array.isArray(value) && value.length === 0))) {
+                    const sellerFields = ['business_type', 'business_category', 'monthly_volume', 'years_experience'];
+                    if (sellerFields.includes(key) && value && value !== 'N/A' && value !== '') {
+                      return true;
+                    }
+                  }
+
+                  // Always show these core fields (unless truly empty)
+                  const coreFields = ['name', 'email', 'phone', 'company', 'account_type', 'country', 'state', 'city', 
+                                      'created_at', 'updated_at', 'address', 'total_price', 'price', 
+                                      'products_interested', 'products_other', 'primary_use_case', 'hear_about_us', 
+                                      'additional_info', 'type', 'quantity', 'installation_address', 'notes'];
+                  
+                  if (coreFields.includes(key)) {
+                    // Hide if empty or N/A
+                    if (!value || value === 'N/A' || value === '' || 
+                        (Array.isArray(value) && value.length === 0)) {
+                      return false;
+                    }
+                    return true;
+                  }
+
+                  // For buyers: hide seller-specific fields when N/A
+                  if (data.account_type === 'buyer') {
+                    const sellerOnlyFields = ['monthly_volume', 'years_experience', 'business_type', 'business_category'];
+                    if (sellerOnlyFields.includes(key)) {
                       return false;
                     }
                   }
+                  
+                  // For sellers: hide buyer-specific fields when N/A
+                  if (data.account_type === 'seller') {
+                    const buyerOnlyFields = ['products_interested', 'products_other', 'primary_use_case'];
+                    if (buyerOnlyFields.includes(key) && (!value || value === 'N/A' || value === '')) {
+                      return false;
+                    }
+                  }
+                  
                   // Hide any field that is explicitly N/A, empty, or null
                   if (!value || value === 'N/A' || value === '' || 
-                      (Array.isArray(value) && value.length === 0) ||
-                      (Array.isArray(value) && value.every(item => !item || item === 'N/A'))) {
+                      (Array.isArray(value) && value.length === 0)) {
                     return false;
                   }
+                  
                   return true;
                 })
                 .map(([key, value]) => (

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-import { GiCoconuts } from 'react-icons/gi';
 import { WaitlistModal } from '../../components/WaitlistModal';
 import { useAuth } from '../../context/AuthContext';
 import Logo from '../../assets/Logo_1.png';
@@ -60,7 +59,7 @@ export function ServicesHeader() {
               {isMobileMenuOpen ? (
                 <X className="h-6 w-6 text-green-700" />
               ) : (
-                <GiCoconuts className="h-6 w-6 text-green-700" />
+                <Menu className="h-6 w-6 text-green-700" />
               )}
             </button>
 

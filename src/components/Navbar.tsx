@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, X } from 'lucide-react';
+import { ShoppingBag, X, Menu } from 'lucide-react';
 import { AuthModal } from './auth/AuthModal';
 import { WaitlistModal } from './WaitlistModal';
 import { useAuth } from '../context/AuthContext';
-import { GiCoconuts } from 'react-icons/gi';
 import Logo from '../assets/Logo_1.png';
 
 export default function Navbar() {
@@ -48,7 +47,7 @@ export default function Navbar() {
               {isMobileMenuOpen ? (
                 <X className="h-6 w-6 text-green-700" />
               ) : (
-                <GiCoconuts className="h-8 w-8 text-green-700" />
+                <Menu className="h-6 w-6 text-green-700" />
               )}
             </button>
 
