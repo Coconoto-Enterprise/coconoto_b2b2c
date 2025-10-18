@@ -163,7 +163,14 @@ const VintageDashboard: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
   };
 
   const getStatusColor = (status: string) => {
@@ -369,13 +376,16 @@ const VintageDashboard: React.FC = () => {
                         </div>
                       )
                     ) : (
-                      // Format price fields with ₦ symbol and commas
-                      (key === 'total_price' || key === 'price') && typeof value === 'number' && value > 0 ? 
-                        `₦${Number(value).toLocaleString()}` : 
-                        // Format string values: convert underscores to spaces and capitalize
-                        typeof value === 'string' && value !== 'N/A' ? 
-                          value.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) :
-                          String(value || 'N/A')
+                      // Format date fields (created_at, updated_at, submitted_at, etc.)
+                      (key.includes('_at') || key === 'date') && typeof value === 'string' && value.includes('T') ?
+                        formatDate(value) :
+                        // Format price fields with ₦ symbol and commas
+                        (key === 'total_price' || key === 'price') && typeof value === 'number' && value > 0 ? 
+                          `₦${Number(value).toLocaleString()}` : 
+                          // Format string values: convert underscores to spaces and capitalize
+                          typeof value === 'string' && value !== 'N/A' ? 
+                            value.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) :
+                            String(value || 'N/A')
                     )}
                   </div>
                 </div>
