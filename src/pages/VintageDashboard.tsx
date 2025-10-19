@@ -73,6 +73,8 @@ const VintageDashboard: React.FC = () => {
     to: '',
     subject: '',
     message: '',
+    heading: '',
+    templateType: 'customer', // 'customer' or 'team'
     isHtml: false
   });
 
@@ -124,7 +126,7 @@ const VintageDashboard: React.FC = () => {
 
   const sendEmail = async () => {
     if (!composer.to || !composer.subject || !composer.message) {
-      alert('Please fill in all fields');
+      alert('Please fill in all required fields (Recipients, Subject, and Message)');
       return;
     }
 
@@ -134,17 +136,18 @@ const VintageDashboard: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          to: composer.to.split(',').map(email => email.trim()),
+          to: composer.to,
           subject: composer.subject,
           message: composer.message,
-          isHtml: composer.isHtml
+          heading: composer.heading,
+          templateType: composer.templateType
         }),
       });
 
       const data = await response.json();
       if (data.success) {
         alert('Email sent successfully!');
-        setComposer({ to: '', subject: '', message: '', isHtml: false });
+        setComposer({ to: '', subject: '', message: '', heading: '', templateType: 'customer', isHtml: false });
         setShowComposer(false);
         fetchData();
       } else {
@@ -1020,6 +1023,40 @@ const VintageDashboard: React.FC = () => {
               </button>
             </div>
             <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              {/* Template Type Toggle */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email Template</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="templateType"
+                      value="customer"
+                      checked={composer.templateType === 'customer'}
+                      onChange={(e) => setComposer({ ...composer, templateType: e.target.value })}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">Customer Template (Marketing)</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="templateType"
+                      value="team"
+                      checked={composer.templateType === 'team'}
+                      onChange={(e) => setComposer({ ...composer, templateType: e.target.value })}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">Team Template (Internal)</span>
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {composer.templateType === 'customer' 
+                    ? 'Full marketing email with product recommendations and branding' 
+                    : 'Clean internal notification email for team members'}
+                </p>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Recipients</label>
                 <input
@@ -1041,23 +1078,24 @@ const VintageDashboard: React.FC = () => {
                 />
               </div>
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-sm font-medium text-gray-700">Message</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="isHtml"
-                      checked={composer.isHtml}
-                      onChange={(e) => setComposer({ ...composer, isHtml: e.target.checked })}
-                    />
-                    <label htmlFor="isHtml" className="text-sm text-gray-600">HTML format</label>
-                  </div>
-                </div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Heading <span className="text-gray-500 text-xs">(Appears as bold section title)</span>
+                </label>
+                <input
+                  type="text"
+                  value={composer.heading}
+                  onChange={(e) => setComposer({ ...composer, heading: e.target.value })}
+                  placeholder="e.g., ORDER CONFIRMATION, NEW MACHINE REQUEST, etc."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
                 <textarea
                   value={composer.message}
                   onChange={(e) => setComposer({ ...composer, message: e.target.value })}
-                  placeholder="Enter your message"
-                  rows={12}
+                  placeholder="Enter your message content here..."
+                  rows={10}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
