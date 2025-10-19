@@ -8,11 +8,6 @@ import { CococycleHub } from './components/CococycleHub';
 import { CocoConnect } from './components/CocoConnect';
 import { CocoDrinkEat } from './components/CocoDrinkEat';
 import { Features } from './components/Features';
-import { Process } from './components/Process';
-import { ProBuyerRequests } from './components/ProBuyerRequests';
-import { PriceExchange } from './components/PriceExchange';
-import { CoconotoPay } from './components/CoconotoPay';
-import { EscrowService } from './components/EscrowService';
 import { CTA } from './components/CTA';
 import Footer from './components/Footer';
 import { Marketplace } from './components/marketplace/Marketplace';
@@ -22,7 +17,6 @@ import { About } from './components/About';
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
 import { ServicesLayout } from './pages/services/ServicesLayout';
 import { ProductLayout } from './pages/product/ProductLayout';
-import { EscrowLayout } from './pages/escrow/EscrowLayout';
 import PrivacyPolicy from './pages/policies/PrivacyPolicy';
 import TermsOfService from './pages/policies/TermsOfService';
 import CookiePolicy from './pages/policies/CookiePolicy';
@@ -54,7 +48,6 @@ function App() {
             } />
             <Route path="/services/*" element={<ServicesLayout />} />
             <Route path="/product/*" element={<ProductLayout />} />
-            <Route path="/escrow/*" element={<EscrowLayout />} />
             <Route path="/marketplace/*" element={<Marketplace />} />
             <Route path="/marketplace/rfqs" element={<RFQList />} />
             <Route path="/product/:id" element={<ProductDetails />} />

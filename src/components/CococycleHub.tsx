@@ -24,7 +24,7 @@ export function CococycleHub() {
     return () => clearInterval(interval);
   }, [images.length]);
   return (
-    <section className="py-14 bg-gradient-to-b from-white to-gray-50 px-4 md:px-32">
+    <section className="py-14 lg:py-24 bg-gradient-to-b from-white to-gray-50 px-4 md:px-32">
       <div className="max-w-7xl mx-auto px-5 flex flex-col lg:flex-row gap-4 lg:gap-16 items-center">
         {/* Left: Content */}
         <div className="w-full lg:w-1/2 space-y-6 lg:space-y-8">
