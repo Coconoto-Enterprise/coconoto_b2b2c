@@ -283,7 +283,9 @@ export default async function handler(req, res) {
 
     // Send email
     const emailData = {
-      from: 'team@coconoto.africa',
+      from: templateType === 'team' 
+        ? 'Coconoto Internal Team <team@coconoto.africa>'
+        : 'Coconoto Customer Service <team@coconoto.africa>',
       to: recipients,
       subject: subject,
       html: htmlContent
