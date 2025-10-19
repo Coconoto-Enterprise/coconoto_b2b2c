@@ -1,23 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, X, Menu } from 'lucide-react';
-import { AuthModal } from './auth/AuthModal';
 import { WaitlistModal } from './WaitlistModal';
-import { useAuth } from '../context/AuthContext';
 import Logo from '../assets/Logo_1.png';
 
 export default function Navbar() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'signup' | 'login'>('login');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, logout } = useAuth();
-
-  const openAuthModal = (mode: 'signup' | 'login') => {
-    setAuthMode(mode);
-    setIsAuthModalOpen(true);
-    setIsMobileMenuOpen(false); // Close mobile menu when auth modal opens
-  };
 
   const openWaitlistModal = () => {
     setIsWaitlistModalOpen(true);
@@ -66,26 +55,14 @@ export default function Navbar() {
               <Link to="/product" className="text-gray-600 hover:text-green-700">
                 Our Product
               </Link>
-              {user ? (
-                <Link to="/dashboard" className="text-gray-600 hover:text-green-700">
-                  Dashboard
-                </Link>
-              ) : (
-                <div className="flex items-center space-x-4">
-                  {/* <button
-                    onClick={() => openAuthModal('login')}
-                    className="text-gray-600 hover:text-green-700"
-                  >
-                    Sign In
-                  </button> */}
-                  <button
-                    onClick={openWaitlistModal}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-                  >
-                    Join Waitlist
-                  </button>
-                </div>
-              )}
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={openWaitlistModal}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                >
+                  Join Waitlist
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -121,39 +98,15 @@ export default function Navbar() {
             >
               Our Product
             </Link>
-            {user ? (
-              <Link 
-                to="/dashboard" 
-                className="block py-2 text-gray-600 hover:text-green-700"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-            ) : (
-              <>
-                {/* <button
-                  onClick={() => openAuthModal('login')}
-                  className="block py-2 text-gray-600 hover:text-green-700 w-full text-left"
-                >
-                  Sign In
-                </button> */}
-                <button
-                  onClick={openWaitlistModal}
-                  className="block w-full text-left bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-2"
-                >
-                  Join Waitlist
-                </button>
-              </>
-            )}
+            <button
+              onClick={openWaitlistModal}
+              className="block w-full text-left bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-2"
+            >
+              Join Waitlist
+            </button>
           </div>
         )}
       </nav>
-
-      {/* <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        initialMode={authMode}
-      /> */}
 
       <WaitlistModal
         isOpen={isWaitlistModalOpen}

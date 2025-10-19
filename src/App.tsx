@@ -22,44 +22,43 @@ import VintageDashboard from './pages/VintageDashboard';
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="min-h-screen bg-gray-50">
-          <Routes>
-            <Route path="/" element={
-              <>
-                <Navbar />
-                <main>
-                  <Hero />
-                  <CocotechRD />
-                  <CococycleHub />
-                  <CocoConnect />
-                  <CocoDrinkEat />
-                  <Features />
-                  <CTA />
-                </main>
-                <Footer />
-              </>
-            } />
-            <Route path="/services/*" element={<ServicesLayout />} />
-            <Route path="/product/*" element={<ProductLayout />} />
-            <Route path="/about" element={
-              <>
-                <Navbar />
-                <About />
-                <Footer />
-              </>
-            } />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
-            <Route path="/cookie-policy" element={<CookiePolicy />} />
-            <Route path="/help-center" element={<HelpCenter />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/vintage" element={<VintageLogin />} />
-            <Route path="/vintage-dashboard" element={<VintageDashboard />} />
-          </Routes>
-        </div>
-      </BrowserRouter>
+    <BrowserRouter>
+      <div className="min-h-screen bg-gray-50">
+        <Routes>
+          <Route path="/" element={
+            <>
+              <Navbar />
+              <main>
+                <Hero />
+                <CocotechRD />
+                <CococycleHub />
+                <CocoConnect />
+                <CocoDrinkEat />
+                <Features />
+                <CTA />
+              </main>
+              <Footer />
+            </>
+          } />
+          <Route path="/services/*" element={<ServicesLayout />} />
+          <Route path="/product/*" element={<ProductLayout />} />
+          <Route path="/about" element={
+            <>
+              <Navbar />
+              <About />
+              <Footer />
+            </>
+          } />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/help-center" element={<HelpCenter />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/vintage" element={<VintageLogin />} />
+          <Route path="/vintage-dashboard" element={<VintageDashboard />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
