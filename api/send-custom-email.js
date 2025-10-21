@@ -58,7 +58,7 @@ function buildCustomerTemplate(heading, message) {
                           <h4 style="color: #a37352; margin: 10px 0 5px 0; font-size: 16px;">Cocopeat</h4>
                           <p style="font-size: 12px; color: #666; margin: 5px 0; line-height: 16px;">Nutrient‑rich growing medium.</p>
                           <div style="margin: 10px 0;">
-                            <span style="color: #8CC63F; font-size: 18px; font-weight: bold;">₦7,000</span>
+                            <span style="color: #8CC63F; font-size: 18px; font-weight: bold;">₦10,000</span>
                             <span style="color: #999; font-size: 12px;">/5kg</span>
                           </div>
                           <a href="https://www.coconoto.africa/product/products" style="background-color: #8CC63F; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;">Order Now</a>
