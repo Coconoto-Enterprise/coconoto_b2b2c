@@ -15,7 +15,7 @@ const products = [
     name: 'Cocopeat',
     description: 'Nutrient‑rich growing medium.',
     details: '5kg',
-    price: '₦7,000',
+    price: '₦10,000',
     available: true,
     image: cocopeat
   },
