@@ -36,35 +36,44 @@ export function ProductFooter() {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Company</h3>
+            <h3 className="text-lg font-bold mb-4">Solutions</h3>
             <ul className="space-y-2">
-              <li><Link to="/about" className="text-gray-400 hover:text-white">About Us</Link></li>
-<li><Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-gray-400 hover:text-white">Home</Link></li>
+              <li><a href="/#cococycle" className="text-gray-400 hover:text-white">Cococycle Hub</a></li>
+              <li><a href="/#cocotech" className="text-gray-400 hover:text-white">Coco-Tech</a></li>
+              <li><a href="/#cococonnect" className="text-gray-400 hover:text-white">Coco-Connect</a></li>
+              <li><a href="/#cocodrinkeat" className="text-gray-400 hover:text-white">Coco DrinkEat</a></li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Resources</h3>
+            <h3 className="text-lg font-bold mb-4">About Us</h3>
             <ul className="space-y-2">
-              <li><Link to="/contact" className="text-gray-400 hover:text-white">Contact</Link></li>
+              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">About Coconoto</Link></li>
               <li><a href="#" className="text-gray-400 hover:text-white">Blog</a></li>
-              <li><a href="#certifications" className="text-gray-400 hover:text-white">Patents</a></li>
-              <li><a href="#certifications" className="text-gray-400 hover:text-white">Certifications</a></li>
+              <li><Link to="/contact" className="text-gray-400 hover:text-white">Contact Us</Link></li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Legal</h3>
+            <h3 className="text-lg font-bold mb-4">Get Started</h3>
             <ul className="space-y-2">
-              <li><Link to="/privacy-policy" className="text-gray-400 hover:text-white">Privacy Policy</Link></li>
-              <li><Link to="/terms-of-service" className="text-gray-400 hover:text-white">Terms of Service</Link></li>
-              <li><Link to="/cookie-policy" className="text-gray-400 hover:text-white">Cookie Policy</Link></li>
+              <li><Link to="/contact" className="text-gray-400 hover:text-white">Contact Us</Link></li>
+              <li><a href="#" className="text-gray-400 hover:text-white">Book Service</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-white">Order Machine</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-white">Order Product</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-white">Learn More</a></li>
             </ul>
           </div>
         </div>
         
-        <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-          <p>© {new Date().getFullYear()} Coconoto. All rights reserved.</p>
+        <div className="border-t border-gray-800 mt-12 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center text-gray-400 space-y-4 md:space-y-0 px-4 md:px-8">
+            <div className="flex flex-wrap justify-center md:justify-start gap-6 md:gap-12">
+              <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
+              <Link to="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link>
+            </div>
+            <p className="text-center md:text-right">© {new Date().getFullYear()} Coconoto. All rights reserved.</p>
+          </div>
         </div>
       </div>
     </footer>
