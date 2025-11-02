@@ -188,7 +188,7 @@ export function About() {
       </div>
 
       {/* Our Mission */}
-      <div className="bg-gradient-to-br from-green-600 to-green-700 py-16 mt-20">
+      <div className="bg-gradient-to-br from-green-600 to-green-700 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-8">
@@ -522,7 +522,7 @@ export function About() {
       </div>
 
       {/* Cococycle Hub - Detailed Section */}
-      <div id="cococycle-section" className="bg-gradient-to-br from-green-50 to-green-100 py-16 mt-20">
+      <div id="cococycle-section" className="bg-gradient-to-br from-green-50 to-green-100 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -697,7 +697,7 @@ export function About() {
       </div>
 
       {/* Coco-Connect Marketplace - Detailed Section */}
-      <div id="cococonnect-section" className="bg-gradient-to-br from-blue-50 to-blue-100 py-16 mt-20">
+      <div id="cococonnect-section" className="bg-gradient-to-br from-blue-50 to-blue-100 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
@@ -826,7 +826,7 @@ export function About() {
       </div>
 
       {/* Coco DrinkEat - Event Experience Section */}
-      <div id="cocodrinkeat-section" className="bg-gradient-to-br from-pink-50 to-rose-100 py-16 mt-20">
+      <div id="cocodrinkeat-section" className="bg-gradient-to-br from-pink-50 to-rose-100 py-16">
         <div className="container mx-auto px-6">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">

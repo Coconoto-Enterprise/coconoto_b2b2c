@@ -22,7 +22,7 @@ export default function Navbar() {
       <nav className="bg-white shadow-sm fixed w-full top-0 z-50">
         <div className="container mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center">
+            <Link to="/" onClick={() => window.scrollTo(0, 0)} className="flex items-center">
               <img src={Logo} alt="Coconoto" className="h-8 md:h-8" />
             </Link>
 
@@ -46,14 +46,17 @@ export default function Navbar() {
                 <ShoppingBag className="h-5 w-5 mr-1" />
                 Marketplace
               </Link> */}
-              <Link to="/" className="text-gray-600 hover:text-green-700">
+              <Link to="/" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
                 Home
               </Link>
-              <Link to="/services" className="text-gray-600 hover:text-green-700">
-                Our Services
+              <Link to="/services" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
+                Coco Tech
               </Link>
-              <Link to="/product" className="text-gray-600 hover:text-green-700">
-                Our Product
+              <Link to="/product" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
+                Cococycle Hub
+              </Link>
+              <Link to="/about" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
+                About
               </Link>
               <div className="flex items-center space-x-4">
                 <button
@@ -80,23 +83,30 @@ export default function Navbar() {
             <Link 
               to="/" 
               className="block py-2 text-gray-600 hover:text-green-700"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
             >
               Home
             </Link>
             <Link 
               to="/services" 
               className="block py-2 text-gray-600 hover:text-green-700"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
             >
-              Our Services
+              Coco Tech
             </Link>
             <Link 
               to="/product" 
               className="block py-2 text-gray-600 hover:text-green-700"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
             >
-              Our Product
+              Cococycle Hub
+            </Link>
+            <Link 
+              to="/about" 
+              className="block py-2 text-gray-600 hover:text-green-700"
+              onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
+            >
+              About
             </Link>
             <button
               onClick={openWaitlistModal}
