@@ -41,7 +41,7 @@ export function About() {
           />
         </div>
         
-        <div className="relative z-10 container mx-auto px-6 mt-[37vh]">
+        <div className="relative z-10 container mx-auto px-6 mt-[28vh] md:mt-[30vh] lg:mt-[37vh]">
           <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-6 tracking-tight">
             About <span className="text-green-700">Coconoto</span>
           </h1>
@@ -49,7 +49,7 @@ export function About() {
             <span className="md:hidden">The Smart Agri-Tech company transforming the coconut value chain through innovation, accessibility, and sustainability.</span>
             <span className="hidden md:inline">The Smart Agritech company focused on creating technology, <br />Accessibility and Sustainability for the coconut value chain.</span>
           </p>
-          <div className="mt-[19vh] md:mt-[20vh] lg:mt-[17vh] mb-0">
+          <div className="mt-[32vh] md:mt-[20vh] lg:mt-[17vh] mb-0">
             <div className="flex flex-row absolute left-0 right-0">
               <div className="overflow-hidden w-[150px] md:w-[340px] h-auto md:h-[25vh] rounded-lg">
                 <img src={GoogleSearch1} alt="Coconut Search 1" className="w-full" style={{marginTop: 0}} />
@@ -91,7 +91,7 @@ export function About() {
                     of coconut waste ends up in landfills or gets burned
                   </p>
                   <p className="text-lg text-gray-600 leading-relaxed">
-                    Every day, massive amounts of coconut husks and shells are discarded, filling up landfills or being set ablaze — releasing <span className="font-semibold text-red-600">harmful carbon emissions</span> into our atmosphere and contributing to climate change.
+                    Every day, massive amounts of coconut husks and shells are discarded, filling up landfills or being set ablaze releasing <span className="font-semibold text-red-600">harmful carbon emissions</span> into our atmosphere and contributing to climate change.
                   </p>
                 </div>
               </div>
@@ -197,7 +197,7 @@ export function About() {
                 But There's Hope <Sprout className="w-8 h-8 ml-2" />
               </h3>
               <p className="text-xl text-green-100 mb-6 leading-relaxed">
-                At Coconoto, we believe this "waste" is actually a <span className="font-bold text-white">valuable resource</span> waiting to be transformed. We're turning this environmental crisis into an economic opportunity — creating jobs, empowering farmers, and protecting our planet.
+                At Coconoto, we believe this "waste" is actually a <span className="font-bold text-white">valuable resource</span> waiting to be transformed. We're turning this environmental crisis into an economic opportunity creating jobs, empowering farmers, and protecting our planet.
               </p>
               <div className="inline-flex items-center bg-white text-green-700 px-8 py-3 rounded-lg font-bold text-lg">
                 Our mission: Eliminate 80% of coconut waste <Recycle className="w-5 h-5 ml-2" />
@@ -369,7 +369,7 @@ export function About() {
               <ShoppingBag className="w-6 h-6 mr-2" /> Coco-Connect
             </h3>
             <p className="text-gray-600 leading-relaxed mb-4">
-              Our digital marketplace is a B2B2C platform that connects farmers, processors, suppliers, and buyers — creating a one-stop ecosystem for everything coconut.
+              Our digital marketplace is a B2B2C platform that connects farmers, processors, suppliers, and buyers creating a one-stop ecosystem for everything coconut.
             </p>
             <div className="text-sm text-gray-700 space-y-2">
               <p className="font-semibold text-blue-700">We Act as a Facilitator:</p>
@@ -397,7 +397,7 @@ export function About() {
               <Calendar className="w-6 h-6 mr-2" /> Coco DrinkEat
             </h3>
             <p className="text-gray-600 leading-relaxed mb-4">
-              We bring the ultimate coconut experience to your events — fresh pre-cut coconuts ready to drink and eat on the spot!
+              We bring the ultimate coconut experience to your events fresh pre-cut coconuts ready to drink and eat on the spot!
             </p>
             <div className="text-sm text-gray-700 space-y-2">
               <p className="font-semibold text-pink-700">Event Services:</p>
@@ -854,7 +854,7 @@ export function About() {
             <div className="bg-blue-600 rounded-xl shadow-lg p-8 mt-8 text-white text-center">
               <h4 className="text-2xl font-bold mb-4">One Platform, Endless Connections</h4>
               <p className="text-blue-100 text-lg mb-6">
-                We facilitate transparent, efficient, and profitable transactions across the entire coconut value chain — from farm to factory to market.
+                We facilitate transparent, efficient, and profitable transactions across the entire coconut value chain from farm to factory to market.
               </p>
               <div className="flex flex-wrap justify-center gap-6 text-sm">
                 <div>
@@ -894,7 +894,7 @@ export function About() {
                 <div className="text-6xl mb-4">🥥🎉</div>
                 <h3 className="text-3xl font-bold text-gray-900 mb-4">We Come to You!</h3>
                 <p className="text-xl text-gray-700 leading-relaxed">
-                  Transform your event with our unique coconut experience — we bring fresh, pre-cut coconuts directly to your venue where guests can drink refreshing coconut water and enjoy delicious coconut meat on the spot.
+                  Transform your event with our unique coconut experience we bring fresh, pre-cut coconuts directly to your venue where guests can drink refreshing coconut water and enjoy delicious coconut meat on the spot.
                 </p>
               </div>
 
@@ -1238,10 +1238,10 @@ export function About() {
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Team</h2>
             <div className="w-24 h-1 bg-green-600 mx-auto mb-6"></div>
             <p className="text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto mb-6">
-              Led by a diverse team with over <span className="font-semibold text-green-700">25 years of combined experience</span> across engineering, software development, finance, marketing, and operations — our team brings together <span className="font-semibold text-green-700">passion, innovation, and expertise</span> to revolutionize the coconut industry.
+              Led by a diverse team with over <span className="font-semibold text-green-700">25 years of combined experience</span> across engineering, software development, finance, marketing, and operations our team brings together <span className="font-semibold text-green-700">passion, innovation, and expertise</span> to revolutionize the coconut industry.
             </p>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              From mechanical engineers designing cutting-edge machines to software developers building digital marketplaces, from financial experts managing sustainable growth to marketing professionals amplifying our impact — we are united by one mission: <span className="italic text-green-700">transforming coconut waste into wealth while empowering communities</span>.
+              From mechanical engineers designing cutting-edge machines to software developers building digital marketplaces, from financial experts managing sustainable growth to marketing professionals amplifying our impact we are united by one mission: <span className="italic text-green-700">transforming coconut waste into wealth while empowering communities</span>.
             </p>
           </div>
 
