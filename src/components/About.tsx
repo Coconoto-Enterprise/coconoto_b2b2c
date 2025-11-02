@@ -49,7 +49,7 @@ export function About() {
             <span className="md:hidden">The Smart Agri-Tech company transforming the coconut value chain through innovation, accessibility, and sustainability.</span>
             <span className="hidden md:inline">The Smart Agritech company focused on creating technology, <br />Accessibility and Sustainability for the coconut value chain.</span>
           </p>
-          <div className="mt-[22vh] md:mt-[20vh] lg:mt-[17vh] mb-0">
+          <div className="mt-[19vh] md:mt-[20vh] lg:mt-[17vh] mb-0">
             <div className="flex flex-row absolute left-0 right-0">
               <div className="overflow-hidden w-[150px] md:w-[340px] h-auto md:h-[25vh] rounded-lg">
                 <img src={GoogleSearch1} alt="Coconut Search 1" className="w-full" style={{marginTop: 0}} />
