@@ -1294,7 +1294,7 @@ export function About() {
               </div>
             </div>
 
-            {/* Rebecca Olaniyan */}
+            {/* Kehinde Omitoyin */}
             <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition duration-300 transform hover:-translate-y-2">
               <div className="bg-gradient-to-br from-purple-600 to-purple-700 h-48 flex items-center justify-center">
                 <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center">
@@ -1302,7 +1302,7 @@ export function About() {
                 </div>
               </div>
               <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">Rebecca Olaniyan</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-1">Kehinde Omitoyin</h3>
                 <p className="text-green-600 font-semibold mb-3">Finance Manager</p>
                 <p className="text-gray-600 text-sm leading-relaxed">
                   ICAN, ACA certified professional managing financial strategy and operations.
