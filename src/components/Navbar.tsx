@@ -50,7 +50,7 @@ export default function Navbar() {
                 Home
               </Link>
               <Link to="/services" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
-                Coco Tech
+                Coco-Tech
               </Link>
               <Link to="/product" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
                 Cococycle Hub

@@ -31,7 +31,7 @@ export function ProductHeader() {
 
   const pageNavItems = [
     { to: '/', label: 'Home' },
-    { to: '/services', label: 'Our Services' }
+    { to: '/services', label: 'Coco-Tech' }
   ];
 
   return (
@@ -67,6 +67,7 @@ export function ProductHeader() {
                 <Link
                   key={item.to}
                   to={item.to}
+                  onClick={() => window.scrollTo(0, 0)}
                   className="text-gray-600 hover:text-green-700"
                 >
                   {item.label}
@@ -81,6 +82,13 @@ export function ProductHeader() {
                   {item.label}
                 </a>
               ))}
+              <Link
+                to="/about"
+                onClick={() => window.scrollTo(0, 0)}
+                className="text-gray-600 hover:text-green-700"
+              >
+                About
+              </Link>
               <div className="flex items-center space-x-4">
                 <button
                   onClick={openWaitlistModal}
@@ -101,7 +109,7 @@ export function ProductHeader() {
                 key={item.to}
                 to={item.to}
                 className="block py-2 text-gray-600 hover:text-green-700"
-                onClick={closeMobileMenu}
+                onClick={() => { window.scrollTo(0, 0); closeMobileMenu(); }}
               >
                 {item.label}
               </Link>
@@ -116,6 +124,13 @@ export function ProductHeader() {
                 {item.label}
               </a>
             ))}
+            <Link
+              to="/about"
+              className="block py-2 text-gray-600 hover:text-green-700"
+              onClick={() => { window.scrollTo(0, 0); closeMobileMenu(); }}
+            >
+              About
+            </Link>
             <button
               onClick={openWaitlistModal}
               className="block w-full text-left bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-2"

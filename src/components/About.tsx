@@ -1,12 +1,24 @@
 import React, { useState } from 'react';
-import { Leaf, Users, Recycle, ShoppingBag, Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { 
+  Leaf, Users, Recycle, ShoppingBag, Calendar, 
+  AlertTriangle, BarChart3, Trash2, DollarSign, Globe, 
+  TrendingDown, Sprout, Factory, Wrench, Wheat, 
+  Flame, Home, Lightbulb, TrendingUp, HandshakeIcon,
+  ShieldCheck, Zap, Package, Target, Award,
+  Settings, Box, CheckCircle, Phone, Users2,
+  Building2, PartyPopper, Utensils, Cake, Tent,
+  Sparkles, TreePine, Heart, UserCheck
+} from 'lucide-react';
 import { WaitlistModal } from './WaitlistModal';
+import { BookEventModal } from './BookEventModal';
 import GoogleSearch1 from '../assets/coconut_google_search.png';
 import GoogleSearch2 from '../assets/coconut_google_search-2.png';
 import Threads from './Threads';
 
 export function About() {
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
+  const [isBookEventModalOpen, setIsBookEventModalOpen] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -37,7 +49,7 @@ export function About() {
             <span className="md:hidden">The Smart Agri-Tech company transforming the coconut value chain through innovation, accessibility, and sustainability.</span>
             <span className="hidden md:inline">The Smart Agritech company focused on creating technology, <br />Accessibility and Sustainability for the coconut value chain.</span>
           </p>
-          <div className="mt-[12vh] md:mt-[20vh] lg:mt-[17vh] mb-0">
+          <div className="mt-[22vh] md:mt-[20vh] lg:mt-[17vh] mb-0">
             <div className="flex flex-row absolute left-0 right-0">
               <div className="overflow-hidden w-[150px] md:w-[340px] h-auto md:h-[25vh] rounded-lg">
                 <img src={GoogleSearch1} alt="Coconut Search 1" className="w-full" style={{marginTop: 0}} />
@@ -68,7 +80,7 @@ export function About() {
             <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-8">
               <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 text-white">
                 <div className="flex items-center justify-center mb-4">
-                  <span className="text-6xl mr-4">⚠️</span>
+                  <AlertTriangle className="w-16 h-16 mr-4" />
                   <h3 className="text-3xl font-bold">The Coconut Waste Crisis</h3>
                 </div>
               </div>
@@ -89,7 +101,9 @@ export function About() {
             <div className="grid md:grid-cols-3 gap-6 mb-8">
               {/* Nigeria Consumption */}
               <div className="bg-white rounded-xl shadow-lg p-8 text-center transform hover:scale-105 transition duration-300">
-                <div className="text-5xl mb-3">📊</div>
+                <div className="flex justify-center mb-3">
+                  <BarChart3 className="w-12 h-12 text-blue-600" />
+                </div>
                 <div className="text-4xl font-bold text-blue-600 mb-2">267,000</div>
                 <p className="text-gray-800 font-semibold mb-2">Metric Tonnes</p>
                 <p className="text-sm text-gray-600">
@@ -99,7 +113,9 @@ export function About() {
 
               {/* Waste Generated */}
               <div className="bg-white rounded-xl shadow-lg p-8 text-center transform hover:scale-105 transition duration-300">
-                <div className="text-5xl mb-3">🗑️</div>
+                <div className="flex justify-center mb-3">
+                  <Trash2 className="w-12 h-12 text-orange-600" />
+                </div>
                 <div className="text-4xl font-bold text-orange-600 mb-2">125,490</div>
                 <p className="text-gray-800 font-semibold mb-2">Tonnes Wasted</p>
                 <p className="text-sm text-gray-600">
@@ -109,7 +125,9 @@ export function About() {
 
               {/* Market Opportunity */}
               <div className="bg-white rounded-xl shadow-lg p-8 text-center transform hover:scale-105 transition duration-300">
-                <div className="text-5xl mb-3">💰</div>
+                <div className="flex justify-center mb-3">
+                  <DollarSign className="w-12 h-12 text-green-600" />
+                </div>
                 <div className="text-4xl font-bold text-green-600 mb-2">$12.88B</div>
                 <p className="text-gray-800 font-semibold mb-2">Market Value</p>
                 <p className="text-sm text-gray-600">
@@ -124,7 +142,7 @@ export function About() {
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <h4 className="text-xl font-bold text-red-600 mb-4 flex items-center">
-                    <span className="text-2xl mr-2">🌍</span>
+                    <Globe className="w-6 h-6 mr-2" />
                     Environmental Damage
                   </h4>
                   <ul className="space-y-3 text-gray-700">
@@ -148,7 +166,7 @@ export function About() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-orange-600 mb-4 flex items-center">
-                    <span className="text-2xl mr-2">💸</span>
+                    <TrendingDown className="w-6 h-6 mr-2" />
                     Economic Loss
                   </h4>
                   <ul className="space-y-3 text-gray-700">
@@ -175,12 +193,14 @@ export function About() {
 
             {/* Our Solution CTA */}
             <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl shadow-xl p-8 mt-8 text-center text-white">
-              <h3 className="text-3xl font-bold mb-4">But There's Hope 🌱</h3>
+              <h3 className="text-3xl font-bold mb-4 flex items-center justify-center">
+                But There's Hope <Sprout className="w-8 h-8 ml-2" />
+              </h3>
               <p className="text-xl text-green-100 mb-6 leading-relaxed">
                 At Coconoto, we believe this "waste" is actually a <span className="font-bold text-white">valuable resource</span> waiting to be transformed. We're turning this environmental crisis into an economic opportunity — creating jobs, empowering farmers, and protecting our planet.
               </p>
-              <div className="inline-block bg-white text-green-700 px-8 py-3 rounded-lg font-bold text-lg">
-                Our mission: Eliminate 80% of coconut waste ♻️
+              <div className="inline-flex items-center bg-white text-green-700 px-8 py-3 rounded-lg font-bold text-lg">
+                Our mission: Eliminate 80% of coconut waste <Recycle className="w-5 h-5 ml-2" />
               </div>
             </div>
           </div>
@@ -206,7 +226,7 @@ export function About() {
             <div className="grid md:grid-cols-3 gap-6 mt-12">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-center hover:bg-white/20 transition duration-300">
                 <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-4xl">👨‍🌾</span>
+                  <Users className="w-8 h-8 text-green-700" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">Empowering Farmers</h3>
                 <p className="text-green-100 text-sm leading-relaxed">
@@ -216,7 +236,7 @@ export function About() {
 
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-center hover:bg-white/20 transition duration-300">
                 <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-4xl">💼</span>
+                  <ShoppingBag className="w-8 h-8 text-green-700" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">Creating Jobs</h3>
                 <p className="text-green-100 text-sm leading-relaxed">
@@ -226,7 +246,7 @@ export function About() {
 
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-center hover:bg-white/20 transition duration-300">
                 <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-4xl">♻️</span>
+                  <Recycle className="w-8 h-8 text-green-700" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">Transforming Waste</h3>
                 <p className="text-green-100 text-sm leading-relaxed">
@@ -290,7 +310,9 @@ export function About() {
             <div className="bg-amber-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
               <Leaf className="w-8 h-8 text-amber-700" />
             </div>
-            <h3 className="text-2xl font-bold text-amber-700 mb-4">🌿 Coco-Tech</h3>
+            <h3 className="text-2xl font-bold text-amber-700 mb-4 flex items-center">
+              <Leaf className="w-6 h-6 mr-2" /> Coco-Tech
+            </h3>
             <p className="text-gray-600 leading-relaxed mb-4">
               We design, fabricate, and sell innovative coconut processing machines for the entire value chain.
             </p>
@@ -316,7 +338,9 @@ export function About() {
             <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
               <Recycle className="w-8 h-8 text-green-700" />
             </div>
-            <h3 className="text-2xl font-bold text-green-700 mb-4">🔄 Cococycle Hub</h3>
+            <h3 className="text-2xl font-bold text-green-700 mb-4 flex items-center">
+              <Recycle className="w-6 h-6 mr-2" /> Cococycle Hub
+            </h3>
             <p className="text-gray-600 leading-relaxed mb-4">
               We convert coconut waste into valuable products, empowering women and men while promoting sustainable agriculture.
             </p>
@@ -341,7 +365,9 @@ export function About() {
             <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
               <ShoppingBag className="w-8 h-8 text-blue-700" />
             </div>
-            <h3 className="text-2xl font-bold text-blue-700 mb-4">🛒 Coco-Connect</h3>
+            <h3 className="text-2xl font-bold text-blue-700 mb-4 flex items-center">
+              <ShoppingBag className="w-6 h-6 mr-2" /> Coco-Connect
+            </h3>
             <p className="text-gray-600 leading-relaxed mb-4">
               Our digital marketplace is a B2B2C platform that connects farmers, processors, suppliers, and buyers — creating a one-stop ecosystem for everything coconut.
             </p>
@@ -367,7 +393,9 @@ export function About() {
             <div className="bg-pink-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
               <Calendar className="w-8 h-8 text-pink-700" />
             </div>
-            <h3 className="text-2xl font-bold text-pink-700 mb-4">🥥 Coco DrinkEat</h3>
+            <h3 className="text-2xl font-bold text-pink-700 mb-4 flex items-center">
+              <Calendar className="w-6 h-6 mr-2" /> Coco DrinkEat
+            </h3>
             <p className="text-gray-600 leading-relaxed mb-4">
               We bring the ultimate coconut experience to your events — fresh pre-cut coconuts ready to drink and eat on the spot!
             </p>
@@ -392,7 +420,9 @@ export function About() {
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">🌿 Coco-Tech: Our Machines</h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center">
+                <Leaf className="w-10 h-10 mr-3 text-amber-700" /> Coco-Tech: Our Machines
+              </h2>
               <p className="text-xl text-gray-700">
                 Innovative, Patented Technology for Coconut Processing
               </p>
@@ -404,7 +434,7 @@ export function About() {
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <div className="flex items-center mb-4">
                   <div className="bg-amber-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                    <span className="text-2xl">⚙️</span>
+                    <Settings className="w-6 h-6 text-amber-700" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900">Dehusking Machine</h3>
                 </div>
@@ -418,7 +448,9 @@ export function About() {
                   <p>✓ <strong>Material:</strong> Locally sourced materials</p>
                 </div>
                 <div className="bg-amber-50 p-4 rounded-lg">
-                  <p className="text-sm font-semibold text-amber-700">🏆 Patent Secured</p>
+                  <p className="text-sm font-semibold text-amber-700 flex items-center">
+                    <Award className="w-4 h-4 mr-1" /> Patent Secured
+                  </p>
                   <p className="text-xs text-gray-600">Certificate No: NG/PT/NC/2024/14256</p>
                 </div>
               </div>
@@ -427,7 +459,7 @@ export function About() {
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <div className="flex items-center mb-4">
                   <div className="bg-amber-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                    <span className="text-2xl">🔧</span>
+                    <Wrench className="w-6 h-6 text-amber-700" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900">Deshelling Machine</h3>
                 </div>
@@ -441,7 +473,9 @@ export function About() {
                   <p>✓ <strong>Price:</strong> ₦1,000,000 per unit</p>
                 </div>
                 <div className="bg-amber-50 p-4 rounded-lg">
-                  <p className="text-sm font-semibold text-amber-700">🏆 Patent Secured</p>
+                  <p className="text-sm font-semibold text-amber-700 flex items-center">
+                    <Award className="w-4 h-4 mr-1" /> Patent Secured
+                  </p>
                   <p className="text-xs text-gray-600">Certificate No: NG/PT/NC/O/2024/14257</p>
                 </div>
               </div>
@@ -450,7 +484,7 @@ export function About() {
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <div className="flex items-center mb-4">
                   <div className="bg-amber-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                    <span className="text-2xl">🌾</span>
+                    <Wheat className="w-6 h-6 text-amber-700" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900">Decorticator Machine</h3>
                 </div>
@@ -472,7 +506,7 @@ export function About() {
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <div className="flex items-center mb-4">
                   <div className="bg-amber-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                    <span className="text-2xl">🥥</span>
+                    <Package className="w-6 h-6 text-amber-700" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900">Coconut Milk Extractor</h3>
                 </div>
@@ -496,22 +530,30 @@ export function About() {
               <h3 className="text-2xl font-bold text-center text-gray-900 mb-8">Why Choose Coconoto Machines?</h3>
               <div className="grid md:grid-cols-4 gap-6">
                 <div className="text-center">
-                  <div className="text-4xl mb-3">🏆</div>
+                  <div className="flex justify-center mb-3">
+                    <Award className="w-10 h-10 text-amber-600" />
+                  </div>
                   <h4 className="font-bold text-gray-900 mb-2">Patented Technology</h4>
                   <p className="text-sm text-gray-600">Federal Republic of Nigeria certified patents</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl mb-3">🇳🇬</div>
+                  <div className="flex justify-center mb-3">
+                    <ShieldCheck className="w-10 h-10 text-green-600" />
+                  </div>
                   <h4 className="font-bold text-gray-900 mb-2">Locally Made</h4>
                   <p className="text-sm text-gray-600">Built with locally available materials</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl mb-3">⚡</div>
+                  <div className="flex justify-center mb-3">
+                    <Zap className="w-10 h-10 text-yellow-600" />
+                  </div>
                   <h4 className="font-bold text-gray-900 mb-2">High Efficiency</h4>
                   <p className="text-sm text-gray-600">Up to 900 coconuts processed per hour</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl mb-3">💰</div>
+                  <div className="flex justify-center mb-3">
+                    <DollarSign className="w-10 h-10 text-green-600" />
+                  </div>
                   <h4 className="font-bold text-gray-900 mb-2">Cost-Effective</h4>
                   <p className="text-sm text-gray-600">Affordable pricing with quality guaranteed</p>
                 </div>
@@ -526,7 +568,9 @@ export function About() {
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">🔄 Cococycle Hub: Waste to Value</h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center">
+                <Recycle className="w-10 h-10 mr-3 text-green-700" /> Cococycle Hub: Waste to Value
+              </h2>
               <p className="text-xl text-gray-700">
                 Transforming 80% of Coconut Waste into Sustainable Products
               </p>
@@ -553,7 +597,7 @@ export function About() {
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <div className="flex items-center mb-4">
                   <div className="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                    <span className="text-2xl">🌱</span>
+                    <Sprout className="w-6 h-6 text-green-700" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900">Cocopeat</h3>
                 </div>
@@ -567,7 +611,9 @@ export function About() {
                   <p>✓ <strong>Market:</strong> Urban farmers, greenhouses, commercial farms</p>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg">
-                  <p className="text-sm font-semibold text-green-700">♻️ Replacing Peat Moss - Saving Ecosystems</p>
+                  <p className="text-sm font-semibold text-green-700 flex items-center">
+                    <Recycle className="w-4 h-4 mr-1" /> Replacing Peat Moss - Saving Ecosystems
+                  </p>
                 </div>
               </div>
 
@@ -575,7 +621,7 @@ export function About() {
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <div className="flex items-center mb-4">
                   <div className="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                    <span className="text-2xl">🧵</span>
+                    <Package className="w-6 h-6 text-green-700" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900">Coconut Fiber (Coir)</h3>
                 </div>
@@ -597,7 +643,7 @@ export function About() {
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <div className="flex items-center mb-4">
                   <div className="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                    <span className="text-2xl">🪴</span>
+                    <Box className="w-6 h-6 text-green-700" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900">Cocopot (Biodegradable Pots)</h3>
                 </div>
@@ -619,7 +665,7 @@ export function About() {
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <div className="flex items-center mb-4">
                   <div className="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                    <span className="text-2xl">🔥</span>
+                    <Flame className="w-6 h-6 text-orange-700" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900">Briquette Charcoal</h3>
                 </div>
@@ -643,21 +689,27 @@ export function About() {
               <h3 className="text-2xl font-bold text-center text-gray-900 mb-8">Empowering Communities</h3>
               <div className="grid md:grid-cols-3 gap-8">
                 <div className="text-center">
-                  <div className="text-5xl mb-4">👩‍🌾</div>
+                  <div className="flex justify-center mb-4">
+                    <Users2 className="w-12 h-12 text-pink-600" />
+                  </div>
                   <h4 className="font-bold text-gray-900 mb-2">Women Empowerment</h4>
                   <p className="text-sm text-gray-600">
                     Training and employing women in waste collection, processing, and product creation
                   </p>
                 </div>
                 <div className="text-center">
-                  <div className="text-5xl mb-4">💼</div>
+                  <div className="flex justify-center mb-4">
+                    <ShoppingBag className="w-12 h-12 text-blue-600" />
+                  </div>
                   <h4 className="font-bold text-gray-900 mb-2">Job Creation</h4>
                   <p className="text-sm text-gray-600">
                     Creating sustainable livelihoods for rural communities through circular economy
                   </p>
                 </div>
                 <div className="text-center">
-                  <div className="text-5xl mb-4">🌍</div>
+                  <div className="flex justify-center mb-4">
+                    <Globe className="w-12 h-12 text-green-600" />
+                  </div>
                   <h4 className="font-bold text-gray-900 mb-2">Environmental Impact</h4>
                   <p className="text-sm text-gray-600">
                     Diverting 80% of coconut waste from landfills and reducing carbon emissions
@@ -1291,7 +1343,11 @@ export function About() {
             </div>
 
             {/* Add Team Member Placeholder */}
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-dashed border-gray-300 hover:border-green-500 transition duration-300">
+            <Link 
+              to="/contact" 
+              onClick={() => window.scrollTo(0, 0)}
+              className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-dashed border-gray-300 hover:border-green-500 transition duration-300 block cursor-pointer"
+            >
               <div className="bg-gradient-to-br from-gray-200 to-gray-300 h-48 flex items-center justify-center">
                 <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center">
                   <span className="text-5xl text-gray-400">+</span>
@@ -1304,7 +1360,7 @@ export function About() {
                   Passionate about sustainability and innovation? We're always looking for talented individuals.
                 </p>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </div>
@@ -1336,6 +1392,10 @@ export function About() {
       <WaitlistModal
         isOpen={isWaitlistModalOpen}
         onClose={() => setIsWaitlistModalOpen(false)}
+      />
+      <BookEventModal
+        isOpen={isBookEventModalOpen}
+        onClose={() => setIsBookEventModalOpen(false)}
       />
     </div>
   );

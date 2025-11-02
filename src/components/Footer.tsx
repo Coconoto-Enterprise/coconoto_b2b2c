@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Palmtree } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaEnvelope } from 'react-icons/fa';
+import { WaitlistModal } from './WaitlistModal';
+import { BookEventModal } from './BookEventModal';
 
 export default function Footer() {
+  const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
+  const [isBookEventModalOpen, setIsBookEventModalOpen] = useState(false);
+
   return (
+    <>
     <footer className="bg-gray-900 text-white py-12">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-8">
@@ -38,10 +44,10 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4">Solutions</h3>
             <ul className="space-y-2">
-              <li><a href="/#cococycle" className="text-gray-400 hover:text-white">Cococycle Hub</a></li>
-              <li><a href="/#cocotech" className="text-gray-400 hover:text-white">Coco-Tech</a></li>
-              <li><a href="/#cococonnect" className="text-gray-400 hover:text-white">Coco-Connect</a></li>
-              <li><a href="/#cocodrinkeat" className="text-gray-400 hover:text-white">Coco DrinkEat</a></li>
+              <li><Link to="/product" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Cococycle Hub</Link></li>
+              <li><Link to="/services" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Coco-Tech</Link></li>
+              <li><button onClick={() => setIsWaitlistModalOpen(true)} className="text-gray-400 hover:text-white text-left">Coco-Connect</button></li>
+              <li><button onClick={() => setIsBookEventModalOpen(true)} className="text-gray-400 hover:text-white text-left">Coco DrinkEat</button></li>
             </ul>
           </div>
           
@@ -77,5 +83,15 @@ export default function Footer() {
         </div>
       </div>
     </footer>
+    
+    <WaitlistModal
+      isOpen={isWaitlistModalOpen}
+      onClose={() => setIsWaitlistModalOpen(false)}
+    />
+    <BookEventModal
+      isOpen={isBookEventModalOpen}
+      onClose={() => setIsBookEventModalOpen(false)}
+    />
+    </>
   );
 }
