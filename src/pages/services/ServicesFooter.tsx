@@ -64,10 +64,10 @@ export function ServicesFooter() {
             <h3 className="text-lg font-bold mb-4">Get Started</h3>
             <ul className="space-y-2">
               <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Contact Us</Link></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Book Service</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Order Machine</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Order Product</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Learn More</a></li>
+              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Book Service</Link></li>
+              <li><Link to="/services" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Order Machine</Link></li>
+              <li><Link to="/product" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Order Product</Link></li>
+              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Learn More</Link></li>
             </ul>
           </div>
         </div>
