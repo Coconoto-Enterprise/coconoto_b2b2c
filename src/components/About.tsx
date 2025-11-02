@@ -1198,21 +1198,6 @@ export function About() {
                 </ul>
               </div>
             </div>
-
-            <div className="grid md:grid-cols-3 gap-8 mt-8">
-              <div className="text-center">
-                <div className="text-5xl font-bold text-green-300 mb-2">80%</div>
-                <p className="text-green-100">Coconut waste elimination target</p>
-              </div>
-              <div className="text-center">
-                <div className="text-5xl font-bold text-green-300 mb-2">500-900</div>
-                <p className="text-green-100">Coconuts per hour processing capacity</p>
-              </div>
-              <div className="text-center">
-                <div className="text-5xl font-bold text-green-300 mb-2">₦430M</div>
-                <p className="text-green-100">Projected revenue by 2030</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -1228,17 +1213,17 @@ export function About() {
           <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-xl p-8 md:p-12">
             <div className="space-y-6 text-gray-700 text-lg leading-relaxed">
               <p>
-                Born out of the need to tackle <span className="font-semibold text-green-700">waste and inefficiency in the coconut industry</span>, Coconoto began as a vision to merge sustainability with technology. What started as a simple observation — seeing tons of coconut waste ending up in landfills and releasing harmful carbon — became a mission to transform the entire coconut value chain.
+                Born out of the need to tackle <span className="font-semibold text-green-700">waste and inefficiency in the coconut industry</span>, Coconoto began as a vision to merge sustainability with technology. What started as a simple observation seeing tons of coconut waste ending up in landfills and releasing harmful carbon became a mission to transform the entire coconut value chain.
               </p>
               <p>
-                Starting from <span className="font-semibold text-green-700">Badagry, Nigeria</span>, we set out to prove that coconut waste isn't waste at all — it's an untapped resource waiting to be transformed. From our first decorticator machine producing 200kg of cocopeat weekly, to securing patents on our innovative dehusking and deshelling technology, we've been committed to <span className="font-semibold text-green-700">building solutions that empower farmers, create jobs, and protect our environment</span>.
+                Starting from <span className="font-semibold text-green-700">Badagry, Nigeria</span>, we set out to prove that coconut waste isn't waste at all it's an untapped resource waiting to be transformed. From our first decorticator machine producing 200kg of cocopeat weekly, to securing patents on our innovative dehusking and deshelling technology, we've been committed to <span className="font-semibold text-green-700">building solutions that empower farmers, create jobs, and protect our environment</span>.
               </p>
               <p>
                 Today, Coconoto is <span className="font-semibold text-green-700">expanding across Africa</span>, bringing our technology, marketplace, and sustainable products to communities that need them most. We've gone from processing a few hundred coconuts to handling 500-900 coconuts per hour, from a small plot of land in Badagry to partnerships with farmers across Nigeria, and from a startup vision to a <span className="font-semibold text-green-700">circular economy model</span> that's making real impact.
               </p>
               <div className="bg-white rounded-lg p-6 mt-6 border-l-4 border-green-600">
                 <p className="text-gray-800 italic">
-                  "Our journey is just beginning. Every coconut we process, every farmer we empower, and every ton of waste we eliminate brings us closer to our vision — a sustainable, technology-enabled coconut economy for all of Africa."
+                  "Our journey is just beginning. Every coconut we process, every farmer we empower, and every ton of waste we eliminate brings us closer to our vision a sustainable, technology-enabled coconut economy for all of Africa."
                 </p>
               </div>
             </div>
