@@ -28,7 +28,7 @@ export default function Navbar() {
 
             {/* Mobile Menu Toggle */}
             <button
-              className="md:hidden focus:outline-none py-2"
+              className="lg:hidden focus:outline-none py-2"
               onClick={toggleMobileMenu}
               aria-expanded={isMobileMenuOpen}
               aria-label="Toggle navigation"
@@ -41,7 +41,7 @@ export default function Navbar() {
             </button>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-8">
               {/* <Link to="/marketplace" className="flex items-center text-gray-600 hover:text-green-700">
                 <ShoppingBag className="h-5 w-5 mr-1" />
                 Marketplace
@@ -72,7 +72,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white shadow-md py-4 px-6">
+          <div className="lg:hidden bg-white shadow-md py-4 px-6">
             {/* <Link 
               to="/marketplace" 
               className="block py-2 text-gray-600 hover:text-green-700"

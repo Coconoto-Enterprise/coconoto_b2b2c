@@ -42,14 +42,14 @@ export function About() {
         </div>
         
         <div className="relative z-10 container mx-auto px-6 mt-[28vh] md:mt-[30vh] lg:mt-[37vh]">
-          <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-6 tracking-tight">
+          <h1 className="text-4xl md:text-6xl lg:text-6xl font-bold mb-6 tracking-tight">
             About <span className="text-green-700">Coconoto</span>
           </h1>
-          <p className="text-lg md:text-xl lg:text-3xl max-w-4xl mx-auto text-gray-600 leading-relaxed font-medium px-4 md:px-0 mb-12">
+          <p className="text-lg md:text-3xl lg:text-3xl max-w-4xl mx-auto text-gray-600 leading-relaxed font-medium px-4 md:px-0 mb-12">
             <span className="md:hidden">The Smart Agri-Tech company transforming the coconut value chain through innovation, accessibility, and sustainability.</span>
             <span className="hidden md:inline">The Smart Agritech company focused on creating technology, <br />Accessibility and Sustainability for the coconut value chain.</span>
           </p>
-          <div className="mt-[32vh] md:mt-[20vh] lg:mt-[17vh] mb-0">
+          <div className="mt-[32vh] md:mt-[22vh] lg:mt-[17vh] mb-0">
             <div className="flex flex-row absolute left-0 right-0">
               <div className="overflow-hidden w-[150px] md:w-[340px] h-auto md:h-[25vh] rounded-lg">
                 <img src={GoogleSearch1} alt="Coconut Search 1" className="w-full" style={{marginTop: 0}} />
