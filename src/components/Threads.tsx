@@ -47,10 +47,10 @@ float Perlin2D(vec2 P) {
     vec4 grad_x = hash_x - 0.49999;
     vec4 grad_y = hash_y - 0.49999;
     vec4 grad_results = inversesqrt(grad_x * grad_x + grad_y * grad_y)
-        * (grad_x * Pf_Pfmin1.xzxz + grad_y * Pf_Pfmin1.yyww);
+      * (grad_x * Pf_Pfmin1.xzxz + grad_y * Pf_Pfmin1.yyww);
     grad_results *= 1.4142135623730950;
     vec2 blend = Pf_Pfmin1.xy * Pf_Pfmin1.xy * Pf_Pfmin1.xy
-               * (Pf_Pfmin1.xy * (Pf_Pfmin1.xy * 6.0 - 15.0) + 10.0);
+           * (Pf_Pfmin1.xy * (Pf_Pfmin1.xy * 6.0 - 15.0) + 10.0);
     vec4 blend2 = vec4(blend, vec2(1.0 - blend));
     return dot(grad_results, blend2.zxzx * blend2.wwyy);
 }
@@ -72,9 +72,9 @@ float lineFn(vec2 st, float width, float perc, float offset, vec2 mouse, float t
     float blur = smoothstep(split_point, split_point + 0.05, st.x) * perc;
 
     float xnoise = mix(
-        Perlin2D(vec2(time_scaled, st.x + perc) * 2.5),
-        Perlin2D(vec2(time_scaled, st.x + time_scaled) * 3.5) / 1.5,
-        st.x * 0.3
+      Perlin2D(vec2(time_scaled, st.x + perc) * 2.5),
+      Perlin2D(vec2(time_scaled, st.x + time_scaled) * 3.5) / 1.5,
+      st.x * 0.3
     );
 
     float y = 0.5 + (perc - 0.5) * distance + xnoise / 2.0 * finalAmplitude;
@@ -145,6 +145,10 @@ const Threads: React.FC<ThreadsProps> = ({
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     container.appendChild(gl.canvas);
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    gl.canvas.style.width = '100%';
+    gl.canvas.style.height = '100%';
+    gl.canvas.style.imageRendering = 'auto';
 
     const geometry = new Triangle(gl);
     const program = new Program(gl, {
@@ -153,7 +157,7 @@ const Threads: React.FC<ThreadsProps> = ({
       uniforms: {
         iTime: { value: 0 },
         iResolution: {
-          value: new Color(gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height)
+          value: new Color(gl.drawingBufferWidth, gl.drawingBufferHeight, gl.drawingBufferWidth / gl.drawingBufferHeight)
         },
         uColor: { value: new Color(...color) },
         uAmplitude: { value: amplitude },
@@ -167,9 +171,9 @@ const Threads: React.FC<ThreadsProps> = ({
     function resize() {
       const { clientWidth, clientHeight } = container;
       renderer.setSize(clientWidth, clientHeight);
-      program.uniforms.iResolution.value.r = clientWidth;
-      program.uniforms.iResolution.value.g = clientHeight;
-      program.uniforms.iResolution.value.b = clientWidth / clientHeight;
+      program.uniforms.iResolution.value.r = gl.drawingBufferWidth;
+      program.uniforms.iResolution.value.g = gl.drawingBufferHeight;
+      program.uniforms.iResolution.value.b = gl.drawingBufferWidth / gl.drawingBufferHeight;
     }
     window.addEventListener('resize', resize);
     resize();
@@ -191,28 +195,43 @@ const Threads: React.FC<ThreadsProps> = ({
       container.addEventListener('mouseleave', handleMouseLeave);
     }
 
-    function update(t: number) {
-      if (enableMouseInteraction) {
-        const smoothing = 0.05;
-        currentMouse[0] += smoothing * (targetMouse[0] - currentMouse[0]);
-        currentMouse[1] += smoothing * (targetMouse[1] - currentMouse[1]);
-        program.uniforms.uMouse.value[0] = currentMouse[0];
-        program.uniforms.uMouse.value[1] = currentMouse[1];
-      } else {
-        program.uniforms.uMouse.value[0] = 0.5;
-        program.uniforms.uMouse.value[1] = 0.5;
+    let last = 0;
+    const fps = 30;
+    let isPaused = false;
+    function update(now: number) {
+      if (isPaused) {
+        animationFrameId.current = requestAnimationFrame(update);
+        return;
       }
-      program.uniforms.iTime.value = t * 0.001;
-
-      renderer.render({ scene: mesh });
+      if (now - last >= 1000 / fps) {
+        if (enableMouseInteraction) {
+          const smoothing = 0.05;
+          currentMouse[0] += smoothing * (targetMouse[0] - currentMouse[0]);
+          currentMouse[1] += smoothing * (targetMouse[1] - currentMouse[1]);
+          program.uniforms.uMouse.value[0] = currentMouse[0];
+          program.uniforms.uMouse.value[1] = currentMouse[1];
+        } else {
+          program.uniforms.uMouse.value[0] = 0.5;
+          program.uniforms.uMouse.value[1] = 0.5;
+        }
+        program.uniforms.iTime.value = now * 0.001;
+        renderer.render({ scene: mesh });
+        last = now;
+      }
       animationFrameId.current = requestAnimationFrame(update);
     }
     animationFrameId.current = requestAnimationFrame(update);
 
+    // Pause animation when tab is hidden
+    const handleVisibility = () => {
+      isPaused = document.hidden;
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     return () => {
       if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
       window.removeEventListener('resize', resize);
-
+      document.removeEventListener('visibilitychange', handleVisibility);
       if (enableMouseInteraction) {
         container.removeEventListener('mousemove', handleMouseMove);
         container.removeEventListener('mouseleave', handleMouseLeave);
