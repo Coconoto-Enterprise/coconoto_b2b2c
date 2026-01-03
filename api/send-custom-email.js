@@ -1,4 +1,6 @@
 import { Resend } from 'resend';
+import formidable from 'formidable';
+import fs from 'fs';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -263,9 +265,6 @@ export default async function handler(req, res) {
     
     if (contentType.includes('multipart/form-data')) {
       // Parse multipart form data (with file uploads)
-      const formidable = require('formidable');
-      const fs = require('fs');
-      
       const form = formidable({ 
         multiples: true,
         maxFileSize: 10 * 1024 * 1024, // 10MB per file
