@@ -398,4 +398,28 @@ export class TemplateService {
       userHtml: this.replacePlaceholders(userTemplate, templateData)
     };
   }
+
+  // Get coconut husk sale email templates
+  static getHuskTemplates(formData) {
+    const systemTemplate = this.loadTemplate('system/husk_template.html');
+    const userTemplate = this.loadTemplate('users/user-husk.html');
+
+    const templateData = {
+      // System template placeholders
+      seller_name: formData.name || 'N/A',
+      seller_email: formData.email || 'N/A',
+      seller_phone: formData.phone || 'N/A',
+      number_of_sacks: formData.numberOfSacks || formData.number_of_sacks || formData.finalSackCount || 'N/A',
+      
+      // User template fields (same as system)
+      name: formData.name || 'N/A',
+      email: formData.email || 'N/A',
+      phone: formData.phone || 'N/A'
+    };
+
+    return {
+      systemHtml: this.replacePlaceholders(systemTemplate, templateData),
+      userHtml: this.replacePlaceholders(userTemplate, templateData)
+    };
+  }
 }

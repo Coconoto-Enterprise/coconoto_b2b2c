@@ -35,6 +35,7 @@ interface AllData {
   serviceContacts: any[];
   toxicResults: any[];
   waitlist: any[];
+  huskSaleRequests: any[];
 }
 
 interface DetailModalProps {
@@ -54,7 +55,8 @@ const VintageDashboard: React.FC = () => {
     productOrders: [],
     serviceContacts: [],
     toxicResults: [],
-    waitlist: []
+    waitlist: [],
+    huskSaleRequests: []
   });
   const [loading, setLoading] = useState(true);
   const [showComposer, setShowComposer] = useState(false);
@@ -114,7 +116,8 @@ const VintageDashboard: React.FC = () => {
           productOrders: [],
           serviceContacts: [],
           toxicResults: [],
-          waitlist: []
+          waitlist: [],
+          huskSaleRequests: []
         });
       }
 
@@ -489,6 +492,7 @@ const VintageDashboard: React.FC = () => {
               { id: 'machine-orders', name: `Machine Orders (${allData.machineOrders.length})`, icon: ShoppingCart },
               { id: 'product-orders', name: `Product Orders (${allData.productOrders.length})`, icon: ShoppingCart },
               { id: 'service-contacts', name: `Service Contacts (${allData.serviceContacts.length})`, icon: Mail },
+              { id: 'husk-sales', name: `Husk Sales (${allData.huskSaleRequests.length})`, icon: ShoppingCart },
 
               { id: 'waitlist', name: `Waitlist (${allData.waitlist.length})`, icon: Users },
             ].map((tab) => {
@@ -954,6 +958,60 @@ const VintageDashboard: React.FC = () => {
         )}
 
 
+
+        {/* Husk Sales Tab */}
+        {activeTab === 'husk-sales' && (
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">Coconut Husk Sale Requests ({allData.huskSaleRequests.length})</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seller</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sacks</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {allData.huskSaleRequests.length > 0 ? allData.huskSaleRequests.map((request) => (
+                    <tr key={request?.id || Math.random()} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">{request?.name || 'Unknown'}</div>
+                        <div className="text-sm text-gray-500">{request?.email || 'No email'}</div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{request?.phone || 'N/A'}</td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          {request?.number_of_sacks || 0} sacks
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{request?.created_at ? formatDate(request.created_at) : 'Unknown'}</td>
+                      <td className="px-6 py-4">
+                        <button 
+                          onClick={() => openDetailModal('Husk Sale Request Details', request)}
+                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                        No husk sale requests found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* Waitlist Tab */}
         {activeTab === 'waitlist' && (

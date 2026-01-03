@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { MessageCircle } from 'lucide-react';
+import { HuskSaleModal } from './HuskSaleModal';
 
 const FloatingChatIcon: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     // Expand to show text after 2 seconds
@@ -30,20 +32,25 @@ const FloatingChatIcon: React.FC = () => {
     };
   }, []);
 
-  return (
-    <div className="floating-chat-container">
-      <div className={`floating-chat-wrapper ${isExpanded ? 'expanded' : ''}`}>
-        <div className="floating-chat-icon">
-          <MessageCircle className="w-6 h-6 text-white" />
-        </div>
-        {isExpanded && (
-          <div className="floating-chat-text">
-            Sell your coconut husk to us
-          </div>
-        )}
-      </div>
+  const handleClick = () => {
+    setIsModalOpen(true);
+  };
 
-      <style>{`
+  return (
+    <>
+      <div className="floating-chat-container" onClick={handleClick}>
+        <div className={`floating-chat-wrapper ${isExpanded ? 'expanded' : ''}`}>
+          <div className="floating-chat-icon">
+            <MessageCircle className="w-6 h-6 text-white" />
+          </div>
+          {isExpanded && (
+            <div className="floating-chat-text">
+              Sell your coconut husk to us
+            </div>
+          )}
+        </div>
+
+        <style>{`
         .floating-chat-container {
           position: fixed;
           bottom: 80px;
@@ -131,7 +138,10 @@ const FloatingChatIcon: React.FC = () => {
           }
         }
       `}</style>
-    </div>
+      </div>
+
+      <HuskSaleModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    </>
   );
 };
 

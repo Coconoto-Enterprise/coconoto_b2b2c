@@ -57,6 +57,11 @@ export default async function handler(req, res) {
       case 'booking':
         templates = TemplateService.getBookingTemplates(formData);
         break;
+      case 'husk sale inquiry':
+      case 'husk sale':
+      case 'coconut husk sale':
+        templates = TemplateService.getHuskTemplates(formData);
+        break;
       default:
         // Fallback to simple templates for unknown types
         templates = {
