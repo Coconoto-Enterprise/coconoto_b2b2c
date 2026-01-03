@@ -75,7 +75,8 @@ const VintageDashboard: React.FC = () => {
     message: '',
     heading: '',
     templateType: 'customer', // 'customer' or 'team'
-    isHtml: false
+    isHtml: false,
+    attachments: [] as File[]
   });
 
   // Check if user is logged in
@@ -132,22 +133,29 @@ const VintageDashboard: React.FC = () => {
 
     try {
       setSending(true);
+      
+      // Create FormData to support file uploads
+      const formData = new FormData();
+      formData.append('to', composer.to);
+      formData.append('subject', composer.subject);
+      formData.append('message', composer.message);
+      formData.append('heading', composer.heading);
+      formData.append('templateType', composer.templateType);
+      
+      // Append all attachments
+      composer.attachments.forEach((file, index) => {
+        formData.append('attachments', file);
+      });
+
       const response = await fetch('/api/send-custom-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: composer.to,
-          subject: composer.subject,
-          message: composer.message,
-          heading: composer.heading,
-          templateType: composer.templateType
-        }),
+        body: formData, // Send as FormData instead of JSON
       });
 
       const data = await response.json();
       if (data.success) {
         alert('Email sent successfully!');
-        setComposer({ to: '', subject: '', message: '', heading: '', templateType: 'customer', isHtml: false });
+        setComposer({ to: '', subject: '', message: '', heading: '', templateType: 'customer', isHtml: false, attachments: [] });
         setShowComposer(false);
         fetchData();
       } else {
@@ -1098,6 +1106,59 @@ const VintageDashboard: React.FC = () => {
                   rows={10}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Attachments <span className="text-gray-500 text-xs">(Optional - Max 10MB per file)</span>
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    setComposer({ ...composer, attachments: [...composer.attachments, ...files] });
+                    e.target.value = ''; // Reset input to allow re-selecting same file
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                {composer.attachments.length > 0 && (
+                  <div className="mt-2 space-y-2">
+                    {composer.attachments.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-md">
+                        <span className="text-sm text-gray-700 truncate">
+                          📎 {file.name} ({(file.size / 1024).toFixed(1)} KB)
+                        </span>
+                        <button
+                          onClick={() => {
+                            const newAttachments = composer.attachments.filter((_, i) => i !== index);
+                            setComposer({ ...composer, attachments: newAttachments });
+                          }}
+                          className="text-red-600 hover:text-red-800 ml-2"
+                          title="Remove attachment"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t flex justify-end gap-3">
+              <button
+                onClick={() => setShowComposer(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={sendEmail}
+                disabled={sending}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 inline-flex items-center gap-2"
+              >
+                {sending ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                {sending ? 'Sending...' : 'Send Email'}
+              </button>
               </div>
             </div>
             <div className="px-6 py-4 border-t flex justify-end gap-3">

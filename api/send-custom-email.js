@@ -2,6 +2,13 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Vercel configuration for file uploads
+export const config = {
+  api: {
+    bodyParser: false, // Disable default body parser to handle FormData
+  },
+};
+
 // Template builder functions
 function buildCustomerTemplate(heading, message) {
   return `
@@ -249,7 +256,56 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { to, subject, message, heading, templateType } = req.body;
+    // Parse FormData or JSON body
+    const contentType = req.headers['content-type'] || '';
+    let to, subject, message, heading, templateType;
+    let attachments = [];
+    
+    if (contentType.includes('multipart/form-data')) {
+      // Parse multipart form data (with file uploads)
+      const formidable = require('formidable');
+      const fs = require('fs');
+      
+      const form = formidable({ 
+        multiples: true,
+        maxFileSize: 10 * 1024 * 1024, // 10MB per file
+      });
+      
+      const [fields, files] = await new Promise((resolve, reject) => {
+        form.parse(req, (err, fields, files) => {
+          if (err) reject(err);
+          else resolve([fields, files]);
+        });
+      });
+      
+      // Extract fields (formidable returns arrays for fields)
+      to = Array.isArray(fields.to) ? fields.to[0] : fields.to;
+      subject = Array.isArray(fields.subject) ? fields.subject[0] : fields.subject;
+      message = Array.isArray(fields.message) ? fields.message[0] : fields.message;
+      heading = Array.isArray(fields.heading) ? fields.heading[0] : fields.heading;
+      templateType = Array.isArray(fields.templateType) ? fields.templateType[0] : fields.templateType;
+      
+      // Process uploaded files
+      if (files.attachments) {
+        const fileArray = Array.isArray(files.attachments) ? files.attachments : [files.attachments];
+        
+        for (const file of fileArray) {
+          const fileContent = fs.readFileSync(file.filepath);
+          attachments.push({
+            filename: file.originalFilename || file.newFilename,
+            content: fileContent,
+          });
+        }
+      }
+    } else {
+      // Parse JSON body (backward compatibility)
+      const body = req.body;
+      to = body.to;
+      subject = body.subject;
+      message = body.message;
+      heading = body.heading;
+      templateType = body.templateType;
+    }
 
     if (!to || !subject || !message) {
       return res.status(400).json({ 
@@ -281,29 +337,35 @@ export default async function handler(req, res) {
       htmlContent = buildCustomerTemplate(heading || '', message);
     }
 
-    // Send email
+    // Send email with attachments
     const emailData = {
       from: templateType === 'team' 
         ? 'Coconoto Internal Team <team@coconoto.africa>'
         : 'Coconoto Customer Service <team@coconoto.africa>',
       to: recipients,
       subject: subject,
-      html: htmlContent
+      html: htmlContent,
     };
+    
+    // Add attachments if present
+    if (attachments.length > 0) {
+      emailData.attachments = attachments;
+    }
 
     const result = await resend.emails.send(emailData);
 
     return res.status(200).json({
       success: true,
-      message: 'Email sent successfully',
-      emailId: result.data?.id
+      message: `Email sent successfully${attachments.length > 0 ? ` with ${attachments.length} attachment(s)` : ''}`,
+      emailId: result.data?.id,
+      attachmentCount: attachments.length
     });
 
   } catch (error) {
     console.error('Send custom email error:', error);
     return res.status(500).json({
       success: false,
-      error: 'Failed to send email'
+      error: error.message || 'Failed to send email'
     });
   }
 }

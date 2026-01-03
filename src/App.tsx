@@ -19,6 +19,7 @@ import { HelpCenter } from './pages/support/HelpCenter';
 import { Contact } from './pages/support/Contact';
 import VintageLogin from './pages/VintageLogin';
 import VintageDashboard from './pages/VintageDashboard';
+import FloatingChatIcon from './components/FloatingChatIcon';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
                 <CTA />
               </main>
               <Footer />
+              <FloatingChatIcon />
             </>
           } />
           <Route path="/services/*" element={<ServicesLayout />} />
