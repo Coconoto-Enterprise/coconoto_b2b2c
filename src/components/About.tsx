@@ -480,30 +480,8 @@ export function About() {
                 </div>
               </div>
 
-              {/* Decorticator Machine */}
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <div className="flex items-center mb-4">
-                  <div className="bg-amber-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                    <Wheat className="w-6 h-6 text-amber-700" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900">Decorticator Machine</h3>
-                </div>
-                <p className="text-gray-600 mb-4">
-                  Specialized machine for separating cocopeat from coconut husk efficiently.
-                </p>
-                <div className="space-y-2 text-sm text-gray-700 mb-4">
-                  <p>✓ <strong>Production:</strong> 200kg weekly capacity</p>
-                  <p>✓ <strong>Output:</strong> High-quality cocopeat</p>
-                  <p>✓ <strong>Application:</strong> Soilless & hydroponic farming</p>
-                  <p>✓ <strong>Status:</strong> In production</p>
-                </div>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <p className="text-sm font-semibold text-green-700">✅ Operational & Producing</p>
-                </div>
-              </div>
-
               {/* Coconut Milk Extractor */}
-              <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="bg-white rounded-xl shadow-lg p-8 md:col-span-2 md:max-w-xl md:mx-auto">
                 <div className="flex items-center mb-4">
                   <div className="bg-amber-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
                     <Package className="w-6 h-6 text-amber-700" />
