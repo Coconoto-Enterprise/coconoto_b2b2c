@@ -487,14 +487,14 @@ const VintageDashboard: React.FC = () => {
               { id: 'overview', name: 'Overview', icon: BarChart3 },
 
               { id: 'business-emails', name: 'Business Emails', icon: Users },
-              { id: 'book-events', name: `Event Requests (${allData.bookEventRequests.length})`, icon: Calendar },
+              { id: 'book-events', name: `Event Requests (${allData.bookEventRequests?.length || 0})`, icon: Calendar },
 
-              { id: 'machine-orders', name: `Machine Orders (${allData.machineOrders.length})`, icon: ShoppingCart },
-              { id: 'product-orders', name: `Product Orders (${allData.productOrders.length})`, icon: ShoppingCart },
-              { id: 'service-contacts', name: `Service Contacts (${allData.serviceContacts.length})`, icon: Mail },
-              { id: 'husk-sales', name: `Husk Sales (${allData.huskSaleRequests.length})`, icon: ShoppingCart },
+              { id: 'machine-orders', name: `Machine Orders (${allData.machineOrders?.length || 0})`, icon: ShoppingCart },
+              { id: 'product-orders', name: `Product Orders (${allData.productOrders?.length || 0})`, icon: ShoppingCart },
+              { id: 'service-contacts', name: `Service Contacts (${allData.serviceContacts?.length || 0})`, icon: Mail },
+              { id: 'husk-sales', name: `Husk Sales (${allData.huskSaleRequests?.length || 0})`, icon: ShoppingCart },
 
-              { id: 'waitlist', name: `Waitlist (${allData.waitlist.length})`, icon: Users },
+              { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -536,7 +536,7 @@ const VintageDashboard: React.FC = () => {
                 <div className="flex items-center">
                   <Calendar className="h-8 w-8 text-green-600" />
                   <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{allData.bookEventRequests.length}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">{allData.bookEventRequests?.length || 0}</h3>
                     <p className="text-gray-600">Event Requests</p>
                   </div>
                 </div>
@@ -546,7 +546,7 @@ const VintageDashboard: React.FC = () => {
                 <div className="flex items-center">
                   <ShoppingCart className="h-8 w-8 text-purple-600" />
                   <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{allData.machineOrders.length + allData.productOrders.length}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">{(allData.machineOrders?.length || 0) + (allData.productOrders?.length || 0)}</h3>
                     <p className="text-gray-600">Total Orders</p>
                   </div>
                 </div>
@@ -556,7 +556,7 @@ const VintageDashboard: React.FC = () => {
                 <div className="flex items-center">
                   <Users className="h-8 w-8 text-orange-600" />
                   <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{allData.waitlist.length}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">{allData.waitlist?.length || 0}</h3>
                     <p className="text-gray-600">Waitlist Entries</p>
                   </div>
                 </div>
@@ -566,7 +566,7 @@ const VintageDashboard: React.FC = () => {
                 <div className="flex items-center">
                   <Mail className="h-8 w-8 text-pink-600" />
                   <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{allData.serviceContacts.length}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">{allData.serviceContacts?.length || 0}</h3>
                     <p className="text-gray-600">Service Contacts</p>
                   </div>
                 </div>
@@ -577,7 +577,7 @@ const VintageDashboard: React.FC = () => {
                   <Calendar className="h-8 w-8 text-yellow-600" />
                   <div className="ml-4">
                     <h3 className="text-2xl font-bold text-gray-900">
-                      {Object.values(allData).reduce((sum, arr) => sum + arr.length, 0)}
+                      {Object.values(allData).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)}
                     </h3>
                     <p className="text-gray-600">Total Entries</p>
                   </div>
@@ -592,7 +592,7 @@ const VintageDashboard: React.FC = () => {
                   <h2 className="text-lg font-semibold text-gray-900">Recent Event Requests</h2>
                 </div>
                 <div className="p-6">
-                  {allData.bookEventRequests.length > 0 ? allData.bookEventRequests.slice(0, 5).map((request) => (
+                  {allData.bookEventRequests?.length > 0 ? allData.bookEventRequests.slice(0, 5).map((request) => (
                     <div key={request?.id || Math.random()} className="flex items-center justify-between py-3 border-b last:border-b-0">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900">{request?.full_name || 'Unknown'}</p>
@@ -613,7 +613,7 @@ const VintageDashboard: React.FC = () => {
                   <h2 className="text-lg font-semibold text-gray-900">Recent Machine Orders</h2>
                 </div>
                 <div className="p-6">
-                  {allData.machineOrders.length > 0 ? allData.machineOrders.slice(0, 5).map((order) => (
+                  {allData.machineOrders?.length > 0 ? allData.machineOrders.slice(0, 5).map((order) => (
                     <div key={order?.id || Math.random()} className="flex items-center justify-between py-3 border-b last:border-b-0">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900">{order?.name || 'Unknown Customer'}</p>
@@ -634,7 +634,7 @@ const VintageDashboard: React.FC = () => {
                   <h2 className="text-lg font-semibold text-gray-900">Recent Waitlist Entries</h2>
                 </div>
                 <div className="p-6">
-                  {allData.waitlist.length > 0 ? allData.waitlist.slice(0, 5).map((entry) => (
+                  {allData.waitlist?.length > 0 ? allData.waitlist.slice(0, 5).map((entry) => (
                     <div key={entry?.id || Math.random()} className="flex items-center justify-between py-3 border-b last:border-b-0">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900">{entry?.name || 'Unknown'}</p>
