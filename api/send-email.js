@@ -96,7 +96,8 @@ export default async function handler(req, res) {
       from: 'Coconoto <team@coconoto.africa>',
       to: [
         'coconotoenterprise@gmail.com',     // Business Gmail
-        'bamigboyeayomide095@gmail.com'     // Your personal email
+        'bamigboyeayomide095@gmail.com',
+        'faejioluwatoke@gmail.com'     // Your personal email
       ],
       subject: `New ${formType} - ${customerName}`,
       html: businessEmailHtml,
