@@ -41,7 +41,8 @@ export default async function handler(req, res) {
           productOrders: [],
           serviceContacts: [],
           toxicResults: [],
-          waitlist: []
+          waitlist: [],
+          huskSaleRequests: []
         },
         message: 'Supabase not configured'
       });
@@ -54,7 +55,8 @@ export default async function handler(req, res) {
       productOrders: [],
       serviceContacts: [],
       toxicResults: [],
-      waitlist: []
+      waitlist: [],
+      huskSaleRequests: []
     };
 
     // 1. Book Event Requests
@@ -185,6 +187,24 @@ export default async function handler(req, res) {
       console.log('❌ waitlist table error:', err.message);
     }
 
+    // 8. Husk Sale Requests
+    try {
+      console.log('🥥 Fetching husk_sale_requests...');
+      const { data: huskSaleRequests, error: huskError } = await supabase
+        .from('husk_sale_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!huskError && huskSaleRequests) {
+        allData.huskSaleRequests = huskSaleRequests;
+        console.log(`✅ Found ${huskSaleRequests.length} husk sale requests`);
+      } else if (huskError) {
+        console.log('❌ husk_sale_requests error:', huskError.message);
+      }
+    } catch (err) {
+      console.log('❌ husk_sale_requests table error:', err.message);
+    }
+
     const totalEntries = Object.values(allData).reduce((sum, arr) => sum + arr.length, 0);
     
     console.log(`📦 Total entries found: ${totalEntries}`);
@@ -195,14 +215,15 @@ export default async function handler(req, res) {
       productOrders: allData.productOrders.length,
       serviceContacts: allData.serviceContacts.length,
       toxicResults: allData.toxicResults.length,
-      waitlist: allData.waitlist.length
+      waitlist: allData.waitlist.length,
+      huskSaleRequests: allData.huskSaleRequests.length
     });
 
     return res.status(200).json({
       success: true,
       data: allData,
       total: totalEntries,
-      tables_checked: ['book_event_requests', 'machine_orders', 'product_orders', 'service_contacts', 'waitlist'],
+      tables_checked: ['book_event_requests', 'machine_orders', 'product_orders', 'service_contacts', 'waitlist', 'husk_sale_requests'],
       message: `Found ${totalEntries} total entries across all tables`
     });
 
@@ -217,7 +238,8 @@ export default async function handler(req, res) {
         productOrders: [],
         serviceContacts: [],
         toxicResults: [],
-        waitlist: []
+        waitlist: [],
+        huskSaleRequests: []
       },
       error: error.message,
       message: 'Error fetching data - showing empty state'
