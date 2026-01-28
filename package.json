@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "node local-api-server.js",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:api\"",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -12,7 +14,10 @@
     "@headlessui/react": "^1.7.17",
     "@supabase/supabase-js": "^2.75.0",
     "@vercel/node": "^5.3.26",
+    "concurrently": "^9.2.1",
+    "cors": "^2.8.6",
     "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "formidable": "^3.5.2",
     "framer-motion": "^12.6.0",
     "highlight.js": "^11.11.1",

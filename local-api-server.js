@@ -1,6 +1,10 @@
 // Local development API server
 import express from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const PORT = 3001;
@@ -15,6 +19,9 @@ app.post('/api/admin-login', (req, res) => {
   
   const { password } = req.body;
   const adminPassword = process.env.ADMIN_PASSWORD || 'COCO1234';
+  
+  console.log('📝 Received password:', password);
+  console.log('📝 Expected password:', adminPassword);
 
   if (password === adminPassword) {
     console.log('✅ Admin login successful');
