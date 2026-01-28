@@ -12,8 +12,10 @@ import {
   LogOut,
   Plus,
   X,
-  Edit
+  Edit,
+  BookOpen
 } from 'lucide-react';
+import { BlogManagement } from './BlogManagement';
 
 interface Email {
   id: string;
@@ -485,7 +487,7 @@ const VintageDashboard: React.FC = () => {
           <nav className="flex space-x-4 overflow-x-auto" aria-label="Tabs">
             {[
               { id: 'overview', name: 'Overview', icon: BarChart3 },
-
+              { id: 'blog', name: 'Blog Posts', icon: BookOpen },
               { id: 'business-emails', name: 'Business Emails', icon: Users },
               { id: 'book-events', name: `Event Requests (${allData.bookEventRequests?.length || 0})`, icon: Calendar },
 
@@ -653,7 +655,8 @@ const VintageDashboard: React.FC = () => {
           </div>
         )}
 
-
+        {/* Blog Posts Tab */}
+        {activeTab === 'blog' && <BlogManagement />}
 
         {/* Business Emails Tab */}
         {activeTab === 'business-emails' && (

@@ -20,6 +20,8 @@ import { Contact } from './pages/support/Contact';
 import VintageLogin from './pages/VintageLogin';
 import VintageDashboard from './pages/VintageDashboard';
 import FloatingChatIcon from './components/FloatingChatIcon';
+import { BlogList } from './pages/blog/BlogList';
+import { BlogPostView } from './pages/blog/BlogPostView';
 
 function App() {
   return (
@@ -44,6 +46,8 @@ function App() {
           } />
           <Route path="/services/*" element={<ServicesLayout />} />
           <Route path="/product/*" element={<ProductLayout />} />
+          <Route path="/blog" element={<BlogList />} />
+          <Route path="/blog/:slug" element={<BlogPostView />} />
           <Route path="/about" element={
             <>
               <Navbar />

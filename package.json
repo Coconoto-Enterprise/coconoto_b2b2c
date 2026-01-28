@@ -15,13 +15,18 @@
     "dotenv": "^17.2.3",
     "formidable": "^3.5.2",
     "framer-motion": "^12.6.0",
+    "highlight.js": "^11.11.1",
     "lucide-react": "^0.460.0",
     "ogl": "^1.0.11",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.48.2",
     "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^6.19.0",
+    "rehype-highlight": "^7.0.2",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1",
     "resend": "^6.1.2"
   },
   "devDependencies": {
