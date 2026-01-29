@@ -39,7 +39,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       // Create unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-      const filePath = `blog-images/${fileName}`;
+      const filePath = fileName;
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
