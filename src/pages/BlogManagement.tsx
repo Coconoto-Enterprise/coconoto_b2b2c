@@ -21,6 +21,8 @@ import {
   CreateBlogPost
 } from '../services/blogService';
 import { MarkdownRenderer } from '../components/blog/MarkdownRenderer';
+import { RichMarkdownEditor } from '../components/blog/RichMarkdownEditor';
+import { ImageUploader } from '../components/blog/ImageUploader';
 
 export const BlogManagement: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -440,18 +442,11 @@ export const BlogManagement: React.FC = () => {
                   </div>
 
                   {/* Cover Image */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Cover Image URL
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.cover_image}
-                      onChange={(e) => setFormData(prev => ({ ...prev, cover_image: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="https://example.com/image.jpg"
-                    />
-                  </div>
+                  <ImageUploader
+                    value={formData.cover_image}
+                    onChange={(url) => setFormData(prev => ({ ...prev, cover_image: url }))}
+                    label="Cover Image"
+                  />
 
                   {/* Tags */}
                   <div>
@@ -498,13 +493,11 @@ export const BlogManagement: React.FC = () => {
                   {/* Content */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Content (Markdown) <span className="text-red-500">*</span>
+                      Content <span className="text-red-500">*</span>
                     </label>
-                    <textarea
+                    <RichMarkdownEditor
                       value={formData.content}
-                      onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono text-sm"
-                      rows={20}
+                      onChange={(content) => setFormData(prev => ({ ...prev, content }))}
                       placeholder="Write your content in Markdown..."
                     />
                   </div>
