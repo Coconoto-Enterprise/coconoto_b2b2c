@@ -21,7 +21,7 @@ import {
   CreateBlogPost
 } from '../services/blogService';
 import { MarkdownRenderer } from '../components/blog/MarkdownRenderer';
-import { WysiwygEditor } from '../components/blog/WysiwygEditor';
+import { RichMarkdownEditor } from '../components/blog/RichMarkdownEditor';
 import { ImageUploader } from '../components/blog/ImageUploader';
 
 export const BlogManagement: React.FC = () => {
@@ -495,10 +495,10 @@ export const BlogManagement: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Content <span className="text-red-500">*</span>
                     </label>
-                    <WysiwygEditor
+                    <RichMarkdownEditor
                       value={formData.content}
                       onChange={(content) => setFormData(prev => ({ ...prev, content }))}
-                      placeholder="Write your content..."
+                      placeholder="Write your content in Markdown..."
                     />
                   </div>
 
