@@ -38,8 +38,8 @@ interface WysiwygEditorProps {
   }, [value, editor]);
 
   return (
-    <div style={{ minHeight: 300, border: '1px solid #ccc', borderRadius: 8, padding: 8 }}>
-      <EditorContent editor={editor} />
-    </div>
+	<div style={{ minHeight: 300, border: '1px solid #ccc', borderRadius: 8, padding: 8 }}>
+		<EditorContent editor={editor} />
+	</div>
   );
-};
+}
