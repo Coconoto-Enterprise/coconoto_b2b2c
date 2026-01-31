@@ -10,6 +10,7 @@ interface WysiwygEditorProps {
 }
 
 
+export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({ value, onChange, placeholder }) => {
   const lastValue = useRef(value);
   const editor = useEditor({
     extensions: [StarterKit],
@@ -42,4 +43,4 @@ interface WysiwygEditorProps {
 		<EditorContent editor={editor} />
 	</div>
   );
-}
+};
