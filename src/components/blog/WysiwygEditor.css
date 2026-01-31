@@ -1,3 +1,10 @@
+/* Remove border, background, and outline from the inner editable area */
+.tiptap-editor {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
 /* WysiwygEditor.css */
 .wysiwyg-editor-container {
   border: 1px solid #ccc;
