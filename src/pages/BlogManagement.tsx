@@ -491,16 +491,14 @@ export const BlogManagement: React.FC = () => {
                   </div>
 
                   {/* Content */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Content <span className="text-red-500">*</span>
-                    </label>
-                    <WysiwygEditor
-                      value={formData.content}
-                      onChange={(content) => setFormData(prev => ({ ...prev, content }))}
-                      placeholder="Write your content..."
-                    />
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Content <span className="text-red-500">*</span>
+                  </label>
+                  <WysiwygEditor
+                    value={formData.content}
+                    onChange={(content) => setFormData(prev => ({ ...prev, content }))}
+                    placeholder="Write your content..."
+                  />
 
                   {/* Published Status */}
                   <div className="flex items-center gap-3">
