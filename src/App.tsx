@@ -22,6 +22,10 @@ import VintageDashboard from './pages/VintageDashboard';
 import FloatingChatIcon from './components/FloatingChatIcon';
 import { BlogList } from './pages/blog/BlogList';
 import { BlogPostView } from './pages/blog/BlogPostView';
+import { Marketplace } from './pages/vendor/Marketplace';
+import { VendorLogin } from './pages/vendor/VendorLogin';
+import { VendorSignup } from './pages/vendor/VendorSignup';
+import { VendorDashboard } from './pages/vendor/VendorDashboard';
 
 function App() {
   return (
@@ -62,6 +66,10 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/vintage" element={<VintageLogin />} />
           <Route path="/vintage-dashboard" element={<VintageDashboard />} />
+          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/vendor-login" element={<VendorLogin />} />
+          <Route path="/vendor-signup" element={<VendorSignup />} />
+          <Route path="/vendor-dashboard" element={<VendorDashboard />} />
         </Routes>
       </div>
     </BrowserRouter>

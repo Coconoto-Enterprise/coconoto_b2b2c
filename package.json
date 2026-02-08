@@ -16,6 +16,7 @@
     "@tiptap/react": "^3.18.0",
     "@tiptap/starter-kit": "^3.18.0",
     "@vercel/node": "^5.3.26",
+    "bcryptjs": "^2.4.3",
     "concurrently": "^9.2.1",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
