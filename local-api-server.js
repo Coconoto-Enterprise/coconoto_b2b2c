@@ -2,9 +2,16 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
+import { createClient } from '@supabase/supabase-js';
 
 // Load environment variables
 dotenv.config();
+
+// Initialize Supabase client
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 const app = express();
 const PORT = 3001;
@@ -126,6 +133,161 @@ app.post('/api/send-custom-email', (req, res) => {
   }, 1000);
 });
 
+// Vendor signup endpoint
+app.post('/api/vendor-signup', async (req, res) => {
+  console.log('👥 Vendor signup attempt (local dev)');
+  
+  try {
+    const { email, password, business_name, contact_name, phone, address, description } = req.body;
+
+    // Validate required fields
+    if (!email || !password || !business_name || !contact_name) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Email, password, business name, and contact name are required' 
+      });
+    }
+
+    if (!supabase) {
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Supabase not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY' 
+      });
+    }
+
+    // Check if vendor already exists
+    const { data: existingVendor } = await supabase
+      .from('vendors')
+      .select('email')
+      .eq('email', email)
+      .single();
+
+    if (existingVendor) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Email already registered' 
+      });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const password_hash = await bcrypt.hash(password, salt);
+
+    // Insert new vendor
+    const { data: newVendor, error } = await supabase
+      .from('vendors')
+      .insert([{
+        email,
+        password_hash,
+        business_name,
+        contact_name,
+        phone: phone || null,
+        address: address || null,
+        description: description || null
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(500).json({ 
+        success: false, 
+        error: error.message 
+      });
+    }
+
+    // Remove password hash from response
+    const { password_hash: _, ...vendorData } = newVendor;
+
+    console.log('✅ Vendor signup successful:', vendorData.email);
+
+    return res.status(200).json({ 
+      success: true, 
+      vendor: vendorData 
+    });
+
+  } catch (error) {
+    console.error('❌ Vendor signup error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      error: 'Failed to create vendor account' 
+    });
+  }
+});
+
+// Vendor login endpoint
+app.post('/api/vendor-login', async (req, res) => {
+  console.log('🔐 Vendor login attempt (local dev)');
+  
+  try {
+    const { email, password } = req.body;
+
+    // Validate required fields
+    if (!email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Email and password are required' 
+      });
+    }
+
+    if (!supabase) {
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Supabase not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY' 
+      });
+    }
+
+    // Get vendor by email
+    const { data: vendor, error } = await supabase
+      .from('vendors')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (error || !vendor) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Invalid email or password' 
+      });
+    }
+
+    // Verify password
+    const isValidPassword = await bcrypt.compare(password, vendor.password_hash);
+
+    if (!isValidPassword) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Invalid email or password' 
+      });
+    }
+
+    // Check if account is active
+    if (!vendor.is_active) {
+      return res.status(403).json({ 
+        success: false, 
+        error: 'Account is deactivated. Please contact support.' 
+      });
+    }
+
+    // Remove password hash from response
+    const { password_hash, ...vendorData } = vendor;
+
+    console.log('✅ Vendor login successful:', vendorData.email);
+
+    return res.status(200).json({ 
+      success: true, 
+      vendor: vendorData 
+    });
+
+  } catch (error) {
+    console.error('❌ Vendor login error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      error: 'Failed to login' 
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Local API server running on http://localhost:${PORT}`);
   console.log('📝 Available endpoints:');
@@ -133,6 +295,8 @@ app.listen(PORT, () => {
   console.log('  GET  /api/get-emails');
   console.log('  GET  /api/get-orders');
   console.log('  POST /api/send-custom-email');
+  console.log('  POST /api/vendor-signup');
+  console.log('  POST /api/vendor-login');
 });
 
 export default app;

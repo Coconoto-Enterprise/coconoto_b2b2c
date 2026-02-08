@@ -1,7 +1,7 @@
-const { supabase } = require('../src/lib/supabase');
+const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcryptjs');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -26,12 +26,20 @@ export default async function handler(req, res) {
       });
     }
 
-    // Check if vendor already exists
-    const { createClient } = require('@supabase/supabase-js');
+    // Initialize Supabase client
     const supabaseUrl = process.env.VITE_SUPABASE_URL;
     const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Server configuration error' 
+      });
+    }
+
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Check if vendor already exists
     const { data: existingVendor } = await supabase
       .from('vendors')
       .select('email')
@@ -87,4 +95,4 @@ export default async function handler(req, res) {
       error: 'Failed to create vendor account' 
     });
   }
-}
+};
