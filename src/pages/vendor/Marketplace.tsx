@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import MarketplaceNavbar from '../../components/MarketplaceNavbar';
 import { getAllMarketplaceProducts, createOrder } from '../../services/vendorService';
 import type { VendorProduct, VendorOrderInput } from '../../types/vendor';
 import { PRODUCT_CATEGORIES } from '../../types/vendor';
@@ -12,7 +12,6 @@ export function Marketplace() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<VendorProduct | null>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     loadProducts();
@@ -57,36 +56,11 @@ export function Marketplace() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-green-700 flex items-center">
-                C<img src="/favicon.png" alt="o" className="h-6 inline-block mx-[-5px] mb-1" />co-connect
-              </h1>
-              <p className="text-gray-600 mt-1">Coconut Products Marketplace</p>
-            </div>
-            <div className="flex gap-4">
-              <Link
-                to="/"
-                className="px-4 py-2 text-gray-700 hover:text-green-700 font-medium"
-              >
-                Home
-              </Link>
-              <Link
-                to="/vendor-login"
-                className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 font-semibold"
-              >
-                Vendor Login
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Navbar */}
+      <MarketplaceNavbar />
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-green-600 to-green-800 text-white">
+      <div className="bg-gradient-to-r from-green-600 to-green-800 text-white mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <h2 className="text-4xl font-bold mb-4">
             Discover Quality Coconut Products

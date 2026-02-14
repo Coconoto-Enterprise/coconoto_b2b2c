@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import VendorNavbar from '../../components/VendorNavbar';
 import {
   getVendorProducts,
   getVendorOrders,
@@ -86,36 +87,14 @@ export function VendorDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-green-700">
-                C<img src="/favicon.png" alt="o" className="h-5 inline-block mx-[-4px] mb-1" />co-connect Vendor
-              </h1>
-              <p className="text-gray-600">{vendorBusinessName}</p>
-            </div>
-            <div className="flex gap-4">
-              <button
-                onClick={() => navigate('/marketplace')}
-                className="px-4 py-2 text-gray-700 hover:text-green-700 font-medium"
-              >
-                View Marketplace
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Navbar */}
+      <VendorNavbar 
+        vendorBusinessName={vendorBusinessName || undefined} 
+        onLogout={handleLogout} 
+      />
 
       {/* Tabs */}
-      <div className="bg-white border-b">
+      <div className="bg-white border-b mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex space-x-8">
             <button
