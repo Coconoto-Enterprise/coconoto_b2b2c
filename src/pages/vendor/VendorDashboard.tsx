@@ -7,7 +7,8 @@ import {
   updateProduct,
   deleteProduct,
   updateOrderStatus,
-  getVendorProfile
+  getVendorProfile,
+  uploadProductImage
 } from '../../services/vendorService';
 import type { VendorProduct, VendorOrder, VendorProductInput, Vendor } from '../../types/vendor';
 import { PRODUCT_CATEGORIES, UNITS } from '../../types/vendor';
@@ -449,22 +450,75 @@ function ProductModal({
     image_url: product?.image_url || '',
     is_active: product?.is_active ?? true
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>(product?.image_url || '');
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image file size must be less than 5MB');
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
+      if (!allowedTypes.includes(file.type)) {
+        setError('Please upload a valid image file (JPEG, PNG, WEBP, or AVIF)');
+        return;
+      }
+
+      setSelectedImage(file);
+      setError('');
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
+    let imageUrl = formData.image_url;
+
+    // Upload image if a new one was selected
+    if (selectedImage) {
+      setIsUploading(true);
+      const uploadResult = await uploadProductImage(vendorId, selectedImage);
+      setIsUploading(false);
+
+      if (!uploadResult.success) {
+        setError(uploadResult.error || 'Failed to upload image');
+        setIsLoading(false);
+        return;
+      }
+
+      imageUrl = uploadResult.imageUrl || '';
+    }
+
+    const productData = {
+      ...formData,
+      image_url: imageUrl
+    };
+
     let success = false;
 
     if (product) {
       // Update existing product
-      success = await updateProduct(product.id, vendorId, formData);
+      success = await updateProduct(product.id, vendorId, productData);
     } else {
       // Create new product
-      const result = await createProduct(vendorId, formData);
+      const result = await createProduct(vendorId, productData);
       success = result.success;
       if (!success) {
         setError(result.error || 'Failed to create product');
@@ -572,14 +626,26 @@ function ProductModal({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Image URL</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Product Image</label>
               <input
-                type="url"
-                value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
+                onChange={handleImageChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                placeholder="https://example.com/image.jpg"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Upload an image from your device (JPEG, PNG, WEBP, or AVIF, max 5MB)
+              </p>
+              
+              {imagePreview && (
+                <div className="mt-3">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full max-h-48 object-contain rounded-lg border border-gray-200"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex items-center">
@@ -600,15 +666,16 @@ function ProductModal({
                 type="button"
                 onClick={onClose}
                 className="flex-1 px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                disabled={isLoading}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || isUploading}
                 className="flex-1 px-6 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 disabled:opacity-50"
               >
-                {isLoading ? 'Saving...' : product ? 'Update Product' : 'Add Product'}
+                {isUploading ? 'Uploading Image...' : isLoading ? 'Saving...' : product ? 'Update Product' : 'Add Product'}
               </button>
             </div>
           </form>

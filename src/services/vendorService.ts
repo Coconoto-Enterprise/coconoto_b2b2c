@@ -271,3 +271,23 @@ export const updateOrderStatus = async (orderId: string, vendorId: string, statu
     return false;
   }
 };
+
+// Image Upload
+export const uploadProductImage = async (vendorId: string, imageFile: File): Promise<{ success: boolean; imageUrl?: string; error?: string }> => {
+  try {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('vendorId', vendorId);
+
+    const response = await fetch('/api/upload-product-image', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Image upload error:', error);
+    return { success: false, error: 'Failed to upload image' };
+  }
+};
