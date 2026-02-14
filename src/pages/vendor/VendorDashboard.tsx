@@ -434,33 +434,73 @@ function ProductModal({
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+
+  const validateAndSetImage = (file: File) => {
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image file size must be less than 5MB');
+      return false;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Please upload a valid image file (JPEG, PNG, WEBP, or AVIF)');
+      return false;
+    }
+
+    setSelectedImage(file);
+    setError('');
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    return true;
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Image file size must be less than 5MB');
-        return;
-      }
-
-      // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
-      if (!allowedTypes.includes(file.type)) {
-        setError('Please upload a valid image file (JPEG, PNG, WEBP, or AVIF)');
-        return;
-      }
-
-      setSelectedImage(file);
-      setError('');
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      validateAndSetImage(file);
     }
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      validateAndSetImage(files[0]);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview('');
+    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -606,23 +646,110 @@ function ProductModal({
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Product Image</label>
-              <input
-                type="file"
-                accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
-                onChange={handleImageChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Upload an image from your device (JPEG, PNG, WEBP, or AVIF, max 5MB)
-              </p>
               
-              {imagePreview && (
-                <div className="mt-3">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full max-h-48 object-contain rounded-lg border border-gray-200"
+              {!imagePreview ? (
+                <div
+                  onDragEnter={handleDragEnter}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                    isDragging 
+                      ? 'border-green-500 bg-green-50' 
+                      : 'border-gray-300 hover:border-green-400 bg-gray-50'
+                  }`}
+                >
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
+                    onChange={handleImageChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    id="image-upload"
                   />
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-center">
+                      <svg 
+                        className={`w-16 h-16 ${isDragging ? 'text-green-500' : 'text-gray-400'}`}
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
+                        />
+                      </svg>
+                    </div>
+                    
+                    <div>
+                      <p className="text-base font-medium text-gray-700">
+                        {isDragging ? 'Drop image here' : 'Drag & drop your image here'}
+                      </p>
+                      <p className="text-sm text-gray-500 mt-1">or</p>
+                      <label 
+                        htmlFor="image-upload" 
+                        className="inline-block mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer font-medium transition-colors"
+                      >
+                        Browse Files
+                      </label>
+                    </div>
+                    
+                    <p className="text-xs text-gray-500">
+                      Supported formats: JPEG, PNG, WEBP, AVIF (Max 5MB)
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="relative rounded-lg border-2 border-gray-200 overflow-hidden">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-64 object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors shadow-lg"
+                      title="Remove image"
+                    >
+                      <svg 
+                        className="w-5 h-5" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M6 18L18 6M6 6l12 12" 
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">
+                      {selectedImage ? selectedImage.name : 'Current image'}
+                    </span>
+                    <label 
+                      htmlFor="image-upload-change" 
+                      className="text-green-600 hover:text-green-700 font-medium cursor-pointer"
+                    >
+                      Change Image
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      id="image-upload-change"
+                    />
+                  </div>
                 </div>
               )}
             </div>
