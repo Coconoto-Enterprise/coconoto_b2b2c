@@ -26,6 +26,9 @@ import { Marketplace } from './pages/vendor/Marketplace';
 import { VendorLogin } from './pages/vendor/VendorLogin';
 import { VendorSignup } from './pages/vendor/VendorSignup';
 import { VendorDashboard } from './pages/vendor/VendorDashboard';
+import { BuyerLogin } from './pages/buyer/BuyerLogin';
+import { BuyerSignup } from './pages/buyer/BuyerSignup';
+import { BuyerDashboard } from './pages/buyer/BuyerDashboard';
 
 function App() {
   return (
@@ -70,6 +73,9 @@ function App() {
           <Route path="/vendor-login" element={<VendorLogin />} />
           <Route path="/vendor-signup" element={<VendorSignup />} />
           <Route path="/vendor-dashboard" element={<VendorDashboard />} />
+          <Route path="/buyer-login" element={<BuyerLogin />} />
+          <Route path="/buyer-signup" element={<BuyerSignup />} />
+          <Route path="/buyer-dashboard" element={<BuyerDashboard />} />
         </Routes>
       </div>
     </BrowserRouter>

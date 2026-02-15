@@ -225,7 +225,7 @@ function ProductsTab({
                 <p className="text-gray-700 mb-3 line-clamp-2">{product.description}</p>
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-xl font-bold text-green-700">
-                    ${product.price}/{product.unit}
+                    ₦{product.price}/{product.unit}
                   </span>
                   <span className="text-sm text-gray-600">
                     Stock: {product.stock_quantity}
@@ -323,7 +323,7 @@ function OrdersTab({
                     {order.quantity}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                    ${order.total_price.toFixed(2)}
+                    ₦{order.total_price.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>

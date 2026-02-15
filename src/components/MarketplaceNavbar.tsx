@@ -46,7 +46,13 @@ export default function MarketplaceNavbar() {
             <Link to="/about" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
               About
             </Link>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
+              <Link
+                to="/buyer-login"
+                className="text-green-700 hover:text-green-800 font-medium"
+              >
+                Buyer Login
+              </Link>
               <Link
                 to="/vendor-login"
                 className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
@@ -89,6 +95,14 @@ export default function MarketplaceNavbar() {
             onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
           >
             About
+          </Link>
+          <Link
+            to="/buyer-login"
+            className="flex items-center w-full text-left bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mt-2"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <LogIn className="h-4 w-4 mr-2" />
+            Buyer Login
           </Link>
           <Link
             to="/vendor-login"

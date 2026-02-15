@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import MarketplaceNavbar from '../../components/MarketplaceNavbar';
+import BuyerNavbar from '../../components/BuyerNavbar';
+import Footer from '../../components/Footer';
 import { getAllMarketplaceProducts, createOrder } from '../../services/vendorService';
+import { createOrderWithBuyer, getBuyerProfile } from '../../services/buyerService';
 import type { VendorProduct, VendorOrderInput } from '../../types/vendor';
 import { PRODUCT_CATEGORIES } from '../../types/vendor';
 
@@ -12,6 +15,10 @@ export function Marketplace() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<VendorProduct | null>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
+  
+  // Check if buyer is logged in
+  const buyerId = localStorage.getItem('buyerId');
+  const isBuyerLoggedIn = !!buyerId;
 
   useEffect(() => {
     loadProducts();
@@ -57,7 +64,7 @@ export function Marketplace() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
-      <MarketplaceNavbar />
+      {isBuyerLoggedIn ? <BuyerNavbar /> : <MarketplaceNavbar />}
 
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-green-600 to-green-800 text-white mt-16">
@@ -164,6 +171,9 @@ export function Marketplace() {
           }}
         />
       )}
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
@@ -212,7 +222,7 @@ function ProductCard({
         </div>
         <div className="flex justify-between items-center">
           <span className="text-xl font-bold text-green-700">
-            ${product.price}
+            ₦{product.price}
             <span className="text-sm text-gray-600">/{product.unit}</span>
           </span>
           <span className="text-sm text-gray-600">
@@ -238,10 +248,14 @@ function OrderModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const buyerId = localStorage.getItem('buyerId');
+  const buyerName = localStorage.getItem('buyerName') || '';
+  const buyerEmail = localStorage.getItem('buyerEmail') || '';
+
   const [orderData, setOrderData] = useState<VendorOrderInput>({
     product_id: product.id,
-    customer_name: '',
-    customer_email: '',
+    customer_name: buyerName,
+    customer_email: buyerEmail,
     customer_phone: '',
     quantity: 1,
     delivery_address: '',
@@ -250,6 +264,25 @@ function OrderModal({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  // Load buyer profile if logged in
+  useEffect(() => {
+    const loadBuyerProfile = async () => {
+      if (buyerId) {
+        const buyerProfile = await getBuyerProfile(buyerId);
+        if (buyerProfile) {
+          setOrderData(prev => ({
+            ...prev,
+            customer_name: `${buyerProfile.first_name} ${buyerProfile.last_name}`,
+            customer_email: buyerProfile.email,
+            customer_phone: buyerProfile.phone || '',
+            delivery_address: buyerProfile.address || ''
+          }));
+        }
+      }
+    };
+    loadBuyerProfile();
+  }, [buyerId]);
 
   const totalPrice = product.price * orderData.quantity;
 
@@ -264,7 +297,24 @@ function OrderModal({
       return;
     }
 
-    const result = await createOrder(product.vendor_id, orderData);
+    let result;
+    
+    // Use buyer-specific order creation if logged in
+    if (buyerId) {
+      result = await createOrderWithBuyer(
+        product.vendor_id,
+        product.id,
+        buyerId,
+        {
+          quantity: orderData.quantity,
+          delivery_address: orderData.delivery_address,
+          notes: orderData.notes
+        }
+      );
+    } else {
+      // Guest checkout
+      result = await createOrder(product.vendor_id, orderData);
+    }
 
     if (result.success) {
       setSuccess(true);
@@ -329,11 +379,38 @@ function OrderModal({
                   Vendor: {product.vendor?.business_name}
                 </p>
                 <p className="text-lg font-bold text-green-700 mt-1">
-                  ${product.price}/{product.unit}
+                  ₦{product.price}/{product.unit}
                 </p>
               </div>
             </div>
           </div>
+
+          {/* Login/Signup Prompt for Guests */}
+          {!buyerId && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-sm text-blue-800 font-medium mb-2">
+                    💡 Save time on future orders!
+                  </p>
+                  <p className="text-xs text-blue-700 mb-3">
+                    Create an account to save your details, track orders, and checkout faster.
+                  </p>
+                  <div className="flex gap-2">
+                    <a href="/buyer-login" className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700">
+                      Login
+                    </a>
+                    <a href="/buyer-signup" className="text-xs bg-white text-blue-600 px-3 py-1.5 rounded border border-blue-600 hover:bg-blue-50">
+                      Create Account
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
@@ -424,7 +501,7 @@ function OrderModal({
             <div className="bg-green-50 rounded-lg p-4">
               <div className="flex justify-between items-center text-lg font-bold">
                 <span>Total:</span>
-                <span className="text-green-700">${totalPrice.toFixed(2)}</span>
+                <span className="text-green-700">₦{totalPrice.toFixed(2)}</span>
               </div>
             </div>
 
