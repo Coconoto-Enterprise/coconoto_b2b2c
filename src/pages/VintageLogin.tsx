@@ -13,12 +13,12 @@ const VintageLogin: React.FC = () => {
     setError('');
 
     try {
-      const response = await fetch('/api/admin-login', {
+      const response = await fetch('/api/auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ action: 'admin-login', password }),
       });
 
       const data = await response.json();

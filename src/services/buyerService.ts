@@ -11,12 +11,12 @@ import type {
 // Buyer Signup
 export async function buyerSignup(input: BuyerSignupInput): Promise<BuyerAuthResponse> {
   try {
-    const response = await fetch('/api/buyer-signup', {
+    const response = await fetch('/api/auth', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(input),
+      body: JSON.stringify({ action: 'buyer-signup', ...input }),
     });
 
     const data = await response.json();
@@ -38,12 +38,12 @@ export async function buyerSignup(input: BuyerSignupInput): Promise<BuyerAuthRes
 // Buyer Login
 export async function buyerLogin(input: BuyerLoginInput): Promise<BuyerAuthResponse> {
   try {
-    const response = await fetch('/api/buyer-login', {
+    const response = await fetch('/api/auth', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(input),
+      body: JSON.stringify({ action: 'buyer-login', ...input }),
     });
 
     const data = await response.json();

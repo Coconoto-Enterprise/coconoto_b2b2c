@@ -12,12 +12,12 @@ import type {
 // Vendor Authentication
 export const vendorSignup = async (data: VendorSignupData): Promise<{ success: boolean; vendor?: Vendor; error?: string }> => {
   try {
-    const response = await fetch('/api/vendor-signup', {
+    const response = await fetch('/api/auth', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ action: 'vendor-signup', ...data }),
     });
 
     const result = await response.json();
@@ -30,12 +30,12 @@ export const vendorSignup = async (data: VendorSignupData): Promise<{ success: b
 
 export const vendorLogin = async (credentials: VendorLoginData): Promise<{ success: boolean; vendor?: Vendor; error?: string }> => {
   try {
-    const response = await fetch('/api/vendor-login', {
+    const response = await fetch('/api/auth', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(credentials),
+      body: JSON.stringify({ action: 'vendor-login', ...credentials }),
     });
 
     const result = await response.json();
