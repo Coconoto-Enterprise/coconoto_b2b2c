@@ -97,7 +97,7 @@ const VintageDashboard: React.FC = () => {
       setLoading(true);
 
       // Fetch emails
-      const emailResponse = await fetch('/api/get-emails');
+      const emailResponse = await fetch('/api/data?type=emails');
       const emailData = await emailResponse.json();
       
       if (emailData.success) {
@@ -107,7 +107,7 @@ const VintageDashboard: React.FC = () => {
 
 
       // Fetch ALL data from new API
-      const allDataResponse = await fetch('/api/get-all-data');
+      const allDataResponse = await fetch('/api/data?type=all-data');
       const allDataResult = await allDataResponse.json();
       
       if (allDataResult.success) {
