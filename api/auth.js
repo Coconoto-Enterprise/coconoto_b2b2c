@@ -25,6 +25,11 @@ export default async function handler(req, res) {
   try {
     const { action, ...data } = req.body;
 
+    // Validate action input
+    if (!action) {
+      return res.status(400).json({ error: 'Action is required' });
+    }
+
     // Route to appropriate handler based on action
     switch (action) {
       case 'buyer-login':
@@ -41,10 +46,11 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Invalid action' });
     }
   } catch (error) {
-    console.error('❌ Auth error:', error);
+    console.error('❌ Auth error:', error.message);
+    console.error('Stack:', error.stack);
     return res.status(500).json({
       success: false,
-      error: 'Authentication failed'
+      error: 'Authentication failed: ' + error.message
     });
   }
 }
@@ -54,37 +60,53 @@ async function handleBuyerLogin(data, res) {
   const { email, password } = data;
   console.log('🔐 Buyer login attempt:', email);
 
-  const { data: buyer, error: fetchError } = await supabase
-    .from('buyers')
-    .select('*')
-    .eq('email', email)
-    .eq('is_active', true)
-    .single();
-
-  if (fetchError || !buyer) {
-    console.log('❌ Buyer not found');
-    return res.status(401).json({
+  if (!email || !password) {
+    return res.status(400).json({
       success: false,
-      error: 'Invalid email or password'
+      error: 'Email and password are required'
     });
   }
 
-  const passwordMatch = await bcrypt.compare(password, buyer.password_hash);
+  try {
+    const { data: buyer, error: fetchError } = await supabase
+      .from('buyers')
+      .select('*')
+      .eq('email', email)
+      .eq('is_active', true)
+      .single();
 
-  if (!passwordMatch) {
-    console.log('❌ Invalid password');
-    return res.status(401).json({
+    if (fetchError || !buyer) {
+      console.log('❌ Buyer not found:', email);
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password'
+      });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, buyer.password_hash);
+
+    if (!passwordMatch) {
+      console.log('❌ Invalid password for buyer:', email);
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password'
+      });
+    }
+
+    const { password_hash, ...buyerData } = buyer;
+    console.log('✅ Buyer login successful:', email);
+    return res.status(200).json({
+      success: true,
+      buyer: buyerData
+    });
+  } catch (error) {
+    console.error('❌ Buyer login exception:', error.message);
+    console.error('Stack:', error.stack);
+    return res.status(500).json({
       success: false,
-      error: 'Invalid email or password'
+      error: 'Login failed: ' + error.message
     });
   }
-
-  const { password_hash, ...buyerData } = buyer;
-  console.log('✅ Buyer login successful');
-  return res.status(200).json({
-    success: true,
-    buyer: buyerData
-  });
 }
 
 // Buyer Signup
@@ -104,47 +126,64 @@ async function handleBuyerSignup(data, res) {
 
   console.log('📝 Buyer signup attempt:', email);
 
-  const passwordHash = await bcrypt.hash(password, 10);
-
-  const { data: buyer, error: insertError } = await supabase
-    .from('buyers')
-    .insert([{
-      email,
-      password_hash: passwordHash,
-      first_name,
-      last_name,
-      phone: phone || null,
-      address: address || null,
-      city: city || null,
-      state: state || null,
-      country: country || null,
-      postal_code: postal_code || null
-    }])
-    .select()
-    .single();
-
-  if (insertError) {
-    console.error('❌ Buyer signup error:', insertError);
-    
-    if (insertError.message.includes('duplicate') || insertError.code === '23505') {
-      return res.status(400).json({
-        success: false,
-        error: 'Email already registered'
-      });
-    }
-    
-    return res.status(500).json({
+  // Validate required fields
+  if (!email || !password) {
+    return res.status(400).json({
       success: false,
-      error: 'Signup failed'
+      error: 'Email and password are required'
     });
   }
 
-  const { password_hash, ...buyerData } = buyer;
-  console.log('✅ Buyer signup successful');
-  return res.status(201).json({
-    success: true,
-    buyer: buyerData
-  });
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const { data: buyer, error: insertError } = await supabase
+      .from('buyers')
+      .insert([{
+        email,
+        password_hash: passwordHash,
+        first_name: first_name || null,
+        last_name: last_name || null,
+        phone: phone || null,
+        address: address || null,
+        city: city || null,
+        state: state || null,
+        country: country || null,
+        postal_code: postal_code || null
+      }])
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('❌ Buyer signup error:', insertError);
+      
+      if (insertError.message.includes('duplicate') || insertError.code === '23505') {
+        return res.status(400).json({
+          success: false,
+          error: 'Email already registered'
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        error: 'Signup failed: ' + insertError.message
+      });
+    }
+
+    const { password_hash, ...buyerData } = buyer;
+    console.log('✅ Buyer signup successful:', email);
+    return res.status(201).json({
+      success: true,
+      buyer: buyerData
+    });
+  } catch (error) {
+    console.error('❌ Buyer signup exception:', error.message);
+    console.error('Stack:', error.stack);
+    return res.status(500).json({
+      success: false,
+      error: 'Signup failed: ' + error.message
+    });
+  }
 }
 
 // Vendor Login
@@ -152,37 +191,53 @@ async function handleVendorLogin(data, res) {
   const { email, password } = data;
   console.log('🔐 Vendor login attempt:', email);
 
-  const { data: vendor, error: fetchError } = await supabase
-    .from('vendors')
-    .select('*')
-    .eq('email', email)
-    .eq('is_active', true)
-    .single();
-
-  if (fetchError || !vendor) {
-    console.log('❌ Vendor not found');
-    return res.status(401).json({
+  if (!email || !password) {
+    return res.status(400).json({
       success: false,
-      error: 'Invalid email or password'
+      error: 'Email and password are required'
     });
   }
 
-  const passwordMatch = await bcrypt.compare(password, vendor.password_hash);
+  try {
+    const { data: vendor, error: fetchError } = await supabase
+      .from('vendors')
+      .select('*')
+      .eq('email', email)
+      .eq('is_active', true)
+      .single();
 
-  if (!passwordMatch) {
-    console.log('❌ Invalid password');
-    return res.status(401).json({
+    if (fetchError || !vendor) {
+      console.log('❌ Vendor not found:', email);
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password'
+      });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, vendor.password_hash);
+
+    if (!passwordMatch) {
+      console.log('❌ Invalid password for vendor:', email);
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password'
+      });
+    }
+
+    const { password_hash, ...vendorData } = vendor;
+    console.log('✅ Vendor login successful:', email);
+    return res.status(200).json({
+      success: true,
+      vendor: vendorData
+    });
+  } catch (error) {
+    console.error('❌ Vendor login exception:', error.message);
+    console.error('Stack:', error.stack);
+    return res.status(500).json({
       success: false,
-      error: 'Invalid email or password'
+      error: 'Login failed: ' + error.message
     });
   }
-
-  const { password_hash, ...vendorData } = vendor;
-  console.log('✅ Vendor login successful');
-  return res.status(200).json({
-    success: true,
-    vendor: vendorData
-  });
 }
 
 // Vendor Signup
@@ -199,44 +254,61 @@ async function handleVendorSignup(data, res) {
 
   console.log('📝 Vendor signup attempt:', email);
 
-  const passwordHash = await bcrypt.hash(password, 10);
-
-  const { data: vendor, error: insertError } = await supabase
-    .from('vendors')
-    .insert([{
-      email,
-      password_hash: passwordHash,
-      business_name,
-      contact_name,
-      phone: phone || null,
-      address: address || null,
-      description: description || null
-    }])
-    .select()
-    .single();
-
-  if (insertError) {
-    console.error('❌ Vendor signup error:', insertError);
-    
-    if (insertError.message.includes('duplicate') || insertError.code === '23505') {
-      return res.status(400).json({
-        success: false,
-        error: 'Email already registered'
-      });
-    }
-    
-    return res.status(500).json({
+  // Validate required fields
+  if (!email || !password || !business_name || !contact_name) {
+    return res.status(400).json({
       success: false,
-      error: 'Signup failed'
+      error: 'Email, password, business name, and contact name are required'
     });
   }
 
-  const { password_hash, ...vendorData } = vendor;
-  console.log('✅ Vendor signup successful');
-  return res.status(201).json({
-    success: true,
-    vendor: vendorData
-  });
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const { data: vendor, error: insertError } = await supabase
+      .from('vendors')
+      .insert([{
+        email,
+        password_hash: passwordHash,
+        business_name,
+        contact_name,
+        phone: phone || null,
+        address: address || null,
+        description: description || null
+      }])
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('❌ Vendor signup error:', insertError);
+      
+      if (insertError.message.includes('duplicate') || insertError.code === '23505') {
+        return res.status(400).json({
+          success: false,
+          error: 'Email already registered'
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        error: 'Signup failed: ' + insertError.message
+      });
+    }
+
+    const { password_hash, ...vendorData } = vendor;
+    console.log('✅ Vendor signup successful:', email);
+    return res.status(201).json({
+      success: true,
+      vendor: vendorData
+    });
+  } catch (error) {
+    console.error('❌ Vendor signup exception:', error.message);
+    console.error('Stack:', error.stack);
+    return res.status(500).json({
+      success: false,
+      error: 'Signup failed: ' + error.message
+    });
+  }
 }
 
 // Admin Login
