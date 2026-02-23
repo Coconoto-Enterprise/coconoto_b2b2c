@@ -57,7 +57,7 @@ const VintageDashboard: React.FC = () => {
     'product-orders': 'pending',
     'service-contacts': 'pending',
     'husk-sales': 'pending',
-    'waitlist': 'pending',
+    // No status for waitlist
   });
   const [emails, setEmails] = useState<Email[]>([]);
   const [allData, setAllData] = useState<AllData>({
@@ -442,6 +442,7 @@ const VintageDashboard: React.FC = () => {
   }));
   // Helper to filter by status
   const filterByStatus = (items: any[], status: string) => {
+    if (!items) return [];
     if (status === 'all') return items;
     return items.filter(item => (item.status || 'pending') === status);
   };
@@ -1211,20 +1212,8 @@ const VintageDashboard: React.FC = () => {
         {/* Waitlist Tab */}
         {activeTab === 'waitlist' && (
           <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Waitlist Entries ({filterByStatus(allData.waitlist, statusFilters['waitlist']).length})</h2>
-              <div>
-                <select
-                  value={statusFilters['waitlist']}
-                  onChange={e => setStatusFilters({ ...statusFilters, 'waitlist': e.target.value })}
-                  className="border rounded px-2 py-1 text-sm"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="processing">Processing</option>
-                  <option value="completed">Completed</option>
-                  <option value="all">Show All</option>
-                </select>
-              </div>
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">Waitlist Entries ({allData.waitlist.length})</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -1235,13 +1224,11 @@ const VintageDashboard: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Account Type</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Country</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {filterByStatus(allData.waitlist, statusFilters['waitlist']).length > 0 ? filterByStatus(allData.waitlist, statusFilters['waitlist']).map((entry) => (
-                    entry.status !== 'completed' || statusFilters['waitlist'] === 'completed' || statusFilters['waitlist'] === 'all' ? (
+                  {allData.waitlist.length > 0 ? allData.waitlist.map((entry) => (
                     <tr key={entry?.id || Math.random()} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">{entry?.name || 'Unknown'}</div>
@@ -1252,18 +1239,6 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{entry?.country || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{entry?.created_at ? formatDate(entry.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(entry?.status || 'pending')}`}>{entry?.status || 'pending'}</span>
-                        <select
-                          value={entry.status || 'pending'}
-                          onChange={e => updateItemStatus('waitlist', entry.id, e.target.value as any)}
-                          className="ml-2 border rounded px-2 py-1 text-xs"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="completed">Completed</option>
-                        </select>
-                      </td>
-                      <td className="px-6 py-4">
                         <button 
                           onClick={() => openDetailModal('Waitlist Entry Details', entry)}
                           className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
@@ -1273,10 +1248,9 @@ const VintageDashboard: React.FC = () => {
                         </button>
                       </td>
                     </tr>
-                    ) : null
                   )) : (
                     <tr>
-                      <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                         No waitlist entries found
                       </td>
                     </tr>
