@@ -446,8 +446,19 @@ const VintageDashboard: React.FC = () => {
     if (status === 'all') return items;
     return items.filter(item => (item.status || 'pending') === status);
   };
-  // Helper to update status
-  const updateItemStatus = (section: string, id: string, status: 'pending' | 'processing' | 'completed') => {
+  // Helper to update status and persist to Supabase
+  const updateItemStatus = async (section: string, id: string, status: 'pending' | 'processing' | 'completed') => {
+    // Map section to table name
+    const sectionToTable: Record<string, string> = {
+      bookEventRequests: 'book_event_requests',
+      machineOrders: 'machine_orders',
+      productOrders: 'product_orders',
+      serviceContacts: 'service_contacts',
+      huskSaleRequests: 'husk_sale_requests',
+    };
+    const table = sectionToTable[section];
+    if (!table) return;
+    // Optimistically update UI
     setAllData(prev => {
       const updated = { ...prev };
       updated[section] = updated[section].map((item: any) =>
@@ -455,6 +466,14 @@ const VintageDashboard: React.FC = () => {
       );
       return updated;
     });
+    // Persist to backend
+    await fetch('/api/update-status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ table, id, status }),
+    });
+    // Optionally re-fetch data here for consistency
+    // fetchData();
   };
   // Helper to update email status
   const updateEmailStatus = (id: string, status: 'pending' | 'processing' | 'completed') => {
