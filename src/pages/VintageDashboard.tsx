@@ -25,6 +25,7 @@ interface Email {
   created_at: string;
   last_event: string;
   html?: string;
+  status?: 'pending' | 'processing' | 'completed';
 }
 
 
@@ -49,6 +50,15 @@ interface DetailModalProps {
 
 const VintageDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [statusFilters, setStatusFilters] = useState({
+    'business-emails': 'pending',
+    'book-events': 'pending',
+    'machine-orders': 'pending',
+    'product-orders': 'pending',
+    'service-contacts': 'pending',
+    'husk-sales': 'pending',
+    'waitlist': 'pending',
+  });
   const [emails, setEmails] = useState<Email[]>([]);
   const [allData, setAllData] = useState<AllData>({
     bookEventRequests: [],
@@ -422,9 +432,35 @@ const VintageDashboard: React.FC = () => {
   };
 
   // Filter emails by type
-  const businessEmails = Array.isArray(emails) ? emails.filter(email => 
+  const businessEmailsRaw = Array.isArray(emails) ? emails.filter(email => 
     email?.from?.includes('team@') || email?.to?.some(recipient => recipient.includes('coconoto'))
   ) : [];
+  // Add status if missing
+  const businessEmails = businessEmailsRaw.map(email => ({
+    ...email,
+    status: email.status || 'pending',
+  }));
+  // Helper to filter by status
+  const filterByStatus = (items: any[], status: string) => {
+    if (status === 'all') return items;
+    return items.filter(item => (item.status || 'pending') === status);
+  };
+  // Helper to update status
+  const updateItemStatus = (section: string, id: string, status: 'pending' | 'processing' | 'completed') => {
+    setAllData(prev => {
+      const updated = { ...prev };
+      updated[section] = updated[section].map((item: any) =>
+        item.id === id ? { ...item, status } : item
+      );
+      return updated;
+    });
+  };
+  // Helper to update email status
+  const updateEmailStatus = (id: string, status: 'pending' | 'processing' | 'completed') => {
+    setEmails(prev => prev.map(email =>
+      email.id === id ? { ...email, status } : email
+    ));
+  };
 
   useEffect(() => {
     fetchData();
@@ -661,8 +697,20 @@ const VintageDashboard: React.FC = () => {
         {/* Business Emails Tab */}
         {activeTab === 'business-emails' && (
           <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Business Emails ({businessEmails.length})</h2>
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Business Emails ({filterByStatus(businessEmails, statusFilters['business-emails']).length})</h2>
+              <div>
+                <select
+                  value={statusFilters['business-emails']}
+                  onChange={e => setStatusFilters({ ...statusFilters, 'business-emails': e.target.value })}
+                  className="border rounded px-2 py-1 text-sm"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="completed">Completed</option>
+                  <option value="all">Show All</option>
+                </select>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -676,7 +724,8 @@ const VintageDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {businessEmails.length > 0 ? businessEmails.map((email) => (
+                  {filterByStatus(businessEmails, statusFilters['business-emails']).length > 0 ? filterByStatus(businessEmails, statusFilters['business-emails']).map((email) => (
+                    email.status !== 'completed' || statusFilters['business-emails'] === 'completed' || statusFilters['business-emails'] === 'all' ? (
                     <tr key={email?.id || Math.random()} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">{email?.subject || 'No Subject'}</div>
@@ -684,9 +733,16 @@ const VintageDashboard: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{email?.to ? email.to.join(', ') : 'No recipients'}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(email?.last_event || 'unknown')}`}>
-                          {email?.last_event || 'Unknown'}
-                        </span>
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(email?.status || 'pending')}`}>{email?.status || 'pending'}</span>
+                        <select
+                          value={email.status || 'pending'}
+                          onChange={e => updateEmailStatus(email.id, e.target.value as any)}
+                          className="ml-2 border rounded px-2 py-1 text-xs"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="processing">Processing</option>
+                          <option value="completed">Completed</option>
+                        </select>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{email?.created_at ? formatDate(email.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
@@ -699,6 +755,7 @@ const VintageDashboard: React.FC = () => {
                         </button>
                       </td>
                     </tr>
+                    ) : null
                   )) : (
                     <tr>
                       <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
@@ -715,8 +772,20 @@ const VintageDashboard: React.FC = () => {
         {/* Book Event Requests Tab */}
         {activeTab === 'book-events' && (
           <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Event Booking Requests ({allData.bookEventRequests.length})</h2>
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Event Booking Requests ({filterByStatus(allData.bookEventRequests, statusFilters['book-events']).length})</h2>
+              <div>
+                <select
+                  value={statusFilters['book-events']}
+                  onChange={e => setStatusFilters({ ...statusFilters, 'book-events': e.target.value })}
+                  className="border rounded px-2 py-1 text-sm"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="completed">Completed</option>
+                  <option value="all">Show All</option>
+                </select>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -728,11 +797,13 @@ const VintageDashboard: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Guests</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {allData.bookEventRequests.length > 0 ? allData.bookEventRequests.map((request) => (
+                  {filterByStatus(allData.bookEventRequests, statusFilters['book-events']).length > 0 ? filterByStatus(allData.bookEventRequests, statusFilters['book-events']).map((request) => (
+                    request.status !== 'completed' || statusFilters['book-events'] === 'completed' || statusFilters['book-events'] === 'all' ? (
                     <tr key={request?.id || Math.random()} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">{request?.full_name || 'Unknown'}</div>
@@ -745,6 +816,18 @@ const VintageDashboard: React.FC = () => {
                         {request?.price ? `₦${Number(request.price).toLocaleString()}` : 'No price set'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.created_at ? formatDate(request.created_at) : 'Unknown'}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(request?.status || 'pending')}`}>{request?.status || 'pending'}</span>
+                        <select
+                          value={request.status || 'pending'}
+                          onChange={e => updateItemStatus('bookEventRequests', request.id, e.target.value as any)}
+                          className="ml-2 border rounded px-2 py-1 text-xs"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="processing">Processing</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <button 
@@ -764,9 +847,10 @@ const VintageDashboard: React.FC = () => {
                         </div>
                       </td>
                     </tr>
+                    ) : null
                   )) : (
                     <tr>
-                      <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                         No event requests found
                       </td>
                     </tr>
@@ -782,8 +866,20 @@ const VintageDashboard: React.FC = () => {
         {/* Machine Orders Tab */}
         {activeTab === 'machine-orders' && (
           <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Machine Orders ({allData.machineOrders.length})</h2>
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Machine Orders ({filterByStatus(allData.machineOrders, statusFilters['machine-orders']).length})</h2>
+              <div>
+                <select
+                  value={statusFilters['machine-orders']}
+                  onChange={e => setStatusFilters({ ...statusFilters, 'machine-orders': e.target.value })}
+                  className="border rounded px-2 py-1 text-sm"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="completed">Completed</option>
+                  <option value="all">Show All</option>
+                </select>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -795,11 +891,13 @@ const VintageDashboard: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Installation Address</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {allData.machineOrders.length > 0 ? allData.machineOrders.map((order) => (
+                  {filterByStatus(allData.machineOrders, statusFilters['machine-orders']).length > 0 ? filterByStatus(allData.machineOrders, statusFilters['machine-orders']).map((order) => (
+                    order.status !== 'completed' || statusFilters['machine-orders'] === 'completed' || statusFilters['machine-orders'] === 'all' ? (
                     <tr key={order?.id || Math.random()} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">{order?.name || 'Unknown'}</div>
@@ -812,6 +910,18 @@ const VintageDashboard: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.installation_address || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.submitted_at ? formatDate(order.submitted_at) : 'Unknown'}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order?.status || 'pending')}`}>{order?.status || 'pending'}</span>
+                        <select
+                          value={order.status || 'pending'}
+                          onChange={e => updateItemStatus('machineOrders', order.id, e.target.value as any)}
+                          className="ml-2 border rounded px-2 py-1 text-xs"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="processing">Processing</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <button 
@@ -831,9 +941,10 @@ const VintageDashboard: React.FC = () => {
                         </div>
                       </td>
                     </tr>
+                    ) : null
                   )) : (
                     <tr>
-                      <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                         No machine orders found
                       </td>
                     </tr>
@@ -847,8 +958,20 @@ const VintageDashboard: React.FC = () => {
         {/* Product Orders Tab */}
         {activeTab === 'product-orders' && (
           <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Product Orders ({allData.productOrders.length})</h2>
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Product Orders ({filterByStatus(allData.productOrders, statusFilters['product-orders']).length})</h2>
+              <div>
+                <select
+                  value={statusFilters['product-orders']}
+                  onChange={e => setStatusFilters({ ...statusFilters, 'product-orders': e.target.value })}
+                  className="border rounded px-2 py-1 text-sm"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="completed">Completed</option>
+                  <option value="all">Show All</option>
+                </select>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -859,11 +982,13 @@ const VintageDashboard: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Price</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Address</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {allData.productOrders.length > 0 ? allData.productOrders.map((order) => (
+                  {filterByStatus(allData.productOrders, statusFilters['product-orders']).length > 0 ? filterByStatus(allData.productOrders, statusFilters['product-orders']).map((order) => (
+                    order.status !== 'completed' || statusFilters['product-orders'] === 'completed' || statusFilters['product-orders'] === 'all' ? (
                     <tr key={order?.id || Math.random()} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">{order?.name || 'Unknown'}</div>
@@ -877,6 +1002,18 @@ const VintageDashboard: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.address || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.created_at ? formatDate(order.created_at) : 'Unknown'}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order?.status || 'pending')}`}>{order?.status || 'pending'}</span>
+                        <select
+                          value={order.status || 'pending'}
+                          onChange={e => updateItemStatus('productOrders', order.id, e.target.value as any)}
+                          className="ml-2 border rounded px-2 py-1 text-xs"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="processing">Processing</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <button 
@@ -896,9 +1033,10 @@ const VintageDashboard: React.FC = () => {
                         </div>
                       </td>
                     </tr>
+                    ) : null
                   )) : (
                     <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                         No product orders found
                       </td>
                     </tr>
@@ -912,8 +1050,20 @@ const VintageDashboard: React.FC = () => {
         {/* Service Contacts Tab */}
         {activeTab === 'service-contacts' && (
           <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Service Contacts ({allData.serviceContacts.length})</h2>
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Service Contacts ({filterByStatus(allData.serviceContacts, statusFilters['service-contacts']).length})</h2>
+              <div>
+                <select
+                  value={statusFilters['service-contacts']}
+                  onChange={e => setStatusFilters({ ...statusFilters, 'service-contacts': e.target.value })}
+                  className="border rounded px-2 py-1 text-sm"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="completed">Completed</option>
+                  <option value="all">Show All</option>
+                </select>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -924,11 +1074,13 @@ const VintageDashboard: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Message Preview</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {allData.serviceContacts.length > 0 ? allData.serviceContacts.map((contact) => (
+                  {filterByStatus(allData.serviceContacts, statusFilters['service-contacts']).length > 0 ? filterByStatus(allData.serviceContacts, statusFilters['service-contacts']).map((contact) => (
+                    contact.status !== 'completed' || statusFilters['service-contacts'] === 'completed' || statusFilters['service-contacts'] === 'all' ? (
                     <tr key={contact?.id || Math.random()} className="hover:bg-gray-50">
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">{contact?.name || 'Unknown'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{contact?.email || 'No email'}</td>
@@ -937,6 +1089,18 @@ const VintageDashboard: React.FC = () => {
                         {contact?.message ? contact.message.substring(0, 50) + '...' : 'N/A'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{contact?.created_at ? formatDate(contact.created_at) : 'Unknown'}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(contact?.status || 'pending')}`}>{contact?.status || 'pending'}</span>
+                        <select
+                          value={contact.status || 'pending'}
+                          onChange={e => updateItemStatus('serviceContacts', contact.id, e.target.value as any)}
+                          className="ml-2 border rounded px-2 py-1 text-xs"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="processing">Processing</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </td>
                       <td className="px-6 py-4">
                         <button 
                           onClick={() => openDetailModal('Service Contact Details', contact)}
@@ -947,9 +1111,10 @@ const VintageDashboard: React.FC = () => {
                         </button>
                       </td>
                     </tr>
+                    ) : null
                   )) : (
                     <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                         No service contacts found
                       </td>
                     </tr>
@@ -965,8 +1130,20 @@ const VintageDashboard: React.FC = () => {
         {/* Husk Sales Tab */}
         {activeTab === 'husk-sales' && (
           <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Coconut Husk Sale Requests ({allData.huskSaleRequests.length})</h2>
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Coconut Husk Sale Requests ({filterByStatus(allData.huskSaleRequests, statusFilters['husk-sales']).length})</h2>
+              <div>
+                <select
+                  value={statusFilters['husk-sales']}
+                  onChange={e => setStatusFilters({ ...statusFilters, 'husk-sales': e.target.value })}
+                  className="border rounded px-2 py-1 text-sm"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="completed">Completed</option>
+                  <option value="all">Show All</option>
+                </select>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -976,11 +1153,13 @@ const VintageDashboard: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sacks</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {allData.huskSaleRequests.length > 0 ? allData.huskSaleRequests.map((request) => (
+                  {filterByStatus(allData.huskSaleRequests, statusFilters['husk-sales']).length > 0 ? filterByStatus(allData.huskSaleRequests, statusFilters['husk-sales']).map((request) => (
+                    request.status !== 'completed' || statusFilters['husk-sales'] === 'completed' || statusFilters['husk-sales'] === 'all' ? (
                     <tr key={request?.id || Math.random()} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">{request?.name || 'Unknown'}</div>
@@ -994,6 +1173,18 @@ const VintageDashboard: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.created_at ? formatDate(request.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(request?.status || 'pending')}`}>{request?.status || 'pending'}</span>
+                        <select
+                          value={request.status || 'pending'}
+                          onChange={e => updateItemStatus('huskSaleRequests', request.id, e.target.value as any)}
+                          className="ml-2 border rounded px-2 py-1 text-xs"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="processing">Processing</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </td>
+                      <td className="px-6 py-4">
                         <button 
                           onClick={() => openDetailModal('Husk Sale Request Details', request)}
                           className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
@@ -1003,9 +1194,10 @@ const VintageDashboard: React.FC = () => {
                         </button>
                       </td>
                     </tr>
+                    ) : null
                   )) : (
                     <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                         No husk sale requests found
                       </td>
                     </tr>
@@ -1019,8 +1211,20 @@ const VintageDashboard: React.FC = () => {
         {/* Waitlist Tab */}
         {activeTab === 'waitlist' && (
           <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Waitlist Entries ({allData.waitlist.length})</h2>
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Waitlist Entries ({filterByStatus(allData.waitlist, statusFilters['waitlist']).length})</h2>
+              <div>
+                <select
+                  value={statusFilters['waitlist']}
+                  onChange={e => setStatusFilters({ ...statusFilters, 'waitlist': e.target.value })}
+                  className="border rounded px-2 py-1 text-sm"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="completed">Completed</option>
+                  <option value="all">Show All</option>
+                </select>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -1031,11 +1235,13 @@ const VintageDashboard: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Account Type</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Country</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {allData.waitlist.length > 0 ? allData.waitlist.map((entry) => (
+                  {filterByStatus(allData.waitlist, statusFilters['waitlist']).length > 0 ? filterByStatus(allData.waitlist, statusFilters['waitlist']).map((entry) => (
+                    entry.status !== 'completed' || statusFilters['waitlist'] === 'completed' || statusFilters['waitlist'] === 'all' ? (
                     <tr key={entry?.id || Math.random()} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">{entry?.name || 'Unknown'}</div>
@@ -1046,6 +1252,18 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{entry?.country || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{entry?.created_at ? formatDate(entry.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(entry?.status || 'pending')}`}>{entry?.status || 'pending'}</span>
+                        <select
+                          value={entry.status || 'pending'}
+                          onChange={e => updateItemStatus('waitlist', entry.id, e.target.value as any)}
+                          className="ml-2 border rounded px-2 py-1 text-xs"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="processing">Processing</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </td>
+                      <td className="px-6 py-4">
                         <button 
                           onClick={() => openDetailModal('Waitlist Entry Details', entry)}
                           className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
@@ -1055,9 +1273,10 @@ const VintageDashboard: React.FC = () => {
                         </button>
                       </td>
                     </tr>
+                    ) : null
                   )) : (
                     <tr>
-                      <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                         No waitlist entries found
                       </td>
                     </tr>
