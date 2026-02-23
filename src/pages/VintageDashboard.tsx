@@ -49,6 +49,70 @@ interface DetailModalProps {
 }
 
 const VintageDashboard: React.FC = () => {
+    // Edit status modal state
+    const [showEditStatusModal, setShowEditStatusModal] = useState(false);
+    const [editStatusSection, setEditStatusSection] = useState('');
+    const [editStatusItem, setEditStatusItem] = useState<any>(null);
+    const [editStatusValue, setEditStatusValue] = useState('pending');
+
+    // Open edit status modal
+    const openEditStatusModal = (section: string, item: any) => {
+      setEditStatusSection(section);
+      setEditStatusItem(item);
+      setEditStatusValue(item.status || 'pending');
+      setShowEditStatusModal(true);
+    };
+
+    // Save status from modal
+    const saveEditStatus = async () => {
+      await updateItemStatus(editStatusSection, editStatusItem.id, editStatusValue);
+      setShowEditStatusModal(false);
+    };
+        {/* Edit Status Modal */}
+        {showEditStatusModal && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-md w-full">
+              <div className="px-6 py-4 border-b flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Edit Status</h3>
+                <button 
+                  onClick={() => setShowEditStatusModal(false)}
+                  title="Close status editor"
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <select
+                    value={editStatusValue}
+                    onChange={e => setEditStatusValue(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+              </div>
+              <div className="px-6 py-4 border-t flex justify-end gap-3">
+                <button
+                  onClick={() => setShowEditStatusModal(false)}
+                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={saveEditStatus}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                >
+                  Save Status
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
   const [activeTab, setActiveTab] = useState('overview');
   const [statusFilters, setStatusFilters] = useState({
     'business-emails': 'pending',
@@ -838,15 +902,31 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.created_at ? formatDate(request.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(request?.status || 'pending')}`}>{request?.status || 'pending'}</span>
-                        <select
-                          value={request.status || 'pending'}
-                          onChange={e => updateItemStatus('bookEventRequests', request.id, e.target.value as any)}
-                          className="ml-2 border rounded px-2 py-1 text-xs"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="completed">Completed</option>
-                        </select>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => openDetailModal('Event Request Details', request)}
+                            className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </button>
+                          <button 
+                            onClick={() => openEditPriceModal('Event Request', request)}
+                            className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                            title="Edit Price"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => openEditStatusModal('bookEventRequests', request)}
+                            className="text-gray-600 hover:text-gray-900 inline-flex items-center gap-1"
+                            title="Edit Status"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -932,15 +1012,31 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.submitted_at ? formatDate(order.submitted_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order?.status || 'pending')}`}>{order?.status || 'pending'}</span>
-                        <select
-                          value={order.status || 'pending'}
-                          onChange={e => updateItemStatus('machineOrders', order.id, e.target.value as any)}
-                          className="ml-2 border rounded px-2 py-1 text-xs"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="completed">Completed</option>
-                        </select>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => openDetailModal('Machine Order Details', order)}
+                            className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </button>
+                          <button 
+                            onClick={() => openEditPriceModal('Machine Order', order)}
+                            className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                            title="Edit Price"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => openEditStatusModal('machineOrders', order)}
+                            className="text-gray-600 hover:text-gray-900 inline-flex items-center gap-1"
+                            title="Edit Status"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -1024,15 +1120,31 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.created_at ? formatDate(order.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order?.status || 'pending')}`}>{order?.status || 'pending'}</span>
-                        <select
-                          value={order.status || 'pending'}
-                          onChange={e => updateItemStatus('productOrders', order.id, e.target.value as any)}
-                          className="ml-2 border rounded px-2 py-1 text-xs"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="completed">Completed</option>
-                        </select>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => openDetailModal('Product Order Details', order)}
+                            className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </button>
+                          <button 
+                            onClick={() => openEditPriceModal('Product Order', order)}
+                            className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                            title="Edit Price"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => openEditStatusModal('productOrders', order)}
+                            className="text-gray-600 hover:text-gray-900 inline-flex items-center gap-1"
+                            title="Edit Status"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -1111,15 +1223,22 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{contact?.created_at ? formatDate(contact.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(contact?.status || 'pending')}`}>{contact?.status || 'pending'}</span>
-                        <select
-                          value={contact.status || 'pending'}
-                          onChange={e => updateItemStatus('serviceContacts', contact.id, e.target.value as any)}
-                          className="ml-2 border rounded px-2 py-1 text-xs"
+                      </td>
+                      <td className="px-6 py-4">
+                        <button 
+                          onClick={() => openDetailModal('Service Contact Details', contact)}
+                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
                         >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="completed">Completed</option>
-                        </select>
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                        <button
+                          onClick={() => openEditStatusModal('serviceContacts', contact)}
+                          className="text-gray-600 hover:text-gray-900 inline-flex items-center gap-1"
+                          title="Edit Status"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
                       </td>
                       <td className="px-6 py-4">
                         <button 
@@ -1194,15 +1313,22 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.created_at ? formatDate(request.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(request?.status || 'pending')}`}>{request?.status || 'pending'}</span>
-                        <select
-                          value={request.status || 'pending'}
-                          onChange={e => updateItemStatus('huskSaleRequests', request.id, e.target.value as any)}
-                          className="ml-2 border rounded px-2 py-1 text-xs"
+                      </td>
+                      <td className="px-6 py-4">
+                        <button 
+                          onClick={() => openDetailModal('Husk Sale Request Details', request)}
+                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
                         >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="completed">Completed</option>
-                        </select>
+                          <Eye className="h-4 w-4" />
+                          View
+                        </button>
+                        <button
+                          onClick={() => openEditStatusModal('huskSaleRequests', request)}
+                          className="text-gray-600 hover:text-gray-900 inline-flex items-center gap-1"
+                          title="Edit Status"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
                       </td>
                       <td className="px-6 py-4">
                         <button 
