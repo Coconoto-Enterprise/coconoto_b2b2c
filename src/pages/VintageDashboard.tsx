@@ -541,16 +541,16 @@ const VintageDashboard: React.FC = () => {
       <div className="bg-white border-b">
         <div className="px-2 sm:px-4 lg:px-6 ml-2 mr-2">
           <nav className="flex space-x-4 overflow-x-auto" aria-label="Tabs">
-            {[
-              { id: 'overview', name: 'Overview', icon: BarChart3 },
+            [{
+              id: 'overview', name: 'Overview', icon: BarChart3 },
               { id: 'blog', name: 'Blog Posts', icon: BookOpen },
               { id: 'business-emails', name: 'Business Emails', icon: Users },
-              { id: 'book-events', name: `Event Requests (${allData.bookEventRequests?.length || 0})`, icon: Calendar },
+              { id: 'book-events', name: `Event Requests (${filterByStatus(allData.bookEventRequests, 'pending').length || 0})`, icon: Calendar },
 
-              { id: 'machine-orders', name: `Machine Orders (${allData.machineOrders?.length || 0})`, icon: ShoppingCart },
-              { id: 'product-orders', name: `Product Orders (${allData.productOrders?.length || 0})`, icon: ShoppingCart },
-              { id: 'service-contacts', name: `Service Contacts (${allData.serviceContacts?.length || 0})`, icon: Mail },
-              { id: 'husk-sales', name: `Husk Sales (${allData.huskSaleRequests?.length || 0})`, icon: ShoppingCart },
+              { id: 'machine-orders', name: `Machine Orders (${filterByStatus(allData.machineOrders, 'pending').length || 0})`, icon: ShoppingCart },
+              { id: 'product-orders', name: `Product Orders (${filterByStatus(allData.productOrders, 'pending').length || 0})`, icon: ShoppingCart },
+              { id: 'service-contacts', name: `Service Contacts (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Mail },
+              { id: 'husk-sales', name: `Husk Sales (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
 
               { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
             ].map((tab) => {
