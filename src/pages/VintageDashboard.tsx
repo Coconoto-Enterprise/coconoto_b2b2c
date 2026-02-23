@@ -541,8 +541,8 @@ const VintageDashboard: React.FC = () => {
       <div className="bg-white border-b">
         <div className="px-2 sm:px-4 lg:px-6 ml-2 mr-2">
           <nav className="flex space-x-4 overflow-x-auto" aria-label="Tabs">
-            [{
-              id: 'overview', name: 'Overview', icon: BarChart3 },
+            {[
+              { id: 'overview', name: 'Overview', icon: BarChart3 },
               { id: 'blog', name: 'Blog Posts', icon: BookOpen },
               { id: 'business-emails', name: 'Business Emails', icon: Users },
               { id: 'book-events', name: `Event Requests (${filterByStatus(allData.bookEventRequests, 'pending').length || 0})`, icon: Calendar },
