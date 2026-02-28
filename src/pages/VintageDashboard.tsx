@@ -14,9 +14,11 @@ import {
   X,
   Edit,
   BookOpen,
-  Trash2
+  Trash2,
+  Menu
 } from 'lucide-react';
 import { BlogManagement } from './BlogManagement';
+import Logo from '../assets/Logo_1.png';
 
 interface Email {
   id: string;
@@ -89,6 +91,7 @@ const VintageDashboard: React.FC = () => {
   const [deleteItemType, setDeleteItemType] = useState('');
   const [deleteItemSection, setDeleteItemSection] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const navigate = useNavigate();
 
   const [composer, setComposer] = useState({
@@ -291,7 +294,6 @@ const VintageDashboard: React.FC = () => {
         }
       }
 
-      alert('Changes updated successfully!');
       setShowEditPriceModal(false);
       fetchData(); // Refresh data
     } catch (err) {
@@ -346,7 +348,6 @@ const VintageDashboard: React.FC = () => {
 
       const data = await response.json();
       if (data.success) {
-        alert(`${deleteItemType} has been deleted successfully!`);
         setShowDeleteModal(false);
         fetchData(); // Refresh data
       } else {
@@ -542,8 +543,17 @@ const VintageDashboard: React.FC = () => {
       <div className="bg-white shadow-sm border-b">
         <div className="px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between h-14 sm:h-16">
-            <div className="flex items-center min-w-0">
-              <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">🥥 Coconoto</h1>
+            <div className="flex items-center min-w-0 gap-2 sm:gap-3">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="md:hidden text-gray-600 hover:text-gray-900 flex-shrink-0"
+                title="Menu"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
+              {/* Logo */}
+              <img src={Logo} alt="Coconoto" className="h-10 w-10 object-contain flex-shrink-0" />
             </div>
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <button
@@ -576,21 +586,60 @@ const VintageDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b sticky top-0 z-30">
+      {/* Mobile Sidebar Navigation */}
+      {showMobileMenu && (
+        <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setShowMobileMenu(false)} />
+      )}
+      <div className={`md:hidden fixed left-0 top-14 bottom-0 w-56 bg-white z-50 transform transition-transform duration-300 ease-in-out overflow-y-auto ${
+        showMobileMenu ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        <nav className="p-4 space-y-1">
+          {[
+            { id: 'overview', name: 'Overview', icon: BarChart3 },
+            { id: 'blog', name: 'Blog', icon: BookOpen },
+            { id: 'business-emails', name: `Emails (${filterByStatus(businessEmails, 'pending').length})`, icon: Mail },
+            { id: 'book-events', name: `Events (${filterByStatus(allData.bookEventRequests, 'pending').length || 0})`, icon: Calendar },
+            { id: 'machine-orders', name: `Machines (${filterByStatus(allData.machineOrders, 'pending').length || 0})`, icon: ShoppingCart },
+            { id: 'product-orders', name: `Products (${filterByStatus(allData.productOrders, 'pending').length || 0})`, icon: ShoppingCart },
+            { id: 'service-contacts', name: `Service (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Send },
+            { id: 'husk-sales', name: `Husk (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
+            { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setShowMobileMenu(false);
+                }}
+                className={`w-full text-left px-4 py-3 rounded-lg flex items-center gap-2 transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-green-100 text-green-600 font-semibold'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Icon className="h-5 w-5 flex-shrink-0" />
+                <span className="text-sm">{tab.name}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Desktop Navigation - Centered */}
+      <div className="hidden md:block bg-white border-b sticky top-0 z-30">
         <div className="px-3 sm:px-4 lg:px-6">
-          <nav className="flex space-x-1 sm:space-x-4 overflow-x-auto scrollbar-hide" aria-label="Tabs">
+          <nav className="flex justify-center flex-wrap gap-1" aria-label="Tabs">
             {[
               { id: 'overview', name: 'Overview', icon: BarChart3 },
               { id: 'blog', name: 'Blog', icon: BookOpen },
               { id: 'business-emails', name: 'Emails', icon: Users },
               { id: 'book-events', name: `Events (${filterByStatus(allData.bookEventRequests, 'pending').length || 0})`, icon: Calendar },
-
               { id: 'machine-orders', name: `Machines (${filterByStatus(allData.machineOrders, 'pending').length || 0})`, icon: ShoppingCart },
               { id: 'product-orders', name: `Products (${filterByStatus(allData.productOrders, 'pending').length || 0})`, icon: ShoppingCart },
               { id: 'service-contacts', name: `Service (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Mail },
               { id: 'husk-sales', name: `Husk (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
-
               { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -602,11 +651,10 @@ const VintageDashboard: React.FC = () => {
                     activeTab === tab.id
                       ? 'border-green-500 text-green-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  } whitespace-nowrap py-3 sm:py-4 px-2 sm:px-4 border-b-2 font-medium text-xs sm:text-sm inline-flex items-center gap-1 sm:gap-2 transition-colors`}
+                  } py-3 sm:py-4 px-2 sm:px-4 border-b-2 font-medium text-xs sm:text-sm inline-flex items-center gap-1 sm:gap-2 transition-colors`}
                 >
-                  <Icon className="h-3.5 sm:h-4 w-3.5 sm:w-4 flex-shrink-0" />
-                  <span className="hidden sm:inline">{tab.name}</span>
-                  <span className="sm:hidden">{tab.name.split(' ')[0].substring(0, 3)}</span>
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <span>{tab.name}</span>
                 </button>
               );
             })}
