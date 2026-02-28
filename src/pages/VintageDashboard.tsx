@@ -13,7 +13,8 @@ import {
   Plus,
   X,
   Edit,
-  BookOpen
+  BookOpen,
+  Trash2
 } from 'lucide-react';
 import { BlogManagement } from './BlogManagement';
 
@@ -83,6 +84,11 @@ const VintageDashboard: React.FC = () => {
   const [newPrice, setNewPrice] = useState('');
   const [editItemStatus, setEditItemStatus] = useState<'pending' | 'processing' | 'completed'>('pending');
   const [editItemSection, setEditItemSection] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteItem, setDeleteItem] = useState<any>(null);
+  const [deleteItemType, setDeleteItemType] = useState('');
+  const [deleteItemSection, setDeleteItemSection] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
   const [composer, setComposer] = useState({
@@ -160,7 +166,7 @@ const VintageDashboard: React.FC = () => {
       formData.append('templateType', composer.templateType);
       
       // Append all attachments
-      composer.attachments.forEach((file, index) => {
+      composer.attachments.forEach((file) => {
         formData.append('attachments', file);
       });
 
@@ -267,8 +273,6 @@ const VintageDashboard: React.FC = () => {
         else if (editPriceType === 'Product Order') tableName = 'product_orders';
         else if (editPriceType === 'Event Request') tableName = 'book_event_requests';
 
-        console.log('Updating price:', { tableName, id: editPriceItem.id, price: priceValue });
-
         // Update price via API
         const response = await fetch('/api/update-price', {
           method: 'POST',
@@ -293,6 +297,66 @@ const VintageDashboard: React.FC = () => {
     } catch (err) {
       console.error('Update error:', err);
       alert('Network error occurred while updating');
+    }
+  };
+
+  // Open delete confirmation modal
+  const openDeleteModal = (itemType: string, item: any, section: string) => {
+    setDeleteItemType(itemType);
+    setDeleteItem(item);
+    setDeleteItemSection(section);
+    setShowDeleteModal(true);
+  };
+
+  // Delete record function
+  const deleteRecord = async () => {
+    if (!deleteItem || !deleteItemSection) {
+      alert('Error: Cannot delete record');
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+
+      // Map section to table name
+      const sectionToTable: Record<string, string> = {
+        bookEventRequests: 'book_event_requests',
+        machineOrders: 'machine_orders',
+        productOrders: 'product_orders',
+        serviceContacts: 'service_contacts',
+        huskSaleRequests: 'husk_sale_requests',
+        waitlist: 'waitlist'
+      };
+
+      const table = sectionToTable[deleteItemSection];
+      if (!table) {
+        alert('Error: Cannot determine table to delete from');
+        return;
+      }
+
+      // Call API to delete the record
+      const response = await fetch('/api/delete-record', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: table,
+          id: deleteItem.id
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert(`${deleteItemType} has been deleted successfully!`);
+        setShowDeleteModal(false);
+        fetchData(); // Refresh data
+      } else {
+        alert(`Failed to delete: ${data.error}`);
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert('Network error occurred while deleting');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -872,6 +936,13 @@ const VintageDashboard: React.FC = () => {
                           >
                             <Edit className="h-4 w-4" />
                           </button>
+                          <button 
+                            onClick={() => openDeleteModal('Event Request', request, 'bookEventRequests')}
+                            className="text-red-600 hover:text-red-900 inline-flex items-center gap-1 text-xs"
+                            title="Delete Record"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -957,6 +1028,13 @@ const VintageDashboard: React.FC = () => {
                           >
                             <Edit className="h-4 w-4" />
                           </button>
+                          <button 
+                            onClick={() => openDeleteModal('Machine Order', order, 'machineOrders')}
+                            className="text-red-600 hover:text-red-900 inline-flex items-center gap-1 text-xs"
+                            title="Delete Record"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -1040,6 +1118,13 @@ const VintageDashboard: React.FC = () => {
                           >
                             <Edit className="h-4 w-4" />
                           </button>
+                          <button 
+                            onClick={() => openDeleteModal('Product Order', order, 'productOrders')}
+                            className="text-red-600 hover:text-red-900 inline-flex items-center gap-1 text-xs"
+                            title="Delete Record"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -1117,6 +1202,13 @@ const VintageDashboard: React.FC = () => {
                             title="Edit Status"
                           >
                             <Edit className="h-4 w-4" />
+                          </button>
+                          <button 
+                            onClick={() => openDeleteModal('Service Contact', contact, 'serviceContacts')}
+                            className="text-red-600 hover:text-red-900 inline-flex items-center gap-1 text-xs"
+                            title="Delete Record"
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
                       </td>
@@ -1201,6 +1293,13 @@ const VintageDashboard: React.FC = () => {
                           >
                             <Edit className="h-4 w-4" />
                           </button>
+                          <button 
+                            onClick={() => openDeleteModal('Husk Sale', request, 'huskSaleRequests')}
+                            className="text-red-600 hover:text-red-900 inline-flex items-center gap-1 text-xs"
+                            title="Delete Record"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -1248,13 +1347,22 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{entry?.country || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{entry?.created_at ? formatDate(entry.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
-                        <button 
-                          onClick={() => openDetailModal('Waitlist Entry Details', entry)}
-                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => openDetailModal('Waitlist Entry Details', entry)}
+                            className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </button>
+                          <button 
+                            onClick={() => openDeleteModal('Waitlist Entry', entry, 'waitlist')}
+                            className="text-red-600 hover:text-red-900 inline-flex items-center gap-1 text-xs"
+                            title="Delete Record"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )) : (
@@ -1560,6 +1668,51 @@ const VintageDashboard: React.FC = () => {
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
                 Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="px-6 py-4 border-b flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Delete {deleteItemType}</h3>
+              <button 
+                onClick={() => setShowDeleteModal(false)}
+                title="Close"
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="mb-4">
+                <p className="text-gray-700 font-medium mb-2">Are you sure you want to delete this {deleteItemType.toLowerCase()}?</p>
+                <p className="text-gray-600 text-sm">
+                  Customer: <span className="font-semibold">{deleteItem?.name || 'Unknown'}</span>
+                </p>
+                <p className="text-red-600 text-sm font-medium mt-3">
+                  ⚠️ This action cannot be undone. The entire record will be permanently deleted from the database.
+                </p>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteRecord}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 inline-flex items-center gap-2"
+              >
+                {isDeleting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                {isDeleting ? 'Deleting...' : 'Yes, Delete'}
               </button>
             </div>
           </div>
