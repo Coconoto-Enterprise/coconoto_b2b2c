@@ -64,149 +64,6 @@ export function About() {
         </div>
       </div>
 
-      {/* Sustainability Problem */}
-      <div className="bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 py-16">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">The Problem We're Solving</h2>
-              <div className="w-24 h-1 bg-red-600 mx-auto mb-6"></div>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                A massive environmental crisis hiding in plain sight
-              </p>
-            </div>
-
-            {/* Main Problem Statement */}
-            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-8">
-              <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 text-white">
-                <div className="flex items-center justify-center mb-4">
-                  <AlertTriangle className="w-16 h-16 mr-4" />
-                  <h3 className="text-3xl font-bold">The Coconut Waste Crisis</h3>
-                </div>
-              </div>
-              <div className="p-8 md:p-12">
-                <div className="text-center mb-8">
-                  <div className="text-7xl font-bold text-red-600 mb-2">80%</div>
-                  <p className="text-2xl text-gray-800 font-semibold mb-4">
-                    of coconut waste ends up in landfills or gets burned
-                  </p>
-                  <p className="text-lg text-gray-600 leading-relaxed">
-                    Every day, massive amounts of coconut husks and shells are discarded, filling up landfills or being set ablaze releasing <span className="font-semibold text-red-600">harmful carbon emissions</span> into our atmosphere and contributing to climate change.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Statistics Grid */}
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
-              {/* Nigeria Consumption */}
-              <div className="bg-white rounded-xl shadow-lg p-8 text-center transform hover:scale-105 transition duration-300">
-                <div className="flex justify-center mb-3">
-                  <BarChart3 className="w-12 h-12 text-blue-600" />
-                </div>
-                <div className="text-4xl font-bold text-blue-600 mb-2">267,000</div>
-                <p className="text-gray-800 font-semibold mb-2">Metric Tonnes</p>
-                <p className="text-sm text-gray-600">
-                  Nigeria's annual coconut consumption
-                </p>
-              </div>
-
-              {/* Waste Generated */}
-              <div className="bg-white rounded-xl shadow-lg p-8 text-center transform hover:scale-105 transition duration-300">
-                <div className="flex justify-center mb-3">
-                  <Trash2 className="w-12 h-12 text-orange-600" />
-                </div>
-                <div className="text-4xl font-bold text-orange-600 mb-2">125,490</div>
-                <p className="text-gray-800 font-semibold mb-2">Tonnes Wasted</p>
-                <p className="text-sm text-gray-600">
-                  47% husk and shells thrown away annually
-                </p>
-              </div>
-
-              {/* Market Opportunity */}
-              <div className="bg-white rounded-xl shadow-lg p-8 text-center transform hover:scale-105 transition duration-300">
-                <div className="flex justify-center mb-3">
-                  <DollarSign className="w-12 h-12 text-green-600" />
-                </div>
-                <div className="text-4xl font-bold text-green-600 mb-2">$12.88B</div>
-                <p className="text-gray-800 font-semibold mb-2">Market Value</p>
-                <p className="text-sm text-gray-600">
-                  Industrial processing opportunity (USD)
-                </p>
-              </div>
-            </div>
-
-            {/* The Impact */}
-            <div className="bg-white rounded-xl shadow-xl p-8 md:p-12">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">The Environmental & Economic Impact</h3>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <h4 className="text-xl font-bold text-red-600 mb-4 flex items-center">
-                    <Globe className="w-6 h-6 mr-2" />
-                    Environmental Damage
-                  </h4>
-                  <ul className="space-y-3 text-gray-700">
-                    <li className="flex items-start">
-                      <span className="text-red-500 mr-2">•</span>
-                      <span>Carbon emissions from burning coconut waste contribute to climate change</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-red-500 mr-2">•</span>
-                      <span>Landfills overflow with organic waste that could be repurposed</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-red-500 mr-2">•</span>
-                      <span>Methane gas released from decomposing husks in landfills</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-red-500 mr-2">•</span>
-                      <span>Loss of valuable biomass that could enrich soil and support agriculture</span>
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-orange-600 mb-4 flex items-center">
-                    <TrendingDown className="w-6 h-6 mr-2" />
-                    Economic Loss
-                  </h4>
-                  <ul className="space-y-3 text-gray-700">
-                    <li className="flex items-start">
-                      <span className="text-orange-500 mr-2">•</span>
-                      <span>Farmers miss out on additional income from waste products</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-orange-500 mr-2">•</span>
-                      <span>Potential jobs in waste processing remain uncreated</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-orange-500 mr-2">•</span>
-                      <span>$12.88 billion market opportunity largely untapped</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-orange-500 mr-2">•</span>
-                      <span>Communities lose access to affordable, sustainable products</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Our Solution CTA */}
-            <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl shadow-xl p-8 mt-8 text-center text-white">
-              <h3 className="text-3xl font-bold mb-4 flex items-center justify-center">
-                But There's Hope <Sprout className="w-8 h-8 ml-2" />
-              </h3>
-              <p className="text-xl text-green-100 mb-6 leading-relaxed">
-                At Coconoto, we believe this "waste" is actually a <span className="font-bold text-white">valuable resource</span> waiting to be transformed. We're turning this environmental crisis into an economic opportunity creating jobs, empowering farmers, and protecting our planet.
-              </p>
-              <div className="inline-flex items-center bg-white text-green-700 px-8 py-3 rounded-lg font-bold text-lg">
-                Our mission: Eliminate 80% of coconut waste <Recycle className="w-5 h-5 ml-2" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Our Mission */}
       <div className="bg-gradient-to-br from-green-600 to-green-700 py-16">
         <div className="container mx-auto px-6">
@@ -410,6 +267,149 @@ export function About() {
               <p className="text-sm font-semibold text-pink-700">
                 Sustainable & memorable experience
               </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sustainability Problem */}
+      <div className="bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 py-16">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">The Problem We're Solving</h2>
+              <div className="w-24 h-1 bg-red-600 mx-auto mb-6"></div>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                A massive environmental crisis hiding in plain sight
+              </p>
+            </div>
+
+            {/* Main Problem Statement */}
+            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-8">
+              <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 text-white">
+                <div className="flex items-center justify-center mb-4">
+                  <AlertTriangle className="w-16 h-16 mr-4" />
+                  <h3 className="text-3xl font-bold">The Coconut Waste Crisis</h3>
+                </div>
+              </div>
+              <div className="p-8 md:p-12">
+                <div className="text-center mb-8">
+                  <div className="text-7xl font-bold text-red-600 mb-2">80%</div>
+                  <p className="text-2xl text-gray-800 font-semibold mb-4">
+                    of coconut waste ends up in landfills or gets burned
+                  </p>
+                  <p className="text-lg text-gray-600 leading-relaxed">
+                    Every day, massive amounts of coconut husks and shells are discarded, filling up landfills or being set ablaze releasing <span className="font-semibold text-red-600">harmful carbon emissions</span> into our atmosphere and contributing to climate change.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Statistics Grid */}
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              {/* Nigeria Consumption */}
+              <div className="bg-white rounded-xl shadow-lg p-8 text-center transform hover:scale-105 transition duration-300">
+                <div className="flex justify-center mb-3">
+                  <BarChart3 className="w-12 h-12 text-blue-600" />
+                </div>
+                <div className="text-4xl font-bold text-blue-600 mb-2">267,000</div>
+                <p className="text-gray-800 font-semibold mb-2">Metric Tonnes</p>
+                <p className="text-sm text-gray-600">
+                  Nigeria's annual coconut consumption
+                </p>
+              </div>
+
+              {/* Waste Generated */}
+              <div className="bg-white rounded-xl shadow-lg p-8 text-center transform hover:scale-105 transition duration-300">
+                <div className="flex justify-center mb-3">
+                  <Trash2 className="w-12 h-12 text-orange-600" />
+                </div>
+                <div className="text-4xl font-bold text-orange-600 mb-2">125,490</div>
+                <p className="text-gray-800 font-semibold mb-2">Tonnes Wasted</p>
+                <p className="text-sm text-gray-600">
+                  47% husk and shells thrown away annually
+                </p>
+              </div>
+
+              {/* Market Opportunity */}
+              <div className="bg-white rounded-xl shadow-lg p-8 text-center transform hover:scale-105 transition duration-300">
+                <div className="flex justify-center mb-3">
+                  <DollarSign className="w-12 h-12 text-green-600" />
+                </div>
+                <div className="text-4xl font-bold text-green-600 mb-2">$12.88B</div>
+                <p className="text-gray-800 font-semibold mb-2">Market Value</p>
+                <p className="text-sm text-gray-600">
+                  Industrial processing opportunity (USD)
+                </p>
+              </div>
+            </div>
+
+            {/* The Impact */}
+            <div className="bg-white rounded-xl shadow-xl p-8 md:p-12">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">The Environmental & Economic Impact</h3>
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  <h4 className="text-xl font-bold text-red-600 mb-4 flex items-center">
+                    <Globe className="w-6 h-6 mr-2" />
+                    Environmental Damage
+                  </h4>
+                  <ul className="space-y-3 text-gray-700">
+                    <li className="flex items-start">
+                      <span className="text-red-500 mr-2">•</span>
+                      <span>Carbon emissions from burning coconut waste contribute to climate change</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-red-500 mr-2">•</span>
+                      <span>Landfills overflow with organic waste that could be repurposed</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-red-500 mr-2">•</span>
+                      <span>Methane gas released from decomposing husks in landfills</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-red-500 mr-2">•</span>
+                      <span>Loss of valuable biomass that could enrich soil and support agriculture</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-orange-600 mb-4 flex items-center">
+                    <TrendingDown className="w-6 h-6 mr-2" />
+                    Economic Loss
+                  </h4>
+                  <ul className="space-y-3 text-gray-700">
+                    <li className="flex items-start">
+                      <span className="text-orange-500 mr-2">•</span>
+                      <span>Farmers miss out on additional income from waste products</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-orange-500 mr-2">•</span>
+                      <span>Potential jobs in waste processing remain uncreated</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-orange-500 mr-2">•</span>
+                      <span>$12.88 billion market opportunity largely untapped</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-orange-500 mr-2">•</span>
+                      <span>Communities lose access to affordable, sustainable products</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Our Solution CTA */}
+            <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl shadow-xl p-8 mt-8 text-center text-white">
+              <h3 className="text-3xl font-bold mb-4 flex items-center justify-center">
+                But There's Hope <Sprout className="w-8 h-8 ml-2" />
+              </h3>
+              <p className="text-xl text-green-100 mb-6 leading-relaxed">
+                At Coconoto, we believe this "waste" is actually a <span className="font-bold text-white">valuable resource</span> waiting to be transformed. We're turning this environmental crisis into an economic opportunity creating jobs, empowering farmers, and protecting our planet.
+              </p>
+              <div className="inline-flex items-center bg-white text-green-700 px-8 py-3 rounded-lg font-bold text-lg">
+                Our mission: Eliminate 80% of coconut waste <Recycle className="w-5 h-5 ml-2" />
+              </div>
             </div>
           </div>
         </div>
