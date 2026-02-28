@@ -1,5 +1,3 @@
-// Add state for editing status in modal
-const [editStatus, setEditStatus] = useState<'pending' | 'processing' | 'completed'>('pending');
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -83,6 +81,8 @@ const VintageDashboard: React.FC = () => {
   const [editPriceItem, setEditPriceItem] = useState<any>(null);
   const [editPriceType, setEditPriceType] = useState('');
   const [newPrice, setNewPrice] = useState('');
+  const [editItemStatus, setEditItemStatus] = useState<'pending' | 'processing' | 'completed'>('pending');
+  const [editItemSection, setEditItemSection] = useState('');
   const navigate = useNavigate();
 
   const [composer, setComposer] = useState({
@@ -219,78 +219,80 @@ const VintageDashboard: React.FC = () => {
   };
 
   // Open edit price modal
-  const openEditPriceModal = (type: string, item: any) => {
+  const openEditPriceModal = (type: string, item: any, section?: string) => {
     setEditPriceType(type);
     setEditPriceItem(item);
+    setEditItemSection(section || '');
+    
     // Get current price based on item type
     let currentPrice = '';
     if (type === 'Machine Order' || type === 'Event Request') {
       currentPrice = item?.price ? item.price.toString() : '';
     } else if (type === 'Product Order') {
       currentPrice = item?.total_price ? item.total_price.toString() : '';
+    } else {
+      // For Service Contacts and Husk Sales that don't have prices
+      currentPrice = '';
     }
+    
     setNewPrice(currentPrice);
-    setEditStatus(item.status || 'pending');
+    setEditItemStatus(item?.status || 'pending');
     setShowEditPriceModal(true);
   };
 
-  // Update price function
+  // Update price and status function
   const updatePrice = async () => {
-    if (!editPriceItem || !newPrice) {
-      alert('Please enter a valid price');
+    if (!editPriceItem) {
+      alert('No item selected');
       return;
     }
 
     try {
-      const priceValue = parseFloat(newPrice);
-      if (isNaN(priceValue) || priceValue < 0) {
-        alert('Please enter a valid positive number');
-        return;
+      // First, update status if needed (for all item types)
+      if (editItemSection && editItemStatus !== (editPriceItem?.status || 'pending')) {
+        await updateItemStatus(editItemSection, editPriceItem.id, editItemStatus);
       }
 
-      // Determine which table to update based on type
-      let tableName = '';
-      if (editPriceType === 'Machine Order') tableName = 'machine_orders';
-      else if (editPriceType === 'Product Order') tableName = 'product_orders';
-      else if (editPriceType === 'Event Request') tableName = 'book_event_requests';
+      // Only update price if there's a new price entered and it's not a section without price
+      if (newPrice && ['Machine Order', 'Product Order', 'Event Request'].includes(editPriceType)) {
+        const priceValue = parseFloat(newPrice);
+        if (isNaN(priceValue) || priceValue < 0) {
+          alert('Please enter a valid positive number');
+          return;
+        }
 
-      console.log('Updating price:', { tableName, id: editPriceItem.id, price: priceValue });
+        // Determine which table to update based on type
+        let tableName = '';
+        if (editPriceType === 'Machine Order') tableName = 'machine_orders';
+        else if (editPriceType === 'Product Order') tableName = 'product_orders';
+        else if (editPriceType === 'Event Request') tableName = 'book_event_requests';
 
-      // Update price via API
-      const response = await fetch('/api/update-price', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          table: tableName,
-          id: editPriceItem.id,
-          price: priceValue
-        }),
-      });
+        console.log('Updating price:', { tableName, id: editPriceItem.id, price: priceValue });
 
-      // Update status if changed
-      if (editPriceItem.status !== editStatus) {
-        await fetch('/api/update-status', {
+        // Update price via API
+        const response = await fetch('/api/update-price', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             table: tableName,
             id: editPriceItem.id,
-            status: editStatus
+            price: priceValue
           }),
         });
+
+        const data = await response.json();
+        if (!data.success) {
+          alert(`Failed to update price: ${data.error}`);
+          return;
+        }
       }
 
-      const data = await response.json();
-      if (data.success) {
-        alert(`Order updated successfully!`);
-        setShowEditPriceModal(false);
-        fetchData(); // Refresh data
-      } else {
-        alert(`Failed to update order: ${data.error}`);
-      }
+      alert('Changes updated successfully!');
+      setShowEditPriceModal(false);
+      fetchData(); // Refresh data
     } catch (err) {
-      console.error('Update price error:', err);
-      alert('Network error occurred while updating price');
+      console.error('Update error:', err);
+      alert('Network error occurred while updating');
     }
   };
 
@@ -475,7 +477,8 @@ const VintageDashboard: React.FC = () => {
     // Optimistically update UI
     setAllData(prev => {
       const updated = { ...prev };
-      updated[section] = updated[section].map((item: any) =>
+      const sectionKey = section as keyof AllData;
+      updated[sectionKey] = updated[sectionKey].map((item: any) =>
         item.id === id ? { ...item, status } : item
       );
       return updated;
@@ -589,57 +592,45 @@ const VintageDashboard: React.FC = () => {
       </div>
 
       <div className="px-2 sm:px-4 lg:px-6 ml-2 mr-2 py-8">
-        {/* Edit Price/Status Modal */}
-        {showEditPriceModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden">
-              <div className="flex items-center justify-between p-6 border-b">
-                <h2 className="text-xl font-bold text-gray-900">Edit {editPriceType}</h2>
-                <button onClick={() => setShowEditPriceModal(false)} className="text-gray-400 hover:text-gray-600" title="Close">
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-              <div className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
-                  <input
-                    type="number"
-                    value={newPrice}
-                    onChange={e => setNewPrice(e.target.value)}
-                    placeholder="Enter new price"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <select
-                    value={editStatus}
-                    onChange={e => setEditStatus(e.target.value as any)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="completed">Completed</option>
-                  </select>
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <div className="space-y-8">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="flex items-center">
+                  <Mail className="h-8 w-8 text-blue-600" />
+                  <div className="ml-4">
+                    <h3 className="text-2xl font-bold text-gray-900">{Array.isArray(emails) ? emails.length : 0}</h3>
+                    <p className="text-gray-600">Total Emails</p>
+                  </div>
                 </div>
               </div>
-              <div className="flex justify-end p-6 border-t gap-2">
-                <button
-                  onClick={() => setShowEditPriceModal(false)}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={updatePrice}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Save
-                </button>
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="flex items-center">
+                  <Calendar className="h-8 w-8 text-green-600" />
+                  <div className="ml-4">
+                    <h3 className="text-2xl font-bold text-gray-900">{allData.bookEventRequests?.length || 0}</h3>
+                    <p className="text-gray-600">Event Requests</p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="flex items-center">
+                  <ShoppingCart className="h-8 w-8 text-purple-600" />
+                  <div className="ml-4">
+                    <h3 className="text-2xl font-bold text-gray-900">{(allData.machineOrders?.length || 0) + (allData.productOrders?.length || 0)}</h3>
+                    <p className="text-gray-600">Total Orders</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="flex items-center">
+                  <Users className="h-8 w-8 text-orange-600" />
+                  <div className="ml-4">
                     <h3 className="text-2xl font-bold text-gray-900">{allData.waitlist?.length || 0}</h3>
                     <p className="text-gray-600">Waitlist Entries</p>
                   </div>
@@ -875,12 +866,9 @@ const VintageDashboard: React.FC = () => {
                             View
                           </button>
                           <button 
-                            onClick={() => {
-                              openEditPriceModal('Event Request', request);
-                              setEditStatus(request.status || 'pending');
-                            }}
+                            onClick={() => openEditPriceModal('Event Request', request, 'bookEventRequests')}
                             className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
-                            title="Edit Request"
+                            title="Edit Price & Status"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
@@ -963,12 +951,9 @@ const VintageDashboard: React.FC = () => {
                             View
                           </button>
                           <button 
-                            onClick={() => {
-                              openEditPriceModal('Machine Order', order);
-                              setEditStatus(order.status || 'pending');
-                            }}
+                            onClick={() => openEditPriceModal('Machine Order', order, 'machineOrders')}
                             className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
-                            title="Edit Order"
+                            title="Edit Price & Status"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
@@ -1049,9 +1034,9 @@ const VintageDashboard: React.FC = () => {
                             View
                           </button>
                           <button 
-                            onClick={() => openEditPriceModal('Product Order', order)}
+                            onClick={() => openEditPriceModal('Product Order', order, 'productOrders')}
                             className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
-                            title="Edit Price"
+                            title="Edit Price & Status"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
@@ -1118,23 +1103,22 @@ const VintageDashboard: React.FC = () => {
                         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(contact?.status || 'pending')}`}>{contact?.status || 'pending'}</span>
                       </td>
                       <td className="px-6 py-4">
-                        <button 
-                          onClick={() => openDetailModal('Service Contact Details', contact)}
-                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
-                        <button 
-                          onClick={() => {
-                            openEditPriceModal('Service Contact', contact);
-                            setEditStatus(contact.status || 'pending');
-                          }}
-                          className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
-                          title="Edit Contact"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => openDetailModal('Service Contact Details', contact)}
+                            className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </button>
+                          <button 
+                            onClick={() => openEditPriceModal('Service Contact', contact, 'serviceContacts')}
+                            className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                            title="Edit Status"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                     ) : null
@@ -1202,23 +1186,22 @@ const VintageDashboard: React.FC = () => {
                         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(request?.status || 'pending')}`}>{request?.status || 'pending'}</span>
                       </td>
                       <td className="px-6 py-4">
-                        <button 
-                          onClick={() => openDetailModal('Husk Sale Request Details', request)}
-                          className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </button>
-                        <button 
-                          onClick={() => {
-                            openEditPriceModal('Husk Sale', request);
-                            setEditStatus(request.status || 'pending');
-                          }}
-                          className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
-                          title="Edit Husk Sale"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => openDetailModal('Husk Sale Request Details', request)}
+                            className="text-green-600 hover:text-green-900 inline-flex items-center gap-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </button>
+                          <button 
+                            onClick={() => openEditPriceModal('Husk Sale', request, 'huskSaleRequests')}
+                            className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                            title="Edit Status"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                     ) : null
@@ -1497,15 +1480,15 @@ const VintageDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Edit Price Modal */}
+      {/* Edit Item Modal */}
       {showEditPriceModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full">
             <div className="px-6 py-4 border-b flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Edit Price - {editPriceType}</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Edit - {editPriceType}</h3>
               <button 
                 onClick={() => setShowEditPriceModal(false)}
-                title="Close price editor"
+                title="Close editor"
                 className="text-gray-400 hover:text-gray-600"
               >
                 <X className="h-6 w-6" />
@@ -1520,26 +1503,49 @@ const VintageDashboard: React.FC = () => {
                   {editPriceType === 'Machine Order' && `Machine: ${editPriceItem?.type || 'Unknown'}`}
                   {editPriceType === 'Product Order' && 'Product Order'}
                   {editPriceType === 'Event Request' && `Event: ${editPriceItem?.event_type || 'Unknown'}`}
+                  {editPriceType === 'Service Contact' && 'Service Inquiry'}
+                  {editPriceType === 'Husk Sale' && `Sacks: ${editPriceItem?.number_of_sacks || 0}`}
                 </label>
               </div>
+              
+              {/* Show price field only for items that have prices */}
+              {['Machine Order', 'Product Order', 'Event Request'].includes(editPriceType) && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Price (₦)</label>
+                    <input
+                      type="number"
+                      value={newPrice}
+                      onChange={(e) => setNewPrice(e.target.value)}
+                      placeholder="Enter price in Naira"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    <p>Current price: {
+                      editPriceType === 'Product Order' 
+                        ? (editPriceItem?.total_price ? `₦${Number(editPriceItem.total_price).toLocaleString()}` : 'Not set')
+                        : (editPriceItem?.price ? `₦${Number(editPriceItem.price).toLocaleString()}` : 'Not set')
+                    }</p>
+                  </div>
+                </>
+              )}
+
+              {/* Status dropdown for all item types */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Price (₦)</label>
-                <input
-                  type="number"
-                  value={newPrice}
-                  onChange={(e) => setNewPrice(e.target.value)}
-                  placeholder="Enter price in Naira"
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select
+                  value={editItemStatus}
+                  onChange={(e) => setEditItemStatus(e.target.value as any)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  min="0"
-                  step="0.01"
-                />
-              </div>
-              <div className="text-sm text-gray-600">
-                <p>Current price: {
-                  editPriceType === 'Product Order' 
-                    ? (editPriceItem?.total_price ? `₦${Number(editPriceItem.total_price).toLocaleString()}` : 'Not set')
-                    : (editPriceItem?.price ? `₦${Number(editPriceItem.price).toLocaleString()}` : 'Not set')
-                }</p>
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="completed">Completed</option>
+                </select>
+                <p className="text-xs text-gray-600 mt-1">Current: {editPriceItem?.status || 'pending'}</p>
               </div>
             </div>
             <div className="px-6 py-4 border-t flex justify-end gap-3">
@@ -1553,7 +1559,7 @@ const VintageDashboard: React.FC = () => {
                 onClick={updatePrice}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
-                Update Price
+                Update
               </button>
             </div>
           </div>
