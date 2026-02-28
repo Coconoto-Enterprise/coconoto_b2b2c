@@ -1,3 +1,5 @@
+// Add state for editing status in modal
+const [editStatus, setEditStatus] = useState<'pending' | 'processing' | 'completed'>('pending');
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -220,7 +222,6 @@ const VintageDashboard: React.FC = () => {
   const openEditPriceModal = (type: string, item: any) => {
     setEditPriceType(type);
     setEditPriceItem(item);
-    
     // Get current price based on item type
     let currentPrice = '';
     if (type === 'Machine Order' || type === 'Event Request') {
@@ -228,8 +229,8 @@ const VintageDashboard: React.FC = () => {
     } else if (type === 'Product Order') {
       currentPrice = item?.total_price ? item.total_price.toString() : '';
     }
-    
     setNewPrice(currentPrice);
+    setEditStatus(item.status || 'pending');
     setShowEditPriceModal(true);
   };
 
@@ -266,13 +267,26 @@ const VintageDashboard: React.FC = () => {
         }),
       });
 
+      // Update status if changed
+      if (editPriceItem.status !== editStatus) {
+        await fetch('/api/update-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: tableName,
+            id: editPriceItem.id,
+            status: editStatus
+          }),
+        });
+      }
+
       const data = await response.json();
       if (data.success) {
-        alert(`Price updated successfully to ₦${priceValue.toLocaleString()}!`);
+        alert(`Order updated successfully!`);
         setShowEditPriceModal(false);
         fetchData(); // Refresh data
       } else {
-        alert(`Failed to update price: ${data.error}`);
+        alert(`Failed to update order: ${data.error}`);
       }
     } catch (err) {
       console.error('Update price error:', err);
@@ -575,45 +589,57 @@ const VintageDashboard: React.FC = () => {
       </div>
 
       <div className="px-2 sm:px-4 lg:px-6 ml-2 mr-2 py-8">
-        {/* Overview Tab */}
-        {activeTab === 'overview' && (
-          <div className="space-y-8">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <Mail className="h-8 w-8 text-blue-600" />
-                  <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{Array.isArray(emails) ? emails.length : 0}</h3>
-                    <p className="text-gray-600">Total Emails</p>
-                  </div>
+        {/* Edit Price/Status Modal */}
+        {showEditPriceModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden">
+              <div className="flex items-center justify-between p-6 border-b">
+                <h2 className="text-xl font-bold text-gray-900">Edit {editPriceType}</h2>
+                <button onClick={() => setShowEditPriceModal(false)} className="text-gray-400 hover:text-gray-600" title="Close">
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                  <input
+                    type="number"
+                    value={newPrice}
+                    onChange={e => setNewPrice(e.target.value)}
+                    placeholder="Enter new price"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <select
+                    value={editStatus}
+                    onChange={e => setEditStatus(e.target.value as any)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="completed">Completed</option>
+                  </select>
                 </div>
               </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <Calendar className="h-8 w-8 text-green-600" />
-                  <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{allData.bookEventRequests?.length || 0}</h3>
-                    <p className="text-gray-600">Event Requests</p>
-                  </div>
-                </div>
+              <div className="flex justify-end p-6 border-t gap-2">
+                <button
+                  onClick={() => setShowEditPriceModal(false)}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={updatePrice}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Save
+                </button>
               </div>
-
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <ShoppingCart className="h-8 w-8 text-purple-600" />
-                  <div className="ml-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{(allData.machineOrders?.length || 0) + (allData.productOrders?.length || 0)}</h3>
-                    <p className="text-gray-600">Total Orders</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <Users className="h-8 w-8 text-orange-600" />
-                  <div className="ml-4">
+            </div>
+          </div>
+        )}
                     <h3 className="text-2xl font-bold text-gray-900">{allData.waitlist?.length || 0}</h3>
                     <p className="text-gray-600">Waitlist Entries</p>
                   </div>
@@ -838,15 +864,6 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.created_at ? formatDate(request.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(request?.status || 'pending')}`}>{request?.status || 'pending'}</span>
-                        <select
-                          value={request.status || 'pending'}
-                          onChange={e => updateItemStatus('bookEventRequests', request.id, e.target.value as any)}
-                          className="ml-2 border rounded px-2 py-1 text-xs"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="completed">Completed</option>
-                        </select>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -858,9 +875,12 @@ const VintageDashboard: React.FC = () => {
                             View
                           </button>
                           <button 
-                            onClick={() => openEditPriceModal('Event Request', request)}
+                            onClick={() => {
+                              openEditPriceModal('Event Request', request);
+                              setEditStatus(request.status || 'pending');
+                            }}
                             className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
-                            title="Edit Price"
+                            title="Edit Request"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
@@ -932,15 +952,6 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.submitted_at ? formatDate(order.submitted_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order?.status || 'pending')}`}>{order?.status || 'pending'}</span>
-                        <select
-                          value={order.status || 'pending'}
-                          onChange={e => updateItemStatus('machineOrders', order.id, e.target.value as any)}
-                          className="ml-2 border rounded px-2 py-1 text-xs"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="completed">Completed</option>
-                        </select>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -952,9 +963,12 @@ const VintageDashboard: React.FC = () => {
                             View
                           </button>
                           <button 
-                            onClick={() => openEditPriceModal('Machine Order', order)}
+                            onClick={() => {
+                              openEditPriceModal('Machine Order', order);
+                              setEditStatus(order.status || 'pending');
+                            }}
                             className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
-                            title="Edit Price"
+                            title="Edit Order"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
@@ -1024,15 +1038,6 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{order?.created_at ? formatDate(order.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order?.status || 'pending')}`}>{order?.status || 'pending'}</span>
-                        <select
-                          value={order.status || 'pending'}
-                          onChange={e => updateItemStatus('productOrders', order.id, e.target.value as any)}
-                          className="ml-2 border rounded px-2 py-1 text-xs"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="completed">Completed</option>
-                        </select>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -1111,15 +1116,6 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{contact?.created_at ? formatDate(contact.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(contact?.status || 'pending')}`}>{contact?.status || 'pending'}</span>
-                        <select
-                          value={contact.status || 'pending'}
-                          onChange={e => updateItemStatus('serviceContacts', contact.id, e.target.value as any)}
-                          className="ml-2 border rounded px-2 py-1 text-xs"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="completed">Completed</option>
-                        </select>
                       </td>
                       <td className="px-6 py-4">
                         <button 
@@ -1128,6 +1124,16 @@ const VintageDashboard: React.FC = () => {
                         >
                           <Eye className="h-4 w-4" />
                           View
+                        </button>
+                        <button 
+                          onClick={() => {
+                            openEditPriceModal('Service Contact', contact);
+                            setEditStatus(contact.status || 'pending');
+                          }}
+                          className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                          title="Edit Contact"
+                        >
+                          <Edit className="h-4 w-4" />
                         </button>
                       </td>
                     </tr>
@@ -1194,15 +1200,6 @@ const VintageDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{request?.created_at ? formatDate(request.created_at) : 'Unknown'}</td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(request?.status || 'pending')}`}>{request?.status || 'pending'}</span>
-                        <select
-                          value={request.status || 'pending'}
-                          onChange={e => updateItemStatus('huskSaleRequests', request.id, e.target.value as any)}
-                          className="ml-2 border rounded px-2 py-1 text-xs"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="completed">Completed</option>
-                        </select>
                       </td>
                       <td className="px-6 py-4">
                         <button 
@@ -1211,6 +1208,16 @@ const VintageDashboard: React.FC = () => {
                         >
                           <Eye className="h-4 w-4" />
                           View
+                        </button>
+                        <button 
+                          onClick={() => {
+                            openEditPriceModal('Husk Sale', request);
+                            setEditStatus(request.status || 'pending');
+                          }}
+                          className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1 text-xs"
+                          title="Edit Husk Sale"
+                        >
+                          <Edit className="h-4 w-4" />
                         </button>
                       </td>
                     </tr>
