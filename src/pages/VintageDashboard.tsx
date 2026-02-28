@@ -553,7 +553,7 @@ const VintageDashboard: React.FC = () => {
                 <Menu className="h-6 w-6" />
               </button>
               {/* Logo */}
-              <img src={Logo} alt="Coconoto" className="h-10 w-10 object-contain flex-shrink-0" />
+              <img src={Logo} alt="Coconoto" className="h-12 w-12 sm:h-14 sm:w-14 object-contain flex-shrink-0" />
             </div>
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <button

@@ -196,14 +196,14 @@ export const BlogManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Blog Management</h2>
-          <p className="text-gray-600 mt-1">Create and manage blog posts</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Blog Management</h2>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Create and manage blog posts</p>
         </div>
         <button
           onClick={() => handleOpenEditor()}
-          className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors inline-flex items-center gap-2 shadow-lg"
+          className="w-full sm:w-auto bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors inline-flex items-center justify-center sm:justify-start gap-2 shadow-lg text-sm sm:text-base"
         >
           <Plus className="h-5 w-5" />
           Create New Post
@@ -211,7 +211,91 @@ export const BlogManagement: React.FC = () => {
       </div>
 
       {/* Posts List */}
-      <div className="bg-white rounded-lg shadow-sm">
+      {/* Mobile Card View */}
+      <div className="sm:hidden space-y-4">
+        {posts.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-sm p-12 text-center text-gray-500">
+            <BookOpen className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <p className="text-lg font-medium">No blog posts yet</p>
+            <p className="text-sm">Create your first post to get started</p>
+          </div>
+        ) : (
+          posts.map((post) => (
+            <div
+              key={post.id}
+              className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
+            >
+              <div className="space-y-3">
+                {/* Title */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-sm line-clamp-2">{post.title}</h3>
+                  <p className="text-xs text-gray-500 mt-1">/blog/{post.slug}</p>
+                </div>
+
+                {/* Author and Status */}
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs text-gray-600">{post.author}</p>
+                  <span
+                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      post.published
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {post.published ? 'Published' : 'Draft'}
+                  </span>
+                </div>
+
+                {/* Date */}
+                <p className="text-xs text-gray-500">{formatDate(post.created_at)}</p>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100">
+                  <button
+                    onClick={() => handleTogglePublish(post)}
+                    className={`flex-1 py-2 rounded text-xs font-medium transition-colors ${
+                      post.published
+                        ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                    }`}
+                    title={post.published ? 'Unpublish' : 'Publish'}
+                  >
+                    {post.published ? 'Unpub' : 'Pub'}
+                  </button>
+                  <button
+                    onClick={() => handleOpenEditor(post)}
+                    className="flex-1 py-2 rounded text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                    title="Edit"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(post)}
+                    className="flex-1 py-2 rounded text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                    title="Delete"
+                  >
+                    Delete
+                  </button>
+                  {post.published && (
+                    <a
+                      href={`/blog/${post.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 py-2 rounded text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-colors text-center"
+                      title="View live"
+                    >
+                      View
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden sm:block bg-white rounded-lg shadow-sm">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
