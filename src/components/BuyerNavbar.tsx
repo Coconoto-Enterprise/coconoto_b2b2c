@@ -38,7 +38,7 @@ export default function BuyerNavbar() {
             
             {/* User Dropdown */}
             <div className="flex items-center gap-4">
-              <span className="text-gray-700">
+              <span className="text-gray-700 font-medium">
                 Hello, <span className="font-semibold">{buyerName}</span>
               </span>
               <button
