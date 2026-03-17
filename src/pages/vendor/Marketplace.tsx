@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MarketplaceNavbar from '../../components/MarketplaceNavbar';
 import BuyerNavbar from '../../components/BuyerNavbar';
 import Footer from '../../components/Footer';
+import { SlidersHorizontal, X, Search } from 'lucide-react';
 import { getAllMarketplaceProducts, createOrder } from '../../services/vendorService';
 import { createOrderWithBuyer, getBuyerProfile } from '../../services/buyerService';
 import type { VendorProduct, VendorOrderInput } from '../../types/vendor';
@@ -15,6 +16,8 @@ export function Marketplace() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<VendorProduct | null>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const [isCategoryDrawerOpen, setIsCategoryDrawerOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   
   // Check if buyer is logged in
   const buyerId = localStorage.getItem('buyerId');
@@ -61,99 +64,199 @@ export function Marketplace() {
     setShowOrderModal(true);
   };
 
+  const selectCategory = (category: string) => {
+    setSelectedCategory(category);
+    setIsCategoryDrawerOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#e9fff2,_#f5f8f6_38%,_#edf3ef_100%)] relative overflow-x-hidden">
+      <div className="pointer-events-none absolute -top-28 -right-20 h-72 w-72 rounded-full bg-green-200/40 blur-3xl"></div>
+      <div className="pointer-events-none absolute top-80 -left-24 h-72 w-72 rounded-full bg-emerald-100/60 blur-3xl"></div>
+
       {/* Navbar */}
       {isBuyerLoggedIn ? <BuyerNavbar /> : <MarketplaceNavbar />}
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-green-600 to-green-800 text-white mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h2 className="text-4xl font-bold mb-4">
-            Discover Quality Coconut Products
-          </h2>
-          <p className="text-xl text-green-100 mb-6">
-            Direct from verified farmers and processors
-          </p>
-          <div className="max-w-2xl">
+      <div className="hidden lg:block mt-20 px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="max-w-7xl mx-auto rounded-3xl border border-white/40 bg-white/65 backdrop-blur-xl shadow-[0_10px_50px_rgba(12,64,39,0.12)] p-6 sm:p-8 lg:p-10">
+          <div>
+            <div>
+              <p className="text-sm font-semibold tracking-[0.18em] uppercase text-green-700/80">Marketplace</p>
+              <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-2">
+                Discover Quality Coconut Products
+              </h2>
+              <p className="text-base sm:text-lg text-gray-600 mt-3 max-w-2xl">
+                Direct from verified farmers and processors across the value chain.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 max-w-3xl">
             <input
               type="text"
-              placeholder="Search products or vendors..."
+              placeholder="Search products, category, or vendor..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-6 py-4 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-300"
+              className="w-full px-5 py-4 rounded-2xl border border-white/70 bg-white/90 text-gray-900 placeholder:text-gray-500 shadow-[0_6px_22px_rgba(0,0,0,0.06)] focus:outline-none focus:ring-2 focus:ring-green-300"
             />
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Category Filter */}
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
-          <div className="flex flex-wrap gap-2">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 lg:pt-10 pb-8 lg:pb-10">
+        <div className="lg:hidden mb-4">
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setSelectedCategory('all')}
-              className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                selectedCategory === 'all'
-                  ? 'bg-green-700 text-white'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-green-700'
-              }`}
+              onClick={() => setIsCategoryDrawerOpen(true)}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/80 px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm backdrop-blur-md"
             >
-              All Products
+              <SlidersHorizontal className="h-4 w-4" />
+              Categories
             </button>
-            {PRODUCT_CATEGORIES.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                  selectedCategory === category
-                    ? 'bg-green-700 text-white'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-green-700'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
+            <button
+              type="button"
+              aria-label="Toggle search"
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              className="inline-flex items-center justify-center rounded-xl border border-white/70 bg-white/80 p-2.5 text-gray-800 shadow-sm backdrop-blur-md"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className={`overflow-hidden transition-all duration-300 ${isMobileSearchOpen ? 'max-h-24 mt-3 opacity-100' : 'max-h-0 opacity-0'}`}>
+            <input
+              type="text"
+              placeholder="Search products or vendors..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-white/70 bg-white/90 text-gray-900 placeholder:text-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+            />
           </div>
         </div>
 
-        {/* Products Grid */}
-        {isLoading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <p className="text-gray-600 mb-4">No products found matching your criteria.</p>
-            <button
-              onClick={() => {
-                setSelectedCategory('all');
-                setSearchQuery('');
-              }}
-              className="text-green-700 font-semibold hover:text-green-800"
-            >
-              Clear Filters
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className="flex justify-between items-center mb-6">
-              <p className="text-gray-600">
-                Showing {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
-              </p>
+        <div className="grid grid-cols-1 lg:grid-cols-[270px_1fr] gap-6 lg:gap-8">
+          <aside className="hidden lg:block">
+            <div className="sticky top-24 rounded-2xl border border-white/60 bg-white/70 backdrop-blur-xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.07)]">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Categories</h3>
+              <div className="space-y-2">
+                <button
+                  onClick={() => selectCategory('all')}
+                  className={`w-full text-left px-4 py-2.5 rounded-xl font-medium transition-all ${
+                    selectedCategory === 'all'
+                      ? 'bg-green-700 text-white shadow'
+                      : 'text-gray-700 bg-white/70 hover:bg-white'
+                  }`}
+                >
+                  All Products
+                </button>
+                {PRODUCT_CATEGORIES.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => selectCategory(category)}
+                    className={`w-full text-left px-4 py-2.5 rounded-xl font-medium transition-all ${
+                      selectedCategory === category
+                        ? 'bg-green-700 text-white shadow'
+                        : 'text-gray-700 bg-white/70 hover:bg-white'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onClick={() => handleProductClick(product)}
-                />
+          </aside>
+
+          <section>
+            {/* Products Grid */}
+            {isLoading ? (
+              <div className="rounded-2xl border border-white/60 bg-white/70 backdrop-blur-xl flex justify-center items-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="rounded-2xl border border-white/60 bg-white/75 backdrop-blur-xl shadow p-12 text-center">
+                <p className="text-gray-700 mb-4">No products found matching your criteria.</p>
+                <button
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setSearchQuery('');
+                  }}
+                  className="text-green-700 font-semibold hover:text-green-800"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex justify-between items-center mb-6">
+                  <p className="text-gray-700 font-medium">
+                    Showing {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
+                  {filteredProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onClick={() => handleProductClick(product)}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </section>
+        </div>
+
+        {/* Mobile Sliding Category Drawer */}
+        <div className={`fixed inset-0 z-[60] lg:hidden transition-opacity duration-300 ${isCategoryDrawerOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+          <button
+            type="button"
+            aria-label="Close category drawer"
+            onClick={() => setIsCategoryDrawerOpen(false)}
+            className="absolute inset-0 bg-black/35"
+          />
+
+          <div className={`absolute right-0 top-0 h-full w-[85%] max-w-sm bg-white/90 backdrop-blur-xl border-l border-white/50 shadow-2xl p-5 transition-transform duration-300 ${isCategoryDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Categories</h3>
+              <button
+                type="button"
+                aria-label="Close categories"
+                title="Close categories"
+                onClick={() => setIsCategoryDrawerOpen(false)}
+                className="rounded-full p-2 hover:bg-white text-gray-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <button
+                onClick={() => selectCategory('all')}
+                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all ${
+                  selectedCategory === 'all'
+                    ? 'bg-green-700 text-white shadow'
+                    : 'text-gray-700 bg-white/80 hover:bg-white'
+                }`}
+              >
+                All Products
+              </button>
+              {PRODUCT_CATEGORIES.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => selectCategory(category)}
+                  className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all ${
+                    selectedCategory === category
+                      ? 'bg-green-700 text-white shadow'
+                      : 'text-gray-700 bg-white/80 hover:bg-white'
+                  }`}
+                >
+                  {category}
+                </button>
               ))}
             </div>
-          </>
-        )}
+          </div>
+        </div>
       </div>
 
       {/* Order Modal */}
@@ -189,22 +292,22 @@ function ProductCard({
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-200"
+      className="rounded-2xl border border-white/60 bg-white/75 backdrop-blur-lg shadow-[0_10px_24px_rgba(0,0,0,0.08)] overflow-hidden cursor-pointer hover:-translate-y-1 hover:shadow-[0_16px_28px_rgba(0,0,0,0.12)] transition-all duration-300"
     >
       {product.image_url ? (
         <img
           src={product.image_url}
           alt={product.product_name}
-          className="w-full h-48 object-cover"
+          className="w-full h-36 sm:h-52 object-cover"
         />
       ) : (
-        <div className="w-full h-48 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
-          <span className="text-6xl">🥥</span>
+        <div className="w-full h-36 sm:h-52 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+          <span className="text-4xl sm:text-6xl">🥥</span>
         </div>
       )}
-      <div className="p-4">
+      <div className="p-3 sm:p-5">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
+          <h3 className="text-sm sm:text-lg font-bold text-gray-900 line-clamp-2 leading-tight">
             {product.product_name}
           </h3>
           {product.vendor?.is_verified && (
@@ -213,19 +316,19 @@ function ProductCard({
             </span>
           )}
         </div>
-        <p className="text-sm text-gray-600 mb-2">{product.category}</p>
-        <p className="text-gray-700 mb-3 line-clamp-2 text-sm">
+        <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-1">{product.category}</p>
+        <p className="text-gray-700 mb-3 line-clamp-2 text-xs sm:text-sm">
           {product.description}
         </p>
         <div className="mb-3">
-          <p className="text-xs text-gray-500">By {product.vendor?.business_name}</p>
+          <p className="text-[11px] sm:text-xs text-gray-500 line-clamp-1">By {product.vendor?.business_name}</p>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-xl font-bold text-green-700">
+          <span className="text-sm sm:text-xl font-bold text-green-700">
             ₦{product.price}
-            <span className="text-sm text-gray-600">/{product.unit}</span>
+            <span className="text-[10px] sm:text-sm text-gray-600">/{product.unit}</span>
           </span>
-          <span className="text-sm text-gray-600">
+          <span className="text-[10px] sm:text-sm text-gray-600 text-right">
             {product.stock_quantity > 0 ? (
               <span className="text-green-600">In Stock</span>
             ) : (
@@ -353,6 +456,9 @@ function OrderModal({
           <div className="flex justify-between items-start mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Place Order</h2>
             <button
+              type="button"
+              aria-label="Close order modal"
+              title="Close order modal"
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
             >
@@ -420,10 +526,11 @@ function OrderModal({
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="order-customer-name" className="block text-sm font-semibold text-gray-700 mb-2">
                 Your Name *
               </label>
               <input
+                id="order-customer-name"
                 type="text"
                 value={orderData.customer_name}
                 onChange={(e) => setOrderData({ ...orderData, customer_name: e.target.value })}
@@ -433,10 +540,11 @@ function OrderModal({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="order-customer-email" className="block text-sm font-semibold text-gray-700 mb-2">
                 Email *
               </label>
               <input
+                id="order-customer-email"
                 type="email"
                 value={orderData.customer_email}
                 onChange={(e) => setOrderData({ ...orderData, customer_email: e.target.value })}
@@ -446,10 +554,11 @@ function OrderModal({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="order-customer-phone" className="block text-sm font-semibold text-gray-700 mb-2">
                 Phone
               </label>
               <input
+                id="order-customer-phone"
                 type="tel"
                 value={orderData.customer_phone}
                 onChange={(e) => setOrderData({ ...orderData, customer_phone: e.target.value })}
@@ -458,10 +567,11 @@ function OrderModal({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="order-quantity" className="block text-sm font-semibold text-gray-700 mb-2">
                 Quantity * (Available: {product.stock_quantity})
               </label>
               <input
+                id="order-quantity"
                 type="number"
                 min="1"
                 max={product.stock_quantity}

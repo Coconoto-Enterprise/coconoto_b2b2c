@@ -36,7 +36,7 @@ export function VendorLogin() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <h1 className="text-4xl font-bold text-green-700">
-              C<img src="/favicon.png" alt="o" className="h-6 inline-block mx-[-6px] mb-1" />co-connect
+              C<img src="/favicon.png" alt="o" className="h-6 inline-block mx-[1px] mb-1" />co-connect
             </h1>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">

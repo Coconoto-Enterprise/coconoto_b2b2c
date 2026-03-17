@@ -40,23 +40,26 @@ export function BuyerLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full mx-auto">
+        <nav className="mb-6 bg-white/70 backdrop-blur-sm border border-white/70 rounded-xl px-4 py-3 shadow-sm">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex items-center">
+              <h1 className="text-4xl font-bold text-green-700 leading-none">
+                C<img src="/favicon.png" alt="o" className="h-6 inline-block mx-[1px] mb-0.5" />co-connect
+              </h1>
+            </Link>
+            <Link
+              to="/"
+              className="inline-flex items-center rounded-lg bg-green-700 text-white px-4 py-2 text-sm font-semibold hover:bg-green-800 transition-colors"
+            >
+              Home
+            </Link>
+          </div>
+        </nav>
+
         {/* Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 text-green-700 hover:text-green-800 mb-4">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Home
-          </Link>
-          <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-green-700 rounded-full flex items-center justify-center">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-          </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             Buyer Sign In
           </h2>

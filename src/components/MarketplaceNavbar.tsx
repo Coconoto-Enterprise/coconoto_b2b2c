@@ -12,7 +12,7 @@ export default function MarketplaceNavbar() {
 
   return (
     <nav className="bg-white shadow-sm fixed w-full top-0 z-50">
-      <div className="container mx-auto px-6 py-2">
+      <div className="container mx-auto px-6 py-2 lg:py-4">
         <div className="flex items-center justify-between">
           <Link to="/" onClick={() => window.scrollTo(0, 0)} className="flex items-center">
             <img src={Logo} alt="Coconoto" className="h-8 md:h-8" />
@@ -22,7 +22,6 @@ export default function MarketplaceNavbar() {
           <button
             className="lg:hidden focus:outline-none py-2"
             onClick={toggleMobileMenu}
-            aria-expanded={isMobileMenuOpen}
             aria-label="Toggle navigation"
           >
             {isMobileMenuOpen ? (
