@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Palmtree } from 'lucide-react';
+import Logo from '../assets/Logo_1.png';
 
 export default function BuyerNavbar() {
   const navigate = useNavigate();
@@ -17,9 +17,8 @@ export default function BuyerNavbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <Palmtree className="h-8 w-8 text-green-700" />
-            <span className="text-xl font-bold text-gray-900">COCONOTO</span>
+          <Link to="/" className="flex items-center">
+            <img src={Logo} alt="Coconoto" className="h-8 md:h-8" />
           </Link>
 
           {/* Navigation */}
