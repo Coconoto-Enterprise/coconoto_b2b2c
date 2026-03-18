@@ -251,9 +251,9 @@ export class TemplateService {
     let totalPrice = 'Quote Required';
     if (machineType === 'Desheller' || machineType === 'Coconut Desheller') {
       const quantity = parseInt(formData.quantity) || 1;
-      const unitPrice = 1000000; // ₦1,000,000 for Desheller
+      const unitPrice = 0; // Price currently quote-based
       const calculatedTotal = unitPrice * quantity;
-      totalPrice = `₦${calculatedTotal.toLocaleString()}`;
+      totalPrice = 'Quote Required';
     }
 
     const templateData = {

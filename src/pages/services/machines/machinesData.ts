@@ -14,7 +14,6 @@ export const machines: Machine[] = [
       'Removes kernel cleanly from shell',
       'Processes up to 240-400 coconuts per hour',
       'Stainless steel construction',
-      'Available for purchase : ₦1,000,000',
       '60% Upfront 40% Payment on delivery'
     ]
   },

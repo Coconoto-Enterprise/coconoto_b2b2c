@@ -470,7 +470,6 @@ export function About() {
                   <p>✓ <strong>Capacity:</strong> 240-400 coconuts per hour</p>
                   <p>✓ <strong>Operation:</strong> Dual-user operation</p>
                   <p>✓ <strong>Construction:</strong> Stainless steel cutting teeth</p>
-                  <p>✓ <strong>Price:</strong> ₦1,000,000 per unit</p>
                 </div>
                 <div className="bg-amber-50 p-4 rounded-lg">
                   <p className="text-sm font-semibold text-amber-700 flex items-center">

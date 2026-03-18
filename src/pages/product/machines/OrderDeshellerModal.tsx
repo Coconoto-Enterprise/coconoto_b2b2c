@@ -59,7 +59,7 @@ export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
     // 1. Store in Supabase directly
     // Calculate total price for Desheller
     const quantity = parseInt(formData.quantity) || 1;
-    const unitPrice = 1000000; // ₦1,000,000 for Desheller
+    const unitPrice = 0; // Price currently quote-based
     const calculatedTotal = unitPrice * quantity;
 
     const { error } = await supabase.from('machine_orders').insert([
