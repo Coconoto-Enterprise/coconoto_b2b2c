@@ -125,7 +125,7 @@ function buildCustomerTemplate(heading, message) {
                 <p style="margin-top: 20px;">
                   <strong>Need immediate assistance?</strong><br>
                   📞 <strong>+234 814 860 9051</strong><br>
-                  📧 <strong>coconutoenterprise@gmail.com</strong><br>
+                  📧 <strong>coconotoenterprise@gmail.com</strong><br>
                   🌐 <a href="https://www.coconoto.com" style="color: #8CC63F; text-decoration: none; font-weight: bold;">www.coconoto.com</a>
                 </p>
 
@@ -144,7 +144,7 @@ function buildCustomerTemplate(heading, message) {
                 </div>
                 <p style="margin: 5px 0;">© ${new Date().getFullYear()} Coconoto Enterprise | All Rights Reserved</p>
                 <p style="margin: 5px 0; color: #888;">
-                  <a href="mailto:coconutoenterprise@gmail.com?subject=Unsubscribe" style="color: #888; text-decoration: none;">Unsubscribe</a> | 
+                  <a href="mailto:coconotoenterprise@gmail.com?subject=Unsubscribe" style="color: #888; text-decoration: none;">Unsubscribe</a> | 
                   <a href="https://www.coconoto.africa/privacy-policy" style="color: #888; text-decoration: none;">Privacy Policy</a>
                 </p>
               </td>
