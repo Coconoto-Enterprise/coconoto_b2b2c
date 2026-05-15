@@ -55,8 +55,9 @@ export default function Footer() {
             <h3 className="text-lg font-bold mb-4">About Us</h3>
             <ul className="space-y-2">
               <li><Link to="/about" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">About Coconoto</Link></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Blog</a></li>
+              <li><Link to="/blog" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Blog</Link></li>
               <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Contact Us</Link></li>
+              <li><Link to="/marketplace" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Browse Marketplace</Link></li>
             </ul>
           </div>
           

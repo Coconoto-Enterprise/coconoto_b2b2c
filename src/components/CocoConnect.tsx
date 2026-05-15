@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { WaitlistModal } from './WaitlistModal';
 import coconutwater11 from '../assets/coconutwater11.jpg';
 import coconutstillinshell from '../assets/coconutstillinshell.avif';
@@ -8,6 +9,7 @@ import coconutoil from '../assets/coconutoil.jpg';
 export function CocoConnect() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
+  const navigate = useNavigate();
   const images = [coconutwater11, coconutstillinshell, browncoconut, coconutoil];
 
   useEffect(() => {
@@ -65,9 +67,9 @@ export function CocoConnect() {
             </p>
           </div>
 
-          <div className="flex justify-center lg:justify-start">
+          <div className="flex justify-center lg:justify-start gap-4">
             <button
-              className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-800 transition"
+              className="bg-white text-green-700 border-2 border-green-700 px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-50 transition"
               onClick={() => setIsWaitlistModalOpen(true)}
             >
               Join Waitlist
@@ -107,7 +109,7 @@ export function CocoConnect() {
 
           <div className="flex justify-center">
             <button
-              className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-800 transition"
+              className="bg-white text-green-700 border-2 border-green-700 px-6 md:px-8 py-3 rounded-full text-lg font-semibold hover:bg-green-50 transition"
               onClick={() => setIsWaitlistModalOpen(true)}
             >
               Join Waitlist
