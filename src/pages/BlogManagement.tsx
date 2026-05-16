@@ -20,8 +20,8 @@ import {
   BlogPost,
   CreateBlogPost
 } from '../services/blogService';
-import { MarkdownRenderer } from '../components/blog/MarkdownRenderer';
-import { RichMarkdownEditor } from '../components/blog/RichMarkdownEditor';
+import { EditorRenderer } from '../components/blog/EditorRenderer';
+import { EditorComponent } from '../components/blog/EditorComponent';
 import { ImageUploader } from '../components/blog/ImageUploader';
 
 export const BlogManagement: React.FC = () => {
@@ -35,7 +35,7 @@ export const BlogManagement: React.FC = () => {
   const [formData, setFormData] = useState<CreateBlogPost>({
     title: '',
     slug: '',
-    content: '',
+    content_blocks: { time: Date.now(), blocks: [] },
     excerpt: '',
     author: '',
     cover_image: '',
@@ -68,7 +68,7 @@ export const BlogManagement: React.FC = () => {
       setFormData({
         title: post.title,
         slug: post.slug,
-        content: post.content,
+        content_blocks: post.content_blocks || { time: Date.now(), blocks: [] },
         excerpt: post.excerpt || '',
         author: post.author,
         cover_image: post.cover_image || '',
@@ -80,7 +80,7 @@ export const BlogManagement: React.FC = () => {
       setFormData({
         title: '',
         slug: '',
-        content: '',
+        content_blocks: { time: Date.now(), blocks: [] },
         excerpt: '',
         author: '',
         cover_image: '',
@@ -124,8 +124,8 @@ export const BlogManagement: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.title || !formData.content || !formData.author) {
-      alert('Please fill in required fields: Title, Content, and Author');
+    if (!formData.title || !formData.content_blocks?.blocks?.length || !formData.author) {
+      alert('Please fill in required fields: Title, Content (add at least one block), and Author');
       return;
     }
 
@@ -419,6 +419,7 @@ export const BlogManagement: React.FC = () => {
                 </button>
                 <button
                   onClick={handleCloseEditor}
+                  title="Close editor"
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <X className="h-6 w-6" />
@@ -453,7 +454,7 @@ export const BlogManagement: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <MarkdownRenderer content={formData.content || '*No content yet*'} />
+                  <EditorRenderer data={formData.content_blocks} />
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -461,8 +462,8 @@ export const BlogManagement: React.FC = () => {
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
                     <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <div className="text-sm text-blue-800">
-                      <p className="font-medium">Content supports Markdown formatting</p>
-                      <p className="mt-1">Use headings (#), lists, links, code blocks, and more!</p>
+                      <p className="font-medium">EditorJS block editor</p>
+                      <p className="mt-1">Add headers, paragraphs, images, code blocks, quotes, lists, tables, and more!</p>
                     </div>
                   </div>
 
@@ -564,6 +565,7 @@ export const BlogManagement: React.FC = () => {
                             {tag}
                             <button
                               onClick={() => handleRemoveTag(tag)}
+                              title="Remove tag"
                               className="hover:text-green-900"
                             >
                               <X className="h-3 w-3" />
@@ -578,10 +580,16 @@ export const BlogManagement: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Content <span className="text-red-500">*</span>
                   </label>
-                  <RichMarkdownEditor
-                    value={formData.content}
-                    onChange={(content) => setFormData(prev => ({ ...prev, content }))}
-                    placeholder="Write your content in Markdown..."
+                  <EditorComponent
+                    value={formData.content_blocks}
+                    onChange={(blocks) => setFormData(prev => ({ 
+                      ...prev, 
+                      content_blocks: { 
+                        time: blocks.time || Date.now(), 
+                        blocks: blocks.blocks || [] 
+                      } 
+                    }))}
+                    placeholder="Write your blog content..."
                   />
 
                   {/* Published Status */}
