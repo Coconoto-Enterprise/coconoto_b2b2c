@@ -6,12 +6,16 @@ import List from '@editorjs/list';
 import Quote from '@editorjs/quote';
 import Code from '@editorjs/code';
 import Image from '@editorjs/image';
+// @ts-ignore
 import Link from '@editorjs/link';
+// @ts-ignore
 import Marker from '@editorjs/marker';
+// @ts-ignore
 import Embed from '@editorjs/embed';
 import Table from '@editorjs/table';
 import { supabase } from '../../lib/supabase';
 import { Loader } from 'lucide-react';
+// @ts-ignore
 import './EditorComponent.css';
 
 interface EditorComponentProps {
@@ -26,7 +30,6 @@ export const EditorComponent: React.FC<EditorComponentProps> = ({
   placeholder = 'Write your blog content...'
 }) => {
   const editorRef = useRef<EditorJS | null>(null);
-  const [isReady, setIsReady] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -45,7 +48,7 @@ export const EditorComponent: React.FC<EditorComponentProps> = ({
             }
           },
           paragraph: {
-            class: Paragraph,
+            class: Paragraph as any,
             inlineToolbar: true
           },
           list: {
@@ -88,7 +91,7 @@ export const EditorComponent: React.FC<EditorComponentProps> = ({
                     const filePath = fileName;
 
                     // Upload to Supabase Storage
-                    const { data, error } = await supabase.storage
+                    const { error } = await supabase.storage
                       .from('blog-images')
                       .upload(filePath, file, {
                         cacheControl: '3600',
@@ -128,7 +131,7 @@ export const EditorComponent: React.FC<EditorComponentProps> = ({
             }
           },
           table: {
-            class: Table,
+            class: Table as any,
             inlineToolbar: true
           }
         },
@@ -142,7 +145,6 @@ export const EditorComponent: React.FC<EditorComponentProps> = ({
       });
 
       editorRef.current = editor;
-      setIsReady(true);
     };
 
     initializeEditor();
@@ -156,9 +158,9 @@ export const EditorComponent: React.FC<EditorComponentProps> = ({
   }, []);
 
   return (
-    <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+    <div className="relative border border-gray-300 rounded-lg overflow-hidden bg-white">
       {uploading && (
-        <div className="absolute top-4 right-4 flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-2 rounded-lg">
+        <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-2 rounded-lg shadow-lg">
           <Loader className="h-4 w-4 animate-spin" />
           <span className="text-sm font-medium">Uploading image...</span>
         </div>
