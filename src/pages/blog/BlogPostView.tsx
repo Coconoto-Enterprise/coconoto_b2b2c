@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Calendar, User, Tag, ArrowLeft, Clock } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { Calendar, User, ArrowLeft, Clock } from 'lucide-react';
 import { getPostBySlug, BlogPost } from '../../services/blogService';
-import { MarkdownRenderer } from '../../components/blog/MarkdownRenderer';
+import { EditorRenderer } from '../../components/blog/EditorRenderer';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 export const BlogPostView: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,9 +52,23 @@ export const BlogPostView: React.FC = () => {
     });
   };
 
-  const estimateReadTime = (content: string): number => {
+  const estimateReadTime = (blocks?: any[]): number => {
+    if (!blocks) return 0;
     const wordsPerMinute = 200;
-    const wordCount = content.trim().split(/\s+/).length;
+    let wordCount = 0;
+    
+    blocks.forEach(block => {
+      if (block.type === 'paragraph' && block.data?.text) {
+        wordCount += block.data.text.split(/\s+/).length;
+      } else if (block.type === 'header' && block.data?.text) {
+        wordCount += block.data.text.split(/\s+/).length;
+      } else if (block.type === 'list' && block.data?.items) {
+        block.data.items.forEach((item: string) => {
+          wordCount += item.split(/\s+/).length;
+        });
+      }
+    });
+    
     return Math.ceil(wordCount / wordsPerMinute);
   };
 
@@ -163,7 +176,7 @@ export const BlogPostView: React.FC = () => {
 
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
-                <span>{estimateReadTime(post.content)} min read</span>
+                <span>{estimateReadTime(post.content_blocks?.blocks)} min read</span>
               </div>
             </div>
 
@@ -177,7 +190,7 @@ export const BlogPostView: React.FC = () => {
 
           {/* Article Body */}
           <div className="bg-white rounded-lg shadow-xl p-8 mb-12">
-            <MarkdownRenderer content={post.content} />
+            <EditorRenderer data={post.content_blocks} />
           </div>
 
           {/* Share/Back Section */}

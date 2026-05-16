@@ -1,10 +1,21 @@
 import { supabase } from '../lib/supabase';
+import { OutputData } from '@editorjs/editorjs';
+
+export interface EditorJSContent extends OutputData {
+  time: number;
+  blocks: Array<{
+    type: string;
+    data: any;
+  }>;
+  version?: string;
+}
 
 export interface BlogPost {
   id: string;
   title: string;
   slug: string;
-  content: string;
+  content?: string;
+  content_blocks?: EditorJSContent;
   excerpt?: string;
   author: string;
   cover_image?: string;
@@ -12,12 +23,14 @@ export interface BlogPost {
   published: boolean;
   created_at: string;
   updated_at: string;
+  view_count?: number;
 }
 
 export interface CreateBlogPost {
   title: string;
   slug: string;
-  content: string;
+  content?: string;
+  content_blocks?: EditorJSContent;
   excerpt?: string;
   author: string;
   cover_image?: string;

@@ -20,8 +20,8 @@ import {
   BlogPost,
   CreateBlogPost
 } from '../services/blogService';
-import { MarkdownRenderer } from '../components/blog/MarkdownRenderer';
-import { RichMarkdownEditor } from '../components/blog/RichMarkdownEditor';
+import { EditorRenderer } from '../components/blog/EditorRenderer';
+import { EditorComponent } from '../components/blog/EditorComponent';
 import { ImageUploader } from '../components/blog/ImageUploader';
 
 export const BlogManagement: React.FC = () => {
@@ -35,7 +35,11 @@ export const BlogManagement: React.FC = () => {
   const [formData, setFormData] = useState<CreateBlogPost>({
     title: '',
     slug: '',
-    content: '',
+    content_blocks: {
+      time: Date.now(),
+      blocks: [],
+      version: '2.27.2'
+    },
     excerpt: '',
     author: '',
     cover_image: '',
@@ -68,7 +72,11 @@ export const BlogManagement: React.FC = () => {
       setFormData({
         title: post.title,
         slug: post.slug,
-        content: post.content,
+        content_blocks: post.content_blocks || {
+          time: Date.now(),
+          blocks: [],
+          version: '2.27.2'
+        },
         excerpt: post.excerpt || '',
         author: post.author,
         cover_image: post.cover_image || '',
@@ -80,7 +88,11 @@ export const BlogManagement: React.FC = () => {
       setFormData({
         title: '',
         slug: '',
-        content: '',
+        content_blocks: {
+          time: Date.now(),
+          blocks: [],
+          version: '2.27.2'
+        },
         excerpt: '',
         author: '',
         cover_image: '',
@@ -124,7 +136,7 @@ export const BlogManagement: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.title || !formData.content || !formData.author) {
+    if (!formData.title || !formData.content_blocks?.blocks?.length || !formData.author) {
       alert('Please fill in required fields: Title, Content, and Author');
       return;
     }
@@ -419,6 +431,7 @@ export const BlogManagement: React.FC = () => {
                 </button>
                 <button
                   onClick={handleCloseEditor}
+                  title="Close editor"
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <X className="h-6 w-6" />
@@ -564,6 +577,7 @@ export const BlogManagement: React.FC = () => {
                             {tag}
                             <button
                               onClick={() => handleRemoveTag(tag)}
+                              title="Remove tag"
                               className="hover:text-green-900"
                             >
                               <X className="h-3 w-3" />
@@ -578,11 +592,24 @@ export const BlogManagement: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Content <span className="text-red-500">*</span>
                   </label>
-                  <RichMarkdownEditor
-                    value={formData.content}
-                    onChange={(content) => setFormData(prev => ({ ...prev, content }))}
-                    placeholder="Write your content in Markdown..."
-                  />
+                  {previewMode ? (
+                    <div className="border border-gray-300 rounded-lg p-4 bg-white">
+                      <EditorRenderer data={formData.content_blocks} />
+                    </div>
+                  ) : (
+                    <EditorComponent
+                      value={formData.content_blocks}
+                      onChange={(blocks) => setFormData(prev => ({
+                        ...prev,
+                        content_blocks: {
+                          time: blocks.time || Date.now(),
+                          blocks: blocks.blocks || [],
+                          version: blocks.version || '2.27.2'
+                        }
+                      }))}
+                      placeholder="Write your blog content..."
+                    />
+                  )}
 
                   {/* Published Status */}
                   <div className="flex items-center gap-3">
