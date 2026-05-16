@@ -4,97 +4,112 @@ import './EditorComponent.css';
 
 interface EditorRendererProps {
   data?: OutputData;
+  className?: string;
 }
 
-export const EditorRenderer: React.FC<EditorRendererProps> = ({ data }) => {
+export const EditorRenderer: React.FC<EditorRendererProps> = ({
+  data,
+  className = ''
+}) => {
   if (!data || !data.blocks || data.blocks.length === 0) {
-    return <div className="text-gray-400 italic">No content yet</div>;
+    return <div className={`text-gray-500 italic ${className}`}>No content</div>;
   }
 
-  const renderBlock = (block: any, index: number) => {
-    const getAlignment = (alignment?: string) => {
-      switch (alignment) {
-        case 'center':
-          return 'text-center';
-        case 'right':
-          return 'text-right';
-        case 'justify':
-          return 'text-justify';
-        default:
-          return 'text-left';
-      }
-    };
+  const getAlignment = (alignment?: string) => {
+    switch (alignment) {
+      case 'center':
+        return 'text-center';
+      case 'right':
+        return 'text-right';
+      case 'justify':
+        return 'text-justify';
+      default:
+        return 'text-left';
+    }
+  };
 
-    switch (block.type) {
+  const renderBlock = (block: any, index: number) => {
+    const { type, data: blockData } = block;
+
+    switch (type) {
       case 'header':
-        const headerLevelClass: Record<number, string> = {
-          1: 'text-4xl font-bold',
-          2: 'text-3xl font-bold',
-          3: 'text-2xl font-bold'
+        const HeaderTag = `h${blockData.level || 2}` as keyof JSX.IntrinsicElements;
+        const headerSizes: Record<number, string> = {
+          1: 'text-4xl',
+          2: 'text-3xl',
+          3: 'text-2xl'
         };
         return (
-          <h2
+          <HeaderTag
             key={index}
-            className={`${headerLevelClass[block.data?.level] || 'text-2xl font-bold'} my-4 ${getAlignment(block.data?.alignment)}`}
-            dangerouslySetInnerHTML={{ __html: block.data?.text || '' }}
-          />
+            className={`font-bold mb-4 ${headerSizes[blockData.level || 2] || 'text-2xl'} ${getAlignment(blockData.alignment)}`}
+          >
+            {blockData.text}
+          </HeaderTag>
         );
 
       case 'paragraph':
         return (
           <p
             key={index}
-            className={`text-base leading-7 my-3 ${getAlignment(block.data?.alignment)}`}
-            dangerouslySetInnerHTML={{ __html: block.data?.text || '' }}
-          />
+            className={`mb-4 text-gray-700 leading-relaxed ${getAlignment(blockData.alignment)}`}
+          >
+            {blockData.text}
+          </p>
         );
 
       case 'list':
-        const isOrdered = block.data?.style === 'ordered';
-        const ListTag = isOrdered ? 'ol' : 'ul';
-        return (
-          <ListTag key={index} className={`${isOrdered ? 'list-decimal' : 'list-disc'} list-inside my-3 pl-4`}>
-            {block.data?.items?.map((item: any, idx: number) => (
-              <li key={idx} className="mb-1">
-                {typeof item === 'string' ? item : item.content}
-              </li>
-            ))}
-          </ListTag>
-        );
+        if (blockData.style === 'ordered') {
+          return (
+            <ol key={index} className="mb-4 ml-6 list-decimal text-gray-700">
+              {blockData.items.map((item: string, i: number) => (
+                <li key={i} className="mb-2">
+                  {item}
+                </li>
+              ))}
+            </ol>
+          );
+        } else {
+          return (
+            <ul key={index} className="mb-4 ml-6 list-disc text-gray-700">
+              {blockData.items.map((item: string, i: number) => (
+                <li key={i} className="mb-2">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          );
+        }
 
       case 'quote':
         return (
           <blockquote
             key={index}
-            className="border-l-4 border-green-500 pl-4 italic my-4 text-gray-600"
+            className={`border-l-4 border-green-500 pl-4 my-4 italic text-gray-600 ${getAlignment(blockData.alignment)}`}
           >
-            <p dangerouslySetInnerHTML={{ __html: block.data?.text || '' }} />
-            {block.data?.caption && (
-              <footer className="text-sm text-gray-500 mt-2">
-                — {block.data.caption}
-              </footer>
-            )}
+            <p>{blockData.text}</p>
+            {blockData.caption && <p className="text-sm mt-2">— {blockData.caption}</p>}
           </blockquote>
         );
 
       case 'code':
         return (
-          <pre key={index} className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-3">
-            <code>{block.data?.code || ''}</code>
+          <pre key={index} className="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto mb-4">
+            <code className="font-mono text-sm">{blockData.code}</code>
           </pre>
         );
 
       case 'image':
         return (
-          <figure key={index} className="my-6">
+          <figure key={index} className={`my-6 ${getAlignment(blockData.alignment)}`}>
             <img
-              src={block.data?.file?.url || block.data?.url}
-              alt={block.data?.caption || 'Blog image'}
-              className="max-w-full h-auto rounded-lg"
+              src={blockData.file?.url || blockData.url}
+              alt={blockData.caption || 'Blog image'}
+              className="max-w-full h-auto rounded-lg shadow-md"
             />
-            {block.data?.caption && (
-              <figcaption className="text-center text-sm text-gray-500 mt-2">
-                {block.data.caption}
+            {blockData.caption && (
+              <figcaption className="text-sm text-gray-600 text-center mt-2">
+                {blockData.caption}
               </figcaption>
             )}
           </figure>
@@ -102,26 +117,34 @@ export const EditorRenderer: React.FC<EditorRendererProps> = ({ data }) => {
 
       case 'embed':
         return (
-          <div key={index} className="my-4 aspect-video">
-            <iframe
-              src={block.data?.embed}
-              width="100%"
-              height="400"
-              frameBorder="0"
-              allowFullScreen
-            />
+          <div key={index} className="mb-6 aspect-video rounded-lg overflow-hidden">
+            {blockData.embed ? (
+              <iframe
+                src={blockData.embed}
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                title="Embedded content"
+                allowFullScreen
+              />
+            ) : (
+              <div dangerouslySetInnerHTML={{ __html: blockData.embed }} />
+            )}
           </div>
         );
 
       case 'table':
         return (
-          <div key={index} className="overflow-x-auto my-4">
-            <table className="min-w-full border-collapse border border-gray-300">
+          <div key={index} className="overflow-x-auto mb-6">
+            <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
               <tbody>
-                {block.data?.content?.map((row: any[], rowIdx: number) => (
-                  <tr key={rowIdx}>
-                    {row.map((cell: any, cellIdx: number) => (
-                      <td key={cellIdx} className="border border-gray-300 p-2">
+                {blockData.content.map((row: string[], rowIdx: number) => (
+                  <tr key={rowIdx} className={rowIdx === 0 ? 'bg-gray-50' : ''}>
+                    {row.map((cell: string, cellIdx: number) => (
+                      <td
+                        key={cellIdx}
+                        className="px-6 py-3 text-sm text-gray-900 border-r border-gray-200"
+                      >
                         {cell}
                       </td>
                     ))}
@@ -133,7 +156,24 @@ export const EditorRenderer: React.FC<EditorRendererProps> = ({ data }) => {
         );
 
       case 'delimiter':
-        return <hr key={index} className="my-6 border-gray-300" />;
+        return <hr key={index} className="my-8 border-gray-300" />;
+
+      case 'link':
+        return (
+          <div key={index} className="mb-4">
+            <a
+              href={blockData.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-green-600 hover:text-green-700 underline"
+            >
+              {blockData.title || blockData.link}
+            </a>
+            {blockData.description && (
+              <p className="text-sm text-gray-600 mt-1">{blockData.description}</p>
+            )}
+          </div>
+        );
 
       default:
         return null;
@@ -141,7 +181,7 @@ export const EditorRenderer: React.FC<EditorRendererProps> = ({ data }) => {
   };
 
   return (
-    <div className="blog-content">
+    <div className={`blog-content prose prose-lg max-w-none ${className}`}>
       {data.blocks.map((block, index) => renderBlock(block, index))}
     </div>
   );

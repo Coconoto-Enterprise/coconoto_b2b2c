@@ -1,9 +1,10 @@
 -- Create blog_posts table
-CREATE TABLE blog_posts (
+CREATE TABLE IF NOT EXISTS blog_posts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
-  content TEXT NOT NULL,
+  content TEXT,
+  content_blocks JSONB DEFAULT '{"time":0,"blocks":[]}',
   excerpt TEXT,
   author TEXT NOT NULL,
   cover_image TEXT,
@@ -15,13 +16,13 @@ CREATE TABLE blog_posts (
 );
 
 -- Create indexes for better query performance
-CREATE INDEX idx_blog_posts_published_created_at 
+CREATE INDEX IF NOT EXISTS idx_blog_posts_published_created_at 
 ON blog_posts(published DESC, created_at DESC);
 
-CREATE INDEX idx_blog_posts_slug 
+CREATE INDEX IF NOT EXISTS idx_blog_posts_slug 
 ON blog_posts(slug);
 
-CREATE INDEX idx_blog_posts_tags 
+CREATE INDEX IF NOT EXISTS idx_blog_posts_tags 
 ON blog_posts USING GIN(tags);
 
 -- Enable RLS
@@ -40,9 +41,13 @@ FOR ALL
 USING (auth.role() = 'authenticated');
 
 -- Create storage bucket for blog images (if not exists)
+DO $$ BEGIN
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('blog-images', 'blog-images', true)
-ON CONFLICT DO NOTHING;
+ON CONFLICT (id) DO NOTHING;
+EXCEPTION WHEN OTHERS THEN
+  NULL;
+END $$;
 
 -- Allow public to read blog images
 CREATE POLICY "Allow public to read blog images"

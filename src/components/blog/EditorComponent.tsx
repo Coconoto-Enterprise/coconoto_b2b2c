@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import EditorJS, { OutputData } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import Paragraph from '@editorjs/paragraph';
@@ -11,6 +11,7 @@ import Marker from '@editorjs/marker';
 import Embed from '@editorjs/embed';
 import Table from '@editorjs/table';
 import { supabase } from '../../lib/supabase';
+import { Loader } from 'lucide-react';
 import './EditorComponent.css';
 
 interface EditorComponentProps {
@@ -22,90 +23,129 @@ interface EditorComponentProps {
 export const EditorComponent: React.FC<EditorComponentProps> = ({
   value,
   onChange,
-  placeholder = 'Start writing your blog post...'
+  placeholder = 'Write your blog content...'
 }) => {
   const editorRef = useRef<EditorJS | null>(null);
+  const [isReady, setIsReady] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (editorRef.current) return;
 
-    const uploadImageToSupabase = async (file: File) => {
-      try {
-        const fileName = `blog-${Date.now()}-${file.name}`;
-        const { data, error } = await supabase.storage
-          .from('blog-images')
-          .upload(fileName, file);
+    const initializeEditor = async () => {
+      const editor = new EditorJS({
+        holder: 'editorjs-container',
+        placeholder,
+        tools: {
+          header: {
+            class: Header,
+            config: {
+              levels: [1, 2, 3],
+              defaultLevel: 2
+            }
+          },
+          paragraph: {
+            class: Paragraph,
+            inlineToolbar: true
+          },
+          list: {
+            class: List,
+            inlineToolbar: true,
+            config: {
+              defaultStyle: 'unordered'
+            }
+          },
+          quote: {
+            class: Quote,
+            inlineToolbar: true,
+            shortcut: 'CMD+SHIFT+O'
+          },
+          code: {
+            class: Code,
+            shortcut: 'CMD+SHIFT+C'
+          },
+          image: {
+            class: Image,
+            config: {
+              uploader: {
+                uploadByFile: async (file: File) => {
+                  try {
+                    setUploading(true);
 
-        if (error) throw error;
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                      throw new Error('Please select an image file');
+                    }
 
-        const {
-          data: { publicUrl }
-        } = supabase.storage
-          .from('blog-images')
-          .getPublicUrl(fileName);
+                    // Validate file size (5MB max)
+                    if (file.size > 5 * 1024 * 1024) {
+                      throw new Error('Image size should be less than 5MB');
+                    }
 
-        return {
-          success: 1,
-          file: { url: publicUrl }
-        };
-      } catch (error) {
-        console.error('Image upload error:', error);
-        return {
-          success: 0,
-          error: 'Failed to upload image'
-        };
-      }
+                    // Create unique file name
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+                    const filePath = fileName;
+
+                    // Upload to Supabase Storage
+                    const { data, error } = await supabase.storage
+                      .from('blog-images')
+                      .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                      });
+
+                    if (error) throw error;
+
+                    // Get public URL
+                    const { data: { publicUrl } } = supabase.storage
+                      .from('blog-images')
+                      .getPublicUrl(filePath);
+
+                    setUploading(false);
+                    return { success: 1, file: { url: publicUrl } };
+                  } catch (error) {
+                    console.error('Error uploading image:', error);
+                    setUploading(false);
+                    return { success: 0 };
+                  }
+                },
+                uploadByUrl: async (url: string) => {
+                  return { success: 1, file: { url } };
+                }
+              }
+            }
+          },
+          link: Link,
+          marker: Marker,
+          embed: {
+            class: Embed,
+            config: {
+              services: {
+                youtube: true,
+                coub: true
+              }
+            }
+          },
+          table: {
+            class: Table,
+            inlineToolbar: true
+          }
+        },
+        data: value || { time: Date.now(), blocks: [] },
+        onChange: async () => {
+          if (editorRef.current) {
+            const data = await editorRef.current.saver.save();
+            onChange(data);
+          }
+        }
+      });
+
+      editorRef.current = editor;
+      setIsReady(true);
     };
 
-    const editor = new EditorJS({
-      holder: 'editorjs-container',
-      placeholder: placeholder,
-      tools: {
-        header: {
-          class: Header,
-          config: {
-            levels: [1, 2, 3],
-            defaultLevel: 2
-          }
-        },
-        paragraph: {
-          class: Paragraph,
-          config: {
-            preserveBlank: true
-          }
-        },
-        list: List,
-        quote: Quote,
-        code: Code,
-        image: {
-          class: Image,
-          config: {
-            uploader: {
-              uploadByFile: uploadImageToSupabase
-            }
-          }
-        },
-        link: Link,
-        marker: Marker,
-        embed: Embed,
-        table: Table
-      },
-      data: value || {
-        time: Date.now(),
-        blocks: [],
-        version: '2.27.2'
-      },
-      onChange: async () => {
-        try {
-          const data = await editor.saver.save();
-          onChange(data);
-        } catch (error) {
-          console.error('Save error:', error);
-        }
-      }
-    });
-
-    editorRef.current = editor;
+    initializeEditor();
 
     return () => {
       if (editorRef.current?.destroy) {
@@ -116,8 +156,17 @@ export const EditorComponent: React.FC<EditorComponentProps> = ({
   }, []);
 
   return (
-    <div className="editor-js-container">
-      <div id="editorjs-container" />
+    <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+      {uploading && (
+        <div className="absolute top-4 right-4 flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-2 rounded-lg">
+          <Loader className="h-4 w-4 animate-spin" />
+          <span className="text-sm font-medium">Uploading image...</span>
+        </div>
+      )}
+      <div
+        id="editorjs-container"
+        className="editor-js-container"
+      />
     </div>
   );
 };

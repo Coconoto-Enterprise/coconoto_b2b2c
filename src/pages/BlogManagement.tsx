@@ -137,7 +137,7 @@ export const BlogManagement: React.FC = () => {
 
   const handleSave = async () => {
     if (!formData.title || !formData.content_blocks?.blocks?.length || !formData.author) {
-      alert('Please fill in required fields: Title, Content, and Author');
+      alert('Please fill in required fields: Title, Content (add at least one block), and Author');
       return;
     }
 
@@ -466,7 +466,7 @@ export const BlogManagement: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <MarkdownRenderer content={formData.content || '*No content yet*'} />
+                  <EditorRenderer data={formData.content_blocks} />
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -474,8 +474,8 @@ export const BlogManagement: React.FC = () => {
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
                     <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <div className="text-sm text-blue-800">
-                      <p className="font-medium">Content supports Markdown formatting</p>
-                      <p className="mt-1">Use headings (#), lists, links, code blocks, and more!</p>
+                      <p className="font-medium">EditorJS block editor</p>
+                      <p className="mt-1">Add headers, paragraphs, images, code blocks, quotes, lists, tables, and more!</p>
                     </div>
                   </div>
 

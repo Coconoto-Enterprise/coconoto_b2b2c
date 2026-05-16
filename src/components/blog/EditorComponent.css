@@ -2,6 +2,7 @@
 .editor-js-container {
   min-height: 500px;
   max-width: 900px;
+  padding: 20px;
 }
 
 #editorjs-container {
@@ -9,6 +10,15 @@
   background: white;
   border-radius: 0.5rem;
   border: 1px solid #e5e7eb;
+}
+
+.editor-js-container .ce-editor__redactor {
+  max-height: none;
+  min-height: 500px;
+}
+
+.editor-js-container .ce-block__content {
+  margin: 0 0 15px 0;
 }
 
 /* Headers */
@@ -28,6 +38,11 @@
 
 .ce-header--h3 {
   font-size: 1.25rem;
+}
+
+.editor-js-container .ce-paragraph {
+  line-height: 1.6;
+  font-size: 16px;
 }
 
 /* Paragraph */
