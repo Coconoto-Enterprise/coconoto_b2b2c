@@ -39,21 +39,20 @@ export function CococycleHub() {
           </div>
 
           <div className="space-y-4 lg:space-y-6">
-            <div className="space-y-4 max-w-md mx-auto">
-              <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-center lg:text-left justify-start flex-nowrap">
-                <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-green-800 whitespace-nowrap">Cocopeat</h3>
-                <span className="text-sm md:text-base text-gray-600">– nutrient‑rich growing medium.</span>
+            <div className="space-y-6 max-w-md lg:max-w-lg">
+              <div className="border-l-4 border-green-700 pl-4">
+                <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-green-800 mb-1">Cocopeat</h3>
+                <p className="text-sm md:text-base text-gray-600">Nutrient-rich growing medium.</p>
               </div>
 
-              <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-center lg:text-left justify-start flex-nowrap">
-                <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-green-800 whitespace-nowrap">Fiber</h3>
-                <span className="text-xs sm:text-sm md:text-base text-gray-600 block md:hidden">– Eco-friendly material for crafts and packs. </span>
-                <span className="hidden md:block text-sm md:text-base text-gray-600">– biodegradable material for crafts and packaging.</span>
+              <div className="border-l-4 border-green-700 pl-4">
+                <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-green-800 mb-1">Fiber</h3>
+                <p className="text-sm md:text-base text-gray-600">Biodegradable material for crafts and packaging.</p>
               </div>
 
-              <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-center lg:text-left justify-start flex-nowrap">
-                <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-green-800 whitespace-nowrap">Cocopot</h3>
-                <span className="text-sm md:text-base text-gray-600">– eco‑friendly plant containers.</span>
+              <div className="border-l-4 border-green-700 pl-4">
+                <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-green-800 mb-1">Cocopot</h3>
+                <p className="text-sm md:text-base text-gray-600">Eco-friendly plant containers.</p>
               </div>
             </div>
 
