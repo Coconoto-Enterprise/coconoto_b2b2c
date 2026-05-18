@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Save, X, Loader, Upload } from 'lucide-react';
-import EditorJS from '@editorjs/editorjs';
+import { Loader, Upload, ChevronLeft } from 'lucide-react';
+import EditorJS, { OutputData } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import Paragraph from '@editorjs/paragraph';
 import List from '@editorjs/list';
@@ -10,6 +10,8 @@ import Code from '@editorjs/code';
 import Marker from '@editorjs/marker';
 import InlineCode from '@editorjs/inline-code';
 import ImageTool from '@editorjs/image';
+import Embed from '@editorjs/embed';
+import LinkTool from '@editorjs/link';
 import { supabase } from '../../lib/supabase';
 import blogService from '../../services/mernBlogService';
 
@@ -19,7 +21,7 @@ interface Blog {
   des: string;
   banner: string;
   content: any[];
-  content_blocks: any;
+  content_blocks: OutputData | any;
   tags: string[];
   is_draft: boolean;
   published: boolean;
@@ -29,12 +31,13 @@ export const BlogEditor: React.FC = () => {
   const { blogId } = useParams();
   const navigate = useNavigate();
   const editorRef = useRef<EditorJS | null>(null);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
   const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [userId] = useState<string>('00000000-0000-0000-0000-000000000001'); // Admin user UUID
+  const [userId] = useState<string>('00000000-0000-0000-0000-000000000001');
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -45,9 +48,18 @@ export const BlogEditor: React.FC = () => {
 
   // Initialize EditorJS
   useEffect(() => {
-    if (!blog) return;
+    if (!blog || !editorContainerRef.current) return;
 
-    const initEditor = () => {
+    const initEditor = async () => {
+      if (editorRef.current) {
+        try {
+          await editorRef.current.isReady;
+          editorRef.current.destroy();
+        } catch {
+          console.log('Destroying previous editor instance');
+        }
+      }
+
       editorRef.current = new EditorJS({
         holder: 'editorjs',
         tools: {
@@ -67,11 +79,10 @@ export const BlogEditor: React.FC = () => {
               },
               field: 'image',
               types: 'image/*',
-              additionalRequestHeaders: {
-                'Authorization': `Bearer ${localStorage.getItem('adminToken') || ''}`
-              }
             }
-          }
+          },
+          embed: Embed,
+          linkTool: LinkTool
         },
         data: blog.content_blocks || { blocks: [] },
         onReady: () => {
@@ -86,8 +97,12 @@ export const BlogEditor: React.FC = () => {
     initEditor();
 
     return () => {
-      if (editorRef.current && editorRef.current.destroy) {
-        editorRef.current.destroy();
+      if (editorRef.current?.destroy) {
+        try {
+          editorRef.current.destroy();
+        } catch {
+          console.log('Error destroying editor');
+        }
       }
     };
   }, [blog]);
@@ -129,7 +144,7 @@ export const BlogEditor: React.FC = () => {
 
     try {
       const fileName = `${userId}/${Date.now()}_${file.name}`;
-      const { data, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('blog-images')
         .upload(fileName, file);
 
@@ -153,8 +168,7 @@ export const BlogEditor: React.FC = () => {
       setSaving(true);
       const tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
 
-      // Get editor content
-      let editorContent = { blocks: [] };
+      let editorContent: OutputData = { blocks: [] };
       if (editorRef.current) {
         try {
           editorContent = await editorRef.current.save();
@@ -173,7 +187,7 @@ export const BlogEditor: React.FC = () => {
       }, userId);
 
       setError(null);
-      alert('Blog saved successfully!');
+      alert('Blog saved as draft!');
     } catch (err) {
       setError('Failed to save blog');
       console.error(err);
@@ -189,8 +203,7 @@ export const BlogEditor: React.FC = () => {
       setSaving(true);
       const tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
 
-      // Get editor content
-      let editorContent = { blocks: [] };
+      let editorContent: OutputData = { blocks: [] };
       if (editorRef.current) {
         try {
           editorContent = await editorRef.current.save();
@@ -223,245 +236,212 @@ export const BlogEditor: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <Loader className="w-8 h-8 text-amber-700 animate-spin" />
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="w-10 h-10 text-gray-900 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading blog editor...</p>
+        </div>
       </div>
     );
   }
 
   if (!blog) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-600">{error || 'Blog not found'}</p>
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="text-center">
+          <p className="text-lg text-gray-600 mb-6">{error || 'Blog not found'}</p>
+          <button
+            onClick={() => navigate('/vintage?tab=blog')}
+            className="btn-dark"
+          >
+            Back to Blogs
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-          <p className="text-red-800">{error}</p>
-        </div>
-      )}
-
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Edit Blog</h1>
-        <button
-          onClick={() => navigate('/vintage?tab=blog')}
-          className="text-gray-400 hover:text-gray-600"
-        >
-          <X className="w-6 h-6" />
-        </button>
-      </div>
-
-      {/* Form */}
-      <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
-        {/* Title */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Blog Title *
-          </label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-700"
-            placeholder="Enter blog title"
-          />
-        </div>
-
-        {/* Banner */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Blog Banner
-          </label>
-          <div className="flex gap-4">
-            {formData.banner && (
-              <img
-                src={formData.banner}
-                alt="Banner"
-                className="w-32 h-32 object-cover rounded"
-              />
-            )}
+      <header className="navbar border-b border-gray-300">
+        <div className="max-w-6xl mx-auto w-full flex items-center justify-between px-4 py-4">
+          <div className="flex items-center gap-4">
             <button
-              onClick={() => fileInputRef.current?.click()}
-              title="Upload banner image"
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              onClick={() => navigate('/vintage?tab=blog')}
+              className="p-2 hover:bg-gray-100 rounded transition"
+              title="Back to blogs"
             >
-              <Upload className="w-4 h-4" />
-              Upload Banner
+              <ChevronLeft className="w-6 h-6 text-gray-900" />
             </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleUploadBanner}
-              aria-label="Upload banner image"
-              className="hidden"
-            />
+            <div>
+              <h1 className="text-2xl font-gelasio font-bold text-gray-900">
+                {blog.is_draft ? '📝 Draft' : '✅ Published'}
+              </h1>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleSave}
+              disabled={saving || !formData.title.trim()}
+              className="px-6 py-2 text-gray-900 border border-gray-300 rounded-full hover:bg-gray-50 transition disabled:opacity-50 font-medium"
+            >
+              {saving ? 'Saving...' : 'Save Draft'}
+            </button>
+            <button
+              onClick={handlePublish}
+              disabled={saving || !formData.title.trim()}
+              className="btn-dark disabled:opacity-50"
+            >
+              {saving ? 'Publishing...' : 'Publish'}
+            </button>
           </div>
         </div>
+      </header>
 
-        {/* Description */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description (Short excerpt - max 200 chars)
-          </label>
+      {/* Editor */}
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        {error && (
+          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800 font-medium">{error}</p>
+          </div>
+        )}
+
+        {/* Title Input */}
+        <div className="mb-8">
           <textarea
-            value={formData.des}
-            onChange={(e) => setFormData({ ...formData, des: e.target.value.slice(0, 200) })}
-            maxLength={200}
-            rows={3}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-700"
-            placeholder="Brief description of your blog post"
-          />
-          <p className="text-xs text-gray-500 mt-1">{formData.des.length}/200</p>
-        </div>
-
-        {/* Tags */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Tags (comma-separated)
-          </label>
-          <input
-            type="text"
-            value={formData.tags}
-            onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-700"
-            placeholder="e.g., coconut, agriculture, business"
-          />
-        </div>
-
-        {/* Content Editor */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Blog Content
-          </label>
-          <div 
-            id="editorjs" 
-            className="border border-gray-300 rounded-lg p-4 bg-white editor-content min-h-96"
-            style={{
-              fontSize: '16px',
-              lineHeight: '1.6'
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            placeholder="Blog title"
+            className="w-full text-5xl font-gelasio font-bold text-gray-900 placeholder:text-gray-300 resize-none border-0 p-0 focus:outline-none"
+            rows={1}
+            style={{ minHeight: '60px', overflow: 'hidden' }}
+            onInput={(e) => {
+              const target = e.target as HTMLTextAreaElement;
+              target.style.height = 'auto';
+              target.style.height = Math.max(target.scrollHeight, 60) + 'px';
             }}
           />
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-2 justify-end pt-6 border-t">
+        {/* Description */}
+        <div className="mb-12">
+          <textarea
+            value={formData.des}
+            onChange={(e) => setFormData({ ...formData, des: e.target.value.slice(0, 200) })}
+            maxLength={200}
+            placeholder="Add a short description (max 200 characters)"
+            className="w-full text-xl text-gray-700 placeholder:text-gray-400 resize-none border-0 p-0 focus:outline-none"
+            rows={2}
+          />
+          <p className="text-sm text-gray-500 mt-2">{formData.des.length}/200</p>
+        </div>
+
+        {/* Banner */}
+        <div className="mb-12">
+          {formData.banner ? (
+            <div className="relative mb-6">
+              <img
+                src={formData.banner}
+                alt="Blog banner"
+                className="w-full h-96 object-cover rounded-lg shadow-md"
+              />
+              <button
+                onClick={() => bannerInputRef.current?.click()}
+                className="absolute top-4 right-4 bg-white text-gray-900 px-4 py-2 rounded-lg shadow-lg hover:bg-gray-100 transition font-medium"
+              >
+                Change
+              </button>
+            </div>
+          ) : (
+            <div
+              onClick={() => bannerInputRef.current?.click()}
+              className="w-full h-96 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition"
+            >
+              <div className="text-center">
+                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                <p className="text-gray-600 font-medium">Click to upload blog banner</p>
+                <p className="text-sm text-gray-500">Recommended: 16:9 aspect ratio</p>
+              </div>
+            </div>
+          )}
+          <input
+            ref={bannerInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleUploadBanner}
+            className="hidden"
+            aria-label="Upload banner"
+          />
+        </div>
+
+        {/* Tags */}
+        <div className="mb-12">
+          <label className="block text-sm font-medium text-gray-700 mb-3">Tags</label>
+          <input
+            type="text"
+            value={formData.tags}
+            onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+            placeholder="Enter tags separated by commas (e.g., coconut, agriculture, business)"
+            className="input-box"
+          />
+          <div className="flex flex-wrap gap-2 mt-3">
+            {formData.tags
+              .split(',')
+              .map(t => t.trim())
+              .filter(t => t)
+              .map((tag, i) => (
+                <span key={i} className="tag">
+                  {tag}
+                </span>
+              ))}
+          </div>
+        </div>
+
+        {/* Editor */}
+        <div className="mb-12">
+          <label className="block text-lg font-gelasio font-bold text-gray-900 mb-4">
+            Story
+          </label>
+          <div
+            ref={editorContainerRef}
+            className="border border-gray-300 rounded-lg overflow-hidden bg-white"
+          >
+            <div
+              id="editorjs"
+              className="editor-content"
+              style={{
+                minHeight: '400px',
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="flex gap-4 justify-center pb-12 border-t pt-8">
           <button
             onClick={() => navigate('/vintage?tab=blog')}
-            className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+            className="px-8 py-3 border border-gray-300 rounded-full hover:bg-gray-50 transition font-medium text-gray-900"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving || !formData.title.trim()}
-            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+            className="px-8 py-3 bg-gray-200 text-gray-900 rounded-full hover:bg-gray-300 transition font-medium disabled:opacity-50"
           >
-            <Save className="w-4 h-4" />
-            {saving ? 'Saving...' : 'Save Draft'}
+            {saving ? 'Saving...' : 'Save as Draft'}
           </button>
           <button
             onClick={handlePublish}
             disabled={saving || !formData.title.trim()}
-            className="flex items-center gap-2 px-6 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800 transition disabled:opacity-50"
+            className="btn-dark disabled:opacity-50"
           >
-            {saving ? 'Publishing...' : 'Publish'}
+            {saving ? 'Publishing...' : 'Publish Now'}
           </button>
         </div>
       </div>
-
-      {/* EditorJS Styles */}
-      <style>{`
-        #editorjs {
-          outline: none;
-        }
-
-        #editorjs .cdx-block {
-          margin-bottom: 1rem;
-        }
-
-        #editorjs h1,
-        #editorjs h2,
-        #editorjs h3,
-        #editorjs h4,
-        #editorjs h5,
-        #editorjs h6 {
-          margin: 1rem 0 0.5rem 0;
-          font-weight: 600;
-          line-height: 1.2;
-        }
-
-        #editorjs h1 {
-          font-size: 2em;
-        }
-
-        #editorjs h2 {
-          font-size: 1.5em;
-        }
-
-        #editorjs h3 {
-          font-size: 1.25em;
-        }
-
-        #editorjs ul,
-        #editorjs ol {
-          margin: 0.5rem 0 0.5rem 1.5rem;
-        }
-
-        #editorjs li {
-          margin-bottom: 0.25rem;
-        }
-
-        #editorjs blockquote {
-          border-left: 3px solid #d4af37;
-          padding-left: 1rem;
-          margin: 0.5rem 0;
-          font-style: italic;
-          color: #666;
-        }
-
-        #editorjs code {
-          background-color: #f4f4f4;
-          padding: 0.2em 0.4em;
-          border-radius: 3px;
-          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-          font-size: 0.9em;
-        }
-
-        #editorjs pre {
-          background-color: #f4f4f4;
-          padding: 1rem;
-          border-radius: 4px;
-          overflow-x: auto;
-          margin: 0.5rem 0;
-        }
-
-        #editorjs pre code {
-          background-color: transparent;
-          padding: 0;
-          border-radius: 0;
-        }
-
-        #editorjs img {
-          max-width: 100%;
-          height: auto;
-          margin: 0.5rem 0;
-          border-radius: 4px;
-        }
-
-        .ce-header {
-          margin: 0.5rem 0 0.25rem 0;
-        }
-
-        .ce-paragraph {
-          margin-bottom: 0.5rem;
-        }
-      `}</style>
     </div>
   );
 };

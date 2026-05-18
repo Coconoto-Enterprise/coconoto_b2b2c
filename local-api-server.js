@@ -45,6 +45,40 @@ app.post('/api/admin-login', (req, res) => {
   }
 });
 
+// Generic auth endpoint with action routing
+app.post('/api/auth', (req, res) => {
+  const { action, password } = req.body;
+
+  if (action === 'admin-login') {
+    console.log('🔐 Admin login attempt via /api/auth (local dev)');
+    
+    const adminPassword = process.env.ADMIN_PASSWORD || 'COCO1234';
+    
+    console.log('📝 Received password:', password);
+    console.log('📝 Expected password:', adminPassword);
+
+    if (password === adminPassword) {
+      console.log('✅ Admin login successful');
+      return res.json({
+        success: true,
+        message: 'Login successful'
+      });
+    } else {
+      console.log('❌ Admin login failed - invalid password');
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid password'
+      });
+    }
+  }
+
+  // Default: invalid action
+  res.status(400).json({
+    success: false,
+    error: 'Invalid action'
+  });
+});
+
 // Consolidated data endpoint (mock for local dev)
 app.get('/api/data', (req, res) => {
   const type = req.query.type || 'all-data';

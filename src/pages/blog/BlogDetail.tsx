@@ -341,6 +341,54 @@ export const BlogDetail: React.FC = () => {
                         {block.data.code}
                       </code>
                     )}
+
+                    {/* Embed Block */}
+                    {block.type === 'embed' && (
+                      <div className="ce-embed my-6 rounded overflow-hidden">
+                        <iframe
+                          width="100%"
+                          height="400"
+                          src={block.data.embed}
+                          title={block.data.caption || 'Embedded content'}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="w-full rounded"
+                        />
+                        {block.data.caption && (
+                          <p className="text-sm text-gray-500 mt-2 italic">{block.data.caption}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Link Tool Block */}
+                    {block.type === 'linkTool' && (
+                      <a
+                        href={block.data.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block ce-link-tool border border-gray-300 rounded p-4 my-4 hover:shadow-md transition"
+                      >
+                        {block.data.meta?.image && (
+                          <img
+                            src={block.data.meta.image[0]}
+                            alt={block.data.meta?.title}
+                            className="w-full h-40 object-cover rounded mb-3"
+                          />
+                        )}
+                        <h4 className="font-semibold text-gray-900">
+                          {block.data.meta?.title || 'Link'}
+                        </h4>
+                        {block.data.meta?.description && (
+                          <p className="text-sm text-gray-600 mt-1">
+                            {block.data.meta.description}
+                          </p>
+                        )}
+                        <p className="text-xs text-blue-600 mt-2 break-all">
+                          {block.data.link}
+                        </p>
+                      </a>
+                    )}
                   </div>
                 ))}
               </div>
