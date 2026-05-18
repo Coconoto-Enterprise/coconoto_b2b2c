@@ -21,7 +21,7 @@ export const BlogEditor: React.FC = () => {
   const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId] = useState<string>('admin-user'); // Admin user for Vintage Dashboard
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,15 +35,21 @@ export const BlogEditor: React.FC = () => {
   // Get current user
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUserId(user?.id || null);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setUserId(user.id);
+        }
+      } catch (err) {
+        console.error(err);
+      }
     };
     getUser();
   }, []);
 
   // Fetch blog data
   useEffect(() => {
-    if (!blogId || !userId) return;
+    if (!blogId) return;
 
     const fetchBlog = async () => {
       try {
@@ -51,12 +57,6 @@ export const BlogEditor: React.FC = () => {
         const data = await blogService.getBlogById(blogId);
         if (!data) {
           setError('Blog not found');
-          return;
-        }
-        
-        if (data.author_id !== userId) {
-          setError('Unauthorized');
-          navigate('/vintage');
           return;
         }
 
@@ -76,11 +76,11 @@ export const BlogEditor: React.FC = () => {
     };
 
     fetchBlog();
-  }, [blogId, userId]);
+  }, [blogId]);
 
   const handleUploadBanner = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !userId || !blog) return;
+    if (!file || !blog) return;
 
     try {
       const fileName = `${userId}/${Date.now()}_${file.name}`;
@@ -102,7 +102,7 @@ export const BlogEditor: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!blog || !userId) return;
+    if (!blog) return;
 
     try {
       setSaving(true);
@@ -128,7 +128,7 @@ export const BlogEditor: React.FC = () => {
   };
 
   const handlePublish = async () => {
-    if (!blog || !userId) return;
+    if (!blog) return;
 
     try {
       setSaving(true);

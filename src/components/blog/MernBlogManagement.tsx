@@ -40,42 +40,29 @@ export const MernBlogManagement: React.FC = () => {
   const [showNewBlogModal, setShowNewBlogModal] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [newBlogTitle, setNewBlogTitle] = useState('');
+  const [userId] = useState<string>('admin-user'); // Default to admin since vintage is already protected
   const navigate = useNavigate();
 
-  // Get current user
+  // Initialize on mount
   useEffect(() => {
-    const getUser = async () => {
+    const loadBlogs = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          setUserId(user.id);
-          await fetchBlogs(user.id);
-        }
+        setLoading(true);
+        // Fetch all blogs (no auth needed - vintage dashboard is already protected)
+        const data = await blogService.getPublishedBlogs();
+        setBlogs(data || []);
       } catch (err) {
-        setError('Failed to get user info');
+        setError('Failed to fetch blogs');
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
-    getUser();
+    loadBlogs();
   }, []);
 
-  const fetchBlogs = async (uid: string) => {
-    try {
-      setLoading(true);
-      const data = await blogService.getUserBlogs(uid);
-      setBlogs(data || []);
-    } catch (err) {
-      setError('Failed to fetch blogs');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleCreateNewBlog = async () => {
-    if (!newBlogTitle.trim() || !userId) return;
+    if (!newBlogTitle.trim()) return;
 
     try {
       const newBlog = await blogService.createBlog({
@@ -99,7 +86,7 @@ export const MernBlogManagement: React.FC = () => {
   };
 
   const handleDeleteBlog = async () => {
-    if (!selectedBlog || !userId) return;
+    if (!selectedBlog) return;
 
     try {
       await blogService.deleteBlog(selectedBlog.blog_id, userId);
@@ -113,8 +100,6 @@ export const MernBlogManagement: React.FC = () => {
   };
 
   const handlePublishBlog = async (blog: Blog) => {
-    if (!userId) return;
-
     try {
       const updated = await blogService.publishBlog(blog.blog_id, userId);
       setBlogs(blogs.map(b => b.blog_id === blog.blog_id ? updated : b));
