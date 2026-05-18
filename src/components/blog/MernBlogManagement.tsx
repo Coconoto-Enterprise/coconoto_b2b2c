@@ -235,6 +235,7 @@ export const MernBlogManagement: React.FC = () => {
                   {blog.is_draft && (
                     <button
                       onClick={() => handlePublishBlog(blog)}
+                      title="Publish blog"
                       className="flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-700 rounded hover:bg-green-200 transition text-sm"
                     >
                       <Eye className="w-4 h-4" />
