@@ -14,13 +14,11 @@
   }
 
   body {
-    font-family: 'Inter', sans-serif;
-    @apply text-gray-900 bg-white;
+    @apply font-inter text-gray-900 bg-white;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Gelasio', serif;
-    @apply font-bold;
+    @apply font-gelasio font-bold;
   }
 }
 
@@ -34,8 +32,7 @@
   }
 
   .input-box {
-    @apply w-full rounded-lg p-4 bg-gray-100 border border-gray-300 focus:bg-white focus:border-gray-500 placeholder:text-gray-500 transition text-base;
-    font-family: 'Inter', sans-serif;
+    @apply w-full rounded-lg p-4 bg-gray-100 border border-gray-300 focus:bg-white focus:border-gray-500 placeholder:text-gray-500 transition font-inter text-base;
   }
 
   .sidebar-link {
@@ -71,38 +68,40 @@
   }
 }
 
-/* Typography */
-#textEditor h1,
-h1 {
-  font-family: 'Gelasio', serif;
-  @apply text-5xl font-bold leading-snug !important;
+/* Typography - Blog specific only */
+#editorjs h1 {
+  @apply font-gelasio text-5xl font-bold leading-snug !important;
 }
 
-#textEditor h2,
-h2 {
-  font-family: 'Gelasio', serif;
-  @apply text-4xl font-bold leading-normal md:text-3xl !important;
+#editorjs h2 {
+  @apply font-gelasio text-4xl font-bold leading-normal md:text-3xl !important;
 }
 
-#textEditor h3,
-h3 {
-  font-family: 'Gelasio', serif;
-  @apply text-3xl font-bold leading-loose md:text-2xl !important;
+#editorjs h3 {
+  @apply font-gelasio text-3xl font-bold leading-loose md:text-2xl !important;
 }
 
-#textEditor h4,
-h4 {
-  font-family: 'Gelasio', serif;
-  @apply text-2xl font-bold !important;
+#editorjs h4 {
+  @apply font-gelasio text-2xl font-bold !important;
 }
 
-#textEditor *,
-.blog-page-content * {
-  font-family: 'Gelasio', serif;
-  @apply text-xl leading-relaxed md:text-2xl !important;
+.blog-page-content h1 {
+  @apply font-gelasio text-5xl font-bold leading-snug !important;
 }
 
-#textEditor a,
+.blog-page-content h2 {
+  @apply font-gelasio text-4xl font-bold leading-normal md:text-3xl !important;
+}
+
+.blog-page-content h3 {
+  @apply font-gelasio text-3xl font-bold leading-loose md:text-2xl !important;
+}
+
+.blog-page-content h4 {
+  @apply font-gelasio text-2xl font-bold !important;
+}
+
+#editorjs a,
 .blog-page-content a {
   @apply text-blue-600 underline hover:opacity-75 !important;
 }
