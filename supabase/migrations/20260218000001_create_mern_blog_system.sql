@@ -1,6 +1,6 @@
 -- Create Blog Authors/Users extension table (linked to auth.users)
 CREATE TABLE IF NOT EXISTS blog_authors (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  id UUID PRIMARY KEY,
   username TEXT UNIQUE NOT NULL,
   fullname TEXT NOT NULL,
   bio TEXT DEFAULT '',

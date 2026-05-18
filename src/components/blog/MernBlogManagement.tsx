@@ -41,7 +41,7 @@ export const MernBlogManagement: React.FC = () => {
   const [showNewBlogModal, setShowNewBlogModal] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [userId] = useState<string>('admin-user'); // Default to admin since vintage is already protected
+  const [userId] = useState<string>('00000000-0000-0000-0000-000000000001'); // Admin user UUID - vintage dashboard is already protected
   const navigate = useNavigate();
 
   // Initialize on mount

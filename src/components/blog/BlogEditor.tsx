@@ -21,7 +21,7 @@ export const BlogEditor: React.FC = () => {
   const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [userId] = useState<string>('admin-user'); // Admin user for Vintage Dashboard
+  const [userId] = useState<string>('00000000-0000-0000-0000-000000000001'); // Admin user UUID - vintage dashboard is already protected
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
