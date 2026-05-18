@@ -1,10 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+// Initialize Supabase only when needed
+let supabase;
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const getSupabaseClient = () => {
+  if (!supabase) {
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+    const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Supabase credentials not configured');
+    }
+    
+    supabase = createClient(supabaseUrl, supabaseKey);
+  }
+  return supabase;
+};
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -68,7 +80,7 @@ async function handleBuyerLogin(data, res) {
   }
 
   try {
-    const { data: buyer, error: fetchError } = await supabase
+    const { data: buyer, error: fetchError } = await getSupabaseClient()
       .from('buyers')
       .select('*')
       .eq('email', email)
@@ -137,7 +149,7 @@ async function handleBuyerSignup(data, res) {
   try {
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const { data: buyer, error: insertError } = await supabase
+    const { data: buyer, error: insertError } = await getSupabaseClient()
       .from('buyers')
       .insert([{
         email,
@@ -199,7 +211,7 @@ async function handleVendorLogin(data, res) {
   }
 
   try {
-    const { data: vendor, error: fetchError } = await supabase
+    const { data: vendor, error: fetchError } = await getSupabaseClient()
       .from('vendors')
       .select('*')
       .eq('email', email)
@@ -265,7 +277,7 @@ async function handleVendorSignup(data, res) {
   try {
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const { data: vendor, error: insertError } = await supabase
+    const { data: vendor, error: insertError } = await getSupabaseClient()
       .from('vendors')
       .insert([{
         email,

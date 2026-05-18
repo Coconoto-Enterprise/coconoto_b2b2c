@@ -36,6 +36,7 @@ export const MernBlogManagement: React.FC = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [newBlogTitle, setNewBlogTitle] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'published' | 'drafts'>('published');
   const [showNewBlogModal, setShowNewBlogModal] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
