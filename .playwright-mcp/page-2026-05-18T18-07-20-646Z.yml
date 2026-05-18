@@ -1,0 +1,68 @@
+- generic [ref=e4]:
+  - generic [ref=e13]:
+    - img "Coconoto" [ref=e15]
+    - generic [ref=e16]:
+      - button "Email" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - generic [ref=e19]: Email
+      - button "Refresh" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e26]: Refresh
+      - button "Logout" [ref=e27] [cursor=pointer]:
+        - img [ref=e28]
+        - generic [ref=e31]: Logout
+  - navigation "Tabs" [ref=e34]:
+    - button "Overview" [ref=e35] [cursor=pointer]:
+      - img [ref=e36]
+      - generic [ref=e38]: Overview
+    - button "Blog" [ref=e39] [cursor=pointer]:
+      - img [ref=e40]
+      - generic [ref=e42]: Blog
+    - button "Emails" [ref=e43] [cursor=pointer]:
+      - img [ref=e44]
+      - generic [ref=e49]: Emails
+    - button "Events (0)" [ref=e50] [cursor=pointer]:
+      - img [ref=e51]
+      - generic [ref=e53]: Events (0)
+    - button "Machines (0)" [ref=e54] [cursor=pointer]:
+      - img [ref=e55]
+      - generic [ref=e59]: Machines (0)
+    - button "Products (0)" [ref=e60] [cursor=pointer]:
+      - img [ref=e61]
+      - generic [ref=e65]: Products (0)
+    - button "Service (0)" [ref=e66] [cursor=pointer]:
+      - img [ref=e67]
+      - generic [ref=e70]: Service (0)
+    - button "Husk (0)" [ref=e71] [cursor=pointer]:
+      - img [ref=e72]
+      - generic [ref=e76]: Husk (0)
+    - button "Waitlist (0)" [ref=e77] [cursor=pointer]:
+      - img [ref=e78]
+      - generic [ref=e83]: Waitlist (0)
+  - generic [ref=e85]:
+    - generic [ref=e86]:
+      - generic [ref=e87]:
+        - img [ref=e88]
+        - heading "Blog Management" [level=2] [ref=e90]
+      - button "New Blog" [ref=e91] [cursor=pointer]:
+        - img [ref=e92]
+        - text: New Blog
+    - generic [ref=e93]:
+      - button "Published (0)" [ref=e94] [cursor=pointer]
+      - button "Drafts (0)" [ref=e95] [cursor=pointer]
+    - generic [ref=e96]:
+      - img [ref=e97]
+      - generic [ref=e99]: Failed to fetch blogs
+    - generic [ref=e100]:
+      - img [ref=e101]
+      - paragraph [ref=e103]: No published blogs yet
+      - paragraph [ref=e104]: Start creating your first blog post
+    - generic [ref=e106]:
+      - generic [ref=e107]:
+        - heading "Create New Blog" [level=3] [ref=e108]
+        - button [ref=e109] [cursor=pointer]:
+          - img [ref=e110]
+      - textbox "Enter blog title..." [ref=e113]: My First Blog Post
+      - generic [ref=e114]:
+        - button "Cancel" [ref=e115] [cursor=pointer]
+        - button "Create" [active] [ref=e116] [cursor=pointer]

@@ -32,27 +32,46 @@ export async function getUserBlogs(userId) {
 
 // Get single blog by blog_id
 export async function getBlogById(blogId) {
-  const { data, error } = await supabase
+  // Fetch blog with author details
+  const { data: blogData, error: blogError } = await supabase
     .from('mern_blogs')
     .select(`
       *,
-      blog_authors:author_id(id, username, fullname, profile_img, bio, youtube, instagram, facebook, twitter),
-      blog_comments:blog_id(*, author:author_id(username, profile_img))
+      blog_authors:author_id(id, username, fullname, profile_img, bio, youtube, instagram, facebook, twitter)
     `)
     .eq('blog_id', blogId)
     .single();
 
-  if (error) throw new Error(error.message);
+  if (blogError) throw new Error(blogError.message);
   
-  // Increment read count
-  if (data) {
+  // Fetch comments separately due to multiple relationships
+  let comments = [];
+  if (blogData) {
+    const { data: commentsData, error: commentsError } = await supabase
+      .from('blog_comments')
+      .select(`
+        *,
+        author:author_id(username, profile_img)
+      `)
+      .eq('blog_id', blogId)
+      .order('created_at', { ascending: true });
+    
+    if (!commentsError) {
+      comments = commentsData || [];
+    }
+    
+    // Increment read count
     await supabase
       .from('mern_blogs')
-      .update({ total_reads: (data.total_reads || 0) + 1 })
+      .update({ total_reads: (blogData.total_reads || 0) + 1 })
       .eq('blog_id', blogId);
   }
   
-  return data;
+  // Combine blog data with comments
+  return {
+    ...blogData,
+    blog_comments: comments
+  };
 }
 
 // Create new blog
