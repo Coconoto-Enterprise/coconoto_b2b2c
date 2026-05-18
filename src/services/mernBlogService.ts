@@ -37,7 +37,7 @@ export async function getBlogById(blogId) {
     .select(`
       *,
       blog_authors:author_id(id, username, fullname, profile_img, bio, youtube, instagram, facebook, twitter),
-      blog_comments:id(*, author:author_id(username, profile_img))
+      blog_comments:blog_id(*, author:author_id(username, profile_img))
     `)
     .eq('blog_id', blogId)
     .single();
