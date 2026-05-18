@@ -17,7 +17,7 @@ import {
   Trash2,
   Menu
 } from 'lucide-react';
-import { BlogManagement } from './BlogManagement';
+import { MernBlogManagement } from '../components/blog/MernBlogManagement';
 import Logo from '../assets/Logo_1.png';
 
 interface Email {
@@ -806,7 +806,7 @@ const VintageDashboard: React.FC = () => {
         )}
 
         {/* Blog Posts Tab */}
-        {activeTab === 'blog' && <BlogManagement />}
+        {activeTab === 'blog' && <MernBlogManagement />}
 
         {/* Business Emails Tab */}
         {activeTab === 'business-emails' && (

@@ -146,7 +146,7 @@ export function ProductContact() {
                   <div className="flex items-start space-x-4">
                     <Phone className="h-6 w-6 text-white" />
                     <div>
-                      <p className="text-gray-100">+234 814 860 9051</p>
+                      <p className="text-gray-100">+234 813 777 5689</p>
                     </div>
                   </div>
                   

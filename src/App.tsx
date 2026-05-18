@@ -20,8 +20,9 @@ import { Contact } from './pages/support/Contact';
 import VintageLogin from './pages/VintageLogin';
 import VintageDashboard from './pages/VintageDashboard';
 import FloatingChatIcon from './components/FloatingChatIcon';
-import { BlogList } from './pages/blog/BlogList';
-import { BlogPostView } from './pages/blog/BlogPostView';
+import BlogHome from './pages/blog/BlogHome';
+import BlogDetail from './pages/blog/BlogDetail';
+import BlogEditor from './components/blog/BlogEditor';
 import { Marketplace } from './pages/vendor/Marketplace';
 import { VendorLogin } from './pages/vendor/VendorLogin';
 import { VendorSignup } from './pages/vendor/VendorSignup';
@@ -53,8 +54,9 @@ function App() {
           } />
           <Route path="/services/*" element={<ServicesLayout />} />
           <Route path="/product/*" element={<ProductLayout />} />
-          <Route path="/blog" element={<BlogList />} />
-          <Route path="/blog/:slug" element={<BlogPostView />} />
+          <Route path="/blog" element={<BlogHome />} />
+          <Route path="/blog/:blogId" element={<BlogDetail />} />
+          <Route path="/blog-editor/:blogId" element={<BlogEditor />} />
           <Route path="/about" element={
             <>
               <Navbar />

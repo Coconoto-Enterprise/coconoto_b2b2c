@@ -124,7 +124,7 @@ function buildCustomerTemplate(heading, message) {
 
                 <p style="margin-top: 20px;">
                   <strong>Need immediate assistance?</strong><br>
-                  📞 <strong>+234 814 860 9051</strong><br>
+                  📞 <strong>+234 813 777 5689</strong><br>
                   📧 <strong>coconotoenterprise@gmail.com</strong><br>
                   🌐 <a href="https://www.coconoto.com" style="color: #8CC63F; text-decoration: none; font-weight: bold;">www.coconoto.com</a>
                 </p>

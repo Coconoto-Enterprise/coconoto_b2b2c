@@ -57,7 +57,7 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
 
                         <p>
                             <strong>Need immediate assistance?</strong><br>
-                            📞 <strong>+234 814 860 9051</strong><br>
+                            📞 <strong>+234 813 777 5689</strong><br>
                             📧 <strong>info@coconoto.africa</strong><br>
                             🌐 <strong>www.coconoto.africa</strong>
                         </p>
