@@ -49,8 +49,8 @@ export const MernBlogManagement: React.FC = () => {
     const loadBlogs = async () => {
       try {
         setLoading(true);
-        // Fetch all blogs (no auth needed - vintage dashboard is already protected)
-        const data = await blogService.getPublishedBlogs();
+        // Fetch all blogs for admin user (published + drafts)
+        const data = await blogService.getUserBlogs(userId);
         setBlogs(data || []);
       } catch (err) {
         setError('Failed to fetch blogs');
@@ -60,7 +60,7 @@ export const MernBlogManagement: React.FC = () => {
       }
     };
     loadBlogs();
-  }, []);
+  }, [userId]);
 
   const handleCreateNewBlog = async () => {
     if (!newBlogTitle.trim()) return;
