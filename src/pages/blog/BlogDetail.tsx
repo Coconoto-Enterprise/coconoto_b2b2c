@@ -232,18 +232,120 @@ export const BlogDetail: React.FC = () => {
 
           {/* Content */}
           <div className="prose prose-sm max-w-none mb-8">
-            {/* Content rendering - placeholder for EditorJS content */}
+            {/* Render EditorJS content blocks */}
             {blog.content && blog.content.length > 0 ? (
-              <div className="bg-gray-50 p-6 rounded border border-gray-200">
-                <p className="text-gray-600">
-                  Full content rendering with EditorJS coming soon
-                </p>
-                <pre className="mt-4 text-xs overflow-auto">
-                  {JSON.stringify(blog.content, null, 2)}
-                </pre>
+              <div className="editor-content space-y-4">
+                {blog.content.map((block: any, index: number) => (
+                  <div key={index}>
+                    {/* Header Block */}
+                    {block.type === 'header' && (
+                      <div
+                        className={`ce-header ce-header--h${block.data.level || 2}`}
+                        style={{
+                          fontSize: block.data.level === 1 ? '2em' : 
+                                   block.data.level === 2 ? '1.5em' :
+                                   block.data.level === 3 ? '1.25em' : '1em',
+                          fontWeight: 600,
+                          marginTop: index > 0 ? '1.5rem' : '0',
+                          marginBottom: '0.5rem'
+                        }}
+                      >
+                        {block.data.text}
+                      </div>
+                    )}
+
+                    {/* Paragraph Block */}
+                    {block.type === 'paragraph' && (
+                      <p className="ce-paragraph text-gray-700 leading-relaxed">
+                        {block.data.text}
+                      </p>
+                    )}
+
+                    {/* List Block */}
+                    {block.type === 'list' && (
+                      <div
+                        className={`ce-list ml-6 my-4 ${
+                          block.data.style === 'ordered' ? 'list-decimal' : 'list-disc'
+                        }`}
+                        style={{ listStyleType: block.data.style === 'ordered' ? 'decimal' : 'disc' }}
+                      >
+                        {block.data.items.map((item: any, idx: number) => (
+                          <li key={idx} className="text-gray-700 mb-2">
+                            {typeof item === 'string' ? item : item.content || ''}
+                          </li>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Quote Block */}
+                    {block.type === 'quote' && (
+                      <blockquote
+                        className="ce-quote border-l-4 border-amber-500 pl-4 py-2 my-4 italic text-gray-600 bg-gray-50 rounded"
+                        style={{
+                          borderLeftColor: '#d4af37',
+                          paddingLeft: '1rem',
+                          margin: '1rem 0',
+                          fontStyle: 'italic',
+                          color: '#6b7280'
+                        }}
+                      >
+                        <p>{block.data.text}</p>
+                        {block.data.caption && (
+                          <footer className="text-sm mt-2 not-italic text-gray-500">
+                            — {block.data.caption}
+                          </footer>
+                        )}
+                      </blockquote>
+                    )}
+
+                    {/* Code Block */}
+                    {block.type === 'code' && (
+                      <pre className="ce-code bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto my-4">
+                        <code>{block.data.code}</code>
+                      </pre>
+                    )}
+
+                    {/* Image Block */}
+                    {block.type === 'image' && (
+                      <figure className="ce-image my-6">
+                        <img
+                          src={block.data.url}
+                          alt={block.data.caption || 'Blog image'}
+                          className="w-full rounded"
+                          style={{
+                            maxWidth: '100%',
+                            height: 'auto',
+                            borderRadius: '0.375rem'
+                          }}
+                        />
+                        {block.data.caption && (
+                          <figcaption className="ce-image__caption text-sm text-gray-500 mt-2 italic">
+                            {block.data.caption}
+                          </figcaption>
+                        )}
+                      </figure>
+                    )}
+
+                    {/* Marker/Highlight Block */}
+                    {block.type === 'marker' && (
+                      <div className="ce-marker bg-yellow-100 p-2 rounded my-2">
+                        <mark style={{ backgroundColor: '#fef3c7' }}>
+                          {block.data.text}
+                        </mark>
+                      </div>
+                    )}
+
+                    {/* Inline Code */}
+                    {block.type === 'inlineCode' && (
+                      <code className="ce-inline-code bg-gray-100 px-2 py-1 rounded font-mono text-sm">
+                        {block.data.code}
+                      </code>
+                    )}
+                  </div>
+                ))}
               </div>
             ) : (
-              <p className="text-gray-600">No content yet</p>
+              <p className="text-gray-500 italic">No content yet</p>
             )}
           </div>
 

@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Save, X, Loader, Upload } from 'lucide-react';
+import EditorJS from '@editorjs/editorjs';
+import Header from '@editorjs/header';
+import Paragraph from '@editorjs/paragraph';
+import List from '@editorjs/list';
+import Quote from '@editorjs/quote';
+import Code from '@editorjs/code';
+import Marker from '@editorjs/marker';
+import InlineCode from '@editorjs/inline-code';
+import ImageTool from '@editorjs/image';
 import { supabase } from '../../lib/supabase';
 import blogService from '../../services/mernBlogService';
 
@@ -10,6 +19,7 @@ interface Blog {
   des: string;
   banner: string;
   content: any[];
+  content_blocks: any;
   tags: string[];
   is_draft: boolean;
   published: boolean;
@@ -18,10 +28,11 @@ interface Blog {
 export const BlogEditor: React.FC = () => {
   const { blogId } = useParams();
   const navigate = useNavigate();
+  const editorRef = useRef<EditorJS | null>(null);
   const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [userId] = useState<string>('00000000-0000-0000-0000-000000000001'); // Admin user UUID - vintage dashboard is already protected
+  const [userId] = useState<string>('00000000-0000-0000-0000-000000000001'); // Admin user UUID
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -32,20 +43,54 @@ export const BlogEditor: React.FC = () => {
     tags: ''
   });
 
-  // Get current user
+  // Initialize EditorJS
   useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          setUserId(user.id);
+    if (!blog) return;
+
+    const initEditor = () => {
+      editorRef.current = new EditorJS({
+        holder: 'editorjs',
+        tools: {
+          header: Header,
+          paragraph: Paragraph,
+          list: List,
+          quote: Quote,
+          code: Code,
+          marker: Marker,
+          inlineCode: InlineCode,
+          image: {
+            class: ImageTool,
+            config: {
+              endpoints: {
+                byFile: '/api/upload',
+                byUrl: '/api/fetch-url',
+              },
+              field: 'image',
+              types: 'image/*',
+              additionalRequestHeaders: {
+                'Authorization': `Bearer ${localStorage.getItem('adminToken') || ''}`
+              }
+            }
+          }
+        },
+        data: blog.content_blocks || { blocks: [] },
+        onReady: () => {
+          console.log('Editor ready');
+        },
+        onChange: () => {
+          console.log('Editor content changed');
         }
-      } catch (err) {
-        console.error(err);
+      });
+    };
+
+    initEditor();
+
+    return () => {
+      if (editorRef.current && editorRef.current.destroy) {
+        editorRef.current.destroy();
       }
     };
-    getUser();
-  }, []);
+  }, [blog]);
 
   // Fetch blog data
   useEffect(() => {
@@ -108,13 +153,23 @@ export const BlogEditor: React.FC = () => {
       setSaving(true);
       const tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
 
+      // Get editor content
+      let editorContent = { blocks: [] };
+      if (editorRef.current) {
+        try {
+          editorContent = await editorRef.current.save();
+        } catch (err) {
+          console.error('Failed to save editor content:', err);
+        }
+      }
+
       await blogService.updateBlog(blog.blog_id, {
         title: formData.title,
         des: formData.des,
         banner: formData.banner,
         tags,
-        content: blog.content,
-        content_blocks: { time: Date.now(), blocks: blog.content }
+        content: editorContent.blocks,
+        content_blocks: editorContent
       }, userId);
 
       setError(null);
@@ -134,13 +189,23 @@ export const BlogEditor: React.FC = () => {
       setSaving(true);
       const tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
 
+      // Get editor content
+      let editorContent = { blocks: [] };
+      if (editorRef.current) {
+        try {
+          editorContent = await editorRef.current.save();
+        } catch (err) {
+          console.error('Failed to save editor content:', err);
+        }
+      }
+
       await blogService.updateBlog(blog.blog_id, {
         title: formData.title,
         des: formData.des,
         banner: formData.banner,
         tags,
-        content: blog.content,
-        content_blocks: { time: Date.now(), blocks: blog.content },
+        content: editorContent.blocks,
+        content_blocks: editorContent,
         published: true,
         is_draft: false
       }, userId);
@@ -269,11 +334,19 @@ export const BlogEditor: React.FC = () => {
           />
         </div>
 
-        {/* Note: Content editing would require EditorJS integration */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">
-            📝 Full content editor with EditorJS coming soon. For now, you can save this blog with title, description, banner, and tags.
-          </p>
+        {/* Content Editor */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Blog Content
+          </label>
+          <div 
+            id="editorjs" 
+            className="border border-gray-300 rounded-lg p-4 bg-white editor-content min-h-96"
+            style={{
+              fontSize: '16px',
+              lineHeight: '1.6'
+            }}
+          />
         </div>
 
         {/* Actions */}
@@ -301,6 +374,94 @@ export const BlogEditor: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* EditorJS Styles */}
+      <style>{`
+        #editorjs {
+          outline: none;
+        }
+
+        #editorjs .cdx-block {
+          margin-bottom: 1rem;
+        }
+
+        #editorjs h1,
+        #editorjs h2,
+        #editorjs h3,
+        #editorjs h4,
+        #editorjs h5,
+        #editorjs h6 {
+          margin: 1rem 0 0.5rem 0;
+          font-weight: 600;
+          line-height: 1.2;
+        }
+
+        #editorjs h1 {
+          font-size: 2em;
+        }
+
+        #editorjs h2 {
+          font-size: 1.5em;
+        }
+
+        #editorjs h3 {
+          font-size: 1.25em;
+        }
+
+        #editorjs ul,
+        #editorjs ol {
+          margin: 0.5rem 0 0.5rem 1.5rem;
+        }
+
+        #editorjs li {
+          margin-bottom: 0.25rem;
+        }
+
+        #editorjs blockquote {
+          border-left: 3px solid #d4af37;
+          padding-left: 1rem;
+          margin: 0.5rem 0;
+          font-style: italic;
+          color: #666;
+        }
+
+        #editorjs code {
+          background-color: #f4f4f4;
+          padding: 0.2em 0.4em;
+          border-radius: 3px;
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+          font-size: 0.9em;
+        }
+
+        #editorjs pre {
+          background-color: #f4f4f4;
+          padding: 1rem;
+          border-radius: 4px;
+          overflow-x: auto;
+          margin: 0.5rem 0;
+        }
+
+        #editorjs pre code {
+          background-color: transparent;
+          padding: 0;
+          border-radius: 0;
+        }
+
+        #editorjs img {
+          max-width: 100%;
+          height: auto;
+          margin: 0.5rem 0;
+          border-radius: 4px;
+        }
+
+        .ce-header {
+          margin: 0.5rem 0 0.25rem 0;
+        }
+
+        .ce-paragraph {
+          margin-bottom: 0.5rem;
+        }
+      `}</style>
     </div>
   );
 };
