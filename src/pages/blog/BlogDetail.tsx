@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader, Heart, MessageCircle, Share2, AlertCircle } from 'lucide-react';
 import blogService from '../../services/mernBlogService';
 import { supabase } from '../../lib/supabase';
+import blogLogo from '../../assets/blog-logo.png';
 
 interface Blog {
   blog_id: string;
@@ -190,7 +191,7 @@ export const BlogDetail: React.FC = () => {
             <div className="py-6 border-y border-gray-200 mb-8">
               <div className="flex items-center gap-4">
                 <img
-                  src={blog.blog_authors.profile_img}
+                  src={blog.blog_authors.profile_img || blogLogo}
                   alt={blog.blog_authors.username}
                   className="w-16 h-16 rounded-full bg-gray-300"
                 />

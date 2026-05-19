@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Loader } from 'lucide-react';
 import blogService from '../../services/mernBlogService';
+import blogLogo from '../../assets/blog-logo.png';
 
 interface Blog {
   blog_id: string;
@@ -181,7 +182,7 @@ export const BlogHome: React.FC = () => {
                   {blog.blog_authors && (
                     <div className="flex items-center gap-2 mb-4 py-2 border-t">
                       <img
-                        src={blog.blog_authors.profile_img}
+                        src={blog.blog_authors.profile_img || blogLogo}
                         alt={blog.blog_authors.username}
                         className="w-8 h-8 rounded-full bg-gray-300"
                       />
