@@ -184,7 +184,7 @@ export const BlogHome: React.FC = () => {
                       <img
                         src={blog.blog_authors.profile_img || blogLogo}
                         alt={blog.blog_authors.username}
-                        className="w-8 h-8 rounded-full bg-gray-300"
+                        className="w-8 h-8 rounded-full bg-gray-300 border-2 border-black"
                       />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">

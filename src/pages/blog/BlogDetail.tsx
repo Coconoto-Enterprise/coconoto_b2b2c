@@ -193,7 +193,7 @@ export const BlogDetail: React.FC = () => {
                 <img
                   src={blog.blog_authors.profile_img || blogLogo}
                   alt={blog.blog_authors.username}
-                  className="w-16 h-16 rounded-full bg-gray-300"
+                  className="w-16 h-16 rounded-full bg-gray-300 border-2 border-black"
                 />
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900">
