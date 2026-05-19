@@ -108,44 +108,60 @@
 
 /* EditorJS Styles */
 .editor-content {
-  font-family: 'Gelasio', 'Georgia', serif;
+  font-family: 'Inter', sans-serif;
 }
 
-.ce-block {
+.editor-content:focus {
+  outline: none;
+}
+
+.editor-content:focus-within {
+  outline: none;
+}
+
+#editorjs {
+  position: relative;
+  z-index: 1;
+}
+
+#editorjs .ce-block {
   margin-bottom: 1.5rem;
 }
 
-.ce-toolbar {
+#editorjs .ce-toolbar {
   background-color: #fafafa;
   border: 1px solid #e5e7eb;
-  border-top: none;
-  border-radius: 0 0 0.5rem 0.5rem;
+  border-bottom: 1px solid #d1d5db;
   padding: 0.75rem;
+  position: relative;
+  z-index: 100;
 }
 
-.ce-toolbar__content {
-  max-width: 900px;
-  margin: 0 auto;
+#editorjs .ce-toolbar__content {
+  max-width: 100%;
+  margin: 0;
 }
 
-.ce-block__content {
-  max-width: 900px;
+#editorjs .ce-toolbar__settings-btn {
+  display: none;
 }
 
-.ce-toolbar__actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+#editorjs .ce-block__content {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-.ce-toolbox {
+#editorjs .ce-toolbox {
   padding: 0.75rem;
   background-color: #fafafa;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
+  position: relative;
+  z-index: 95;
 }
 
-.cdx-button {
+#editorjs .cdx-button {
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   padding: 0.5rem 0.75rem;
@@ -155,91 +171,111 @@
   transition: all 0.2s;
   font-size: 0.875rem;
   font-weight: 500;
+  min-width: auto;
 }
 
-.cdx-button:hover {
+#editorjs .cdx-button:hover {
   background-color: #f3f4f6;
   border-color: #9ca3af;
   color: #1f2937;
 }
 
-.cdx-button--active {
+#editorjs .cdx-button--active {
   background-color: #1f2937;
   color: white;
   border-color: #1f2937;
 }
 
-.cdx-input {
+#editorjs .cdx-input {
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   padding: 0.5rem 0.75rem;
   font-family: 'Inter', sans-serif;
   background-color: white;
   color: #1f2937;
+  font-size: 0.95rem;
 }
 
-.cdx-input:focus {
+#editorjs .cdx-input:focus {
   outline: none;
   border-color: #1f2937;
   box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.1);
 }
 
-.cdx-settings-button {
-  color: #6b7280;
-  padding: 0.375rem;
-  border-radius: 0.25rem;
-  transition: all 0.2s;
+#editorjs .cdx-settings-button {
+  display: none !important;
 }
 
-.cdx-settings-button:hover {
-  color: #1f2937;
-  background-color: #f3f4f6;
+/* Hide the + button by default, show only on hover */
+#editorjs .ce-block {
+  position: relative;
 }
 
-.ce-block__content {
-  margin-left: 0;
-  max-width: 900px;
+#editorjs .ce-block:hover .ce-plus-button {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.ce-paragraph {
+#editorjs .ce-plus-button {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+#editorjs .ce-settingsbar {
+  display: none;
+}
+
+#editorjs .ce-paragraph {
   line-height: 1.8;
   color: #374151;
-  margin-bottom: 1rem;
   font-size: 1.125rem;
+  font-family: 'Inter', sans-serif;
+  outline: none;
 }
 
-.ce-header {
+#editorjs .ce-paragraph:focus {
+  outline: none;
+}
+
+#editorjs [contenteditable]:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#editorjs .ce-header {
   margin: 1.5rem 0 0.75rem 0;
   font-weight: 700;
   color: #1f2937;
   line-height: 1.2;
+  font-family: 'Gelasio', 'Georgia', serif;
 }
 
-.ce-header--h1 {
+#editorjs .ce-header--h1 {
   font-size: 2.25em;
 }
 
-.ce-header--h2 {
+#editorjs .ce-header--h2 {
   font-size: 1.875em;
 }
 
-.ce-header--h3 {
+#editorjs .ce-header--h3 {
   font-size: 1.5em;
 }
 
-.ce-header--h4 {
+#editorjs .ce-header--h4 {
   font-size: 1.25em;
 }
 
-.ce-header--h5 {
+#editorjs .ce-header--h5 {
   font-size: 1.125em;
 }
 
-.ce-header--h6 {
+#editorjs .ce-header--h6 {
   font-size: 1em;
 }
 
-.ce-quote {
+#editorjs .ce-quote {
   border-left: 4px solid #9ca3af;
   padding-left: 1.5rem;
   margin: 1.5rem 0;
@@ -250,7 +286,7 @@
   border-radius: 0.375rem;
 }
 
-.ce-code {
+#editorjs .ce-code {
   background-color: #1f2937;
   border: 1px solid #374151;
   border-radius: 0.375rem;
@@ -263,65 +299,65 @@
   margin: 1.5rem 0;
 }
 
-.ce-code::-webkit-scrollbar {
+#editorjs .ce-code::-webkit-scrollbar {
   height: 8px;
 }
 
-.ce-code::-webkit-scrollbar-track {
+#editorjs .ce-code::-webkit-scrollbar-track {
   background: #374151;
 }
 
-.ce-code::-webkit-scrollbar-thumb {
+#editorjs .ce-code::-webkit-scrollbar-thumb {
   background: #6b7280;
   border-radius: 4px;
 }
 
-.ce-list {
+#editorjs .ce-list {
   margin: 1rem 0 1rem 2rem;
 }
 
-.ce-list li {
+#editorjs .ce-list li {
   margin-bottom: 0.5rem;
   color: #374151;
   font-size: 1.125rem;
   line-height: 1.8;
 }
 
-.ce-list--ordered {
+#editorjs .ce-list--ordered {
   list-style: decimal;
 }
 
-.ce-list--unordered {
+#editorjs .ce-list--unordered {
   list-style: disc;
 }
 
-.ce-image {
+#editorjs .ce-image {
   margin: 1.5rem 0;
   text-align: center;
 }
 
-.ce-image img {
+#editorjs .ce-image img {
   max-width: 100%;
   height: auto;
   border-radius: 0.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.ce-image__caption {
+#editorjs .ce-image__caption {
   font-style: italic;
   color: #6b7280;
   margin-top: 0.75rem;
   font-size: 0.95em;
 }
 
-.ce-marker {
+#editorjs .ce-marker {
   background-color: #fef08a;
   padding: 0.125rem 0.375rem;
   border-radius: 0.125rem;
   font-weight: 600;
 }
 
-.ce-inline-code {
+#editorjs .ce-inline-code {
   background-color: #f3f4f6;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
@@ -331,7 +367,7 @@
   font-weight: 500;
 }
 
-.ce-embed {
+#editorjs .ce-embed {
   margin: 1.5rem 0;
   border-radius: 0.5rem;
   overflow: hidden;
@@ -339,14 +375,14 @@
   border: 1px solid #e5e7eb;
 }
 
-.ce-embed iframe {
+#editorjs .ce-embed iframe {
   width: 100%;
   min-height: 450px;
   border: none;
   display: block;
 }
 
-.ce-link-tool {
+#editorjs .ce-link-tool {
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   padding: 0;
@@ -359,27 +395,27 @@
   overflow: hidden;
 }
 
-.ce-link-tool:hover {
+#editorjs .ce-link-tool:hover {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   border-color: #9ca3af;
   background-color: white;
 }
 
-.ce-link-tool img {
+#editorjs .ce-link-tool img {
   width: 200px;
   height: 200px;
   object-fit: cover;
   flex-shrink: 0;
 }
 
-.ce-link-tool > div {
+#editorjs .ce-link-tool > div {
   flex: 1;
   padding: 1rem;
   display: flex;
   flex-direction: column;
 }
 
-.ce-link-tool h4 {
+#editorjs .ce-link-tool h4 {
   font-weight: 700;
   color: #111827;
   margin: 0;
@@ -387,7 +423,7 @@
   line-height: 1.4;
 }
 
-.ce-link-tool p {
+#editorjs .ce-link-tool p {
   margin: 0.5rem 0 0 0;
   font-size: 0.875rem;
   color: #6b7280;
@@ -395,7 +431,7 @@
   flex: 1;
 }
 
-.ce-link-tool p:last-child {
+#editorjs .ce-link-tool p:last-child {
   color: #2563eb;
   word-break: break-all;
   margin-top: auto;

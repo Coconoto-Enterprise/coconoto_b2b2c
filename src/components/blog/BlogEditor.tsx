@@ -62,14 +62,53 @@ export const BlogEditor: React.FC = () => {
 
       editorRef.current = new EditorJS({
         holder: 'editorjs',
+        autofocus: true,
+        placeholder: 'Start writing your story...',
+        data: blog.content_blocks || { blocks: [] },
         tools: {
-          header: Header,
-          paragraph: Paragraph,
-          list: List,
-          quote: Quote,
-          code: Code,
-          marker: Marker,
-          inlineCode: InlineCode,
+          header: {
+            class: Header,
+            config: {
+              placeholder: 'Enter a heading',
+              levels: [1, 2, 3, 4, 5, 6],
+              defaultLevel: 2
+            }
+          },
+          paragraph: {
+            class: Paragraph,
+            config: {
+              placeholder: 'Tell your story...'
+            }
+          },
+          list: {
+            class: List,
+            inlineToolbar: true,
+            config: {
+              defaultStyle: 'unordered'
+            }
+          },
+          quote: {
+            class: Quote,
+            inlineToolbar: true,
+            config: {
+              quotePlaceholder: 'Enter a quote',
+              captionPlaceholder: 'Quote\'s author'
+            }
+          },
+          code: {
+            class: Code,
+            config: {
+              placeholder: 'Paste your code here...'
+            }
+          },
+          marker: {
+            class: Marker,
+            shortcut: 'CMD+SHIFT+M'
+          },
+          inlineCode: {
+            class: InlineCode,
+            shortcut: 'CMD+SHIFT+C'
+          },
           image: {
             class: ImageTool,
             config: {
@@ -79,16 +118,31 @@ export const BlogEditor: React.FC = () => {
               },
               field: 'image',
               types: 'image/*',
+              captionPlaceholder: 'Image caption'
             }
           },
-          embed: Embed,
-          linkTool: LinkTool
+          embed: {
+            class: Embed,
+            config: {
+              services: {
+                youtube: true,
+                instagram: true,
+                twitter: true,
+                codepen: true
+              }
+            }
+          },
+          linkTool: {
+            class: LinkTool,
+            config: {
+              endpoint: '/api/fetch-url'
+            }
+          }
         },
-        data: blog.content_blocks || { blocks: [] },
         onReady: () => {
-          console.log('Editor ready');
+          console.log('✅ Editor ready');
         },
-        onChange: () => {
+        onChange: async () => {
           console.log('Editor content changed');
         }
       });
@@ -100,6 +154,7 @@ export const BlogEditor: React.FC = () => {
       if (editorRef.current?.destroy) {
         try {
           editorRef.current.destroy();
+          editorRef.current = null;
         } catch {
           console.log('Error destroying editor');
         }
@@ -406,13 +461,19 @@ export const BlogEditor: React.FC = () => {
           </label>
           <div
             ref={editorContainerRef}
-            className="border border-gray-300 rounded-lg overflow-hidden bg-white"
+            className="border border-gray-300 rounded-lg overflow-visible bg-white shadow-sm"
+            style={{
+              position: 'relative',
+              zIndex: 1
+            }}
           >
             <div
               id="editorjs"
               className="editor-content"
               style={{
-                minHeight: '400px',
+                minHeight: '500px',
+                padding: '1.5rem',
+                outline: 'none'
               }}
             />
           </div>
