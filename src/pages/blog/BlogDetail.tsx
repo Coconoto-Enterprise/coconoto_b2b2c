@@ -4,6 +4,7 @@ import { ArrowLeft, Loader, Heart, MessageCircle, Share2, AlertCircle } from 'lu
 import blogService from '../../services/mernBlogService';
 import { supabase } from '../../lib/supabase';
 import blogLogo from '../../assets/blog-logo.png';
+import Navbar from '../../components/Navbar';
 
 interface Blog {
   blog_id: string;
@@ -115,15 +116,20 @@ export const BlogDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-16">
         <Loader className="w-8 h-8 text-amber-700 animate-spin" />
       </div>
+      </>
     );
   }
 
   if (error || !blog) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-gray-50 pt-16">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <button
             onClick={() => navigate('/blog')}
@@ -138,11 +144,14 @@ export const BlogDetail: React.FC = () => {
           </div>
         </div>
       </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gray-50 pt-16">
       {/* Navigation */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         <button
@@ -480,7 +489,8 @@ export const BlogDetail: React.FC = () => {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

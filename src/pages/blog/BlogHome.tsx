@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Loader } from 'lucide-react';
 import blogService from '../../services/mernBlogService';
 import blogLogo from '../../assets/blog-logo.png';
+import Navbar from '../../components/Navbar';
 
 interface Blog {
   blog_id: string;
@@ -67,7 +68,9 @@ export const BlogHome: React.FC = () => {
   const allTags = Array.from(new Set(blogs.flatMap(b => b.tags))).slice(0, 10);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white pt-16">
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-700 to-amber-900 text-white py-12">
         <div className="max-w-6xl mx-auto px-4">
@@ -207,7 +210,8 @@ export const BlogHome: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
