@@ -280,7 +280,7 @@ export const BlogEditor: React.FC = () => {
 
       await blogService.publishBlog(blog.blog_id, userId);
       alert('Blog published successfully!');
-      navigate('/vintage?tab=blog');
+      navigate('/vintage-dashboard?tab=blog');
     } catch (err) {
       setError('Failed to publish blog');
       console.error(err);
@@ -306,7 +306,7 @@ export const BlogEditor: React.FC = () => {
         <div className="text-center">
           <p className="text-lg text-gray-600 mb-6">{error || 'Blog not found'}</p>
           <button
-            onClick={() => navigate('/vintage?tab=blog')}
+            onClick={() => navigate('/vintage-dashboard?tab=blog')}
             className="btn-dark"
           >
             Back to Blogs
@@ -323,7 +323,7 @@ export const BlogEditor: React.FC = () => {
         <div className="max-w-6xl mx-auto w-full flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/vintage?tab=blog')}
+              onClick={() => navigate('/vintage-dashboard?tab=blog')}
               className="p-2 hover:bg-gray-100 rounded transition"
               title="Back to blogs"
             >
@@ -482,7 +482,7 @@ export const BlogEditor: React.FC = () => {
         {/* Footer Actions */}
         <div className="flex gap-4 justify-center pb-12 border-t pt-8">
           <button
-            onClick={() => navigate('/vintage?tab=blog')}
+            onClick={() => navigate('/vintage-dashboard?tab=blog')}
             className="px-8 py-3 border border-gray-300 rounded-full hover:bg-gray-50 transition font-medium text-gray-900"
           >
             Cancel
