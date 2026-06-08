@@ -142,7 +142,7 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; padding: 20px 0; background-color: #f8f8f8;">
                 <tr>
                     <td align="center" style="font-family: Arial, sans-serif; font-size: 12px; color: #694C39;">
-                        <p style="margin: 5px 0;">© <script>document.write(new Date().getFullYear())</script> Coconoto Enterprise | All Rights Reserved</p>
+                        <p style="margin: 5px 0;">© <script>document.write(new Date().getFullYear())</script> limited | All Rights Reserved</p>
                         <p style="margin: 5px 0; color: #888;">
                             This is an automated confirmation email.
                         </p>
@@ -226,7 +226,7 @@ ${orderDetails}
                 <tr>
                     <td align="center" style="font-family: Arial, sans-serif; font-size: 11px; color: #cccccc;">
                         <p style="margin: 5px 0;">
-                            <strong>Coconoto Enterprise - Internal System</strong><br>
+                            <strong>limited - Internal System</strong><br>
                             This is an automated notification. Reply to customer directly.
                         </p>
                         <p style="margin: 5px 0; font-size: 10px;">© <script>document.write(new Date().getFullYear())</script> Coconoto Internal Communications System</p>
