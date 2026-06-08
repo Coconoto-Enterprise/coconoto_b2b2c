@@ -315,7 +315,7 @@ For issues or questions about the marketplace:
 This project is part of the Coconoto B2B2C platform.
 
 ## Contributors
-- Development Team: limited
+- Development Team: Coconoto Limited
 - Project: CocoConnect Multi-Vendor Marketplace
 - Version: 1.0.0
 - Last Updated: February 8, 2026

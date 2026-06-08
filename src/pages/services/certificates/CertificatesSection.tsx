@@ -29,7 +29,7 @@ export function CertificatesSection() {
       number: '3674818',
       issueDate: '2022',
       image: companyCert,
-      description: 'Business Name Registration for limited, Nigeria.'
+      description: 'Business Name Registration for Coconoto Limited, Nigeria.'
     }
   ];
 

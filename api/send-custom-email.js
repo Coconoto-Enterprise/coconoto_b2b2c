@@ -142,7 +142,7 @@ function buildCustomerTemplate(heading, message) {
                   <a href="https://www.instagram.com/_coconoto?igsh=MTNuZXh1dGF1dTd0dw==" style="color: #8CC63F; text-decoration: none; margin: 0 10px;">Instagram</a>
                   <a href="https://www.linkedin.com/company/coconoto/" style="color: #8CC63F; text-decoration: none; margin: 0 10px;">LinkedIn</a>
                 </div>
-                <p style="margin: 5px 0;">© ${new Date().getFullYear()} limited | All Rights Reserved</p>
+                <p style="margin: 5px 0;">© ${new Date().getFullYear()} Coconoto Limited | All Rights Reserved</p>
                 <p style="margin: 5px 0; color: #888;">
                   <a href="mailto:coconotoenterprise@gmail.com?subject=Unsubscribe" style="color: #888; text-decoration: none;">Unsubscribe</a> | 
                   <a href="https://www.coconoto.africa/privacy-policy" style="color: #888; text-decoration: none;">Privacy Policy</a>
@@ -226,7 +226,7 @@ function buildTeamTemplate(heading, message) {
             <tr>
               <td align="center" style="font-family: Arial, sans-serif; font-size: 11px; color: #cccccc;">
                 <p style="margin: 5px 0;">
-                  <strong>limited - Internal System</strong><br>
+                  <strong>Coconoto Limited - Internal System</strong><br>
                   This is an automated notification. Do not reply to this email.
                 </p>
                 <p style="margin: 5px 0; color: #999999;">
