@@ -598,7 +598,6 @@ const VintageDashboard: React.FC = () => {
           {[
             { id: 'overview', name: 'Overview', icon: BarChart3 },
             { id: 'blog', name: 'Blog', icon: BookOpen },
-            { id: 'business-emails', name: `Emails (${filterByStatus(businessEmails, 'pending').length})`, icon: Mail },
             { id: 'book-events', name: `Events (${filterByStatus(allData.bookEventRequests, 'pending').length || 0})`, icon: Calendar },
             { id: 'machine-orders', name: `Machines (${filterByStatus(allData.machineOrders, 'pending').length || 0})`, icon: ShoppingCart },
             { id: 'product-orders', name: `Products (${filterByStatus(allData.productOrders, 'pending').length || 0})`, icon: ShoppingCart },
@@ -635,7 +634,6 @@ const VintageDashboard: React.FC = () => {
             {[
               { id: 'overview', name: 'Overview', icon: BarChart3 },
               { id: 'blog', name: 'Blog', icon: BookOpen },
-              { id: 'business-emails', name: 'Emails', icon: Users },
               { id: 'book-events', name: `Events (${filterByStatus(allData.bookEventRequests, 'pending').length || 0})`, icon: Calendar },
               { id: 'machine-orders', name: `Machines (${filterByStatus(allData.machineOrders, 'pending').length || 0})`, icon: ShoppingCart },
               { id: 'product-orders', name: `Products (${filterByStatus(allData.productOrders, 'pending').length || 0})`, icon: ShoppingCart },
@@ -669,18 +667,6 @@ const VintageDashboard: React.FC = () => {
           <div className="space-y-6 sm:space-y-8">
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
-              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100">
-                <div className="flex items-start gap-3">
-                  <div className="bg-blue-100 p-2 rounded-lg">
-                    <Mail className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{Array.isArray(emails) ? emails.length : 0}</h3>
-                    <p className="text-xs sm:text-sm text-gray-600">Emails</p>
-                  </div>
-                </div>
-              </div>
-              
               <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100">
                 <div className="flex items-start gap-3">
                   <div className="bg-green-100 p-2 rounded-lg">
