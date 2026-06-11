@@ -30,6 +30,8 @@ import { VendorDashboard } from './pages/vendor/VendorDashboard';
 import { BuyerLogin } from './pages/buyer/BuyerLogin';
 import { BuyerSignup } from './pages/buyer/BuyerSignup';
 import { BuyerDashboard } from './pages/buyer/BuyerDashboard';
+import { NotFound } from './pages/errors/NotFound';
+import { ServerError } from './pages/errors/ServerError';
 
 function App() {
   return (
@@ -78,6 +80,9 @@ function App() {
           <Route path="/buyer-login" element={<BuyerLogin />} />
           <Route path="/buyer-signup" element={<BuyerSignup />} />
           <Route path="/buyer-dashboard" element={<BuyerDashboard />} />
+          <Route path="/500" element={<ServerError />} />
+          {/* Catch-all route for 404 - must be last */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </BrowserRouter>
