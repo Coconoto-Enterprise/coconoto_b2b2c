@@ -18,6 +18,8 @@ import {
   Menu
 } from 'lucide-react';
 import { MernBlogManagement } from '../components/blog/MernBlogManagement';
+import { SentEmailsList } from '../components/admin/SentEmailsList';
+import { EmailConfigPanel } from '../components/admin/EmailConfigPanel';
 import Logo from '../assets/Logo_1.png';
 
 interface Email {
@@ -604,6 +606,8 @@ const VintageDashboard: React.FC = () => {
             { id: 'service-contacts', name: `Service (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Send },
             { id: 'husk-sales', name: `Husk (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
             { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
+            { id: 'email-sent', name: 'Sent Emails', icon: Mail },
+            { id: 'email-config', name: 'Email Config', icon: Mail },
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -640,6 +644,8 @@ const VintageDashboard: React.FC = () => {
               { id: 'service-contacts', name: `Service (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Mail },
               { id: 'husk-sales', name: `Husk (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
               { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
+              { id: 'email-sent', name: 'Sent Emails', icon: Mail },
+              { id: 'email-config', name: 'Email Config', icon: Mail },
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -1704,6 +1710,20 @@ const VintageDashboard: React.FC = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* Email Sent Tab (Gmail-style Sent Folder) */}
+        {activeTab === 'email-sent' && (
+          <div className="bg-white rounded-lg shadow-sm">
+            <SentEmailsList isLoading={loading} />
+          </div>
+        )}
+
+        {/* Email Config Tab (Sender Configuration) */}
+        {activeTab === 'email-config' && (
+          <div className="bg-white rounded-lg shadow-sm">
+            <EmailConfigPanel isLoading={loading} />
           </div>
         )}
       </div>
