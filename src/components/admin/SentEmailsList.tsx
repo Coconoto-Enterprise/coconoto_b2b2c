@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getSentEmails, searchSentEmails, EmailLog } from '../services/emailConfigService';
+import { getSentEmails, searchSentEmails, EmailLog } from '../../services/emailConfigService';
 
 interface SentEmailsListProps {
   isLoading?: boolean;

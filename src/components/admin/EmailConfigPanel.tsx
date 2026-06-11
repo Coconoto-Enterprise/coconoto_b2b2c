@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllSenderConfigs, updateSenderConfig, EmailSenderConfig } from '../services/emailConfigService';
+import { getAllSenderConfigs, updateSenderConfig, EmailSenderConfig } from '../../services/emailConfigService';
 
 interface EmailConfigPanelProps {
   isLoading?: boolean;
