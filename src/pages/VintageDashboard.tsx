@@ -152,6 +152,13 @@ const VintageDashboard: React.FC = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('adminLoggedIn');
+    navigate('/vintage');
+  };
+
+  const handleRefresh = () => fetchData();
+
   const sendEmail = async () => {
     if (!composer.to || !composer.subject || !composer.message) {
       alert('Please fill in all required fields (Recipients, Subject, and Message)');
@@ -195,7 +202,7 @@ const VintageDashboard: React.FC = () => {
     }
   };
 
-  // Note: Email center, refresh, and logout were moved to the Tweetit email admin pages.
+  // Vintage now hosts refresh and logout controls again, while the email admin list remains in Tweetit.
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -554,6 +561,22 @@ const VintageDashboard: React.FC = () => {
               <img src={Logo} alt="Coconoto" className="h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain flex-shrink-0" />
             </div>
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <button
+                onClick={handleRefresh}
+                className="bg-green-600 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-green-700 transition-colors inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                title="Refresh data"
+              >
+                <RefreshCw className="h-4 w-4" />
+                <span className="hidden sm:inline">Refresh</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-red-700 transition-colors inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                title="Logout"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
               <button
                 onClick={() => navigate('/tweetit')}
                 className="bg-green-600 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-green-700 transition-colors inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
