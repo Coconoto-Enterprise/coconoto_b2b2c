@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { format } from 'date-fns';
 import { getSentEmails, searchSentEmails, EmailLog } from '../../services/emailConfigService';
 
 interface SentEmailsListProps {
   isLoading?: boolean;
+  refreshKey?: number;
 }
 
-export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initialLoading = false }) => {
+export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initialLoading = false, refreshKey }) => {
   const [emails, setEmails] = useState<EmailLog[]>([]);
   const [loading, setLoading] = useState(initialLoading);
   const [selectedEmail, setSelectedEmail] = useState<EmailLog | null>(null);
@@ -48,7 +50,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
     };
 
     fetchEmails();
-  }, [page, searchQuery, filterType]);
+  }, [page, searchQuery, filterType, refreshKey]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -19,6 +19,8 @@ import { HelpCenter } from './pages/support/HelpCenter';
 import { Contact } from './pages/support/Contact';
 import VintageLogin from './pages/VintageLogin';
 import VintageDashboard from './pages/VintageDashboard';
+import TweetitLogin from './pages/TweetitLogin';
+import TweetitDashboard from './pages/TweetitDashboard';
 import FloatingChatIcon from './components/FloatingChatIcon';
 import BlogHome from './pages/blog/BlogHome';
 import BlogDetail from './pages/blog/BlogDetail';
@@ -73,6 +75,8 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/vintage" element={<VintageLogin />} />
           <Route path="/vintage-dashboard" element={<VintageDashboard />} />
+          <Route path="/tweetit" element={<TweetitLogin />} />
+          <Route path="/tweetit-dashboard" element={<TweetitDashboard />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/vendor-login" element={<VendorLogin />} />
           <Route path="/vendor-signup" element={<VendorSignup />} />

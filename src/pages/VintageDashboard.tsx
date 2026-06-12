@@ -18,8 +18,6 @@ import {
   Menu
 } from 'lucide-react';
 import { MernBlogManagement } from '../components/blog/MernBlogManagement';
-import { SentEmailsList } from '../components/admin/SentEmailsList';
-import { EmailConfigPanel } from '../components/admin/EmailConfigPanel';
 import Logo from '../assets/Logo_1.png';
 
 interface Email {
@@ -197,10 +195,7 @@ const VintageDashboard: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminLoggedIn');
-    navigate('/vintage');
-  };
+  // Note: Email center, refresh, and logout were moved to the Tweetit email admin pages.
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -560,29 +555,12 @@ const VintageDashboard: React.FC = () => {
             </div>
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <button
-                onClick={() => setShowComposer(true)}
-                className="bg-blue-600 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-blue-700 transition-colors inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
-                title="Compose Email"
+                onClick={() => navigate('/tweetit')}
+                className="bg-green-600 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-green-700 transition-colors inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                title="Email Center"
               >
                 <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Email</span>
-              </button>
-              <button
-                onClick={fetchData}
-                className="bg-green-600 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-green-700 transition-colors inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
-                title="Refresh"
-              >
-                <RefreshCw className="h-4 w-4" />
-                <span className="hidden sm:inline">Refresh</span>
-              </button>
-
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-red-700 transition-colors inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
-                title="Logout"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Logout</span>
+                <span className="hidden sm:inline">Email Center</span>
               </button>
             </div>
           </div>
@@ -606,8 +584,7 @@ const VintageDashboard: React.FC = () => {
             { id: 'service-contacts', name: `Service (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Send },
             { id: 'husk-sales', name: `Husk (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
             { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
-            { id: 'email-sent', name: 'Sent Emails', icon: Mail },
-            { id: 'email-config', name: 'Email Config', icon: Mail },
+            
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -644,8 +621,7 @@ const VintageDashboard: React.FC = () => {
               { id: 'service-contacts', name: `Service (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Mail },
               { id: 'husk-sales', name: `Husk (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
               { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
-              { id: 'email-sent', name: 'Sent Emails', icon: Mail },
-              { id: 'email-config', name: 'Email Config', icon: Mail },
+              
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -1713,19 +1689,7 @@ const VintageDashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Email Sent Tab (Gmail-style Sent Folder) */}
-        {activeTab === 'email-sent' && (
-          <div className="bg-white rounded-lg shadow-sm">
-            <SentEmailsList isLoading={loading} />
-          </div>
-        )}
-
-        {/* Email Config Tab (Sender Configuration) */}
-        {activeTab === 'email-config' && (
-          <div className="bg-white rounded-lg shadow-sm">
-            <EmailConfigPanel isLoading={loading} />
-          </div>
-        )}
+        {/* Email center moved to /tweetit */}
       </div>
 
       {/* Detail Modal */}

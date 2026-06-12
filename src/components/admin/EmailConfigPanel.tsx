@@ -3,19 +3,20 @@ import { getAllSenderConfigs, updateSenderConfig, EmailSenderConfig } from '../.
 
 interface EmailConfigPanelProps {
   isLoading?: boolean;
+  refreshKey?: number;
 }
 
-export const EmailConfigPanel: React.FC<EmailConfigPanelProps> = ({ isLoading: initialLoading = false }) => {
+export const EmailConfigPanel: React.FC<EmailConfigPanelProps> = ({ isLoading: initialLoading = false, refreshKey }) => {
   const [configs, setConfigs] = useState<EmailSenderConfig[]>([]);
   const [loading, setLoading] = useState(initialLoading);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<EmailSenderConfig>>({});
   const [saveStatus, setSaveStatus] = useState<{ id: string; status: 'saving' | 'success' | 'error' } | null>(null);
 
-  // Fetch configs on mount
+  // Fetch configs on mount or when parent requests refresh
   useEffect(() => {
     fetchConfigs();
-  }, []);
+  }, [refreshKey]);
 
   const fetchConfigs = async () => {
     setLoading(true);
