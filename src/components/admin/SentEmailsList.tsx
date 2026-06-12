@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
 import { getSentEmails, searchSentEmails, EmailLog } from '../../services/emailConfigService';
 
 interface SentEmailsListProps {
@@ -18,6 +17,18 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   const [totalEmails, setTotalEmails] = useState(0);
 
   const ITEMS_PER_PAGE = 25;
+
+  const formatDateShort = (iso?: string) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const formatDateLong = (iso?: string) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+  };
 
   // Fetch emails
   useEffect(() => {
@@ -230,7 +241,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
 
                     {/* Timestamp */}
                     <div className="text-right text-sm text-gray-500 whitespace-nowrap ml-4">
-                      {format(new Date(email.created_at), 'MMM d, yyyy')}
+                      {formatDateShort(email.created_at)}
                     </div>
                   </div>
 
@@ -351,7 +362,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
             <div>
               <label className="text-xs font-semibold text-gray-600 uppercase">Sent</label>
               <p className="text-sm text-gray-900 mt-1">
-                {format(new Date(selectedEmail.created_at), 'PPpp')}
+                {formatDateLong(selectedEmail.created_at)}
               </p>
             </div>
 
