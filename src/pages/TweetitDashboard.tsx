@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Send, LogOut, X } from 'lucide-react';
 import { SentEmailsList } from '../components/admin/SentEmailsList';
+import Logo from '../assets/Logo_1.png';
 
 const TweetitDashboard: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -63,7 +64,10 @@ const TweetitDashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b">
         <div className="px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h2 className="font-semibold text-lg">Tweetit — Email Center</h2>
+          <div className="flex items-center gap-3">
+            <img src={Logo} alt="Coconoto" className="h-12 w-12 object-contain" />
+            <h2 className="font-semibold text-lg">Email Center</h2>
+          </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowComposer(true)}
