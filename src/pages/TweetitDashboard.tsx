@@ -63,26 +63,28 @@ const TweetitDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b">
-        <div className="px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3">
-            <img src={Logo} alt="Coconoto" className="h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain" />
-            <h2 className="font-semibold text-lg">Email Center</h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowComposer(true)}
-              className="bg-green-600 text-white px-3 py-1 rounded-md inline-flex items-center gap-2"
-            >
-              <Send className="h-4 w-4" />
-              Compose Email
-            </button>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 text-white px-3 py-1 rounded-md inline-flex items-center gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Logout
-            </button>
+        <div className="px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center min-w-0 gap-2 sm:gap-3">
+              <img src={Logo} alt="Coconoto" className="h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain flex-shrink-0" />
+              <h2 className="font-semibold text-lg">Email Center</h2>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <button
+                onClick={() => setShowComposer(true)}
+                className="bg-green-600 text-white px-3 py-1 rounded-md inline-flex items-center gap-2"
+              >
+                <Send className="h-4 w-4" />
+                Compose Email
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 text-white px-3 py-1 rounded-md inline-flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </div>
