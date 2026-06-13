@@ -11,8 +11,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   const [loading, setLoading] = useState(initialLoading);
   const [selectedEmail, setSelectedEmail] = useState<EmailLog | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<string>('all'); // 'all', 'delivered', 'failed'
-  const [currentFolder, setCurrentFolder] = useState<'sent' | 'drafts'>('sent');
+  const [currentFolder, setCurrentFolder] = useState<'all' | 'sent' | 'drafts' | 'failed'>('all');
   const [page, setPage] = useState(1);
   const [totalEmails, setTotalEmails] = useState(0);
 
@@ -37,19 +36,23 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
       try {
         const offset = (page - 1) * ITEMS_PER_PAGE;
 
-        let result;
+        let allEmails: EmailLog[] = [];
         if (searchQuery.trim()) {
-          result = await searchSentEmails(searchQuery, ITEMS_PER_PAGE);
-          setTotalEmails(result.length);
+          allEmails = await searchSentEmails(searchQuery, ITEMS_PER_PAGE);
+          setTotalEmails(allEmails.length);
         } else {
-          result = await getSentEmails(ITEMS_PER_PAGE, offset);
+          const result = await getSentEmails(ITEMS_PER_PAGE, offset);
+          allEmails = result.emails;
           setTotalEmails(result.total || 0);
         }
 
-        // Filter by status
-        let filtered = result.emails || [];
-        if (filterType !== 'all') {
-          filtered = filtered.filter(email => email.status === filterType);
+        let filtered = allEmails;
+        if (currentFolder === 'sent') {
+          filtered = filtered.filter(email => email.status === 'delivered');
+        } else if (currentFolder === 'failed') {
+          filtered = filtered.filter(email => email.status === 'failed');
+        } else if (currentFolder === 'drafts') {
+          filtered = filtered.filter(email => email.status === 'draft');
         }
 
         setEmails(filtered);
@@ -61,7 +64,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
     };
 
     fetchEmails();
-  }, [page, searchQuery, filterType, refreshKey]);
+  }, [page, searchQuery, currentFolder, refreshKey]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -100,75 +103,37 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
     <div className="flex h-screen bg-gray-50" style={{ backgroundColor: '#f5f5f5' }}>
       {/* Left Sidebar */}
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col" style={{ borderRightColor: '#d4a574' }}>
-        {/* Header */}
-        <div className="p-4 border-b border-gray-200" style={{ borderBottomColor: '#d4a574' }}>
-          <h2 className="text-lg font-bold" style={{ color: '#8b5e47' }}>
-            📧 Email
-          </h2>
-        </div>
-
-        {/* Folders */}
-        <div className="flex-1 overflow-y-auto py-2">
-          <nav className="space-y-1 px-2">
-            {[
-              { label: 'Sent', icon: '✓', value: 'sent' },
-              { label: 'All', icon: '📬', value: 'all-folder' }
-            ].map(folder => (
-              <button
-                key={folder.value}
-                onClick={() => {
-                  setCurrentFolder(folder.value as any);
-                  setPage(1);
-                }}
-                className={`w-full text-left px-4 py-2 rounded-lg transition ${
-                  currentFolder === folder.value
-                    ? 'font-semibold text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                style={
-                  currentFolder === folder.value
-                    ? { backgroundColor: '#8CC63F' }
-                    : {}
-                }
-              >
-                <span className="mr-2">{folder.icon}</span>
-                {folder.label}
-              </button>
-            ))}
-          </nav>
-
-          {/* Email Type Quick Filters */}
-          <div className="px-4 py-4 border-t border-gray-200" style={{ borderTopColor: '#d4a574' }}>
-            <p className="text-xs font-semibold text-gray-600 uppercase mb-2">Status</p>
-            <div className="space-y-1">
-              {[
-                { label: 'All', value: 'all' },
-                { label: 'Delivered', value: 'delivered' },
-                { label: 'Failed', value: 'failed' },
-                { label: 'Bounced', value: 'bounced' }
-              ].map(status => (
-                <button
-                  key={status.value}
-                  onClick={() => {
-                    setFilterType(status.value);
-                    setPage(1);
-                  }}
-                  className={`w-full text-left text-sm px-3 py-1 rounded ${
-                    filterType === status.value
-                      ? 'font-semibold'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                  style={
-                    filterType === status.value
-                      ? { backgroundColor: '#f0e5d8', color: '#8b5e47' }
-                      : {}
-                  }
-                >
-                  {status.label}
-                </button>
-              ))}
-            </div>
-          </div>
+{/* Folders */}
+      <div className="flex-1 overflow-y-auto py-2">
+        <nav className="space-y-1 px-2">
+          {[
+            { label: 'All', icon: '📬', value: 'all' },
+            { label: 'Sent', icon: '✓', value: 'sent' },
+            { label: 'Drafts', icon: '📝', value: 'drafts' },
+            { label: 'Failed', icon: '✗', value: 'failed' }
+          ].map(folder => (
+            <button
+              key={folder.value}
+              onClick={() => {
+                setCurrentFolder(folder.value as any);
+                setPage(1);
+              }}
+              className={`w-full text-left px-4 py-2 rounded-lg transition ${
+                currentFolder === folder.value
+                  ? 'font-semibold text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+              style={
+                currentFolder === folder.value
+                  ? { backgroundColor: '#8CC63F' }
+                  : {}
+              }
+            >
+              <span className="mr-2">{folder.icon}</span>
+              {folder.label}
+            </button>
+          ))}
+        </nav>
         </div>
       </div>
 
@@ -185,11 +150,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
               setPage(1);
             }}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
-            style={{ focusColor: '#8CC63F' }}
           />
         </div>
 
-        {/* Email List or Empty State */}
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
