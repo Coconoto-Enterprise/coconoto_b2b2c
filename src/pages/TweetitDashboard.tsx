@@ -135,7 +135,7 @@ const TweetitDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="bg-white shadow-sm border-b">
         <div className="px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between h-14 sm:h-16">
@@ -174,7 +174,7 @@ const TweetitDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="pt-0 px-4 h-[calc(100vh-8rem)]">
+      <div className="flex-1 pt-0 px-4">
         <SentEmailsList refreshKey={refreshKey} viewerEmail={currentUser.role === 'staff' ? currentUser.email : undefined} />
       </div>
 
