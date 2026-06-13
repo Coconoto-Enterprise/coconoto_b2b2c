@@ -24,6 +24,10 @@ const VintageLogin: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
+        // If server returned a mapped mail user, store it for later (id, login_email, role, sender_email)
+        if (data.user) {
+          localStorage.setItem('currentMailUser', JSON.stringify(data.user));
+        }
         // Store login status and navigate to dashboard
         localStorage.setItem('adminLoggedIn', 'true');
         navigate('/vintage-dashboard');

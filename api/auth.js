@@ -326,21 +326,47 @@ async function handleVendorSignup(data, res) {
 // Admin Login
 async function handleAdminLogin(data, res) {
   const { password } = data;
-  const adminPassword = process.env.ADMIN_PASSWORD || 'COCO1234';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'COCONOTO';
 
-  console.log('🔐 Admin login attempt');
+  console.log('🔐 Admin login attempt (password-only mapping)');
 
-  if (password === adminPassword) {
-    console.log('✅ Admin login successful');
-    return res.status(200).json({
-      success: true,
-      message: 'Login successful'
-    });
-  } else {
-    console.log('❌ Admin login failed - invalid password');
-    return res.status(401).json({
-      success: false,
-      error: 'Invalid password'
-    });
+  if (!password) {
+    return res.status(400).json({ success: false, error: 'Password is required' });
   }
+
+  try {
+    // Try to map the provided password to a mail user in `mail_users`.
+    // This enables password-only login where the server maps the password to a specific mail account.
+    const supa = getSupabaseClient();
+    const { data: users, error: usersError } = await supa
+      .from('mail_users')
+      .select('id,login_email,role,sender_email,password_hash')
+      .eq('is_active', true);
+
+    if (!usersError && users && users.length) {
+      for (const u of users) {
+        try {
+          const match = await bcrypt.compare(password, u.password_hash);
+          if (match) {
+            console.log('✅ Mail user login successful:', u.login_email);
+            const user = { id: u.id, login_email: u.login_email, role: u.role, sender_email: u.sender_email };
+            return res.status(200).json({ success: true, user });
+          }
+        } catch (cmpErr) {
+          console.error('Error comparing password for user', u.login_email, cmpErr.message);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error querying mail_users:', err.message);
+  }
+
+  // Fallback: check legacy admin password from env
+  if (password === adminPassword) {
+    console.log('✅ Legacy admin login successful');
+    return res.status(200).json({ success: true, message: 'Legacy admin login successful' });
+  }
+
+  console.log('❌ Admin login failed - invalid password');
+  return res.status(401).json({ success: false, error: 'Invalid password' });
 }
