@@ -254,7 +254,6 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
             </div>
           )}
         </div>
-        </div>
       </div>
 
       {/* Main Content Area */}
