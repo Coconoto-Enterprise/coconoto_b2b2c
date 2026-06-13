@@ -107,10 +107,10 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
       <div className="flex-1 overflow-y-auto py-2">
         <nav className="space-y-1 px-2">
           {[
-            { label: 'All', icon: '📬', value: 'all' },
-            { label: 'Sent', icon: '✓', value: 'sent' },
-            { label: 'Drafts', icon: '📝', value: 'drafts' },
-            { label: 'Failed', icon: '✗', value: 'failed' }
+            { label: 'All', value: 'all' },
+            { label: 'Sent', value: 'sent' },
+            { label: 'Drafts', value: 'drafts' },
+            { label: 'Failed', value: 'failed' }
           ].map(folder => (
             <button
               key={folder.value}
@@ -129,7 +129,6 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                   : {}
               }
             >
-              <span className="mr-2">{folder.icon}</span>
               {folder.label}
             </button>
           ))}
