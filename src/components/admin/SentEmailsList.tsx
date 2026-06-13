@@ -176,7 +176,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   const totalPages = Math.ceil(totalEmails / ITEMS_PER_PAGE);
 
   return (
-    <div className="flex h-full min-h-0 bg-gray-50 overflow-hidden shadow-sm" style={{ backgroundColor: '#f5f5f5' }}>
+    <div className="flex h-full min-h-0 bg-gray-50 overflow-hidden rounded-3xl shadow-sm" style={{ backgroundColor: '#f5f5f5' }}>
       {/* Left Sidebar */}
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col" style={{ borderRightColor: '#d4a574' }}>
         <div className="flex-1 overflow-y-auto py-2">
@@ -253,6 +253,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
               <div className="font-semibold">{currentUserEmail} ({currentUser.role})</div>
             </div>
           )}
+        </div>
         </div>
       </div>
 

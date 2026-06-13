@@ -174,7 +174,7 @@ const TweetitDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 pt-0 px-0">
+      <div className="flex-1 pt-0 px-4">
         <SentEmailsList refreshKey={refreshKey} viewerEmail={currentUser.role === 'staff' ? currentUser.email : undefined} />
       </div>
 
