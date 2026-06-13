@@ -21,10 +21,6 @@ const TweetitLogin: React.FC = () => {
 
       const data = await response.json();
       if (data.success) {
-        // If server returned a mapped mail user, store it for later (id, login_email, role, sender_email)
-        if (data.user) {
-          localStorage.setItem('currentMailUser', JSON.stringify(data.user));
-        }
         localStorage.setItem('adminLoggedIn', 'true');
         navigate('/tweetit-dashboard');
       } else {
