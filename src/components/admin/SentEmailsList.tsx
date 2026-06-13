@@ -169,7 +169,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col" style={{ borderRightColor: '#d4a574' }}>
         <div className="flex-1 overflow-y-auto py-2">
           <nav className="space-y-1 px-2">
-            [
+            {[
               { label: 'All', value: 'all' },
               { label: 'Sent', value: 'sent' },
               { label: 'Drafts', value: 'drafts' },
