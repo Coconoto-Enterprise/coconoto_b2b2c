@@ -54,6 +54,8 @@ export default async function handler(req, res) {
         return await handleVendorSignup(data, res);
       case 'admin-login':
         return await handleAdminLogin(data, res);
+      case 'email-user-login':
+        return await handleEmailUserLogin(data, res);
       default:
         return res.status(400).json({ error: 'Invalid action' });
     }
