@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { getSentEmails, searchSentEmails, EmailLog } from '../../services/emailConfigService';
+import {
+  getSentEmails,
+  searchSentEmails,
+  getSentEmailsBySender,
+  getMailUsers,
+  createMailUser,
+  EmailLog,
+  MailUser,
+} from '../../services/emailConfigService';
 
 interface SentEmailsListProps {
   isLoading?: boolean;
@@ -14,6 +22,12 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   const [currentFolder, setCurrentFolder] = useState<'all' | 'sent' | 'drafts' | 'failed'>('all');
   const [page, setPage] = useState(1);
   const [totalEmails, setTotalEmails] = useState(0);
+  const [mailUsers, setMailUsers] = useState<MailUser[]>([]);
+  const [currentUser, setCurrentUser] = useState<MailUser | null>(null);
+  const [selectedSender, setSelectedSender] = useState('');
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [newUser, setNewUser] = useState({ login_email: '', sender_email: '', password: '', role: 'user' });
+  const [modalError, setModalError] = useState('');
 
   const ITEMS_PER_PAGE = 25;
 
@@ -29,6 +43,21 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
     return d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
   };
 
+  useEffect(() => {
+    const storedMailUser = localStorage.getItem('currentMailUser');
+    if (storedMailUser) {
+      try {
+        const parsed = JSON.parse(storedMailUser);
+        setCurrentUser(parsed);
+        if (parsed?.role !== 'admin' && parsed?.sender_email) {
+          setSelectedSender(parsed.sender_email);
+        }
+      } catch (error) {
+        console.error('Failed to parse currentMailUser', error);
+      }
+    }
+  }, []);
+
   // Fetch emails
   useEffect(() => {
     const fetchEmails = async () => {
@@ -40,6 +69,10 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
         if (searchQuery.trim()) {
           allEmails = await searchSentEmails(searchQuery, ITEMS_PER_PAGE);
           setTotalEmails(allEmails.length);
+        } else if (selectedSender) {
+          const result = await getSentEmailsBySender(selectedSender, ITEMS_PER_PAGE, offset);
+          allEmails = result.emails;
+          setTotalEmails(result.total || 0);
         } else {
           const result = await getSentEmails(ITEMS_PER_PAGE, offset);
           allEmails = result.emails;
@@ -64,7 +97,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
     };
 
     fetchEmails();
-  }, [page, searchQuery, currentFolder, refreshKey]);
+  }, [page, searchQuery, currentFolder, refreshKey, selectedSender]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -97,42 +130,115 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
     return text.length > length ? text.substring(0, length) + '...' : text;
   };
 
+  const handleUserSelection = (senderEmail: string) => {
+    setSelectedSender(senderEmail);
+    setSearchQuery('');
+    setPage(1);
+  };
+
+  const handleCreateUser = async () => {
+    setModalError('');
+    if (!newUser.login_email || !newUser.password || !newUser.sender_email) {
+      setModalError('Please fill all required fields.');
+      return;
+    }
+
+    const created = await createMailUser(
+      newUser.login_email,
+      newUser.password,
+      newUser.sender_email,
+      newUser.role,
+    );
+
+    if (!created) {
+      setModalError('Failed to create mail user. Please check the values and try again.');
+      return;
+    }
+
+    setNewUser({ login_email: '', sender_email: '', password: '', role: 'user' });
+    setShowAddUserModal(false);
+    const users = await getMailUsers();
+    setMailUsers(users || []);
+  };
+
   const totalPages = Math.ceil(totalEmails / ITEMS_PER_PAGE);
 
   return (
     <div className="flex h-screen bg-gray-50" style={{ backgroundColor: '#f5f5f5' }}>
       {/* Left Sidebar */}
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col" style={{ borderRightColor: '#d4a574' }}>
-{/* Folders */}
-      <div className="flex-1 overflow-y-auto py-2">
-        <nav className="space-y-1 px-2">
-          {[
-            { label: 'All', value: 'all' },
-            { label: 'Sent', value: 'sent' },
-            { label: 'Drafts', value: 'drafts' },
-            { label: 'Failed', value: 'failed' }
-          ].map(folder => (
-            <button
-              key={folder.value}
-              onClick={() => {
-                setCurrentFolder(folder.value as any);
-                setPage(1);
-              }}
-              className={`w-full text-left px-4 py-2 rounded-lg transition ${
-                currentFolder === folder.value
-                  ? 'font-semibold text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-              style={
-                currentFolder === folder.value
-                  ? { backgroundColor: '#8CC63F' }
-                  : {}
-              }
-            >
-              {folder.label}
-            </button>
-          ))}
-        </nav>
+        <div className="flex-1 overflow-y-auto py-2">
+          <nav className="space-y-1 px-2">
+            [
+              { label: 'All', value: 'all' },
+              { label: 'Sent', value: 'sent' },
+              { label: 'Drafts', value: 'drafts' },
+              { label: 'Failed', value: 'failed' }
+            ].map(folder => (
+              <button
+                key={folder.value}
+                onClick={() => {
+                  setCurrentFolder(folder.value as any);
+                  setPage(1);
+                }}
+                className={`w-full text-left px-4 py-2 rounded-lg transition ${
+                  currentFolder === folder.value
+                    ? 'font-semibold text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                style={
+                  currentFolder === folder.value
+                    ? { backgroundColor: '#8CC63F' }
+                    : {}
+                }
+              >
+                {folder.label}
+              </button>
+            ))}
+          </nav>
+
+          {currentUser?.role === 'admin' && (
+            <div className="px-4 py-3 border-t border-gray-200 mt-4">
+              <button
+                onClick={() => setShowAddUserModal(true)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-700 hover:bg-gray-200"
+              >
+                ⚙️ Add mail user
+              </button>
+            </div>
+          )}
+
+          {currentUser?.role === 'admin' && (
+            <div className="px-4 py-3 border-t border-gray-200 mt-4">
+              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
+              <button
+                onClick={() => handleUserSelection('')}
+                className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
+                  selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                All users
+              </button>
+              {mailUsers.map(user => (
+                <button
+                  key={user.id}
+                  onClick={() => handleUserSelection(user.sender_email)}
+                  className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
+                    selectedSender === user.sender_email ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {user.login_email}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {currentUser && currentUser.role !== 'admin' && (
+            <div className="px-4 py-3 border-t border-gray-200 mt-4 text-sm text-gray-700">
+              <div className="font-semibold">Logged in as</div>
+              <div className="mt-2 text-xs text-gray-600">{currentUser.login_email}</div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -23,9 +23,10 @@ const VintageLogin: React.FC = () => {
 
       const data = await response.json();
 
-      if (data.success) {
+      if (data.success && data.mailUser) {
         // Store login status and navigate to dashboard
         localStorage.setItem('adminLoggedIn', 'true');
+        localStorage.setItem('currentMailUser', JSON.stringify(data.mailUser));
         navigate('/vintage-dashboard');
       } else {
         setError('Invalid password. Please try again.');
@@ -64,10 +65,9 @@ const VintageLogin: React.FC = () => {
 
 
 
-            {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                Admin Password
+                Password
               </label>
               <input
                 id="password"
@@ -76,7 +76,7 @@ const VintageLogin: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-amber-50/30"
-                placeholder="Enter admin password"
+                placeholder="Enter password"
               />
             </div>
 

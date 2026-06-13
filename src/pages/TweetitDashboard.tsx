@@ -37,6 +37,13 @@ const TweetitDashboard: React.FC = () => {
       formData.append('message', composer.message);
       formData.append('heading', composer.heading);
       formData.append('templateType', composer.templateType);
+      const currentMailUser = localStorage.getItem('currentMailUser');
+      if (currentMailUser) {
+        const parsedUser = JSON.parse(currentMailUser);
+        if (parsedUser?.sender_email) {
+          formData.append('senderEmail', parsedUser.sender_email);
+        }
+      }
       composer.attachments.forEach((file) => formData.append('attachments', file));
 
       const response = await fetch('/api/send-custom-email', {

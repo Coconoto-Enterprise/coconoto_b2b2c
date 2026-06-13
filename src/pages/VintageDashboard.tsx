@@ -175,6 +175,13 @@ const VintageDashboard: React.FC = () => {
       formData.append('message', composer.message);
       formData.append('heading', composer.heading);
       formData.append('templateType', composer.templateType);
+      const currentMailUser = localStorage.getItem('currentMailUser');
+      if (currentMailUser) {
+        const parsedUser = JSON.parse(currentMailUser);
+        if (parsedUser?.sender_email) {
+          formData.append('senderEmail', parsedUser.sender_email);
+        }
+      }
       
       // Append all attachments
       composer.attachments.forEach((file) => {

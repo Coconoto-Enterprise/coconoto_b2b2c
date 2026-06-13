@@ -20,8 +20,9 @@ const TweetitLogin: React.FC = () => {
       });
 
       const data = await response.json();
-      if (data.success) {
+      if (data.success && data.mailUser) {
         localStorage.setItem('adminLoggedIn', 'true');
+        localStorage.setItem('currentMailUser', JSON.stringify(data.mailUser));
         navigate('/tweetit-dashboard');
       } else {
         setError('Invalid password. Please try again.');
@@ -51,7 +52,7 @@ const TweetitLogin: React.FC = () => {
             )}
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Admin Password</label>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Password</label>
               <input
                 id="password"
                 type="password"
@@ -59,7 +60,7 @@ const TweetitLogin: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500"
-                placeholder="Enter admin password"
+                placeholder="Enter password"
               />
             </div>
 

@@ -260,7 +260,7 @@ export default async function handler(req, res) {
   try {
     // Parse FormData or JSON body
     const contentType = req.headers['content-type'] || '';
-    let to, subject, message, heading, templateType;
+    let to, subject, message, heading, templateType, senderEmail;
     let attachments = [];
     
     if (contentType.includes('multipart/form-data')) {
@@ -283,6 +283,7 @@ export default async function handler(req, res) {
       message = Array.isArray(fields.message) ? fields.message[0] : fields.message;
       heading = Array.isArray(fields.heading) ? fields.heading[0] : fields.heading;
       templateType = Array.isArray(fields.templateType) ? fields.templateType[0] : fields.templateType;
+      senderEmail = Array.isArray(fields.senderEmail) ? fields.senderEmail[0] : fields.senderEmail;
       
       // Process uploaded files
       if (files.attachments) {
@@ -304,6 +305,7 @@ export default async function handler(req, res) {
       message = body.message;
       heading = body.heading;
       templateType = body.templateType;
+      senderEmail = body.senderEmail;
     }
 
     if (!to || !subject || !message) {
@@ -336,11 +338,15 @@ export default async function handler(req, res) {
       htmlContent = buildCustomerTemplate(heading || '', message);
     }
 
+    const fromAddress = senderEmail
+      ? senderEmail
+      : templateType === 'team'
+      ? 'Coconoto Internal Team <team@coconoto.africa>'
+      : 'Coconoto Customer Service <team@coconoto.africa>';
+
     // Send email with attachments
     const emailData = {
-      from: templateType === 'team' 
-        ? 'Coconoto Internal Team <team@coconoto.africa>'
-        : 'Coconoto Customer Service <team@coconoto.africa>',
+      from: fromAddress,
       to: recipients,
       subject: subject,
       html: htmlContent,
