@@ -176,9 +176,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   const totalPages = Math.ceil(totalEmails / ITEMS_PER_PAGE);
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-gray-50 overflow-hidden" style={{ backgroundColor: '#f5f5f5' }}>
+    <div className="flex bg-gray-50 overflow-hidden" style={{ minHeight: 'calc(100vh - 8rem)', backgroundColor: '#f5f5f5' }}>
       {/* Left Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col" style={{ borderRightColor: '#d4a574' }}>
+      <div className="w-64 bg-white border-r border-gray-200 flex flex-col max-h-[calc(100vh-8rem)]" style={{ borderRightColor: '#d4a574' }}>
         <div className="flex-1 overflow-y-auto py-2">
           <nav className="space-y-1 px-2">
             {[
