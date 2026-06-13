@@ -54,14 +54,6 @@ export default async function handler(req, res) {
         return await handleVendorSignup(data, res);
       case 'admin-login':
         return await handleAdminLogin(data, res);
-      case 'email-user-login':
-        return await handleEmailUserLogin(data, res);
-      case 'email-user-create':
-        return await handleEmailUserCreate(data, res);
-      case 'email-user-update-password':
-        return await handleEmailUserUpdatePassword(data, res);
-      case 'email-user-list':
-        return await handleEmailUserList(data, res);
       default:
         return res.status(400).json({ error: 'Invalid action' });
     }
@@ -331,25 +323,123 @@ async function handleVendorSignup(data, res) {
   }
 }
 
-// Admin Login
+// Admin Login / Mail User Login
 async function handleAdminLogin(data, res) {
   const { password } = data;
-  const adminPassword = process.env.ADMIN_PASSWORD || 'COCO1234';
 
   console.log('🔐 Admin login attempt');
 
-  if (password === adminPassword) {
-    console.log('✅ Admin login successful');
-    return res.status(200).json({
-      success: true,
-      message: 'Login successful'
+  if (!password) {
+    return res.status(400).json({
+      success: false,
+      error: 'Password is required'
     });
-  } else {
+  }
+
+  try {
+    const { data: mailUsers, error: fetchError } = await getSupabaseClient()
+      .from('mail_users')
+      .select('id, login_email, password_hash, sender_email, role, is_active')
+      .eq('is_active', true);
+
+    if (fetchError) {
+      console.error('❌ Mail users fetch error:', fetchError);
+      return res.status(500).json({
+        success: false,
+        error: 'Login failed'
+      });
+    }
+
+    for (const user of mailUsers || []) {
+      if (!user.password_hash) continue;
+      const passwordMatch = await bcrypt.compare(password, user.password_hash);
+      if (passwordMatch) {
+        const { password_hash, ...userData } = user;
+        console.log('✅ Mail user login successful:', user.login_email);
+        return res.status(200).json({
+          success: true,
+          mailUser: userData
+        });
+      }
+    }
+
+    // Optional fallback admin password for super-admin access
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (adminPassword && password === adminPassword) {
+      console.log('✅ Super admin login successful');
+      return res.status(200).json({
+        success: true,
+        mailUser: {
+          id: 'super-admin',
+          login_email: 'admin@coconoto.africa',
+          sender_email: 'team@coconoto.africa',
+          role: 'admin',
+          is_active: true,
+        }
+      });
+    }
+
     console.log('❌ Admin login failed - invalid password');
     return res.status(401).json({
       success: false,
       error: 'Invalid password'
     });
+  } catch (error) {
+    console.error('❌ Admin login exception:', error.message);
+    console.error('Stack:', error.stack);
+    return res.status(500).json({
+      success: false,
+      error: 'Login failed: ' + error.message
+    });
+  }
+}
+
+async function handleListMailUsers(res) {
+  try {
+    const { data: users, error } = await getSupabaseClient()
+      .from('mail_users')
+      .select('id, login_email, sender_email, role, is_active, created_at, updated_at')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('❌ Mail users list error:', error);
+      return res.status(500).json({ success: false, error: 'Failed to fetch mail users' });
+    }
+
+    return res.status(200).json({ success: true, mailUsers: users });
+  } catch (error) {
+    console.error('❌ Mail users list exception:', error.message);
+    return res.status(500).json({ success: false, error: 'Failed to fetch mail users' });
+  }
+}
+
+async function handleCreateMailUser(data, res) {
+  const { login_email, password, sender_email, role } = data;
+
+  if (!login_email || !password || !sender_email) {
+    return res.status(400).json({
+      success: false,
+      error: 'Login email, password, and sender email are required'
+    });
+  }
+
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+    const { data: createdUser, error: insertError } = await getSupabaseClient()
+      .from('mail_users')
+      .insert([{ login_email, sender_email, role: role || 'user', password_hash: passwordHash, is_active: true }])
+      .select('id, login_email, sender_email, role, is_active, created_at, updated_at')
+      .single();
+
+    if (insertError) {
+      console.error('❌ Create mail user error:', insertError);
+      return res.status(500).json({ success: false, error: 'Failed to create mail user' });
+    }
+
+    return res.status(201).json({ success: true, mailUser: createdUser });
+  } catch (error) {
+    console.error('❌ Create mail user exception:', error.message);
+    return res.status(500).json({ success: false, error: 'Failed to create mail user' });
   }
 }
 

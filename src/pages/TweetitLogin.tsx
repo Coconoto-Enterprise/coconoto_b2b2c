@@ -21,8 +21,11 @@ const TweetitLogin: React.FC = () => {
       });
 
       const data = await response.json();
-      if (data.success && data.user) {
-        localStorage.setItem('tweetitUser', JSON.stringify(data.user));
+      if (data.success && (data.user || data.mailUser)) {
+        const loggedUser = data.user || data.mailUser;
+        localStorage.setItem('tweetitUser', JSON.stringify(loggedUser));
+        localStorage.setItem('adminLoggedIn', 'true');
+        localStorage.setItem('currentMailUser', JSON.stringify(loggedUser));
         navigate('/tweetit-dashboard');
       } else {
         setError(data.error || 'Invalid login credentials. Please try again.');

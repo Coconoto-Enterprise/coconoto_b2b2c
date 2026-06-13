@@ -39,6 +39,16 @@ export interface EmailUser {
   updated_at: string;
 }
 
+export interface MailUser {
+  id: string;
+  login_email: string;
+  sender_email: string;
+  role: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
 /**
  * Get sender configuration for a specific email type
  * @param emailType e.g., "waitlist_signup", "contact_inquiry", etc.
@@ -391,5 +401,91 @@ export const searchSentEmails = async (
   } catch (err) {
     console.error('❌ Error in searchSentEmails:', err);
     return [];
+  }
+};
+
+export const getSentEmailsBySender = async (
+  senderEmail: string,
+  limit: number = 50,
+  offset: number = 0
+): Promise<{ emails: EmailLog[]; total: number }> => {
+  try {
+    const { count } = await supabase
+      .from('email_logs')
+      .select('*', { count: 'exact', head: true })
+      .eq('from_address', senderEmail);
+
+    const { data, error } = await supabase
+      .from('email_logs')
+      .select('*')
+      .eq('from_address', senderEmail)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      console.error('❌ Error fetching sent emails by sender:', error);
+      return { emails: [], total: 0 };
+    }
+
+    return {
+      emails: (data || []) as EmailLog[],
+      total: count || 0
+    };
+  } catch (err) {
+    console.error('❌ Error in getSentEmailsBySender:', err);
+    return { emails: [], total: 0 };
+  }
+};
+
+export const getMailUsers = async (): Promise<MailUser[]> => {
+  try {
+    const response = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'list-mail-users' }),
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      console.error('❌ Error fetching mail users:', data.error);
+      return [];
+    }
+
+    return data.mailUsers || [];
+  } catch (err) {
+    console.error('❌ Error in getMailUsers:', err);
+    return [];
+  }
+};
+
+export const createMailUser = async (
+  login_email: string,
+  password: string,
+  sender_email: string,
+  role: string = 'user'
+): Promise<MailUser | null> => {
+  try {
+    const response = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'create-mail-user',
+        login_email,
+        password,
+        sender_email,
+        role
+      }),
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      console.error('❌ Error creating mail user:', data.error);
+      return null;
+    }
+
+    return data.mailUser || null;
+  } catch (err) {
+    console.error('❌ Error in createMailUser:', err);
+    return null;
   }
 };
