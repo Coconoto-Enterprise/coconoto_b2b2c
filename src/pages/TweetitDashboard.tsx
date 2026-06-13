@@ -143,7 +143,6 @@ const TweetitDashboard: React.FC = () => {
               <img src={Logo} alt="Coconoto" className="h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain flex-shrink-0" />
               <div>
                 <h2 className="font-semibold text-lg">Email Center</h2>
-                <p className="text-sm text-gray-600">Signed in as <strong>{currentUser.email}</strong> ({currentUser.role})</p>
               </div>
             </div>
 

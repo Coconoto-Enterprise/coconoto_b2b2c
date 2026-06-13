@@ -27,6 +27,8 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   const [currentUser, setCurrentUser] = useState<MailUser | null>(null);
   const [selectedSender, setSelectedSender] = useState('');
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+
+  const currentUserEmail = currentUser?.login_email || (currentUser as any)?.email || '';
   const [newUser, setNewUser] = useState({ login_email: '', sender_email: '', password: '', role: 'user' });
   const [modalError, setModalError] = useState('');
 
@@ -199,45 +201,44 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
           </nav>
 
           {currentUser?.role === 'admin' && (
-            <div className="px-4 py-3 border-t border-gray-200 mt-4">
-              <button
-                onClick={() => setShowAddUserModal(true)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-700 hover:bg-gray-200"
-              >
-                ⚙️ Add mail user
-              </button>
-            </div>
-          )}
-
-          {currentUser?.role === 'admin' && (
-            <div className="px-4 py-3 border-t border-gray-200 mt-4">
-              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
-              <button
-                onClick={() => handleUserSelection('')}
-                className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
-                  selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                All users
-              </button>
-              {mailUsers.map(user => (
+            <div className="px-4 py-3 border-t border-gray-200 mt-4 space-y-4">
+              <div>
+                <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
                 <button
-                  key={user.id}
-                  onClick={() => handleUserSelection(user.sender_email)}
+                  onClick={() => handleUserSelection('')}
                   className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
-                    selectedSender === user.sender_email ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                    selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
-                  {user.login_email}
+                  All users
                 </button>
-              ))}
+                {mailUsers.map(user => (
+                  <button
+                    key={user.id}
+                    onClick={() => handleUserSelection(user.sender_email)}
+                    className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
+                      selectedSender === user.sender_email ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {user.login_email}
+                  </button>
+                ))}
+              </div>
+
+              <div>
+                <button
+                  onClick={() => setShowAddUserModal(true)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-700 hover:bg-gray-200"
+                >
+                  Add mail user
+                </button>
+              </div>
             </div>
           )}
 
-          {currentUser && currentUser.role !== 'admin' && (
+          {currentUser && (
             <div className="px-4 py-3 border-t border-gray-200 mt-4 text-sm text-gray-700">
-              <div className="font-semibold">Logged in as</div>
-              <div className="mt-2 text-xs text-gray-600">{currentUser.login_email}</div>
+              <div className="font-semibold">{currentUserEmail} ({currentUser.role})</div>
             </div>
           )}
         </div>
