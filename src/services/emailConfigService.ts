@@ -24,6 +24,17 @@ export interface EmailLog {
   status: string;
   resend_id?: string;
   resend_created_at?: string;
+  sent_by_id?: string;
+  sent_by_email?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EmailUser {
+  id: string;
+  email: string;
+  role: 'admin' | 'staff';
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -122,6 +133,8 @@ export const logEmailSent = async (emailData: {
   status: string;
   resend_id?: string;
   resend_created_at?: string;
+  sent_by_id?: string;
+  sent_by_email?: string;
 }): Promise<EmailLog | null> => {
   try {
     const { data, error } = await supabase
@@ -142,6 +155,104 @@ export const logEmailSent = async (emailData: {
   }
 };
 
+export const getEmailUsers = async (
+  requesterId: string,
+  requesterEmail: string
+): Promise<EmailUser[]> => {
+  try {
+    if (!requesterId || !requesterEmail) {
+      return [];
+    }
+
+    const response = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'email-user-list',
+        requesterId,
+        requesterEmail
+      })
+    });
+    const data = await response.json();
+
+    if (!data.success) {
+      console.error('❌ Error fetching email users:', data.error);
+      return [];
+    }
+
+    return data.users as EmailUser[];
+  } catch (err) {
+    console.error('❌ Error fetching email users:', err);
+    return [];
+  }
+};
+
+export const createEmailUser = async (
+  requesterId: string,
+  requesterEmail: string,
+  email: string,
+  password: string,
+  role: 'admin' | 'staff' = 'staff'
+): Promise<EmailUser | null> => {
+  try {
+    const response = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'email-user-create',
+        requesterId,
+        requesterEmail,
+        email,
+        password,
+        role
+      })
+    });
+    const data = await response.json();
+
+    if (!data.success) {
+      console.error('❌ Error creating email user:', data.error);
+      return null;
+    }
+
+    return data.user as EmailUser;
+  } catch (err) {
+    console.error('❌ Error creating email user:', err);
+    return null;
+  }
+};
+
+export const updateEmailUserPassword = async (
+  requesterId: string,
+  requesterEmail: string,
+  userId: string,
+  password: string
+): Promise<EmailUser | null> => {
+  try {
+    const response = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'email-user-update-password',
+        requesterId,
+        requesterEmail,
+        userId,
+        password
+      })
+    });
+    const data = await response.json();
+
+    if (!data.success) {
+      console.error('❌ Error updating email user password:', data.error);
+      return null;
+    }
+
+    return data.user as EmailUser;
+  } catch (err) {
+    console.error('❌ Error updating email user password:', err);
+    return null;
+  }
+};
+
 /**
  * Get all sent emails (for the sent folder view)
  * @param limit Number of emails to fetch
@@ -150,18 +261,24 @@ export const logEmailSent = async (emailData: {
  */
 export const getSentEmails = async (
   limit: number = 50,
-  offset: number = 0
+  offset: number = 0,
+  sentByEmail?: string
 ): Promise<{ emails: EmailLog[]; total: number }> => {
   try {
     // Get total count
-    const { count } = await supabase
-      .from('email_logs')
-      .select('*', { count: 'exact', head: true });
+    let query = supabase.from('email_logs').select('*', { count: 'exact', head: true });
+    if (sentByEmail) {
+      query = query.eq('sent_by_email', sentByEmail);
+    }
+    const { count } = await query;
 
     // Fetch emails
-    const { data, error } = await supabase
-      .from('email_logs')
-      .select('*')
+    let fetchQuery = supabase.from('email_logs').select('*');
+    if (sentByEmail) {
+      fetchQuery = fetchQuery.eq('sent_by_email', sentByEmail);
+    }
+
+    const { data, error } = await fetchQuery
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -246,15 +363,22 @@ export const updateEmailStatus = async (
  */
 export const searchSentEmails = async (
   query: string,
-  limit: number = 50
+  limit: number = 50,
+  sentByEmail?: string
 ): Promise<EmailLog[]> => {
   try {
-    const { data, error } = await supabase
+    let searchQuery = supabase
       .from('email_logs')
       .select('*')
       .or(
         `subject.ilike.%${query}%,from_address.ilike.%${query}%,to_addresses.cs.${JSON.stringify([query])}`
-      )
+      );
+
+    if (sentByEmail) {
+      searchQuery = searchQuery.eq('sent_by_email', sentByEmail);
+    }
+
+    const { data, error } = await searchQuery
       .order('created_at', { ascending: false })
       .limit(limit);
 

@@ -54,6 +54,14 @@ export default async function handler(req, res) {
         return await handleVendorSignup(data, res);
       case 'admin-login':
         return await handleAdminLogin(data, res);
+      case 'email-user-login':
+        return await handleEmailUserLogin(data, res);
+      case 'email-user-create':
+        return await handleEmailUserCreate(data, res);
+      case 'email-user-update-password':
+        return await handleEmailUserUpdatePassword(data, res);
+      case 'email-user-list':
+        return await handleEmailUserList(data, res);
       default:
         return res.status(400).json({ error: 'Invalid action' });
     }
@@ -342,5 +350,227 @@ async function handleAdminLogin(data, res) {
       success: false,
       error: 'Invalid password'
     });
+  }
+}
+
+// Email user login for admin/staff email portal
+async function handleEmailUserLogin(data, res) {
+  const { email, password } = data;
+
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      error: 'Email and password are required'
+    });
+  }
+
+  try {
+    const { data: user, error } = await getSupabaseClient()
+      .from('email_users')
+      .select('*')
+      .eq('email', email)
+      .eq('is_active', true)
+      .single();
+
+    if (error || !user) {
+      // Fallback default admin account for initial setup only
+      const defaultAdminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'info@coconoto.africa';
+      const defaultAdminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'COCONOTO';
+
+      if (email === defaultAdminEmail && password === defaultAdminPassword) {
+        return res.status(200).json({
+          success: true,
+          user: {
+            id: 'default-admin',
+            email: defaultAdminEmail,
+            role: 'admin',
+            is_active: true
+          }
+        });
+      }
+
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password'
+      });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password_hash);
+    if (!passwordMatch) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password'
+      });
+    }
+
+    const { password_hash, ...userData } = user;
+    return res.status(200).json({
+      success: true,
+      user: userData
+    });
+  } catch (error) {
+    console.error('❌ Email user login exception:', error.message);
+    console.error('Stack:', error.stack);
+    return res.status(500).json({
+      success: false,
+      error: 'Login failed: ' + error.message
+    });
+  }
+}
+
+async function handleEmailUserCreate(data, res) {
+  const { email, password, role = 'staff', requesterId, requesterEmail } = data;
+
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      error: 'Email and password are required'
+    });
+  }
+
+  if (!(await authorizeAdmin(requesterId, requesterEmail))) {
+    return res.status(403).json({
+      success: false,
+      error: 'Admin privileges required'
+    });
+  }
+
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+    const { data: newUser, error } = await getSupabaseClient()
+      .from('email_users')
+      .insert([{ email, password_hash: passwordHash, role, is_active: true }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Email user create error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to create email user: ' + error.message
+      });
+    }
+
+    const { password_hash, ...userData } = newUser;
+    return res.status(201).json({ success: true, user: userData });
+  } catch (error) {
+    console.error('❌ Email user creation exception:', error.message);
+    console.error('Stack:', error.stack);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to create email user: ' + error.message
+    });
+  }
+}
+
+async function handleEmailUserUpdatePassword(data, res) {
+  const { userId, password, requesterId, requesterEmail } = data;
+
+  if (!userId || !password) {
+    return res.status(400).json({
+      success: false,
+      error: 'User ID and new password are required'
+    });
+  }
+
+  if (!(await authorizeAdmin(requesterId, requesterEmail))) {
+    return res.status(403).json({
+      success: false,
+      error: 'Admin privileges required'
+    });
+  }
+
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+    const { data: updatedUser, error } = await getSupabaseClient()
+      .from('email_users')
+      .update({ password_hash: passwordHash })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error || !updatedUser) {
+      console.error('❌ Email user password update error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to update password: ' + (error?.message || 'Unknown error')
+      });
+    }
+
+    const { password_hash, ...userData } = updatedUser;
+    return res.status(200).json({ success: true, user: userData });
+  } catch (error) {
+    console.error('❌ Email user password update exception:', error.message);
+    console.error('Stack:', error.stack);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update password: ' + error.message
+    });
+  }
+}
+
+async function handleEmailUserList(data, res) {
+  const { requesterId, requesterEmail } = data;
+
+  if (!(await authorizeAdmin(requesterId, requesterEmail))) {
+    return res.status(403).json({
+      success: false,
+      error: 'Admin privileges required'
+    });
+  }
+
+  try {
+    const { data: users, error } = await getSupabaseClient()
+      .from('email_users')
+      .select('id,email,role,is_active,created_at,updated_at')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('❌ Email user list error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to load users: ' + error.message
+      });
+    }
+
+    return res.status(200).json({ success: true, users });
+  } catch (error) {
+    console.error('❌ Email user list exception:', error.message);
+    console.error('Stack:', error.stack);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to load users: ' + error.message
+    });
+  }
+}
+
+async function authorizeAdmin(requesterId, requesterEmail) {
+  const defaultAdminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'info@coconoto.africa';
+
+  if (requesterId === 'default-admin' && requesterEmail === defaultAdminEmail) {
+    return true;
+  }
+
+  if (!requesterId || !requesterEmail) {
+    return false;
+  }
+
+  try {
+    const { data: user, error } = await getSupabaseClient()
+      .from('email_users')
+      .select('id,email,role,is_active')
+      .eq('id', requesterId)
+      .eq('email', requesterEmail)
+      .eq('is_active', true)
+      .single();
+
+    if (error || !user) {
+      return false;
+    }
+
+    return user.role === 'admin';
+  } catch (error) {
+    console.error('❌ Admin authorization check failed:', error);
+    return false;
   }
 }

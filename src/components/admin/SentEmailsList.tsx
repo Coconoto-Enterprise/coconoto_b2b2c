@@ -4,9 +4,10 @@ import { getSentEmails, searchSentEmails, EmailLog } from '../../services/emailC
 interface SentEmailsListProps {
   isLoading?: boolean;
   refreshKey?: number;
+  viewerEmail?: string;
 }
 
-export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initialLoading = false, refreshKey }) => {
+export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initialLoading = false, refreshKey, viewerEmail }) => {
   const [emails, setEmails] = useState<EmailLog[]>([]);
   const [loading, setLoading] = useState(initialLoading);
   const [selectedEmail, setSelectedEmail] = useState<EmailLog | null>(null);
@@ -38,10 +39,10 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
 
         let allEmails: EmailLog[] = [];
         if (searchQuery.trim()) {
-          allEmails = await searchSentEmails(searchQuery, ITEMS_PER_PAGE);
+          allEmails = await searchSentEmails(searchQuery, ITEMS_PER_PAGE, viewerEmail);
           setTotalEmails(allEmails.length);
         } else {
-          const result = await getSentEmails(ITEMS_PER_PAGE, offset);
+          const result = await getSentEmails(ITEMS_PER_PAGE, offset, viewerEmail);
           allEmails = result.emails;
           setTotalEmails(result.total || 0);
         }
@@ -64,7 +65,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
     };
 
     fetchEmails();
-  }, [page, searchQuery, currentFolder, refreshKey]);
+  }, [page, searchQuery, currentFolder, refreshKey, viewerEmail]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

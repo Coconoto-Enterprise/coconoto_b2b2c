@@ -1,8 +1,12 @@
 import { Resend } from 'resend';
 import formidable from 'formidable';
 import fs from 'fs';
+import { createClient } from '@supabase/supabase-js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const supabase = process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY
+  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
+  : null;
 
 // Vercel configuration for file uploads
 export const config = {
@@ -260,7 +264,7 @@ export default async function handler(req, res) {
   try {
     // Parse FormData or JSON body
     const contentType = req.headers['content-type'] || '';
-    let to, subject, message, heading, templateType;
+    let to, subject, message, heading, templateType, senderEmail, senderId;
     let attachments = [];
     
     if (contentType.includes('multipart/form-data')) {
@@ -283,6 +287,8 @@ export default async function handler(req, res) {
       message = Array.isArray(fields.message) ? fields.message[0] : fields.message;
       heading = Array.isArray(fields.heading) ? fields.heading[0] : fields.heading;
       templateType = Array.isArray(fields.templateType) ? fields.templateType[0] : fields.templateType;
+      senderEmail = Array.isArray(fields.senderEmail) ? fields.senderEmail[0] : fields.senderEmail;
+      senderId = Array.isArray(fields.senderId) ? fields.senderId[0] : fields.senderId;
       
       // Process uploaded files
       if (files.attachments) {
@@ -304,6 +310,8 @@ export default async function handler(req, res) {
       message = body.message;
       heading = body.heading;
       templateType = body.templateType;
+      senderEmail = body.senderEmail;
+      senderId = body.senderId;
     }
 
     if (!to || !subject || !message) {
@@ -336,27 +344,47 @@ export default async function handler(req, res) {
       htmlContent = buildCustomerTemplate(heading || '', message);
     }
 
+    const emailFrom = senderEmail || (templateType === 'team' ? 'team@coconoto.africa' : 'team@coconoto.africa');
+    const displayName = templateType === 'team' ? 'Coconoto Internal Team' : 'Coconoto Customer Service';
+
     // Send email with attachments
     const emailData = {
-      from: templateType === 'team' 
-        ? 'Coconoto Internal Team <team@coconoto.africa>'
-        : 'Coconoto Customer Service <team@coconoto.africa>',
+      from: `${displayName} <${emailFrom}>`,
       to: recipients,
       subject: subject,
       html: htmlContent,
     };
     
-    // Add attachments if present
     if (attachments.length > 0) {
       emailData.attachments = attachments;
     }
 
     const result = await resend.emails.send(emailData);
 
+    if (supabase) {
+      try {
+        await supabase.from('email_logs').insert([{
+          from_address: emailFrom,
+          to_addresses: recipients,
+          subject,
+          preview: message?.slice(0, 500) || null,
+          full_html: htmlContent,
+          email_type: templateType || null,
+          status: result?.data?.id ? 'delivered' : 'failed',
+          resend_id: result?.data?.id || null,
+          resend_created_at: result?.data?.created_at || null,
+          sent_by_id: senderId || null,
+          sent_by_email: senderEmail || emailFrom
+        }]);
+      } catch (logError) {
+        console.error('❌ Failed to log sent email:', logError);
+      }
+    }
+
     return res.status(200).json({
       success: true,
       message: `Email sent successfully${attachments.length > 0 ? ` with ${attachments.length} attachment(s)` : ''}`,
-      emailId: result.data?.id,
+      emailId: result?.data?.id,
       attachmentCount: attachments.length
     });
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const TweetitLogin: React.FC = () => {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -16,15 +17,15 @@ const TweetitLogin: React.FC = () => {
       const response = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'admin-login', password }),
+        body: JSON.stringify({ action: 'email-user-login', email, password }),
       });
 
       const data = await response.json();
-      if (data.success) {
-        localStorage.setItem('adminLoggedIn', 'true');
+      if (data.success && data.user) {
+        localStorage.setItem('tweetitUser', JSON.stringify(data.user));
         navigate('/tweetit-dashboard');
       } else {
-        setError('Invalid password. Please try again.');
+        setError(data.error || 'Invalid login credentials. Please try again.');
       }
     } catch (err) {
       setError('Login failed. Please try again.');
@@ -40,8 +41,8 @@ const TweetitLogin: React.FC = () => {
           <div className="mx-auto h-20 w-20 bg-green-600 rounded-full flex items-center justify-center mb-6 shadow-lg">
             <span className="text-3xl font-bold text-white">✉️</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tweetit Access</h1>
-          <p className="text-sm text-gray-600">Email management portal</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tweetit Email Portal</h1>
+          <p className="text-sm text-gray-600">Login with your Coconoto email user account.</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow p-8 border">
@@ -51,7 +52,20 @@ const TweetitLogin: React.FC = () => {
             )}
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Admin Password</label>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Email address</label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500"
+                placeholder="you@coconoto.africa"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Password</label>
               <input
                 id="password"
                 type="password"
@@ -59,7 +73,7 @@ const TweetitLogin: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500"
-                placeholder="Enter admin password"
+                placeholder="Enter your password"
               />
             </div>
 
@@ -68,9 +82,14 @@ const TweetitLogin: React.FC = () => {
               disabled={isLoading}
               className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50"
             >
-              {isLoading ? 'Signing In...' : 'Enter Tweetit'}
+              {isLoading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
+
+          <div className="mt-6 text-sm text-gray-500">
+            <p>First admin account: <strong>info@coconoto.africa</strong></p>
+            <p>Password: <strong>COCONOTO</strong></p>
+          </div>
 
           <div className="mt-6 text-center">
             <button onClick={() => navigate('/')} className="text-sm text-gray-600 underline">Return to Main Site</button>

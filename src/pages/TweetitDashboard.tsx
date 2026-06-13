@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Send, LogOut, X } from 'lucide-react';
 import { SentEmailsList } from '../components/admin/SentEmailsList';
+import EmailUsersPanel from '../components/admin/EmailUsersPanel';
+import { getAllSenderConfigs, EmailSenderConfig } from '../services/emailConfigService';
 import Logo from '../assets/Logo_1.png';
+
+interface TweetitUser {
+  id: string;
+  email: string;
+  role: 'admin' | 'staff';
+  is_active?: boolean;
+}
 
 const TweetitDashboard: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -16,16 +25,65 @@ const TweetitDashboard: React.FC = () => {
     templateType: 'customer',
     attachments: [] as File[],
   });
+  const [currentUser, setCurrentUser] = useState<TweetitUser | null>(null);
+  const [senderOptions, setSenderOptions] = useState<EmailSenderConfig[]>([]);
+  const [selectedSender, setSelectedSender] = useState('team@coconoto.africa');
+  const [showUserManager, setShowUserManager] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const stored = localStorage.getItem('tweetitUser');
+    if (!stored) {
+      navigate('/tweetit');
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(stored) as TweetitUser;
+      if (!parsed?.email) {
+        navigate('/tweetit');
+        return;
+      }
+      setCurrentUser(parsed);
+    } catch {
+      navigate('/tweetit');
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    if (currentUser.role === 'staff') {
+      setSelectedSender(currentUser.email);
+      return;
+    }
+
+    const loadSenderConfigs = async () => {
+      const configs = await getAllSenderConfigs();
+      const activeSenders = configs.filter((config) => config.is_active);
+      setSenderOptions(activeSenders);
+      if (activeSenders.length > 0) {
+        setSelectedSender(activeSenders[0].sender_email);
+      }
+    };
+
+    loadSenderConfigs();
+  }, [currentUser]);
+
   const handleLogout = () => {
-    localStorage.removeItem('adminLoggedIn');
+    localStorage.removeItem('tweetitUser');
     navigate('/tweetit');
   };
 
   const handleSendEmail = async () => {
     if (!composer.to || !composer.subject || !composer.message) {
       alert('Please fill in all required fields (Recipients, Subject, and Message)');
+      return;
+    }
+
+    if (!currentUser) {
+      alert('Your session has expired. Please login again.');
+      navigate('/tweetit');
       return;
     }
 
@@ -37,6 +95,8 @@ const TweetitDashboard: React.FC = () => {
       formData.append('message', composer.message);
       formData.append('heading', composer.heading);
       formData.append('templateType', composer.templateType);
+      formData.append('senderEmail', selectedSender || currentUser.email);
+      formData.append('senderId', currentUser.id);
       composer.attachments.forEach((file) => formData.append('attachments', file));
 
       const response = await fetch('/api/send-custom-email', {
@@ -60,16 +120,32 @@ const TweetitDashboard: React.FC = () => {
     }
   };
 
+  if (!currentUser) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b">
         <div className="px-3 sm:px-4 lg:px-6">
-          <div className="flex items-center justify-between h-14 sm:h-16">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between h-full py-3 md:py-4">
             <div className="flex items-center min-w-0 gap-2 sm:gap-3">
               <img src={Logo} alt="Coconoto" className="h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain flex-shrink-0" />
-              <h2 className="font-semibold text-lg">Email Center</h2>
+              <div>
+                <h2 className="font-semibold text-lg">Email Center</h2>
+                <p className="text-sm text-gray-600">Signed in as <strong>{currentUser.email}</strong> ({currentUser.role})</p>
+              </div>
             </div>
-            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 flex-shrink-0">
+              {currentUser.role === 'admin' && (
+                <button
+                  onClick={() => setShowUserManager(true)}
+                  className="bg-blue-600 text-white px-3 py-1 rounded-md inline-flex items-center gap-2"
+                >
+                  Manage Users
+                </button>
+              )}
               <button
                 onClick={() => setShowComposer(true)}
                 className="bg-green-600 text-white px-3 py-1 rounded-md inline-flex items-center gap-2"
@@ -90,14 +166,17 @@ const TweetitDashboard: React.FC = () => {
       </div>
 
       <div className="p-4">
-        <SentEmailsList refreshKey={refreshKey} />
+        <SentEmailsList refreshKey={refreshKey} viewerEmail={currentUser.role === 'staff' ? currentUser.email : undefined} />
       </div>
 
       {showComposer && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-2xl sm:max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex items-center justify-between">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900">Compose Email</h3>
+              <div>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900">Compose Email</h3>
+                <p className="text-sm text-gray-600">Sending as {currentUser.role === 'admin' ? selectedSender : currentUser.email}</p>
+              </div>
               <button
                 onClick={() => setShowComposer(false)}
                 title="Close composer"
@@ -107,6 +186,28 @@ const TweetitDashboard: React.FC = () => {
               </button>
             </div>
             <div className="p-4 sm:p-6 space-y-4 flex-1 overflow-y-auto">
+              {currentUser.role === 'admin' && (
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Send From</label>
+                  <select
+                    aria-label="Select sender email"
+                    value={selectedSender}
+                    onChange={(e) => setSelectedSender(e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    {senderOptions.length > 0 ? (
+                      senderOptions.map((option) => (
+                        <option key={option.id} value={option.sender_email}>
+                          {option.sender_name} ({option.sender_email})
+                        </option>
+                      ))
+                    ) : (
+                      <option value="team@coconoto.africa">team@coconoto.africa</option>
+                    )}
+                  </select>
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Email Template</label>
                 <div className="flex gap-3 sm:gap-4 flex-wrap">
@@ -233,6 +334,10 @@ const TweetitDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {showUserManager && currentUser?.role === 'admin' && (
+        <EmailUsersPanel currentUser={currentUser} onClose={() => setShowUserManager(false)} />
       )}
     </div>
   );
