@@ -89,11 +89,6 @@ const TweetitLogin: React.FC = () => {
             </button>
           </form>
 
-          <div className="mt-6 text-sm text-gray-500">
-            <p>First admin account: <strong>info@coconoto.africa</strong></p>
-            <p>Password: <strong>COCONOTO</strong></p>
-          </div>
-
           <div className="mt-6 text-center">
             <button onClick={() => navigate('/')} className="text-sm text-gray-600 underline">Return to Main Site</button>
           </div>
