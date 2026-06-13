@@ -176,9 +176,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   const totalPages = Math.ceil(totalEmails / ITEMS_PER_PAGE);
 
   return (
-    <div className="flex h-full min-h-0 bg-gray-50 overflow-hidden rounded-3xl shadow-sm" style={{ backgroundColor: '#f5f5f5' }}>
+    <div className="flex h-full bg-gray-50 overflow-hidden rounded-3xl shadow-sm" style={{ backgroundColor: '#f5f5f5' }}>
       {/* Left Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col" style={{ borderRightColor: '#d4a574' }}>
+      <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-full" style={{ borderRightColor: '#d4a574' }}>
         <div className="flex-1 overflow-y-auto py-2">
           <nav className="space-y-1 px-2">
             {[
@@ -210,50 +210,46 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
           </nav>
 
           {currentUser?.role === 'admin' && (
-            <div className="px-4 mt-4">
-              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
-              <button
-                onClick={() => handleUserSelection('')}
-                className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
-                  selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                All users
-              </button>
-              {mailUsers.map(user => (
+            <div className="px-4 py-3 border-t border-gray-200 mt-4 space-y-4">
+              <div>
+                <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
                 <button
-                  key={user.id}
-                  onClick={() => handleUserSelection(user.sender_email)}
+                  onClick={() => handleUserSelection('')}
                   className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
-                    selectedSender === user.sender_email ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                    selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
-                  {user.login_email}
+                  All users
                 </button>
-              ))}
+                {mailUsers.map(user => (
+                  <button
+                    key={user.id}
+                    onClick={() => handleUserSelection(user.sender_email)}
+                    className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
+                      selectedSender === user.sender_email ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {user.login_email}
+                  </button>
+                ))}
+              </div>
+
+              <div>
+                <button
+                  onClick={() => setShowAddUserModal(true)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-700 hover:bg-gray-200"
+                >
+                  Add mail user
+                </button>
+              </div>
             </div>
-          )}
-
-          { /* spacer to allow scrolling */}
-        </div>
-
-        {/* Sidebar Footer: pinned to bottom */}
-        <div className="px-4 py-4 border-t border-gray-200">
-          {currentUser?.role === 'admin' && (
-            <button
-              onClick={() => setShowAddUserModal(true)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-900 font-medium hover:bg-gray-200"
-            >
-              Add mail user
-            </button>
           )}
 
           {currentUser && (
-            <div className="mt-3 text-sm text-gray-700">
+            <div className="px-4 py-3 border-t border-gray-200 mt-4 text-sm text-gray-700">
               <div className="font-semibold">{currentUserEmail} ({currentUser.role})</div>
             </div>
           )}
-        </div>
         </div>
       </div>
 
