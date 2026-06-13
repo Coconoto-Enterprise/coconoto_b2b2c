@@ -138,9 +138,9 @@ const TweetitDashboard: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b">
         <div className="px-3 sm:px-4 lg:px-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between h-full py-2 md:py-3">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             <div className="flex items-center min-w-0 gap-2 sm:gap-3">
-              <img src={Logo} alt="Coconoto" className="h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain flex-shrink-0" />
+              <img src={Logo} alt="Coconoto" className="self-end mb-1 h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain flex-shrink-0" />
               <div>
                 <h2 className="font-semibold text-lg">Email Center</h2>
               </div>
