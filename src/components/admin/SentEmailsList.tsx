@@ -208,49 +208,53 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
               </button>
             ))}
           </nav>
+        </div>
 
-          {currentUser?.role === 'admin' && (
-            <div className="px-4 py-3 border-t border-gray-200 mt-4 space-y-4">
-              <div>
-                <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
-                <button
-                  onClick={() => handleUserSelection('')}
-                  className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
-                    selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  All users
-                </button>
-                {mailUsers.map(user => (
+        {(currentUser?.role === 'admin' || currentUser) && (
+          <div className="px-4 py-4 border-t border-gray-200">
+            {currentUser?.role === 'admin' && (
+              <div className="space-y-4">
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
                   <button
-                    key={user.id}
-                    onClick={() => handleUserSelection(user.sender_email)}
+                    onClick={() => handleUserSelection('')}
                     className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
-                      selectedSender === user.sender_email ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                      selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    {user.login_email}
+                    All users
                   </button>
-                ))}
-              </div>
+                  {mailUsers.map(user => (
+                    <button
+                      key={user.id}
+                      onClick={() => handleUserSelection(user.sender_email)}
+                      className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
+                        selectedSender === user.sender_email ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {user.login_email}
+                    </button>
+                  ))}
+                </div>
 
-              <div>
-                <button
-                  onClick={() => setShowAddUserModal(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-700 hover:bg-gray-200"
-                >
-                  Add mail user
-                </button>
+                <div>
+                  <button
+                    onClick={() => setShowAddUserModal(true)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-700 font-bold hover:bg-gray-200"
+                  >
+                    Add mail user
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {currentUser && (
-            <div className="px-4 py-3 border-t border-gray-200 mt-4 text-sm text-gray-700">
-              <div className="font-semibold">{currentUserEmail} ({currentUser.role})</div>
-            </div>
-          )}
-        </div>
+            {currentUser && (
+              <div className="mt-4 text-sm text-gray-700">
+                <div className="font-semibold">{currentUserEmail} ({currentUser.role})</div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Main Content Area */}
