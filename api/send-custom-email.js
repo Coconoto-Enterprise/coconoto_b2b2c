@@ -264,7 +264,7 @@ export default async function handler(req, res) {
   try {
     // Parse FormData or JSON body
     const contentType = req.headers['content-type'] || '';
-    let to, subject, message, heading, templateType;
+    let to, subject, message, heading, templateType, senderEmail, senderId;
     let attachments = [];
     
     if (contentType.includes('multipart/form-data')) {
@@ -287,6 +287,8 @@ export default async function handler(req, res) {
       message = Array.isArray(fields.message) ? fields.message[0] : fields.message;
       heading = Array.isArray(fields.heading) ? fields.heading[0] : fields.heading;
       templateType = Array.isArray(fields.templateType) ? fields.templateType[0] : fields.templateType;
+      senderEmail = Array.isArray(fields.senderEmail) ? fields.senderEmail[0] : fields.senderEmail;
+      senderId = Array.isArray(fields.senderId) ? fields.senderId[0] : fields.senderId;
       
       // Process uploaded files
       if (files.attachments) {
@@ -308,6 +310,8 @@ export default async function handler(req, res) {
       message = body.message;
       heading = body.heading;
       templateType = body.templateType;
+      senderEmail = body.senderEmail;
+      senderId = body.senderId;
     }
 
     if (!to || !subject || !message) {
