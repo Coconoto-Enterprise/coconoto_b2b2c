@@ -468,9 +468,9 @@ async function handleEmailUserLogin(data, res) {
 
   try {
     const { data: user, error } = await getSupabaseClient()
-      .from('email_users')
-      .select('*')
-      .eq('email', email)
+      .from('mail_users')
+      .select('id, login_email, sender_email, role, is_active, password_hash')
+      .eq('login_email', email)
       .eq('is_active', true)
       .single();
 
@@ -485,6 +485,7 @@ async function handleEmailUserLogin(data, res) {
           user: {
             id: 'default-admin',
             email: defaultAdminEmail,
+            sender_email: defaultAdminEmail,
             role: 'admin',
             is_active: true
           }
@@ -505,10 +506,17 @@ async function handleEmailUserLogin(data, res) {
       });
     }
 
-    const { password_hash, ...userData } = user;
+    const { password_hash, login_email, ...rest } = user;
     return res.status(200).json({
       success: true,
-      user: userData
+      user: {
+        id: user.id,
+        email: login_email,
+        sender_email: user.sender_email,
+        role: user.role,
+        is_active: user.is_active,
+        ...rest
+      }
     });
   } catch (error) {
     console.error('❌ Email user login exception:', error.message);
@@ -540,9 +548,9 @@ async function handleEmailUserCreate(data, res) {
   try {
     const passwordHash = await bcrypt.hash(password, 10);
     const { data: newUser, error } = await getSupabaseClient()
-      .from('email_users')
-      .insert([{ email, password_hash: passwordHash, role, is_active: true }])
-      .select()
+      .from('mail_users')
+      .insert([{ login_email: email, sender_email: email, password_hash: passwordHash, role, is_active: true }])
+      .select('id, login_email, sender_email, role, is_active, created_at, updated_at')
       .single();
 
     if (error) {
@@ -555,12 +563,22 @@ async function handleEmailUserCreate(data, res) {
       }
       return res.status(500).json({
         success: false,
-        error: 'Failed to create email user: ' + error.message
+        error: 'Failed to create email user: ' + (error.message || 'Unknown error')
       });
     }
 
-    const { password_hash, ...userData } = newUser;
-    return res.status(201).json({ success: true, user: userData });
+    return res.status(201).json({
+      success: true,
+      user: {
+        id: newUser.id,
+        email: newUser.login_email,
+        sender_email: newUser.sender_email,
+        role: newUser.role,
+        is_active: newUser.is_active,
+        created_at: newUser.created_at,
+        updated_at: newUser.updated_at
+      }
+    });
   } catch (error) {
     console.error('❌ Email user creation exception:', error.message);
     console.error('Stack:', error.stack);
@@ -591,10 +609,10 @@ async function handleEmailUserUpdatePassword(data, res) {
   try {
     const passwordHash = await bcrypt.hash(password, 10);
     const { data: updatedUser, error } = await getSupabaseClient()
-      .from('email_users')
+      .from('mail_users')
       .update({ password_hash: passwordHash })
       .eq('id', userId)
-      .select()
+      .select('id, login_email, sender_email, role, is_active, created_at, updated_at')
       .single();
 
     if (error || !updatedUser) {
@@ -605,8 +623,18 @@ async function handleEmailUserUpdatePassword(data, res) {
       });
     }
 
-    const { password_hash, ...userData } = updatedUser;
-    return res.status(200).json({ success: true, user: userData });
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.login_email,
+        sender_email: updatedUser.sender_email,
+        role: updatedUser.role,
+        is_active: updatedUser.is_active,
+        created_at: updatedUser.created_at,
+        updated_at: updatedUser.updated_at
+      }
+    });
   } catch (error) {
     console.error('❌ Email user password update exception:', error.message);
     console.error('Stack:', error.stack);
@@ -629,8 +657,8 @@ async function handleEmailUserList(data, res) {
 
   try {
     const { data: users, error } = await getSupabaseClient()
-      .from('email_users')
-      .select('id,email,role,is_active,created_at,updated_at')
+      .from('mail_users')
+      .select('id, login_email, sender_email, role, is_active, created_at, updated_at')
       .order('created_at', { ascending: true });
 
     if (error) {
@@ -641,7 +669,17 @@ async function handleEmailUserList(data, res) {
       });
     }
 
-    return res.status(200).json({ success: true, users });
+    const formattedUsers = (users || []).map((user) => ({
+      id: user.id,
+      email: user.login_email,
+      sender_email: user.sender_email,
+      role: user.role,
+      is_active: user.is_active,
+      created_at: user.created_at,
+      updated_at: user.updated_at
+    }));
+
+    return res.status(200).json({ success: true, users: formattedUsers });
   } catch (error) {
     console.error('❌ Email user list exception:', error.message);
     console.error('Stack:', error.stack);
@@ -665,10 +703,10 @@ async function authorizeAdmin(requesterId, requesterEmail) {
 
   try {
     const { data: user, error } = await getSupabaseClient()
-      .from('email_users')
-      .select('id,email,role,is_active')
+      .from('mail_users')
+      .select('id, login_email, sender_email, role, is_active')
       .eq('id', requesterId)
-      .eq('email', requesterEmail)
+      .eq('sender_email', requesterEmail)
       .eq('is_active', true)
       .single();
 
