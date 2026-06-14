@@ -61,10 +61,20 @@ const TweetitDashboard: React.FC = () => {
     const loadSenderConfigs = async () => {
       const configs = await getAllSenderConfigs();
       const activeSenders = configs.filter((config) => config.is_active);
-      setSenderOptions(activeSenders);
-      if (activeSenders.length > 0) {
-        setSelectedSender(activeSenders[0].sender_email);
+      const senderSet = new Set(activeSenders.map((option) => option.sender_email));
+      if (currentUser.email && !senderSet.has(currentUser.email)) {
+        activeSenders.unshift({
+          id: `login-${currentUser.email}`,
+          email_type: 'admin-login',
+          sender_email: currentUser.email,
+          sender_name: currentUser.email,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
       }
+      setSenderOptions(activeSenders);
+      setSelectedSender(currentUser.email || activeSenders[0]?.sender_email || 'team@coconoto.africa');
     };
 
     loadSenderConfigs();
