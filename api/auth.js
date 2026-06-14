@@ -56,6 +56,16 @@ export default async function handler(req, res) {
         return await handleAdminLogin(data, res);
       case 'email-user-login':
         return await handleEmailUserLogin(data, res);
+      case 'email-user-create':
+        return await handleEmailUserCreate(data, res);
+      case 'email-user-update-password':
+        return await handleEmailUserUpdatePassword(data, res);
+      case 'email-user-list':
+        return await handleEmailUserList(data, res);
+      case 'list-mail-users':
+        return await handleListMailUsers(res);
+      case 'create-mail-user':
+        return await handleCreateMailUser(data, res);
       default:
         return res.status(400).json({ error: 'Invalid action' });
     }
