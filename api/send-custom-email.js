@@ -399,25 +399,29 @@ export default async function handler(req, res) {
       };
 
       try {
-        await supabase.from('email_logs').insert([logRow]);
-        console.log('✅ Logged email to Supabase email_logs', { from_address: logRow.from_address, to_addresses: logRow.to_addresses, subject: logRow.subject });
-      } catch (logError) {
-        console.error('❌ Failed to log sent email:', logError);
+        const { data: logData, error: logError } = await supabase.from('email_logs').insert([logRow]);
+        if (logError) {
+          console.error('❌ Failed to log sent email:', logError, { logRow });
 
-        const logErrorMessage = logError?.message || String(logError);
-        const missingColumn = /column .*sent_by_(id|email) .* does not exist/i.test(logErrorMessage) || /unrecognized column/i.test(logErrorMessage);
+          const logErrorMessage = logError?.message || String(logError);
+          const missingColumn = /column .*sent_by_(id|email) .* does not exist/i.test(logErrorMessage) || /unrecognized column/i.test(logErrorMessage);
 
-        if (missingColumn) {
-          const fallbackLogRow = { ...logRow };
-          delete fallbackLogRow.sent_by_id;
-          delete fallbackLogRow.sent_by_email;
-          try {
-            await supabase.from('email_logs').insert([fallbackLogRow]);
-            console.warn('⚠️ Logged sent email without sent_by_id/sent_by_email because columns do not exist.');
-          } catch (fallbackError) {
-            console.error('❌ Fallback email log insert failed:', fallbackError);
+          if (missingColumn) {
+            const fallbackLogRow = { ...logRow };
+            delete fallbackLogRow.sent_by_id;
+            delete fallbackLogRow.sent_by_email;
+            const { data: fallbackData, error: fallbackError } = await supabase.from('email_logs').insert([fallbackLogRow]);
+            if (fallbackError) {
+              console.error('❌ Fallback email log insert failed:', fallbackError, { fallbackLogRow });
+            } else {
+              console.warn('⚠️ Logged sent email without sent_by_id/sent_by_email because columns do not exist.');
+            }
           }
+        } else {
+          console.log('✅ Logged email to Supabase email_logs', { from_address: logRow.from_address, to_addresses: logRow.to_addresses, subject: logRow.subject });
         }
+      } catch (logError) {
+        console.error('❌ Unexpected error during email log insert:', logError, { logRow });
       }
     } else {
       console.warn('⚠️ Supabase client unavailable; email is not logged to email_logs.');
