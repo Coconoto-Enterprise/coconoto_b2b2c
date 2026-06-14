@@ -383,6 +383,7 @@ export default async function handler(req, res) {
 
     const result = await resend.emails.send(emailData);
 
+    let logResult = null;
     if (supabase) {
       const logRow = {
         from_address: emailFrom,
@@ -403,6 +404,7 @@ export default async function handler(req, res) {
         if (logError) {
           console.error('❌ Failed to log sent email:', logError, { logRow });
 
+          // Try fallback if certain columns don't exist
           const logErrorMessage = logError?.message || String(logError);
           const missingColumn = /column .*sent_by_(id|email) .* does not exist/i.test(logErrorMessage) || /unrecognized column/i.test(logErrorMessage);
 
@@ -413,15 +415,21 @@ export default async function handler(req, res) {
             const { data: fallbackData, error: fallbackError } = await supabase.from('email_logs').insert([fallbackLogRow]);
             if (fallbackError) {
               console.error('❌ Fallback email log insert failed:', fallbackError, { fallbackLogRow });
+              logResult = { success: false, error: fallbackError };
             } else {
               console.warn('⚠️ Logged sent email without sent_by_id/sent_by_email because columns do not exist.');
+              logResult = { success: true, fallback: true, data: fallbackData };
             }
+          } else {
+            logResult = { success: false, error: logError };
           }
         } else {
           console.log('✅ Logged email to Supabase email_logs', { from_address: logRow.from_address, to_addresses: logRow.to_addresses, subject: logRow.subject });
+          logResult = { success: true, data: logData };
         }
       } catch (logError) {
         console.error('❌ Unexpected error during email log insert:', logError, { logRow });
+        logResult = { success: false, error: logError };
       }
     } else {
       console.warn('⚠️ Supabase client unavailable; email is not logged to email_logs.');
@@ -431,7 +439,8 @@ export default async function handler(req, res) {
       success: true,
       message: `Email sent successfully${attachments.length > 0 ? ` with ${attachments.length} attachment(s)` : ''}`,
       emailId: result?.id,
-      attachmentCount: attachments.length
+      attachmentCount: attachments.length,
+      log: logResult
     });
 
   } catch (error) {
