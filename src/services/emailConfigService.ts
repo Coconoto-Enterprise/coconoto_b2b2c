@@ -279,14 +279,14 @@ export const getSentEmails = async (
     // Get total count
     let query = supabase.from('email_logs').select('*', { count: 'exact', head: true });
     if (sentByEmail) {
-      query = query.eq('sent_by_email', sentByEmail);
+      query = query.ilike('from_address', `%${sentByEmail}%`);
     }
     const { count } = await query;
 
     // Fetch emails
     let fetchQuery = supabase.from('email_logs').select('*');
     if (sentByEmail) {
-      fetchQuery = fetchQuery.eq('sent_by_email', sentByEmail);
+      fetchQuery = fetchQuery.ilike('from_address', `%${sentByEmail}%`);
     }
 
     const { data, error } = await fetchQuery
@@ -412,17 +412,16 @@ export const getSentEmailsBySender = async (
 ): Promise<{ emails: EmailLog[]; total: number }> => {
   try {
     const likeFilter = `%${senderEmail}%`;
-    const filter = `from_address.ilike.${likeFilter},sent_by_email.eq.${senderEmail}`;
 
     const { count } = await supabase
       .from('email_logs')
       .select('*', { count: 'exact', head: true })
-      .or(filter);
+      .ilike('from_address', likeFilter);
 
     const { data, error } = await supabase
       .from('email_logs')
       .select('*')
-      .or(filter)
+      .ilike('from_address', likeFilter)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
