@@ -411,15 +411,18 @@ export const getSentEmailsBySender = async (
   offset: number = 0
 ): Promise<{ emails: EmailLog[]; total: number }> => {
   try {
+    const likeFilter = `%${senderEmail}%`;
+    const filter = `from_address.ilike.${likeFilter},sent_by_email.eq.${senderEmail}`;
+
     const { count } = await supabase
       .from('email_logs')
       .select('*', { count: 'exact', head: true })
-      .eq('from_address', senderEmail);
+      .or(filter);
 
     const { data, error } = await supabase
       .from('email_logs')
       .select('*')
-      .eq('from_address', senderEmail)
+      .or(filter)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 

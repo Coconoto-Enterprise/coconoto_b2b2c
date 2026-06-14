@@ -4,9 +4,15 @@ import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const supabase = process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY
-  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+const supabase = supabaseUrl && supabaseKey
+  ? createClient(supabaseUrl, supabaseKey)
   : null;
+
+if (!supabase) {
+  console.error('❌ Supabase client not configured in api/send-custom-email.js. Please set SUPABASE_URL/SUPABASE_ANON_KEY or VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY.');
+}
 
 // Vercel configuration for file uploads
 export const config = {
@@ -365,32 +371,62 @@ export default async function handler(req, res) {
       emailData.attachments = attachments;
     }
 
+    console.log('📤 Sending custom email', {
+      to: recipients,
+      subject,
+      senderEmail,
+      senderId,
+      templateType,
+      attachmentCount: attachments.length,
+      fromAddress
+    });
+
     const result = await resend.emails.send(emailData);
 
     if (supabase) {
+      const logRow = {
+        from_address: emailFrom,
+        to_addresses: recipients,
+        subject,
+        preview: message?.slice(0, 500) || null,
+        full_html: htmlContent,
+        email_type: templateType || null,
+        status: result?.id ? 'delivered' : 'failed',
+        resend_id: result?.id || null,
+        resend_created_at: result?.created_at || null,
+        sent_by_id: senderId || null,
+        sent_by_email: senderEmail || emailFrom
+      };
+
       try {
-        await supabase.from('email_logs').insert([{
-          from_address: emailFrom,
-          to_addresses: recipients,
-          subject,
-          preview: message?.slice(0, 500) || null,
-          full_html: htmlContent,
-          email_type: templateType || null,
-          status: result?.data?.id ? 'delivered' : 'failed',
-          resend_id: result?.data?.id || null,
-          resend_created_at: result?.data?.created_at || null,
-          sent_by_id: senderId || null,
-          sent_by_email: senderEmail || emailFrom
-        }]);
+        await supabase.from('email_logs').insert([logRow]);
+        console.log('✅ Logged email to Supabase email_logs', { from_address: logRow.from_address, to_addresses: logRow.to_addresses, subject: logRow.subject });
       } catch (logError) {
         console.error('❌ Failed to log sent email:', logError);
+
+        const logErrorMessage = logError?.message || String(logError);
+        const missingColumn = /column .*sent_by_(id|email) .* does not exist/i.test(logErrorMessage) || /unrecognized column/i.test(logErrorMessage);
+
+        if (missingColumn) {
+          const fallbackLogRow = { ...logRow };
+          delete fallbackLogRow.sent_by_id;
+          delete fallbackLogRow.sent_by_email;
+          try {
+            await supabase.from('email_logs').insert([fallbackLogRow]);
+            console.warn('⚠️ Logged sent email without sent_by_id/sent_by_email because columns do not exist.');
+          } catch (fallbackError) {
+            console.error('❌ Fallback email log insert failed:', fallbackError);
+          }
+        }
       }
+    } else {
+      console.warn('⚠️ Supabase client unavailable; email is not logged to email_logs.');
     }
 
     return res.status(200).json({
       success: true,
       message: `Email sent successfully${attachments.length > 0 ? ` with ${attachments.length} attachment(s)` : ''}`,
-      emailId: result?.data?.id,
+      emailId: result?.id,
       attachmentCount: attachments.length
     });
 
