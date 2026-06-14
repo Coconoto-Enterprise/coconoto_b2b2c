@@ -110,17 +110,10 @@ const TweetitDashboard: React.FC = () => {
       formData.append('message', composer.message);
       formData.append('heading', composer.heading);
       formData.append('templateType', composer.templateType);
-      const currentMailUser = localStorage.getItem('currentMailUser');
-      if (currentMailUser) {
-        const parsedUser = JSON.parse(currentMailUser);
-        if (parsedUser?.sender_email) {
-          formData.append('senderEmail', parsedUser.sender_email);
-        } else {
-          formData.append('senderEmail', selectedSender || currentUser.email);
-        }
-      } else {
-        formData.append('senderEmail', selectedSender || currentUser.email);
-      }
+      const senderToUse = currentUser.role === 'staff'
+        ? currentUser.email
+        : selectedSender || currentUser.email;
+      formData.append('senderEmail', senderToUse);
       formData.append('senderId', currentUser.id);
       composer.attachments.forEach((file) => formData.append('attachments', file));
 
