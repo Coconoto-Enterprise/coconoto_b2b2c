@@ -67,7 +67,7 @@ export default async function handler(req, res) {
       case 'create-mail-user':
         return await handleCreateMailUser(data, res);
       default:
-        return res.status(400).json({ error: 'Invalid action' });
+        return res.status(400).json({ success: false, error: 'Invalid action' });
     }
   } catch (error) {
     console.error('❌ Auth error:', error.message);
@@ -547,6 +547,12 @@ async function handleEmailUserCreate(data, res) {
 
     if (error) {
       console.error('❌ Email user create error:', error);
+      if (error.message && error.message.toLowerCase().includes('duplicate')) {
+        return res.status(400).json({
+          success: false,
+          error: 'Email is already in use'
+        });
+      }
       return res.status(500).json({
         success: false,
         error: 'Failed to create email user: ' + error.message

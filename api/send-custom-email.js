@@ -341,19 +341,17 @@ export default async function handler(req, res) {
     }
 
     const emailFrom = senderEmail || (templateType === 'team' ? 'team@coconoto.africa' : 'team@coconoto.africa');
-    const displayName = templateType === 'team' ? 'Coconoto Internal Team' : 'Coconoto Customer Service';
+    const fromName = templateType === 'team' ? 'Coconoto Internal Team' : 'Coconoto Customer Service';
 
     const fromAddress = senderEmail
-      ? senderEmail
+      ? `${fromName} <${senderEmail}>`
       : templateType === 'team'
       ? 'Coconoto Internal Team <team@coconoto.africa>'
       : 'Coconoto Customer Service <team@coconoto.africa>';
 
     // Send email with attachments
     const emailData = {
-      from: templateType === 'team' 
-        ? 'Coconoto Internal Team <team@coconoto.africa>'
-        : 'Coconoto Customer Service <team@coconoto.africa>',
+      from: fromAddress,
       to: recipients,
       subject: subject,
       html: htmlContent,

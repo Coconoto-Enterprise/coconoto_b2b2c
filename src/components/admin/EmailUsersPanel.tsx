@@ -40,21 +40,22 @@ const EmailUsersPanel: React.FC<EmailUsersPanelProps> = ({ currentUser, onClose 
     }
 
     setLoading(true);
-    const created = await createEmailUser(
-      currentUser.id,
-      currentUser.email,
-      newUser.email,
-      newUser.password,
-      newUser.role
-    );
-    setLoading(false);
+    try {
+      const created = await createEmailUser(
+        currentUser.id,
+        currentUser.email,
+        newUser.email,
+        newUser.password,
+        newUser.role
+      );
 
-    if (created) {
       setStatusMessage(`Created ${created.role} account for ${created.email}`);
       setNewUser({ email: '', password: '', role: 'staff' });
-      loadUsers();
-    } else {
-      setStatusMessage('Failed to create new email user.');
+      await loadUsers();
+    } catch (err: any) {
+      setStatusMessage(err?.message || 'Failed to create new email user.');
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -203,7 +203,7 @@ export const createEmailUser = async (
   email: string,
   password: string,
   role: 'admin' | 'staff' = 'staff'
-): Promise<EmailUser | null> => {
+): Promise<EmailUser> => {
   try {
     const response = await fetch('/api/auth', {
       method: 'POST',
@@ -220,14 +220,15 @@ export const createEmailUser = async (
     const data = await response.json();
 
     if (!data.success) {
-      console.error('❌ Error creating email user:', data.error);
-      return null;
+      const errorMessage = data.error || 'Failed to create email user';
+      console.error('❌ Error creating email user:', errorMessage);
+      throw new Error(errorMessage);
     }
 
     return data.user as EmailUser;
-  } catch (err) {
-    console.error('❌ Error creating email user:', err);
-    return null;
+  } catch (err: any) {
+    console.error('❌ Error creating email user:', err?.message || err);
+    throw new Error(err?.message || 'Failed to create email user');
   }
 };
 
