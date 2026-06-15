@@ -216,14 +216,14 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
               <div className="space-y-4 flex-1 min-h-0">
                 <div>
                   <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
-                  <div className="overflow-y-auto max-h-[60vh] pr-1">
+                  <div className="overflow-y-auto overflow-x-hidden max-h-[40vh] pr-1">
                     <button
                       onClick={() => handleUserSelection('')}
                       className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
                         selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
-                      All users
+                      <span className="block truncate">All users</span>
                     </button>
                     {mailUsers.map(user => (
                       <button
@@ -233,7 +233,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                           selectedSender === user.sender_email ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
                         }`}
                       >
-                        {user.login_email}
+                        <span className="block truncate">{user.login_email}</span>
                       </button>
                     ))}
                   </div>
