@@ -3,6 +3,14 @@ import formidable from 'formidable';
 import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
 
+function determineEmailStatus(result) {
+  if (!result) return 'failed';
+  if (result.error) return 'failed';
+  if (typeof result.status === 'string' && result.status.trim()) return result.status;
+  if (result.id) return 'delivered';
+  return 'pending';
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
@@ -382,6 +390,7 @@ export default async function handler(req, res) {
     });
 
     const result = await resend.emails.send(emailData);
+    const emailStatus = determineEmailStatus(result);
 
     let logResult = null;
     if (supabase) {
@@ -392,7 +401,7 @@ export default async function handler(req, res) {
         preview: message?.slice(0, 500) || null,
         full_html: htmlContent,
         email_type: templateType || null,
-        status: result?.id ? 'delivered' : 'failed',
+        status: emailStatus,
         resend_id: result?.id || null,
         resend_created_at: result?.created_at || null,
         sent_by_id: senderId || null,
@@ -406,7 +415,10 @@ export default async function handler(req, res) {
 
           // Try fallback if certain columns don't exist
           const logErrorMessage = logError?.message || String(logError);
-          const missingColumn = /column .*sent_by_(id|email) .* does not exist/i.test(logErrorMessage) || /unrecognized column/i.test(logErrorMessage);
+          const missingColumn = /column .*sent_by_(id|email) .* does not exist/i.test(logErrorMessage)
+            || /Could not find the ['"]?sent_by_(id|email)['"]? column/i.test(logErrorMessage)
+            || /unrecognized column/i.test(logErrorMessage)
+            || /sent_by_(id|email)/i.test(logErrorMessage);
 
           if (missingColumn) {
             const fallbackLogRow = { ...logRow };

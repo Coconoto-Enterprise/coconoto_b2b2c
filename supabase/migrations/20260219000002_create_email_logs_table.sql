@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS public.email_logs (
   status TEXT DEFAULT 'pending', -- pending, delivered, failed, bounced
   resend_id TEXT UNIQUE,
   resend_created_at TIMESTAMP WITH TIME ZONE,
+  sent_by_id UUID,
+  sent_by_email TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
