@@ -211,30 +211,32 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
         </div>
 
         {(currentUser?.role === 'admin' || currentUser) && (
-          <div className="px-4 py-4 border-t border-gray-200">
+          <div className="px-4 py-4 border-t border-gray-200 flex flex-col min-h-0">
             {currentUser?.role === 'admin' && (
-              <div className="space-y-4">
+              <div className="space-y-4 flex-1 min-h-0">
                 <div>
                   <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
-                  <button
-                    onClick={() => handleUserSelection('')}
-                    className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
-                      selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    All users
-                  </button>
-                  {mailUsers.map(user => (
+                  <div className="overflow-y-auto max-h-[60vh] pr-1">
                     <button
-                      key={user.id}
-                      onClick={() => handleUserSelection(user.sender_email)}
+                      onClick={() => handleUserSelection('')}
                       className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
-                        selectedSender === user.sender_email ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                        selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
-                      {user.login_email}
+                      All users
                     </button>
-                  ))}
+                    {mailUsers.map(user => (
+                      <button
+                        key={user.id}
+                        onClick={() => handleUserSelection(user.sender_email)}
+                        className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
+                          selectedSender === user.sender_email ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        {user.login_email}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div>
