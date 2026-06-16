@@ -6,8 +6,8 @@ import { createClient } from '@supabase/supabase-js';
 function determineEmailStatus(result) {
   if (!result) return 'failed';
   if (result.error) return 'failed';
-  if (typeof result.status === 'string' && result.status.trim()) return result.status;
   if (result.id) return 'delivered';
+  if (typeof result.status === 'string' && result.status.trim()) return result.status;
   return 'pending';
 }
 
