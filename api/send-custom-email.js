@@ -5,10 +5,16 @@ import { createClient } from '@supabase/supabase-js';
 
 function determineEmailStatus(result) {
   if (!result) return 'failed';
+  // Check for error first
   if (result.error) return 'failed';
+  // Resend returns an id on success
   if (result.id) return 'delivered';
+  // Handle wrapped responses from some API versions
+  if (result.data?.id) return 'delivered';
+  // Check for explicit status field
   if (typeof result.status === 'string' && result.status.trim()) return result.status;
-  return 'pending';
+  // Default to failed if we can't determine success
+  return 'failed';
 }
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -390,6 +396,7 @@ export default async function handler(req, res) {
     });
 
     const result = await resend.emails.send(emailData);
+    console.log('📧 Resend response:', JSON.stringify(result, null, 2));
     const emailStatus = determineEmailStatus(result);
 
     let logResult = null;
@@ -451,6 +458,7 @@ export default async function handler(req, res) {
       success: true,
       message: `Email sent successfully${attachments.length > 0 ? ` with ${attachments.length} attachment(s)` : ''}`,
       emailId: result?.id,
+      status: emailStatus,
       attachmentCount: attachments.length,
       log: logResult
     });
