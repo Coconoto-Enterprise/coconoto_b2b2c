@@ -176,9 +176,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   const totalPages = Math.ceil(totalEmails / ITEMS_PER_PAGE);
 
   return (
-    <div className="flex h-full bg-gray-50 overflow-hidden rounded-none shadow-sm" style={{ backgroundColor: '#f5f5f5' }}>
+    <div className="flex h-full bg-gray-50 overflow-hidden rounded-none shadow-sm min-h-0" style={{ backgroundColor: '#f5f5f5' }}>
       {/* Left Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-full" style={{ borderRightColor: '#d4a574' }}>
+      <div className="w-96 bg-white border-r border-gray-200 flex flex-col h-full min-h-0" style={{ borderRightColor: '#d4a574' }}>
         <div className="flex-1 overflow-y-auto py-2">
           <nav className="space-y-1 px-2">
             {[
@@ -260,7 +260,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col bg-white h-full">
+      <div className="flex-1 flex flex-col bg-white h-full min-h-0">
         {/* Search Bar */}
         <div className="border-b border-gray-200 p-4" style={{ borderBottomColor: '#d4a574' }}>
           <input
@@ -383,7 +383,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
 
       {/* Email Detail Panel (Right Side) */}
       {selectedEmail && (
-        <div className="w-96 border-l border-gray-200 bg-white overflow-y-auto flex flex-col" style={{ borderLeftColor: '#d4a574' }}>
+        <div className="w-[36rem] border-l border-gray-200 bg-white overflow-y-auto flex flex-col" style={{ borderLeftColor: '#d4a574' }}>
           {/* Detail Header */}
           <div className="border-b border-gray-200 p-4 sticky top-0 bg-white" style={{ borderBottomColor: '#d4a574' }}>
             <div className="flex items-center justify-between mb-2">
