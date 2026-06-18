@@ -86,7 +86,7 @@ function buildCustomerTemplate(heading, message) {
                     <tr>
                       <!-- Product 1: Cocopeat -->
                       <td width="33%" style="vertical-align: top;">
-                        <div style="background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 380px; display: flex; flex-direction: column;">
                           <img src="https://www.coconoto.africa/assets/cocpeat1-03oJOxP8.jpeg" alt="Cocopeat" width="120" height="120" style="border-radius: 8px; object-fit: cover; margin-bottom: 10px;">
                           <h4 style="color: #a37352; margin: 10px 0 5px 0; font-size: 16px;">Cocopeat</h4>
                           <p style="font-size: 12px; color: #666; margin: 5px 0; line-height: 16px;">Nutrient‑rich growing medium.</p>
@@ -100,7 +100,7 @@ function buildCustomerTemplate(heading, message) {
 
                       <!-- Product 2: Fiber -->
                       <td width="33%" style="vertical-align: top;">
-                        <div style="background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 380px; display: flex; flex-direction: column;">
                           <img src="https://www.coconoto.africa/assets/fiber-Cx0Hxqe5.jpeg" alt="Fiber" width="120" height="120" style="border-radius: 8px; object-fit: cover; margin-bottom: 10px;">
                           <h4 style="color: #a37352; margin: 10px 0 5px 0; font-size: 16px;">Fiber</h4>
                           <p style="font-size: 12px; color: #666; margin: 5px 0; line-height: 16px;">Biodegradable craft material.</p>
@@ -114,7 +114,7 @@ function buildCustomerTemplate(heading, message) {
 
                       <!-- Product 3: Cocopot -->
                       <td width="33%" style="vertical-align: top;">
-                        <div style="background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 380px; display: flex; flex-direction: column;">
                           <img src="https://www.coconoto.africa/assets/cocopot2-DJXRmWOe.jpg" alt="Cocopot" width="120" height="120" style="border-radius: 8px; object-fit: cover; margin-bottom: 10px;">
                           <h4 style="color: #a37352; margin: 10px 0 5px 0; font-size: 16px;">Cocopot</h4>
                           <p style="font-size: 12px; color: #666; margin: 5px 0; line-height: 16px;">Eco‑friendly plant containers.</p>
