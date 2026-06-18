@@ -426,7 +426,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
             {/* Status */}
             <div>
               <label className="text-xs font-semibold text-gray-600 uppercase">Status</label>
-              <div className={`inline-block text-sm px-3 py-1 rounded-full text-white mt-1 font-semibold`}
+              <div className={`inline-block text-sm px-3 py-1.5 rounded-full text-white mt-3 font-semibold`}
                 style={{ backgroundColor: selectedEmail.status === 'delivered' ? '#618A42' : selectedEmail.status === 'failed' ? '#dc2626' : '#f59e0b' }}
               >
                 {selectedEmail.status.charAt(0).toUpperCase() + selectedEmail.status.slice(1)}
@@ -472,7 +472,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
               <div>
                 <label className="text-xs font-semibold text-gray-600 uppercase">Full Email</label>
                 <div
-                  className="mt-2 p-3 bg-gray-50 rounded-lg text-sm overflow-x-auto max-h-64"
+                  className="mt-2 p-3 bg-gray-50 rounded-lg text-sm overflow-x-auto"
                   dangerouslySetInnerHTML={{ __html: selectedEmail.full_html }}
                 />
               </div>
