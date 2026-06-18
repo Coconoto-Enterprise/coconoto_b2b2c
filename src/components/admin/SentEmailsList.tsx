@@ -458,8 +458,8 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
 
             {/* Status */}
             <div>
-              <label className="text-xs font-semibold text-gray-600 uppercase">Status</label>
-              <div className="mt-3 inline-block text-sm px-3 py-1.5 rounded-full text-white font-semibold"
+              <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">Status</label>
+              <div className="inline-block text-sm px-3 py-1.5 rounded-full text-white font-semibold"
                 style={{ backgroundColor: selectedEmail.status === 'delivered' ? '#618A42' : selectedEmail.status === 'failed' ? '#dc2626' : '#f59e0b' }}
               >
                 {selectedEmail.status.charAt(0).toUpperCase() + selectedEmail.status.slice(1)}
