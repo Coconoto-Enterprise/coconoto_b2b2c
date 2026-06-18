@@ -123,7 +123,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
       return;
     }
 
-    const success = await deleteEmail(emailId, currentUser.id, currentUser.login_email);
+    const success = await deleteEmail(emailId, currentUser.id, currentUserEmail);
     if (!success) {
       alert('Failed to delete email. Please try again.');
       return;
