@@ -704,14 +704,19 @@ async function handleDeleteEmail(data, res) {
   }
 
   try {
-    const { error } = await getSupabaseClient()
+    const { data, error } = await getSupabaseClient()
       .from('email_logs')
       .delete()
-      .eq('id', emailId);
+      .eq('id', emailId)
+      .select();
 
     if (error) {
       console.error('❌ Error deleting email:', error);
       return res.status(500).json({ success: false, error: 'Failed to delete email: ' + error.message });
+    }
+
+    if (!data || (Array.isArray(data) && data.length === 0)) {
+      return res.status(404).json({ success: false, error: 'Email not found or already deleted' });
     }
 
     return res.status(200).json({ success: true });
