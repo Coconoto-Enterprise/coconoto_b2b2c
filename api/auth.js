@@ -66,6 +66,8 @@ export default async function handler(req, res) {
         return await handleListMailUsers(res);
       case 'create-mail-user':
         return await handleCreateMailUser(data, res);
+      case 'delete-email':
+        return await handleDeleteEmail(data, res);
       default:
         return res.status(400).json({ success: false, error: 'Invalid action' });
     }
@@ -687,6 +689,35 @@ async function handleEmailUserList(data, res) {
       success: false,
       error: 'Failed to load users: ' + error.message
     });
+  }
+}
+
+async function handleDeleteEmail(data, res) {
+  const { emailId, requesterId, requesterEmail } = data;
+
+  if (!emailId) {
+    return res.status(400).json({ success: false, error: 'Email ID is required' });
+  }
+
+  if (!(await authorizeAdmin(requesterId, requesterEmail))) {
+    return res.status(403).json({ success: false, error: 'Admin privileges required' });
+  }
+
+  try {
+    const { error } = await getSupabaseClient()
+      .from('email_logs')
+      .delete()
+      .eq('id', emailId);
+
+    if (error) {
+      console.error('❌ Error deleting email:', error);
+      return res.status(500).json({ success: false, error: 'Failed to delete email: ' + error.message });
+    }
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('❌ Delete email exception:', error);
+    return res.status(500).json({ success: false, error: 'Failed to delete email: ' + error.message });
   }
 }
 

@@ -5,6 +5,7 @@ import {
   getSentEmailsBySender,
   getMailUsers,
   createMailUser,
+  deleteEmail,
   EmailLog,
   MailUser,
 } from '../../services/emailConfigService';
@@ -71,45 +72,66 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   }, []);
 
   // Fetch emails
-  useEffect(() => {
-    const fetchEmails = async () => {
-      setLoading(true);
-      try {
-        const offset = (page - 1) * ITEMS_PER_PAGE;
+  const loadEmails = async () => {
+    setLoading(true);
+    try {
+      const offset = (page - 1) * ITEMS_PER_PAGE;
 
-        let allEmails: EmailLog[] = [];
-        if (searchQuery.trim()) {
-          allEmails = await searchSentEmails(searchQuery, ITEMS_PER_PAGE, viewerEmail);
-          setTotalEmails(allEmails.length);
-        } else if (selectedSender) {
-          const result = await getSentEmailsBySender(selectedSender, ITEMS_PER_PAGE, offset);
-          allEmails = result.emails;
-          setTotalEmails(result.total || 0);
-        } else {
-          const result = await getSentEmails(ITEMS_PER_PAGE, offset, viewerEmail);
-          allEmails = result.emails;
-          setTotalEmails(result.total || 0);
-        }
-
-        let filtered = allEmails;
-        if (currentFolder === 'sent') {
-          filtered = filtered.filter(email => email.status === 'delivered');
-        } else if (currentFolder === 'failed') {
-          filtered = filtered.filter(email => email.status === 'failed');
-        } else if (currentFolder === 'drafts') {
-          filtered = filtered.filter(email => email.status === 'draft');
-        }
-
-        setEmails(filtered);
-      } catch (error) {
-        console.error('Error fetching emails:', error);
-      } finally {
-        setLoading(false);
+      let allEmails: EmailLog[] = [];
+      if (searchQuery.trim()) {
+        allEmails = await searchSentEmails(searchQuery, ITEMS_PER_PAGE, viewerEmail);
+        setTotalEmails(allEmails.length);
+      } else if (selectedSender) {
+        const result = await getSentEmailsBySender(selectedSender, ITEMS_PER_PAGE, offset);
+        allEmails = result.emails;
+        setTotalEmails(result.total || 0);
+      } else {
+        const result = await getSentEmails(ITEMS_PER_PAGE, offset, viewerEmail);
+        allEmails = result.emails;
+        setTotalEmails(result.total || 0);
       }
-    };
 
-    fetchEmails();
+      let filtered = allEmails;
+      if (currentFolder === 'sent') {
+        filtered = filtered.filter(email => email.status === 'delivered');
+      } else if (currentFolder === 'failed') {
+        filtered = filtered.filter(email => email.status === 'failed');
+      } else if (currentFolder === 'drafts') {
+        filtered = filtered.filter(email => email.status === 'draft');
+      }
+
+      setEmails(filtered);
+    } catch (error) {
+      console.error('Error fetching emails:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadEmails();
   }, [page, searchQuery, currentFolder, refreshKey, viewerEmail, selectedSender]);
+
+  const handleDeleteEmailClick = async (emailId: string) => {
+    if (!currentUser || currentUser.role !== 'admin') {
+      alert('Only admins can delete emails.');
+      return;
+    }
+
+    const confirmed = window.confirm('Delete this email? This action cannot be undone.');
+    if (!confirmed) {
+      return;
+    }
+
+    const success = await deleteEmail(emailId, currentUser.id, currentUser.login_email);
+    if (!success) {
+      alert('Failed to delete email. Please try again.');
+      return;
+    }
+
+    setSelectedEmail(null);
+    await loadEmails();
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -390,12 +412,23 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
               <h3 className="font-bold text-lg" style={{ color: '#8b5e47' }}>
                 Email Details
               </h3>
-              <button
-                onClick={() => setSelectedEmail(null)}
-                className="text-gray-400 hover:text-gray-600 text-xl"
-              >
-                ✕
-              </button>
+              <div className="flex items-center gap-2">
+                {currentUser?.role === 'admin' && (
+                  <button
+                    onClick={() => handleDeleteEmailClick(selectedEmail.id)}
+                    className="bg-red-600 text-white px-3 py-1 rounded-md text-sm hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                )}
+                <button
+                  onClick={() => setSelectedEmail(null)}
+                  className="text-gray-400 hover:text-gray-600 text-xl"
+                  title="Close details"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           </div>
 
@@ -426,7 +459,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
             {/* Status */}
             <div>
               <label className="text-xs font-semibold text-gray-600 uppercase">Status</label>
-              <div className={`inline-block text-sm px-3 py-1.5 rounded-full text-white mt-3 font-semibold`}
+              <div className="mt-3 inline-block text-sm px-3 py-1.5 rounded-full text-white font-semibold"
                 style={{ backgroundColor: selectedEmail.status === 'delivered' ? '#618A42' : selectedEmail.status === 'failed' ? '#dc2626' : '#f59e0b' }}
               >
                 {selectedEmail.status.charAt(0).toUpperCase() + selectedEmail.status.slice(1)}

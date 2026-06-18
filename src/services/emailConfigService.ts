@@ -492,3 +492,33 @@ export const createMailUser = async (
     return null;
   }
 };
+
+export const deleteEmail = async (
+  emailId: string,
+  requesterId: string,
+  requesterEmail: string
+): Promise<boolean> => {
+  try {
+    const response = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'delete-email',
+        emailId,
+        requesterId,
+        requesterEmail,
+      }),
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      console.error('❌ Error deleting email:', data.error);
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    console.error('❌ Error in deleteEmail:', err);
+    return false;
+  }
+};
