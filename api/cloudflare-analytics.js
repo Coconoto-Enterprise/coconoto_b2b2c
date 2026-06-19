@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
     const zoneList = gqlData?.data?.viewer?.zones || [];
     if (zoneList.length === 0) {
-      const zoneError = gqlData?.errors?.map((e: any) => e.message || JSON.stringify(e)).join(' | ') ||
+      const zoneError = (gqlData?.errors || []).map(e => e.message || JSON.stringify(e)).join(' | ') ||
         'Cloudflare token is valid but the zone ID was not found or is not accessible with the provided token.';
       console.error('Cloudflare zone lookup failed', { zoneId, gqlData });
       return res.status(500).json({
