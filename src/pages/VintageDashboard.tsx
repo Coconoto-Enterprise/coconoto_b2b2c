@@ -18,7 +18,9 @@ import {
   Menu
 } from 'lucide-react';
 import { MernBlogManagement } from '../components/blog/MernBlogManagement';
-import AnalyticsPanel from '../components/AnalyticsPanel';
+// Lazy-load AnalyticsPanel to avoid runtime failures from client-only libs during SSR
+const AnalyticsPanel = React.lazy(() => import('../components/AnalyticsPanel'));
+import ErrorBoundary from '../components/ErrorBoundary';
 import Logo from '../assets/Logo_1.png';
 
 interface Email {
@@ -1741,7 +1743,11 @@ const VintageDashboard: React.FC = () => {
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">Analytics</h2>
             </div>
             <div className="p-4 sm:p-6">
-              <AnalyticsPanel />
+              <ErrorBoundary>
+                <React.Suspense fallback={<div className="text-center text-gray-600">Loading analytics…</div>}>
+                  <AnalyticsPanel />
+                </React.Suspense>
+              </ErrorBoundary>
             </div>
           </div>
         )}
