@@ -75,6 +75,8 @@ const VintageDashboard: React.FC = () => {
     huskSaleRequests: []
   });
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [lastUpdated, setLastUpdated] = useState('');
   const [showComposer, setShowComposer] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -118,36 +120,49 @@ const VintageDashboard: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      setErrorMessage('');
 
       // Fetch emails
       const emailResponse = await fetch('/api/data?type=emails');
-      const emailData = await emailResponse.json();
-      
-      if (emailData.success) {
-        setEmails(emailData.emails || []);
+      if (!emailResponse.ok) {
+        throw new Error(`Emails request failed with status ${emailResponse.status}`);
       }
-
-
+      const emailData = await emailResponse.json();
+      if (!emailData.success) {
+        throw new Error(emailData.error || 'Failed to fetch emails');
+      }
+      setEmails(emailData.emails || []);
 
       // Fetch ALL data from new API
       const allDataResponse = await fetch('/api/data?type=all-data');
+      if (!allDataResponse.ok) {
+        throw new Error(`Data request failed with status ${allDataResponse.status}`);
+      }
       const allDataResult = await allDataResponse.json();
-      
-      if (allDataResult.success) {
-        setAllData(allDataResult.data || {
-          bookEventRequests: [],
-          investmentInquiries: [],
-          machineOrders: [],
-          productOrders: [],
-          serviceContacts: [],
-          toxicResults: [],
-          waitlist: [],
-          huskSaleRequests: []
-        });
+      if (!allDataResult.success) {
+        throw new Error(allDataResult.error || allDataResult.message || 'Failed to fetch dashboard data');
       }
 
+      setAllData(allDataResult.data || {
+        bookEventRequests: [],
+        investmentInquiries: [],
+        machineOrders: [],
+        productOrders: [],
+        serviceContacts: [],
+        toxicResults: [],
+        waitlist: [],
+        huskSaleRequests: []
+      });
+
+      if (typeof allDataResult.message === 'string' && allDataResult.message.trim() !== '') {
+        setErrorMessage(allDataResult.message);
+      }
+
+      setLastUpdated(new Date().toLocaleTimeString());
     } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown dashboard fetch error';
       console.error('Dashboard fetch error:', err);
+      setErrorMessage(message);
     } finally {
       setLoading(false);
     }
@@ -537,6 +552,13 @@ const VintageDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+    const interval = window.setInterval(() => {
+      fetchData();
+    }, 30000); // Auto-refresh every 30 seconds
+
+    return () => {
+      window.clearInterval(interval);
+    };
   }, []);
 
   if (loading) {
@@ -677,6 +699,20 @@ const VintageDashboard: React.FC = () => {
       </div>
 
       <div className="px-3 sm:px-4 lg:px-6 py-4 sm:py-8">
+        {errorMessage && (
+          <div className="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+            <strong>Dashboard status:</strong> {errorMessage}
+            <button
+              onClick={handleRefresh}
+              className="ml-3 inline-flex items-center rounded bg-yellow-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-yellow-700"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        <div className="mb-4 text-xs text-gray-500">
+          Auto-refresh every 30 seconds. Last update: {lastUpdated || 'Not yet refreshed'}.
+        </div>
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-6 sm:space-y-8">
