@@ -20,6 +20,7 @@ export default function AnalyticsPanel() {
   const [groups, setGroups] = useState<any[]>([]);
   const [dashboard, setDashboard] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
   const [since, setSince] = useState(() => {
     const d = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000);
@@ -37,7 +38,9 @@ export default function AnalyticsPanel() {
         const json = await res.json();
         if (!mounted) return;
         if (!json || !json.success) {
-          setError(json?.error || 'Failed to fetch analytics');
+          const details = Array.isArray(json?.details) ? json.details.join(' | ') : json?.details;
+          setError(`${json?.error || 'Failed to fetch analytics'}${details ? `: ${details}` : ''}`);
+          setDebugInfo(JSON.stringify(json, null, 2));
           setGroups([]);
           setDashboard(null);
         } else {
@@ -45,6 +48,7 @@ export default function AnalyticsPanel() {
           const dashboardData = json?.dashboard?.result || json?.dashboard || null;
           setGroups(groups);
           setDashboard(dashboardData);
+          setDebugInfo(null);
         }
       } catch (err: any) {
         setError(err?.message || 'Network error');
@@ -57,7 +61,6 @@ export default function AnalyticsPanel() {
 
   if (loading) return <div className="text-center text-gray-600">Loading analytics…</div>;
   if (error) return <div className="text-red-600">{error}</div>;
-  if ((!groups || groups.length === 0) && !dashboard) return <div className="text-gray-600">No analytics data available.</div>;
 
   const labels = groups.map((g: any) => g.dimensions?.date || '');
   const requests = groups.map((g: any) => g.sum?.requests || 0);
@@ -79,6 +82,22 @@ export default function AnalyticsPanel() {
   const topCountries = dashboard?.timeseries?.[0]?.top_countries || dashboard?.top_countries || dashboard?.topCountries || [];
   const topPages = dashboard?.timeseries?.[0]?.top_urls || dashboard?.top_urls || dashboard?.top_uris || dashboard?.topUrls || [];
   const topBots = dashboard?.top_bots || dashboard?.result?.top_bots || dashboard?.timeseries?.[0]?.top_bots || [];
+
+  const hasAnalyticsData = Boolean(
+    groups?.length ||
+    totalRequests ||
+    totalPageViews ||
+    totalBytes ||
+    threatsBlocked != null ||
+    botTraffic != null ||
+    cacheHitRatio != null ||
+    ddosBlocked != null ||
+    topCountries?.length ||
+    topPages?.length ||
+    topBots?.length
+  );
+
+  if (!hasAnalyticsData) return <div className="text-gray-600">No analytics data available for this range. Check your Cloudflare zone ID and API token.</div>;
 
   const data = {
     labels,
@@ -123,13 +142,16 @@ export default function AnalyticsPanel() {
       const res = await fetch(`/api/cloudflare-analytics${qs}`);
       const json = await res.json();
       if (!json || !json.success) {
-        setError(json?.error || 'Failed to fetch analytics');
+        const details = Array.isArray(json?.details) ? json.details.join(' | ') : json?.details;
+        setError(`${json?.error || 'Failed to fetch analytics'}${details ? `: ${details}` : ''}`);
+        setDebugInfo(JSON.stringify(json, null, 2));
         return;
       }
       const groups = json?.gql?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [];
       const dashboardData = json?.dashboard?.result || json?.dashboard || null;
       setGroups(groups.length ? groups : []);
       setDashboard(dashboardData);
+      setDebugInfo(null);
     } catch (err: any) {
       setError(err?.message || 'Network error');
     } finally {
@@ -139,6 +161,12 @@ export default function AnalyticsPanel() {
 
   return (
     <div className="space-y-4">
+      {debugInfo && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
+          <div className="font-semibold mb-2">Cloudflare analytics debug data:</div>
+          <pre className="whitespace-pre-wrap break-words text-xs max-h-64 overflow-auto">{debugInfo}</pre>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row gap-2 items-center">
         <div className="flex items-center gap-2">
           <label className="text-sm text-gray-600">From</label>

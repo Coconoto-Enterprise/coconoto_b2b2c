@@ -51,6 +51,24 @@ export default async function handler(req, res) {
     });
     const dashData = await dashResp.json();
 
+    const success = Boolean(gqlData?.success !== false && dashData?.success !== false);
+    const errors = [];
+    if (gqlData?.errors?.length) errors.push(...gqlData.errors.map(e => e.message || JSON.stringify(e)));
+    if (dashData?.errors?.length) errors.push(...dashData.errors.map(e => e.message || JSON.stringify(e)));
+    if (gqlData?.success === false && gqlData?.errors == null) errors.push('Cloudflare GraphQL query failed');
+    if (dashData?.success === false && dashData?.errors == null) errors.push('Cloudflare dashboard query failed');
+
+    if (!success) {
+      console.error('Cloudflare analytics fetch error', { gqlData, dashData });
+      return res.status(500).json({
+        success: false,
+        error: 'Cloudflare analytics fetch returned errors',
+        details: errors.length ? errors : undefined,
+        gql: gqlData,
+        dashboard: dashData
+      });
+    }
+
     return res.status(200).json({ success: true, gql: gqlData, dashboard: dashData });
   } catch (err) {
     console.error('Cloudflare analytics error:', err);
