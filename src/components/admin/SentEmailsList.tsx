@@ -206,7 +206,6 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
             {[
               { label: 'All', value: 'all' },
               { label: 'Sent', value: 'sent' },
-              { label: 'Drafts', value: 'drafts' },
               { label: 'Failed', value: 'failed' }
             ].map(folder => (
               <button
