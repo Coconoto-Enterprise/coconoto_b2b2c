@@ -18,6 +18,7 @@ import {
   Menu
 } from 'lucide-react';
 import { MernBlogManagement } from '../components/blog/MernBlogManagement';
+import AnalyticsPanel from '../components/AnalyticsPanel';
 import Logo from '../assets/Logo_1.png';
 
 interface Email {
@@ -614,6 +615,7 @@ const VintageDashboard: React.FC = () => {
             { id: 'service-contacts', name: `Contact (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Send },
             { id: 'husk-sales', name: `Husk (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
             { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
+            { id: 'analytics', name: 'Analytics', icon: BarChart3 },
             
           ].map((tab) => {
             const Icon = tab.icon;
@@ -651,6 +653,7 @@ const VintageDashboard: React.FC = () => {
               { id: 'service-contacts', name: `Contact (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Mail },
               { id: 'husk-sales', name: `Husk (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
               { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
+              { id: 'analytics', name: 'Analytics', icon: BarChart3 },
               
             ].map((tab) => {
               const Icon = tab.icon;
@@ -1727,6 +1730,18 @@ const VintageDashboard: React.FC = () => {
                   )}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* Analytics Tab */}
+        {activeTab === 'analytics' && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">Analytics</h2>
+            </div>
+            <div className="p-4 sm:p-6">
+              <AnalyticsPanel />
             </div>
           </div>
         )}
