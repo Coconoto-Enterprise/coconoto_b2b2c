@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   query {
     viewer {
       zones(filter: { zoneTag: "${zoneId}" }) {
-        httpRequests1dGroups(limit: 7) {
+        httpRequests1dGroups(limit: 7, orderBy: [datetime_desc], filter: {}) {
           dimensions { date }
           sum { requests pageViews bytes }
         }
