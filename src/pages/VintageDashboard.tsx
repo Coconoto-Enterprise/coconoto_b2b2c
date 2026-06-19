@@ -608,10 +608,10 @@ const VintageDashboard: React.FC = () => {
           {[
             { id: 'overview', name: 'Overview', icon: BarChart3 },
             { id: 'blog', name: 'Blog', icon: BookOpen },
-            { id: 'book-events', name: `Events (${filterByStatus(allData.bookEventRequests, 'pending').length || 0})`, icon: Calendar },
+            { id: 'book-events', name: `DrinkEat (${filterByStatus(allData.bookEventRequests, 'pending').length || 0})`, icon: Calendar },
             { id: 'machine-orders', name: `Machines (${filterByStatus(allData.machineOrders, 'pending').length || 0})`, icon: ShoppingCart },
             { id: 'product-orders', name: `Products (${filterByStatus(allData.productOrders, 'pending').length || 0})`, icon: ShoppingCart },
-            { id: 'service-contacts', name: `Service (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Send },
+            { id: 'service-contacts', name: `Contact (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Send },
             { id: 'husk-sales', name: `Husk (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
             { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
             
@@ -645,10 +645,10 @@ const VintageDashboard: React.FC = () => {
             {[
               { id: 'overview', name: 'Overview', icon: BarChart3 },
               { id: 'blog', name: 'Blog', icon: BookOpen },
-              { id: 'book-events', name: `Events (${filterByStatus(allData.bookEventRequests, 'pending').length || 0})`, icon: Calendar },
+              { id: 'book-events', name: `DrinkEat (${filterByStatus(allData.bookEventRequests, 'pending').length || 0})`, icon: Calendar },
               { id: 'machine-orders', name: `Machines (${filterByStatus(allData.machineOrders, 'pending').length || 0})`, icon: ShoppingCart },
               { id: 'product-orders', name: `Products (${filterByStatus(allData.productOrders, 'pending').length || 0})`, icon: ShoppingCart },
-              { id: 'service-contacts', name: `Service (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Mail },
+              { id: 'service-contacts', name: `Contact (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Mail },
               { id: 'husk-sales', name: `Husk (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
               { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
               
@@ -679,32 +679,44 @@ const VintageDashboard: React.FC = () => {
           <div className="space-y-6 sm:space-y-8">
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
-              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100">
-                <div className="flex items-start gap-3">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 text-center">
+                <div className="flex flex-col items-center gap-3">
                   <div className="bg-green-100 p-2 rounded-lg">
                     <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{allData.bookEventRequests?.length || 0}</h3>
-                    <p className="text-xs sm:text-sm text-gray-600">Events</p>
+                    <p className="text-xs sm:text-sm text-gray-600">DrinkEat</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100">
-                <div className="flex items-start gap-3">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 text-center">
+                <div className="flex flex-col items-center gap-3">
                   <div className="bg-purple-100 p-2 rounded-lg">
                     <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{(allData.machineOrders?.length || 0) + (allData.productOrders?.length || 0)}</h3>
-                    <p className="text-xs sm:text-sm text-gray-600">Orders</p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{allData.productOrders?.length || 0}</h3>
+                    <p className="text-xs sm:text-sm text-gray-600">Product Orders</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100">
-                <div className="flex items-start gap-3">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 text-center">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="bg-cyan-100 p-2 rounded-lg">
+                    <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{allData.huskSaleRequests?.length || 0}</h3>
+                    <p className="text-xs sm:text-sm text-gray-600">Husk Sales</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 text-center">
+                <div className="flex flex-col items-center gap-3">
                   <div className="bg-orange-100 p-2 rounded-lg">
                     <Users className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
                   </div>
@@ -715,20 +727,20 @@ const VintageDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100">
-                <div className="flex items-start gap-3">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 text-center">
+                <div className="flex flex-col items-center gap-3">
                   <div className="bg-pink-100 p-2 rounded-lg">
                     <Mail className="h-5 w-5 sm:h-6 sm:w-6 text-pink-600" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{allData.serviceContacts?.length || 0}</h3>
-                    <p className="text-xs sm:text-sm text-gray-600">Support</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Contact</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100">
-                <div className="flex items-start gap-3">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 text-center">
+                <div className="flex flex-col items-center gap-3">
                   <div className="bg-yellow-100 p-2 rounded-lg">
                     <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-600" />
                   </div>
@@ -746,7 +758,7 @@ const VintageDashboard: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
               <div className="bg-white rounded-lg shadow-sm border border-gray-100">
                 <div className="px-4 sm:px-6 py-3 sm:py-4 border-b">
-                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">Recent Events</h2>
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">Recent DrinkEat</h2>
                 </div>
                 <div className="divide-y max-h-96 overflow-y-auto">
                   {allData.bookEventRequests?.length > 0 ? allData.bookEventRequests.slice(0, 5).map((request) => (
@@ -758,7 +770,7 @@ const VintageDashboard: React.FC = () => {
                       </span>
                     </div>
                   )) : (
-                    <div className="text-center text-gray-500 py-6 sm:py-8">No events yet</div>
+                    <div className="text-center text-gray-500 py-6 sm:py-8">No DrinkEat requests yet</div>
                   )}
                 </div>
               </div>
@@ -928,7 +940,7 @@ const VintageDashboard: React.FC = () => {
         {activeTab === 'book-events' && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <h2 className="text-base sm:text-lg font-semibold text-gray-900">Event Requests ({filterByStatus(allData.bookEventRequests, statusFilters['book-events']).length})</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">DrinkEat Requests ({filterByStatus(allData.bookEventRequests, statusFilters['book-events']).length})</h2>
               <div>
                 <select
                   value={statusFilters['book-events']}
@@ -1351,7 +1363,7 @@ const VintageDashboard: React.FC = () => {
         {activeTab === 'service-contacts' && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <h2 className="text-base sm:text-lg font-semibold text-gray-900">Service Support ({filterByStatus(allData.serviceContacts, statusFilters['service-contacts']).length})</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">Contact Messages ({filterByStatus(allData.serviceContacts, statusFilters['service-contacts']).length})</h2>
               <div>
                 <select
                   value={statusFilters['service-contacts']}

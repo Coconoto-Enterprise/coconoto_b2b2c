@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Logo from '../assets/Logo_1.png';
 
 const TweetitLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -42,7 +43,7 @@ const TweetitLogin: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="mx-auto h-20 w-20 bg-green-600 rounded-full flex items-center justify-center mb-6 shadow-lg">
-            <span className="text-3xl font-bold text-white">✉️</span>
+            <img src={Logo} alt="Tweetit Logo" className="h-16 w-16 object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Tweetit Email Portal</h1>
           <p className="text-sm text-gray-600">Login with your Coconoto email user account.</p>
