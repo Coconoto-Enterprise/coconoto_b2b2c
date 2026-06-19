@@ -27,9 +27,6 @@ export default function AnalyticsPanel() {
   });
   const [until, setUntil] = useState(() => new Date().toISOString().slice(0, 10));
   const [fetching, setFetching] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(false);
-  const [autoInterval, setAutoInterval] = useState<number>(60); // seconds
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -60,25 +57,7 @@ export default function AnalyticsPanel() {
 
   if (loading) return <div className="text-center text-gray-600">Loading analytics…</div>;
   if (error) return <div className="text-red-600">{error}</div>;
-  if ((!groups || groups.length === 0) && !dashboard) {
-    return (
-      <div className="bg-white p-4 rounded-lg border">
-        <h3 className="text-base font-semibold text-gray-900 mb-2">No analytics data</h3>
-        <p className="text-sm text-gray-600 mb-2">The dashboard did not return any analytics for the selected time range.</p>
-        <ul className="list-disc pl-5 text-sm text-gray-600 mb-3">
-          <li>Ensure `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ZONE_ID` are set in your server environment (Vercel).</li>
-          <li>Check that the API token has Analytics:Read permissions.</li>
-          <li>Verify the selected date range actually contains traffic.</li>
-          <li>Open the network inspector or check server logs for the API response.</li>
-        </ul>
-        <div className="flex items-center gap-2">
-          <button onClick={() => fetchRange(since, until)} className="bg-green-600 text-white px-3 py-1.5 rounded text-sm">Retry</button>
-          <button onClick={() => window.open('https://dash.cloudflare.com', '_blank')} className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded text-sm">Open Cloudflare</button>
-        </div>
-        <div className="text-xs text-gray-500 mt-3">Last checked: {lastUpdated ? new Date(lastUpdated).toLocaleString() : 'never'}</div>
-      </div>
-    );
-  }
+  if ((!groups || groups.length === 0) && !dashboard) return <div className="text-gray-600">No analytics data available.</div>;
 
   const labels = groups.map((g: any) => g.dimensions?.date || '');
   const requests = groups.map((g: any) => g.sum?.requests || 0);
@@ -151,23 +130,12 @@ export default function AnalyticsPanel() {
       const dashboardData = json?.dashboard?.result || json?.dashboard || null;
       setGroups(groups.length ? groups : []);
       setDashboard(dashboardData);
-      setLastUpdated(new Date().toISOString());
     } catch (err: any) {
       setError(err?.message || 'Network error');
     } finally {
       setFetching(false);
     }
   };
-
-  // auto-refresh polling
-  useEffect(() => {
-    if (!autoRefresh) return;
-    let mounted = true;
-    const interval = setInterval(() => {
-      if (mounted) fetchRange(since, until);
-    }, Math.max(1000, autoInterval * 1000));
-    return () => { mounted = false; clearInterval(interval); };
-  }, [autoRefresh, autoInterval, since, until]);
 
   return (
     <div className="space-y-4">
@@ -184,19 +152,6 @@ export default function AnalyticsPanel() {
           <button onClick={() => fetchRange(since, until)} disabled={fetching} className="ml-0 sm:ml-2 bg-green-600 text-white px-3 py-1.5 rounded text-sm">
             {fetching ? 'Fetching…' : 'Apply'}
           </button>
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          <label className="text-sm text-gray-600">Auto-refresh</label>
-          <button onClick={() => setAutoRefresh(v => !v)} className={`px-2 py-1 rounded text-sm ${autoRefresh ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
-            {autoRefresh ? 'On' : 'Off'}
-          </button>
-          <select value={autoInterval} onChange={e => setAutoInterval(Number(e.target.value))} className="border rounded px-2 py-1 text-sm">
-            <option value={15}>15s</option>
-            <option value={30}>30s</option>
-            <option value={60}>60s</option>
-            <option value={300}>5m</option>
-          </select>
-          {lastUpdated && <div className="text-xs text-gray-500">Last: {new Date(lastUpdated).toLocaleString()}</div>}
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
