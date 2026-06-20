@@ -14,10 +14,14 @@ export default async function handler(req, res) {
   }
 
   const query = `
-  query {
+  query ZoneAnalytics($zoneTag: String!, $start: Date!, $end: Date!) {
     viewer {
-      zones(filter: { zoneTag: "${zoneId}" }) {
-        httpRequests1dGroups(limit: 7, orderBy: [date_DESC], filter: {}) {
+      zones(filter: { zoneTag: $zoneTag }) {
+        httpRequests1dGroups(
+          limit: 7
+          orderBy: [date_DESC]
+          filter: { date: { geq: $start, leq: $end } }
+        ) {
           dimensions { date }
           sum { requests pageViews bytes }
         }
@@ -25,6 +29,9 @@ export default async function handler(req, res) {
     }
   }
   `;
+
+  const endDate = new Date().toISOString().slice(0, 10);
+  const startDate = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   try {
     // 1) GraphQL timeseries (last 7 days)
@@ -34,7 +41,14 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${apiToken}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ query })
+      body: JSON.stringify({
+        query,
+        variables: {
+          zoneTag: zoneId,
+          start: startDate,
+          end: endDate
+        }
+      })
     });
     const gqlData = await gqlResp.json();
 
