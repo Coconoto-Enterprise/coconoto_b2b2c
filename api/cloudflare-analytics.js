@@ -14,13 +14,13 @@ export default async function handler(req, res) {
   }
 
   const query = `
-  query ZoneAnalytics($zoneTag: String!, $start: Date!, $end: Date!) {
+  query ZoneAnalytics($zoneTag: String!, $start: String!, $end: String!) {
     viewer {
       zones(filter: { zoneTag: $zoneTag }) {
         httpRequests1dGroups(
           limit: 7
           orderBy: [date_DESC]
-          filter: { date: { geq: $start, leq: $end } }
+          filter: { date_geq: $start, date_leq: $end }
         ) {
           dimensions { date }
           sum { requests pageViews bytes }
