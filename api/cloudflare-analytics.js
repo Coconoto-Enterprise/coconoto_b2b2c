@@ -124,16 +124,17 @@ export default async function handler(req, res) {
     `;
 
     // GraphQL query: Top countries by request count
+    // Use httpRequestsAdaptiveGroups for arbitrary group-by dimensions.
     const topCountriesQuery = `
     query TopCountries($zoneTag: String!, $start: String!, $end: String!) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
-          httpRequests1dGroups(
+          httpRequestsAdaptiveGroups(
             filter: { date_geq: $start, date_leq: $end }
             limit: 10
             orderBy: [sum_requests_DESC]
           ) {
-            dimensions { clientCountryName }
+            dimensions { country: clientCountryName }
             sum { requests }
           }
         }
@@ -146,12 +147,12 @@ export default async function handler(req, res) {
     query TopURLs($zoneTag: String!, $start: String!, $end: String!) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
-          httpRequests1dGroups(
+          httpRequestsAdaptiveGroups(
             filter: { date_geq: $start, date_leq: $end }
             limit: 10
             orderBy: [sum_requests_DESC]
           ) {
-            dimensions { clientRequestPath }
+            dimensions { path: clientRequestPath }
             sum { requests }
           }
         }
@@ -193,10 +194,10 @@ export default async function handler(req, res) {
     // Extract data from each response
     const totalsSum = totalsData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups?.[0]?.sum || {};
     const timeseriesGroups = timeseriesData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [];
-    const topCountries = (countriesData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [])
-      .map(g => [g?.dimensions?.clientCountryName || 'Unknown', g?.sum?.requests || 0]);
-    const topUrls = (urlsData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [])
-      .map(g => [g?.dimensions?.clientRequestPath || 'Unknown', g?.sum?.requests || 0]);
+    const topCountries = (countriesData?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [])
+      .map(g => [g?.dimensions?.country || 'Unknown', g?.sum?.requests || 0]);
+    const topUrls = (urlsData?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [])
+      .map(g => [g?.dimensions?.path || 'Unknown', g?.sum?.requests || 0]);
 
     // Build dashboard response object
     const dashData = {
