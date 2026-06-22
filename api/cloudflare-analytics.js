@@ -136,7 +136,7 @@ export default async function handler(req, res) {
     const q = req.query || {};
     const sinceParam = q.since || q.from || null;
     const untilParam = q.until || q.to || null;
-    const since = formatDateString(sinceParam) || formatDateString(new Date(Date.now() - 6 * 24 * 60 * 60 * 1000));
+    const since = formatDateString(sinceParam) || formatDateString(new Date(Date.now() - 24 * 60 * 60 * 1000));
     const until = formatDateString(untilParam) || formatDateString(new Date());
 
     // GraphQL query: Totals aggregated across entire date range (use 1d groups)
@@ -156,6 +156,7 @@ export default async function handler(req, res) {
               pageViews
               encryptedRequests
             }
+            uniq { uniques }
           }
         }
       }
@@ -180,6 +181,7 @@ export default async function handler(req, res) {
               cachedRequests
               cachedBytes
             }
+            uniq { uniques }
           }
         }
       }
@@ -243,15 +245,17 @@ export default async function handler(req, res) {
       .flatMap(r => r.data?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [])
       .reduce((acc, group) => {
         const sum = group?.sum || {};
+        const uniques = group?.uniq?.uniques || 0;
         return {
           requests: acc.requests + (sum.requests || 0),
           bytes: acc.bytes + (sum.bytes || 0),
           cachedRequests: acc.cachedRequests + (sum.cachedRequests || 0),
           cachedBytes: acc.cachedBytes + (sum.cachedBytes || 0),
           pageViews: acc.pageViews + (sum.pageViews || 0),
-          encryptedRequests: acc.encryptedRequests + (sum.encryptedRequests || 0)
+          encryptedRequests: acc.encryptedRequests + (sum.encryptedRequests || 0),
+          uniques: acc.uniques + uniques
         };
-      }, { requests: 0, bytes: 0, cachedRequests: 0, cachedBytes: 0, pageViews: 0, encryptedRequests: 0 });
+      }, { requests: 0, bytes: 0, cachedRequests: 0, cachedBytes: 0, pageViews: 0, encryptedRequests: 0, uniques: 0 });
 
     const timeseriesGroups = timeseriesResponses
       .flatMap(r => r.data?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [])
@@ -264,7 +268,9 @@ export default async function handler(req, res) {
         cachedRequests: totalsSum.cachedRequests || 0,
         cachedBytes: totalsSum.cachedBytes || 0,
         pageViews: totalsSum.pageViews || 0,
-        encryptedRequests: totalsSum.encryptedRequests || 0
+        encryptedRequests: totalsSum.encryptedRequests || 0,
+        uniques: totalsSum.uniques || 0,
+        visits: totalsSum.uniques || 0
       }],
       timeseries: timeseriesGroups.map(g => ({
         date: g?.dimensions?.date,
@@ -272,7 +278,8 @@ export default async function handler(req, res) {
         bytes: g?.sum?.bytes || 0,
         pageViews: g?.sum?.pageViews || 0,
         cachedRequests: g?.sum?.cachedRequests || 0,
-        cachedBytes: g?.sum?.cachedBytes || 0
+        cachedBytes: g?.sum?.cachedBytes || 0,
+        uniques: g?.uniq?.uniques || 0
       })),
       top_countries: topCountries,
       top_urls: topUrls,

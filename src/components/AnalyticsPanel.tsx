@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -22,41 +22,47 @@ export default function AnalyticsPanel() {
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
-  const [since, setSince] = useState(() => {
-    const d = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000);
-    return d.toISOString().slice(0, 10);
-  });
-  const [until, setUntil] = useState(() => new Date().toISOString().slice(0, 10));
+  const getDateString = (date: Date) => date.toISOString().slice(0, 10);
+  const today = new Date();
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const [since, setSince] = useState(() => getDateString(yesterday));
+  const [until, setUntil] = useState(() => getDateString(today));
   const [fetching, setFetching] = useState(false);
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await fetch('/api/cloudflare-analytics');
-        const json = await res.json();
-        if (!mounted) return;
-        if (!json || !json.success) {
-          const details = Array.isArray(json?.details) ? json.details.join(' | ') : json?.details;
-          setError(`${json?.error || 'Failed to fetch analytics'}${details ? `: ${details}` : ''}`);
-          setDebugInfo(JSON.stringify(json, null, 2));
-          setGroups([]);
-          setDashboard(null);
-        } else {
-          const groups = json?.gql?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [];
-          const dashboardData = json?.dashboard?.result || json?.dashboard || null;
-          setGroups(groups);
-          setDashboard(dashboardData);
-          setDebugInfo(null);
-        }
-      } catch (err: any) {
-        setError(err?.message || 'Network error');
-      } finally {
-        if (mounted) setLoading(false);
+  const fetchRange = async (from: string, to: string) => {
+    try {
+      setFetching(true);
+      setError(null);
+      const qs = `?since=${encodeURIComponent(from)}&until=${encodeURIComponent(to)}`;
+      const res = await fetch(`/api/cloudflare-analytics${qs}`);
+      const json = await res.json();
+      if (!json || !json.success) {
+        const details = Array.isArray(json?.details) ? json.details.join(' | ') : json?.details;
+        setError(`${json?.error || 'Failed to fetch analytics'}${details ? `: ${details}` : ''}`);
+        setDebugInfo(JSON.stringify(json, null, 2));
+        setGroups([]);
+        setDashboard(null);
+        return;
       }
-    })();
-    return () => { mounted = false; };
+      const dashboardData = json?.dashboard?.result || json?.dashboard || null;
+      const groups = dashboardData?.timeseries || json?.gql?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [];
+      setSince(from);
+      setUntil(to);
+      setGroups(groups.length ? groups : []);
+      setDashboard(dashboardData);
+      setDebugInfo(null);
+    } catch (err: any) {
+      setError(err?.message || 'Network error');
+      setGroups([]);
+      setDashboard(null);
+    } finally {
+      setFetching(false);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRange(since, until);
   }, []);
 
   if (loading) return <div className="text-center text-gray-600">Loading analytics…</div>;
@@ -70,13 +76,12 @@ export default function AnalyticsPanel() {
   const totalRequests = requests.reduce((a: number, b: number) => a + b, 0);
   const totalPageViews = pageViews.reduce((a: number, b: number) => a + b, 0);
   const totalBytes = bytes.reduce((a: number, b: number) => a + b, 0);
+  const totalVisitsFromGroups = groups.reduce((sum: number, group: any) => sum + (group?.uniq?.uniques || 0), 0);
   // Security & top lists (safely extracted)
   const totals = dashboard?.totals?.[0] || dashboard?.totals || null;
+  const totalVisits = totals?.visits ?? totals?.uniques ?? totalVisitsFromGroups;
   const threatsBlocked = totals?.security?.threats?.blocked ?? totals?.threats?.blocked ?? null;
   const botTraffic = totals?.requests?.bot ?? totals?.botRequests ?? null;
-  const cached = totals?.requests?.cached ?? totals?.requests_cached ?? null;
-  const allRequests = totals?.requests?.all ?? totals?.requests_all ?? null;
-  const cacheHitRatio = (cached && allRequests) ? ((cached / allRequests) * 100) : null;
   const ddosBlocked = totals?.security?.ddos?.attacksBlocked ?? totals?.ddos?.attacks_blocked ?? null;
 
   const topCountries = dashboard?.timeseries?.[0]?.top_countries || dashboard?.top_countries || dashboard?.topCountries || [];
@@ -85,12 +90,12 @@ export default function AnalyticsPanel() {
 
   const hasAnalyticsData = Boolean(
     groups?.length ||
+    totalVisits ||
     totalRequests ||
     totalPageViews ||
     totalBytes ||
     threatsBlocked != null ||
     botTraffic != null ||
-    cacheHitRatio != null ||
     ddosBlocked != null ||
     topCountries?.length ||
     topPages?.length ||
@@ -134,29 +139,12 @@ export default function AnalyticsPanel() {
     }
   };
 
-  const fetchRange = async (from: string, to: string) => {
-    try {
-      setFetching(true);
-      setError(null);
-      const qs = `?since=${encodeURIComponent(from)}&until=${encodeURIComponent(to)}`;
-      const res = await fetch(`/api/cloudflare-analytics${qs}`);
-      const json = await res.json();
-      if (!json || !json.success) {
-        const details = Array.isArray(json?.details) ? json.details.join(' | ') : json?.details;
-        setError(`${json?.error || 'Failed to fetch analytics'}${details ? `: ${details}` : ''}`);
-        setDebugInfo(JSON.stringify(json, null, 2));
-        return;
-      }
-      const groups = json?.gql?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [];
-      const dashboardData = json?.dashboard?.result || json?.dashboard || null;
-      setGroups(groups.length ? groups : []);
-      setDashboard(dashboardData);
-      setDebugInfo(null);
-    } catch (err: any) {
-      setError(err?.message || 'Network error');
-    } finally {
-      setFetching(false);
-    }
+  const setQuickRange = async (days: number) => {
+    const to = new Date();
+    const fromDate = new Date(Date.now() - (days === 1 ? 24 * 60 * 60 * 1000 : (days - 1) * 24 * 60 * 60 * 1000));
+    const from = fromDate.toISOString().slice(0, 10);
+    const toDate = to.toISOString().slice(0, 10);
+    await fetchRange(from, toDate);
   };
 
   return (
@@ -169,26 +157,35 @@ export default function AnalyticsPanel() {
       )}
       <div className="flex flex-col sm:flex-row gap-2 items-center">
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-600">From</label>
-          <input type="date" value={since} onChange={e => setSince(e.target.value)} className="border rounded px-2 py-1 text-sm" />
+          <label htmlFor="analytics-since" className="text-sm text-gray-600">From</label>
+          <input id="analytics-since" type="date" value={since} onChange={e => setSince(e.target.value)} className="border rounded px-2 py-1 text-sm" />
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-600">To</label>
-          <input type="date" value={until} onChange={e => setUntil(e.target.value)} className="border rounded px-2 py-1 text-sm" />
+          <label htmlFor="analytics-until" className="text-sm text-gray-600">To</label>
+          <input id="analytics-until" type="date" value={until} onChange={e => setUntil(e.target.value)} className="border rounded px-2 py-1 text-sm" />
         </div>
-        <div>
+        <div className="flex flex-wrap gap-2">
           <button onClick={() => fetchRange(since, until)} disabled={fetching} className="ml-0 sm:ml-2 bg-green-600 text-white px-3 py-1.5 rounded text-sm">
             {fetching ? 'Fetching…' : 'Apply'}
+          </button>
+          <button onClick={() => setQuickRange(1)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
+            24h
+          </button>
+          <button onClick={() => setQuickRange(7)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
+            7d
+          </button>
+          <button onClick={() => setQuickRange(30)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
+            30d
           </button>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="bg-white p-4 rounded-lg border flex flex-col">
-          <div className="text-sm text-gray-500">Requests (last {labels.length} days)</div>
-          <div className="text-2xl font-bold text-gray-900">{totalRequests.toLocaleString()}</div>
+          <div className="text-sm text-gray-500">Visits</div>
+          <div className="text-2xl font-bold text-gray-900">{Number(totalVisits || 0).toLocaleString()}</div>
         </div>
         <div className="bg-white p-4 rounded-lg border flex flex-col">
-          <div className="text-sm text-gray-500">Page Views (last {labels.length} days)</div>
+          <div className="text-sm text-gray-500">Page Views</div>
           <div className="text-2xl font-bold text-gray-900">{totalPageViews.toLocaleString()}</div>
         </div>
         <div className="bg-white p-4 rounded-lg border flex flex-col">
@@ -197,7 +194,7 @@ export default function AnalyticsPanel() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-sm text-gray-500">Threats Blocked</div>
           <div className="text-xl font-bold text-gray-900">{threatsBlocked != null ? Number(threatsBlocked).toLocaleString() : 'N/A'}</div>
@@ -206,14 +203,10 @@ export default function AnalyticsPanel() {
           <div className="text-sm text-gray-500">Bot Traffic</div>
           <div className="text-xl font-bold text-gray-900">{botTraffic != null ? Number(botTraffic).toLocaleString() : 'N/A'}</div>
         </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-sm text-gray-500">Cache Hit Ratio</div>
-          <div className="text-xl font-bold text-gray-900">{cacheHitRatio != null ? `${cacheHitRatio.toFixed(1)}%` : 'N/A'}</div>
-        </div>
       </div>
 
       <div className="bg-white p-4 rounded-lg border">
-        <div style={{ height: 300 }}>
+        <div className="h-[300px]">
           <Line data={data} options={options} />
         </div>
       </div>
