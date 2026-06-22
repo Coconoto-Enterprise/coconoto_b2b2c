@@ -9,6 +9,73 @@ export default async function handler(req, res) {
   const zoneId = process.env.CLOUDFLARE_ZONE_ID || process.env.VITE_CLOUDFLARE_ZONE_ID;
   const apiToken = process.env.CLOUDFLARE_API_TOKEN || process.env.VITE_CLOUDFLARE_API_TOKEN;
 
+  const formatDateString = (value) => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
+  };
+
+  const buildDailyIntervals = (startDateString, endDateString) => {
+    const startDate = new Date(startDateString);
+    const endDate = new Date(endDateString);
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()) || startDate > endDate) return [];
+
+    const intervals = [];
+    const current = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
+    const last = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
+
+    while (current <= last) {
+      intervals.push(current.toISOString().slice(0, 10));
+      current.setUTCDate(current.getUTCDate() + 1);
+    }
+
+    return intervals;
+  };
+
+  const aggregateAdaptiveGroupCounts = (groups, dimensionKey) => {
+    const counts = {};
+    for (const item of groups || []) {
+      const label = item?.dimensions?.[dimensionKey] || 'Unknown';
+      const count = item?.count || 0;
+      counts[label] = (counts[label] || 0) + count;
+    }
+    return Object.entries(counts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+      .map(([label, count]) => [label, count]);
+  };
+
+  const fetchGraphQL = async (queryText, variables) => {
+    const resp = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: queryText, variables })
+    });
+    const data = await resp.json();
+    return { resp, data };
+  };
+
+  const fetchAdaptiveGroups = async (queryText, dimensionKey, startDate, endDate) => {
+    const intervals = buildDailyIntervals(startDate, endDate);
+    if (!intervals.length) {
+      return { aggregated: [], rawResponses: [] };
+    }
+
+    const responses = await Promise.all(
+      intervals.map(day => fetchGraphQL(queryText, { zoneTag: zoneId, start: day, end: day }))
+    );
+
+    const allGroups = responses.flatMap(r => r.data?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || []);
+    return { aggregated: aggregateAdaptiveGroupCounts(allGroups, dimensionKey), rawResponses: responses };
+  };
+
+  const fetchDailyGraphQLResponses = async (queryText, startDate, endDate) => {
+    const intervals = buildDailyIntervals(startDate, endDate);
+    if (!intervals.length) return [];
+    return Promise.all(
+      intervals.map(day => fetchGraphQL(queryText, { zoneTag: zoneId, start: day, end: day }))
+    );
+  };
+
   if (!zoneId || !apiToken) {
     return res.status(500).json({ success: false, error: 'Missing Cloudflare credentials' });
   }
@@ -30,11 +97,10 @@ export default async function handler(req, res) {
   }
   `;
 
-  const endDate = new Date().toISOString().slice(0, 10);
-  const startDate = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const queryDate = formatDateString(new Date());
 
   try {
-    // 1) GraphQL timeseries (last 7 days)
+    // 1) GraphQL zone validation with a single-day range
     const gqlResp = await fetch('https://api.cloudflare.com/client/v4/graphql', {
       method: 'POST',
       headers: {
@@ -45,8 +111,8 @@ export default async function handler(req, res) {
         query,
         variables: {
           zoneTag: zoneId,
-          start: startDate,
-          end: endDate
+          start: queryDate,
+          end: queryDate
         }
       })
     });
@@ -69,12 +135,8 @@ export default async function handler(req, res) {
     const q = req.query || {};
     const sinceParam = q.since || q.from || null;
     const untilParam = q.until || q.to || null;
-    const since = sinceParam
-      ? new Date(sinceParam).toISOString().slice(0, 10)
-      : new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-    const until = untilParam
-      ? new Date(untilParam).toISOString().slice(0, 10)
-      : new Date().toISOString().slice(0, 10);
+    const since = formatDateString(sinceParam) || formatDateString(new Date(Date.now() - 6 * 24 * 60 * 60 * 1000));
+    const until = formatDateString(untilParam) || formatDateString(new Date());
 
     // GraphQL query: Totals aggregated across entire date range (use 1d groups)
     const totalsQuery = `
@@ -160,45 +222,39 @@ export default async function handler(req, res) {
     }
     `;
 
-    // Execute all queries in parallel
-    const [totalsResp, timeseriesResp, countriesResp, urlsResp] = await Promise.all([
-      fetch('https://api.cloudflare.com/client/v4/graphql', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${apiToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: totalsQuery, variables: { zoneTag: zoneId, start: since, end: until } })
-      }),
-      fetch('https://api.cloudflare.com/client/v4/graphql', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${apiToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: timeseriesQuery, variables: { zoneTag: zoneId, start: since, end: until } })
-      }),
-      fetch('https://api.cloudflare.com/client/v4/graphql', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${apiToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: topCountriesQuery, variables: { zoneTag: zoneId, start: since, end: until } })
-      }),
-      fetch('https://api.cloudflare.com/client/v4/graphql', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${apiToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: topUrlsQuery, variables: { zoneTag: zoneId, start: since, end: until } })
-      })
+    // Execute totals and timeseries queries using daily chunks to satisfy Cloudflare 1-day limits
+    const [totalsResponses, timeseriesResponses, countriesResult, urlsResult] = await Promise.all([
+      fetchDailyGraphQLResponses(totalsQuery, since, until),
+      fetchDailyGraphQLResponses(timeseriesQuery, since, until),
+      fetchAdaptiveGroups(topCountriesQuery, 'country', since, until),
+      fetchAdaptiveGroups(topUrlsQuery, 'path', since, until)
     ]);
 
-    const [totalsData, timeseriesData, countriesData, urlsData] = await Promise.all([
-      totalsResp.json(),
-      timeseriesResp.json(),
-      countriesResp.json(),
-      urlsResp.json()
-    ]);
+    const totalsData = totalsResponses.map(r => r.data);
+    const timeseriesData = timeseriesResponses.map(r => r.data);
+    const countriesData = countriesResult.rawResponses.map(r => r.data);
+    const urlsData = urlsResult.rawResponses.map(r => r.data);
+    const topCountries = countriesResult.aggregated;
+    const topUrls = urlsResult.aggregated;
 
     // Extract data from each response
-    const totalsSum = totalsData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups?.[0]?.sum || {};
-    const timeseriesGroups = timeseriesData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [];
-    const topCountries = (countriesData?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [])
-      .map(g => [g?.dimensions?.country || 'Unknown', g?.count || 0]);
-    const topUrls = (urlsData?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [])
-      .map(g => [g?.dimensions?.path || 'Unknown', g?.count || 0]);
+    const totalsSum = totalsResponses
+      .flatMap(r => r.data?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [])
+      .reduce((acc, group) => {
+        const sum = group?.sum || {};
+        return {
+          requests: acc.requests + (sum.requests || 0),
+          bytes: acc.bytes + (sum.bytes || 0),
+          cachedRequests: acc.cachedRequests + (sum.cachedRequests || 0),
+          cachedBytes: acc.cachedBytes + (sum.cachedBytes || 0),
+          pageViews: acc.pageViews + (sum.pageViews || 0),
+          encryptedRequests: acc.encryptedRequests + (sum.encryptedRequests || 0)
+        };
+      }, { requests: 0, bytes: 0, cachedRequests: 0, cachedBytes: 0, pageViews: 0, encryptedRequests: 0 });
 
+    const timeseriesGroups = timeseriesResponses
+      .flatMap(r => r.data?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [])
+      .sort((a, b) => (a?.dimensions?.date || '').localeCompare(b?.dimensions?.date || ''));
     // Build dashboard response object
     const dashData = {
       totals: [{
@@ -222,8 +278,19 @@ export default async function handler(req, res) {
       raw: { totals: totalsData, timeseries: timeseriesData, countries: countriesData, urls: urlsData }
     };
 
-    // Collect errors from all responses
-    const dashGqlData = dashData;
+    const collectErrors = (payload) => {
+      if (!payload) return [];
+      if (Array.isArray(payload)) {
+        return payload.flatMap(item => [
+          ...(item?.errors || []),
+          ...(item?.data?.errors || [])
+        ]);
+      }
+      return [
+        ...(payload?.errors || []),
+        ...(payload?.data?.errors || [])
+      ];
+    };
 
     const errors = [];
     if (gqlData?.errors?.length) errors.push(...gqlData.errors.map(e => e.message || JSON.stringify(e)));
