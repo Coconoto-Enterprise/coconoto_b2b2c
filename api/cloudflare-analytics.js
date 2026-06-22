@@ -279,25 +279,34 @@ export default async function handler(req, res) {
     };
 
     const collectErrors = (payload) => {
-      if (!payload) return [];
+      const errorList = [];
+      if (!payload) return errorList;
       if (Array.isArray(payload)) {
-        return payload.flatMap(item => [
-          ...(item?.errors || []),
-          ...(item?.data?.errors || [])
-        ]);
+        for (const item of payload) {
+          if (item?.errors?.length) {
+            errorList.push(...item.errors.map(e => e.message || JSON.stringify(e)));
+          }
+          if (item?.data?.errors?.length) {
+            errorList.push(...item.data.errors.map(e => e.message || JSON.stringify(e)));
+          }
+        }
+      } else {
+        if (payload?.errors?.length) {
+          errorList.push(...payload.errors.map(e => e.message || JSON.stringify(e)));
+        }
+        if (payload?.data?.errors?.length) {
+          errorList.push(...payload.data.errors.map(e => e.message || JSON.stringify(e)));
+        }
       }
-      return [
-        ...(payload?.errors || []),
-        ...(payload?.data?.errors || [])
-      ];
+      return errorList;
     };
 
     const errors = [];
-    if (gqlData?.errors?.length) errors.push(...gqlData.errors.map(e => e.message || JSON.stringify(e)));
-    if (totalsData?.errors?.length) errors.push(...totalsData.errors.map(e => e.message || JSON.stringify(e)));
-    if (timeseriesData?.errors?.length) errors.push(...timeseriesData.errors.map(e => e.message || JSON.stringify(e)));
-    if (countriesData?.errors?.length) errors.push(...countriesData.errors.map(e => e.message || JSON.stringify(e)));
-    if (urlsData?.errors?.length) errors.push(...urlsData.errors.map(e => e.message || JSON.stringify(e)));
+    errors.push(...collectErrors(gqlData));
+    errors.push(...collectErrors(totalsResponses));
+    errors.push(...collectErrors(timeseriesResponses));
+    errors.push(...collectErrors(countriesResult.rawResponses));
+    errors.push(...collectErrors(urlsResult.rawResponses));
 
     const success = zoneList.length > 0 && !errors.length;
     if (!success) {
