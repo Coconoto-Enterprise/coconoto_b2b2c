@@ -72,57 +72,129 @@ export default async function handler(req, res) {
     const since = sinceParam ? new Date(sinceParam).toISOString() : new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString();
     const until = untilParam ? new Date(untilParam).toISOString() : new Date().toISOString();
 
-    // GraphQL query to fetch totals, timeseries and top lists (countries, urls, bots)
-    const dashboardQuery = `
-    query ZoneDashboard($zoneTag: String!, $start: Time!, $end: Time!) {
+    // GraphQL query: Totals aggregated across entire date range (use 1d groups)
+    const totalsQuery = `
+    query ZoneTotals($zoneTag: String!, $start: String!, $end: String!) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
-          totals: httpRequestsAdaptiveGroups(filter: { datetime_geq: $start, datetime_leq: $end }, limit: 1) {
-            sum { requests bytes cachedRequests cachedBytes pageViews }
+          httpRequests1dGroups(
+            filter: { date_geq: $start, date_leq: $end }
+            limit: 1
+          ) {
+            sum {
+              requests
+              bytes
+              cachedRequests
+              cachedBytes
+              pageViews
+              encryptedRequests
+            }
           }
-          timeseries: httpRequestsAdaptiveGroups(filter: { datetime_geq: $start, datetime_leq: $end }, limit: 100, orderBy: [datetime_DESC]) {
-            dimensions { datetime }
-            sum { requests bytes pageViews cachedRequests cachedBytes }
-          }
-          topCountries: httpRequestsAdaptiveGroups(filter: { datetime_geq: $start, datetime_leq: $end }, limit: 10, orderBy: [sum_requests_DESC]) {
-            dimensions { clientCountryName }
-            sum { requests }
-          }
-          topUrls: httpRequestsAdaptiveGroups(filter: { datetime_geq: $start, datetime_leq: $end }, limit: 10, orderBy: [sum_requests_DESC]) {
-            dimensions { clientRequestPath }
-            sum { requests }
-          }
-          topBots: httpRequestsAdaptiveGroups(filter: { datetime_geq: $start, datetime_leq: $end }, limit: 10, orderBy: [sum_requests_DESC]) {
-            dimensions { clientDeviceType clientBotLabel }
-            sum { requests }
-          }
-          firewall: firewallEventsAdaptiveGroups(filter: { datetime_geq: $start, datetime_leq: $end }, limit: 1) { count }
         }
       }
     }
     `;
 
-    const dashGqlResp = await fetch('https://api.cloudflare.com/client/v4/graphql', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ query: dashboardQuery, variables: { zoneTag: zoneId, start: since, end: until } })
-    });
-    const dashGqlData = await dashGqlResp.json();
+    // GraphQL query: Timeseries by date (1d buckets)
+    const timeseriesQuery = `
+    query ZoneTimeseries($zoneTag: String!, $start: String!, $end: String!) {
+      viewer {
+        zones(filter: { zoneTag: $zoneTag }) {
+          httpRequests1dGroups(
+            filter: { date_geq: $start, date_leq: $end }
+            limit: 100
+            orderBy: [date_DESC]
+          ) {
+            dimensions { date }
+            sum {
+              requests
+              bytes
+              pageViews
+              cachedRequests
+              cachedBytes
+            }
+          }
+        }
+      }
+    }
+    `;
 
-    // Map GraphQL shape into a dashboard-like object expected by the frontend
-    const z = dashGqlData?.data?.viewer?.zones?.[0] || {};
-    const totalsSum = z?.totals?.[0]?.sum || {};
-    const timeseries = (z?.timeseries || []).map(t => ({
-      datetime: t?.dimensions?.datetime,
-      sum: t?.sum
-    }));
-    const top_countries = (z?.topCountries || []).map(tc => [tc?.dimensions?.clientCountryName || 'Unknown', tc?.sum?.requests || 0]);
-    const top_urls = (z?.topUrls || []).map(u => [u?.dimensions?.clientRequestPath || 'Unknown', u?.sum?.requests || 0]);
-    const top_bots = (z?.topBots || []).map(b => [b?.dimensions?.clientBotLabel || b?.dimensions?.clientDeviceType || 'Bot', b?.sum?.requests || 0]);
+    // GraphQL query: Top countries by request count
+    const topCountriesQuery = `
+    query TopCountries($zoneTag: String!, $start: String!, $end: String!) {
+      viewer {
+        zones(filter: { zoneTag: $zoneTag }) {
+          httpRequests1dGroups(
+            filter: { date_geq: $start, date_leq: $end }
+            limit: 10
+            orderBy: [sum_requests_DESC]
+          ) {
+            dimensions { clientCountryName }
+            sum { requests }
+          }
+        }
+      }
+    }
+    `;
 
+    // GraphQL query: Top URLs by request count
+    const topUrlsQuery = `
+    query TopURLs($zoneTag: String!, $start: String!, $end: String!) {
+      viewer {
+        zones(filter: { zoneTag: $zoneTag }) {
+          httpRequests1dGroups(
+            filter: { date_geq: $start, date_leq: $end }
+            limit: 10
+            orderBy: [sum_requests_DESC]
+          ) {
+            dimensions { clientRequestPath }
+            sum { requests }
+          }
+        }
+      }
+    }
+    `;
+
+    // Execute all queries in parallel
+    const [totalsResp, timeseriesResp, countriesResp, urlsResp] = await Promise.all([
+      fetch('https://api.cloudflare.com/client/v4/graphql', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: totalsQuery, variables: { zoneTag: zoneId, start: since, end: until } })
+      }),
+      fetch('https://api.cloudflare.com/client/v4/graphql', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: timeseriesQuery, variables: { zoneTag: zoneId, start: since, end: until } })
+      }),
+      fetch('https://api.cloudflare.com/client/v4/graphql', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: topCountriesQuery, variables: { zoneTag: zoneId, start: since, end: until } })
+      }),
+      fetch('https://api.cloudflare.com/client/v4/graphql', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: topUrlsQuery, variables: { zoneTag: zoneId, start: since, end: until } })
+      })
+    ]);
+
+    const [totalsData, timeseriesData, countriesData, urlsData] = await Promise.all([
+      totalsResp.json(),
+      timeseriesResp.json(),
+      countriesResp.json(),
+      urlsResp.json()
+    ]);
+
+    // Extract data from each response
+    const totalsSum = totalsData?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups?.[0]?.sum || {};
+    const timeseriesGroups = timeseriesData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [];
+    const topCountries = (countriesData?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [])
+      .map(g => [g?.dimensions?.clientCountryName || 'Unknown', g?.sum?.requests || 0]);
+    const topUrls = (urlsData?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [])
+      .map(g => [g?.dimensions?.clientRequestPath || 'Unknown', g?.sum?.requests || 0]);
+
+    // Build dashboard response object
     const dashData = {
       totals: [{
         requests: totalsSum.requests || 0,
@@ -130,26 +202,38 @@ export default async function handler(req, res) {
         cachedRequests: totalsSum.cachedRequests || 0,
         cachedBytes: totalsSum.cachedBytes || 0,
         pageViews: totalsSum.pageViews || 0,
+        encryptedRequests: totalsSum.encryptedRequests || 0
       }],
-      timeseries: [{ top_countries, top_urls, top_bots }],
-      top_countries,
-      top_urls,
-      top_bots,
-      firewall: z?.firewall || null,
-      raw: dashGqlData
+      timeseries: timeseriesGroups.map(g => ({
+        date: g?.dimensions?.date,
+        requests: g?.sum?.requests || 0,
+        bytes: g?.sum?.bytes || 0,
+        pageViews: g?.sum?.pageViews || 0,
+        cachedRequests: g?.sum?.cachedRequests || 0,
+        cachedBytes: g?.sum?.cachedBytes || 0
+      })),
+      top_countries: topCountries,
+      top_urls: topUrls,
+      raw: { totals: totalsData, timeseries: timeseriesData, countries: countriesData, urls: urlsData }
     };
+
+    // Collect errors from all responses
+    const dashGqlData = dashData;
 
     const errors = [];
     if (gqlData?.errors?.length) errors.push(...gqlData.errors.map(e => e.message || JSON.stringify(e)));
-    if (dashGqlData?.errors?.length) errors.push(...dashGqlData.errors.map(e => e.message || JSON.stringify(e)));
+    if (totalsData?.errors?.length) errors.push(...totalsData.errors.map(e => e.message || JSON.stringify(e)));
+    if (timeseriesData?.errors?.length) errors.push(...timeseriesData.errors.map(e => e.message || JSON.stringify(e)));
+    if (countriesData?.errors?.length) errors.push(...countriesData.errors.map(e => e.message || JSON.stringify(e)));
+    if (urlsData?.errors?.length) errors.push(...urlsData.errors.map(e => e.message || JSON.stringify(e)));
 
-    const success = zoneList.length > 0 && Boolean(!gqlData?.errors && !dashGqlData?.errors);
+    const success = zoneList.length > 0 && !errors.length;
     if (!success) {
-      console.error('Cloudflare analytics fetch error', { gqlData, dashGqlData, dashData });
+      console.error('Cloudflare analytics fetch error', { gqlData, totalsData, timeseriesData, countriesData, urlsData, errors });
       return res.status(500).json({
         success: false,
         error: 'Cloudflare analytics fetch returned errors',
-        details: errors.length ? errors : undefined,
+        details: errors.length ? errors : 'Check server logs for details',
         gql: gqlData,
         dashboard: dashData
       });
