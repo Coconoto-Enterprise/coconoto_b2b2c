@@ -132,7 +132,7 @@ export default async function handler(req, res) {
           httpRequestsAdaptiveGroups(
             filter: { date_geq: $start, date_leq: $end }
             limit: 10
-            orderBy: [sum_requests_DESC]
+            orderBy: [count_DESC]
           ) {
             dimensions { country: clientCountryName }
             sum { requests }
@@ -150,7 +150,7 @@ export default async function handler(req, res) {
           httpRequestsAdaptiveGroups(
             filter: { date_geq: $start, date_leq: $end }
             limit: 10
-            orderBy: [sum_requests_DESC]
+            orderBy: [count_DESC]
           ) {
             dimensions { path: clientRequestPath }
             sum { requests }
