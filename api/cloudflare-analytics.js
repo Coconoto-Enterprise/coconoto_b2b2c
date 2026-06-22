@@ -134,8 +134,8 @@ export default async function handler(req, res) {
             limit: 10
             orderBy: [count_DESC]
           ) {
+            count
             dimensions { country: clientCountryName }
-            sum { requests }
           }
         }
       }
@@ -152,8 +152,8 @@ export default async function handler(req, res) {
             limit: 10
             orderBy: [count_DESC]
           ) {
+            count
             dimensions { path: clientRequestPath }
-            sum { requests }
           }
         }
       }
@@ -195,9 +195,9 @@ export default async function handler(req, res) {
     const totalsSum = totalsData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups?.[0]?.sum || {};
     const timeseriesGroups = timeseriesData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [];
     const topCountries = (countriesData?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [])
-      .map(g => [g?.dimensions?.country || 'Unknown', g?.sum?.requests || 0]);
+      .map(g => [g?.dimensions?.country || 'Unknown', g?.count || 0]);
     const topUrls = (urlsData?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [])
-      .map(g => [g?.dimensions?.path || 'Unknown', g?.sum?.requests || 0]);
+      .map(g => [g?.dimensions?.path || 'Unknown', g?.count || 0]);
 
     // Build dashboard response object
     const dashData = {
