@@ -10,6 +10,7 @@ export default async function handler(req, res) {
   const apiToken = process.env.CLOUDFLARE_API_TOKEN || process.env.VITE_CLOUDFLARE_API_TOKEN;
 
   const formatDateString = (value) => {
+    if (!value) return null;
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
   };
