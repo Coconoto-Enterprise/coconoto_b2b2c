@@ -69,8 +69,12 @@ export default async function handler(req, res) {
     const q = req.query || {};
     const sinceParam = q.since || q.from || null;
     const untilParam = q.until || q.to || null;
-    const since = sinceParam ? new Date(sinceParam).toISOString() : new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString();
-    const until = untilParam ? new Date(untilParam).toISOString() : new Date().toISOString();
+    const since = sinceParam
+      ? new Date(sinceParam).toISOString().slice(0, 10)
+      : new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const until = untilParam
+      ? new Date(untilParam).toISOString().slice(0, 10)
+      : new Date().toISOString().slice(0, 10);
 
     // GraphQL query: Totals aggregated across entire date range (use 1d groups)
     const totalsQuery = `
@@ -187,11 +191,11 @@ export default async function handler(req, res) {
     ]);
 
     // Extract data from each response
-    const totalsSum = totalsData?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups?.[0]?.sum || {};
+    const totalsSum = totalsData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups?.[0]?.sum || {};
     const timeseriesGroups = timeseriesData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [];
-    const topCountries = (countriesData?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [])
+    const topCountries = (countriesData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [])
       .map(g => [g?.dimensions?.clientCountryName || 'Unknown', g?.sum?.requests || 0]);
-    const topUrls = (urlsData?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || [])
+    const topUrls = (urlsData?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [])
       .map(g => [g?.dimensions?.clientRequestPath || 'Unknown', g?.sum?.requests || 0]);
 
     // Build dashboard response object
