@@ -68,15 +68,16 @@ export default function AnalyticsPanel() {
   if (loading) return <div className="text-center text-gray-600">Loading analytics…</div>;
   if (error) return <div className="text-red-600">{error}</div>;
 
-  const labels = groups.map((g: any) => g.dimensions?.date || '');
-  const requests = groups.map((g: any) => g.sum?.requests || 0);
-  const pageViews = groups.map((g: any) => g.sum?.pageViews || 0);
-  const bytes = groups.map((g: any) => g.sum?.bytes || 0);
+  // Support both flattened structure (from dashboard.timeseries) and raw GraphQL structure
+  const labels = groups.map((g: any) => g.date || g.dimensions?.date || '');
+  const requests = groups.map((g: any) => g.requests ?? g.sum?.requests ?? 0);
+  const pageViews = groups.map((g: any) => g.pageViews ?? g.sum?.pageViews ?? 0);
+  const bytes = groups.map((g: any) => g.bytes ?? g.sum?.bytes ?? 0);
 
   const totalRequests = requests.reduce((a: number, b: number) => a + b, 0);
   const totalPageViews = pageViews.reduce((a: number, b: number) => a + b, 0);
   const totalBytes = bytes.reduce((a: number, b: number) => a + b, 0);
-  const totalVisitsFromGroups = groups.reduce((sum: number, group: any) => sum + (group?.uniq?.uniques || 0), 0);
+  const totalVisitsFromGroups = groups.reduce((sum: number, group: any) => sum + (group.uniques ?? group?.uniq?.uniques ?? 0), 0);
   // Security & top lists (safely extracted)
   const totals = dashboard?.totals?.[0] || dashboard?.totals || null;
   const totalVisits = totals?.visits ?? totals?.uniques ?? totalVisitsFromGroups;
@@ -84,9 +85,9 @@ export default function AnalyticsPanel() {
   const botTraffic = totals?.requests?.bot ?? totals?.botRequests ?? null;
   const ddosBlocked = totals?.security?.ddos?.attacksBlocked ?? totals?.ddos?.attacks_blocked ?? null;
 
-  const topCountries = dashboard?.timeseries?.[0]?.top_countries || dashboard?.top_countries || dashboard?.topCountries || [];
-  const topPages = dashboard?.timeseries?.[0]?.top_urls || dashboard?.top_urls || dashboard?.top_uris || dashboard?.topUrls || [];
-  const topBots = dashboard?.top_bots || dashboard?.result?.top_bots || dashboard?.timeseries?.[0]?.top_bots || [];
+  const topCountries = dashboard?.top_countries || [];
+  const topPages = dashboard?.top_urls || [];
+  const topBots = dashboard?.top_bots || [];
 
   const hasAnalyticsData = Boolean(
     groups?.length ||
@@ -179,7 +180,11 @@ export default function AnalyticsPanel() {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div className="bg-white p-4 rounded-lg border flex flex-col">
+          <div className="text-sm text-gray-500">Requests</div>
+          <div className="text-2xl font-bold text-gray-900">{totalRequests.toLocaleString()}</div>
+        </div>
         <div className="bg-white p-4 rounded-lg border flex flex-col">
           <div className="text-sm text-gray-500">Visits</div>
           <div className="text-2xl font-bold text-gray-900">{Number(totalVisits || 0).toLocaleString()}</div>
@@ -214,14 +219,17 @@ export default function AnalyticsPanel() {
       <div className="bg-white p-4 rounded-lg border">
         <h3 className="text-sm font-semibold text-gray-900 mb-2">Daily breakdown</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {groups.map((g: any) => (
-            <div key={g.dimensions?.date} className="p-3 rounded-lg bg-gray-50 border">
-              <div className="text-xs text-gray-500">{g.dimensions?.date}</div>
-              <div className="text-sm font-medium text-gray-900">Requests: {Number(g.sum?.requests || 0).toLocaleString()}</div>
-              <div className="text-sm text-gray-700">Page Views: {Number(g.sum?.pageViews || 0).toLocaleString()}</div>
-              <div className="text-sm text-gray-700">Bandwidth: {(Number(g.sum?.bytes || 0) / 1024 / 1024).toFixed(2)} MB</div>
-            </div>
-          ))}
+          {groups.map((g: any) => {
+            const dateKey = g.date || g.dimensions?.date;
+            return (
+              <div key={dateKey} className="p-3 rounded-lg bg-gray-50 border">
+                <div className="text-xs text-gray-500">{dateKey}</div>
+                <div className="text-sm font-medium text-gray-900">Requests: {Number(g.requests ?? g.sum?.requests ?? 0).toLocaleString()}</div>
+                <div className="text-sm text-gray-700">Page Views: {Number(g.pageViews ?? g.sum?.pageViews ?? 0).toLocaleString()}</div>
+                <div className="text-sm text-gray-700">Bandwidth: {(Number(g.bytes ?? g.sum?.bytes ?? 0) / 1024 / 1024).toFixed(2)} MB</div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -230,10 +238,10 @@ export default function AnalyticsPanel() {
           <h4 className="text-sm font-semibold mb-2">Top Countries</h4>
           {topCountries && topCountries.length > 0 ? (
             <ul className="space-y-2 text-sm text-gray-700">
-              {topCountries.slice(0, 8).map((c: any, i: number) => {
-                const name = c?.name || (Array.isArray(c) ? c[0] : c?.country || 'Unknown');
-                const count = c?.requests ?? c?.count ?? (Array.isArray(c) ? c[1] : null);
-                return <li key={i} className="flex justify-between"><span>{name}</span><span className="text-gray-500">{count != null ? Number(count).toLocaleString() : '—'}</span></li>;
+              {topCountries.slice(0, 10).map((c: any, i: number) => {
+                const name = Array.isArray(c) ? c[0] : c?.country || c?.name || 'Unknown';
+                const count = Array.isArray(c) ? c[1] : c?.count || c?.requests || 0;
+                return <li key={i} className="flex justify-between"><span>{name}</span><span className="text-gray-500">{Number(count).toLocaleString()}</span></li>;
               })}
             </ul>
           ) : (
@@ -245,10 +253,10 @@ export default function AnalyticsPanel() {
           <h4 className="text-sm font-semibold mb-2">Top Pages</h4>
           {topPages && topPages.length > 0 ? (
             <ul className="space-y-2 text-sm text-gray-700 break-words">
-              {topPages.slice(0, 8).map((p: any, i: number) => {
-                const url = p?.uri || p?.path || (Array.isArray(p) ? p[0] : p?.url || '/');
-                const count = p?.requests ?? p?.count ?? (Array.isArray(p) ? p[1] : null);
-                return <li key={i} className="flex justify-between"><span className="truncate max-w-[70%]">{url}</span><span className="text-gray-500">{count != null ? Number(count).toLocaleString() : '—'}</span></li>;
+              {topPages.slice(0, 10).map((p: any, i: number) => {
+                const url = Array.isArray(p) ? p[0] : p?.path || p?.uri || p?.url || '/';
+                const count = Array.isArray(p) ? p[1] : p?.count || p?.requests || 0;
+                return <li key={i} className="flex justify-between"><span className="truncate max-w-[70%]">{url}</span><span className="text-gray-500">{Number(count).toLocaleString()}</span></li>;
               })}
             </ul>
           ) : (
