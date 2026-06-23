@@ -32,20 +32,17 @@ export default async function handler(req, res) {
     return intervals;
   };
 
-  const aggregateAdaptiveGroupCounts = (groups, dimensionKey, sortBy = 'count') => {
+  const aggregateAdaptiveGroupCounts = (groups, dimensionKey) => {
     const counts = {};
     for (const item of groups || []) {
       const label = item?.dimensions?.[dimensionKey] || 'Unknown';
       const count = item?.count || 0;
-      const uniques = item?.uniq?.uniques ?? item?.count ?? item?.sum?.requests ?? 0;
-      const existing = counts[label] || { label, count: 0, uniques: 0 };
-      existing.count += count;
-      existing.uniques += uniques;
-      counts[label] = existing;
+      counts[label] = (counts[label] || 0) + count;
     }
-    return Object.values(counts)
-      .sort((a, b) => b[sortBy] - a[sortBy])
-      .slice(0, 10);
+    return Object.entries(counts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+      .map(([label, count]) => [label, count]);
   };
 
   const fetchGraphQL = async (queryText, variables) => {
@@ -58,7 +55,7 @@ export default async function handler(req, res) {
     return { resp, data };
   };
 
-  const fetchAdaptiveGroups = async (queryText, dimensionKey, startDate, endDate, sortBy = 'count') => {
+  const fetchAdaptiveGroups = async (queryText, dimensionKey, startDate, endDate) => {
     const intervals = buildDailyIntervals(startDate, endDate);
     if (!intervals.length) {
       return { aggregated: [], rawResponses: [] };
@@ -69,7 +66,7 @@ export default async function handler(req, res) {
     );
 
     const allGroups = responses.flatMap(r => r.data?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || []);
-    return { aggregated: aggregateAdaptiveGroupCounts(allGroups, dimensionKey, sortBy), rawResponses: responses };
+    return { aggregated: aggregateAdaptiveGroupCounts(allGroups, dimensionKey), rawResponses: responses };
   };
 
   const fetchDailyGraphQLResponses = async (queryText, startDate, endDate) => {
@@ -159,6 +156,7 @@ export default async function handler(req, res) {
               pageViews
               encryptedRequests
             }
+            uniq { uniques }
           }
         }
       }
@@ -183,6 +181,7 @@ export default async function handler(req, res) {
               cachedRequests
               cachedBytes
             }
+            uniq { uniques }
           }
         }
       }
@@ -197,7 +196,8 @@ export default async function handler(req, res) {
         zones(filter: { zoneTag: $zoneTag }) {
           httpRequestsAdaptiveGroups(
             filter: { date_geq: $start, date_leq: $end }
-            limit: 100
+            limit: 10
+            orderBy: [count_DESC]
           ) {
             count
             dimensions { country: clientCountryName }
@@ -229,7 +229,7 @@ export default async function handler(req, res) {
     const [totalsResponses, timeseriesResponses, countriesResult, urlsResult] = await Promise.all([
       fetchDailyGraphQLResponses(totalsQuery, since, until),
       fetchDailyGraphQLResponses(timeseriesQuery, since, until),
-      fetchAdaptiveGroups(topCountriesQuery, 'country', since, until, 'count'),
+      fetchAdaptiveGroups(topCountriesQuery, 'country', since, until),
       fetchAdaptiveGroups(topUrlsQuery, 'path', since, until)
     ]);
 
@@ -245,6 +245,7 @@ export default async function handler(req, res) {
       .flatMap(r => r.data?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [])
       .reduce((acc, group) => {
         const sum = group?.sum || {};
+        const uniques = group?.uniq?.uniques || 0;
         return {
           requests: acc.requests + (sum.requests || 0),
           bytes: acc.bytes + (sum.bytes || 0),
@@ -252,7 +253,7 @@ export default async function handler(req, res) {
           cachedBytes: acc.cachedBytes + (sum.cachedBytes || 0),
           pageViews: acc.pageViews + (sum.pageViews || 0),
           encryptedRequests: acc.encryptedRequests + (sum.encryptedRequests || 0),
-          uniques: acc.uniques
+          uniques: acc.uniques + uniques
         };
       }, { requests: 0, bytes: 0, cachedRequests: 0, cachedBytes: 0, pageViews: 0, encryptedRequests: 0, uniques: 0 });
 
@@ -268,8 +269,8 @@ export default async function handler(req, res) {
         cachedBytes: totalsSum.cachedBytes || 0,
         pageViews: totalsSum.pageViews || 0,
         encryptedRequests: totalsSum.encryptedRequests || 0,
-        uniques: 0,
-        visits: totalsSum.requests || 0
+        uniques: totalsSum.uniques || 0,
+        visits: totalsSum.uniques || 0
       }],
       timeseries: timeseriesGroups.map(g => ({
         date: g?.dimensions?.date,
@@ -278,7 +279,7 @@ export default async function handler(req, res) {
         pageViews: g?.sum?.pageViews || 0,
         cachedRequests: g?.sum?.cachedRequests || 0,
         cachedBytes: g?.sum?.cachedBytes || 0,
-        uniques: g?.sum?.requests || 0
+        uniques: g?.uniq?.uniques || 0
       })),
       top_countries: topCountries,
       top_urls: topUrls,
