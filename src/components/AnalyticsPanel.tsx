@@ -216,16 +216,7 @@ export default function AnalyticsPanel() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-sm text-gray-500">Threats Blocked</div>
-          <div className="text-xl font-bold text-gray-900">{threatsBlocked != null ? Number(threatsBlocked).toLocaleString() : 'N/A'}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg border">
-          <div className="text-sm text-gray-500">Bot Traffic</div>
-          <div className="text-xl font-bold text-gray-900">{botTraffic != null ? Number(botTraffic).toLocaleString() : 'N/A'}</div>
-        </div>
-      </div>
+      {/* Threats Blocked and Bot Traffic cards removed per user request */}
 
       <div className="bg-white p-4 rounded-lg border">
         <div className="h-[300px]">
