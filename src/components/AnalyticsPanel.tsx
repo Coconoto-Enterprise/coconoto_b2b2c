@@ -100,7 +100,7 @@ export default function AnalyticsPanel() {
   const totalVisitsFromGroups = groups.reduce((sum: number, group: any) => sum + (group.uniques ?? group?.uniq?.uniques ?? group?.count ?? group?.sum?.requests ?? 0), 0);
   // Security & top lists (safely extracted)
   const totals = dashboard?.totals?.[0] || dashboard?.totals || null;
-  const totalVisits = totals?.visits ?? totals?.uniques ?? totals?.requests ?? totalVisitsFromGroups;
+  const totalVisits = totals?.visits ?? totals?.requests ?? totals?.uniques ?? totalVisitsFromGroups;
   const threatsBlocked = totals?.security?.threats?.blocked ?? totals?.threats?.blocked ?? null;
   const botTraffic = totals?.requests?.bot ?? totals?.botRequests ?? null;
   const ddosBlocked = totals?.security?.ddos?.attacksBlocked ?? totals?.ddos?.attacks_blocked ?? null;

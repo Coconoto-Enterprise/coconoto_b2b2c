@@ -245,7 +245,6 @@ export default async function handler(req, res) {
       .flatMap(r => r.data?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [])
       .reduce((acc, group) => {
         const sum = group?.sum || {};
-        const uniques = group?.uniq?.uniques ?? (sum.requests || 0);
         return {
           requests: acc.requests + (sum.requests || 0),
           bytes: acc.bytes + (sum.bytes || 0),
@@ -253,7 +252,7 @@ export default async function handler(req, res) {
           cachedBytes: acc.cachedBytes + (sum.cachedBytes || 0),
           pageViews: acc.pageViews + (sum.pageViews || 0),
           encryptedRequests: acc.encryptedRequests + (sum.encryptedRequests || 0),
-          uniques: acc.uniques + uniques
+          uniques: acc.uniques
         };
       }, { requests: 0, bytes: 0, cachedRequests: 0, cachedBytes: 0, pageViews: 0, encryptedRequests: 0, uniques: 0 });
 
@@ -269,8 +268,8 @@ export default async function handler(req, res) {
         cachedBytes: totalsSum.cachedBytes || 0,
         pageViews: totalsSum.pageViews || 0,
         encryptedRequests: totalsSum.encryptedRequests || 0,
-        uniques: totalsSum.uniques || 0,
-        visits: totalsSum.uniques || totalsSum.requests || 0
+        uniques: 0,
+        visits: totalsSum.requests || 0
       }],
       timeseries: timeseriesGroups.map(g => ({
         date: g?.dimensions?.date,
@@ -279,7 +278,7 @@ export default async function handler(req, res) {
         pageViews: g?.sum?.pageViews || 0,
         cachedRequests: g?.sum?.cachedRequests || 0,
         cachedBytes: g?.sum?.cachedBytes || 0,
-        uniques: g?.uniq?.uniques ?? (g?.sum?.requests || 0)
+        uniques: g?.sum?.requests || 0
       })),
       top_countries: topCountries,
       top_urls: topUrls,
