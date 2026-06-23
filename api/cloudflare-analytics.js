@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     for (const item of groups || []) {
       const label = item?.dimensions?.[dimensionKey] || 'Unknown';
       const count = item?.count || 0;
-      const uniques = item?.uniq?.uniques || 0;
+      const uniques = item?.uniq?.uniques ?? item?.count ?? item?.sum?.requests ?? 0;
       const existing = counts[label] || { label, count: 0, uniques: 0 };
       existing.count += count;
       existing.uniques += uniques;
@@ -159,6 +159,9 @@ export default async function handler(req, res) {
               pageViews
               encryptedRequests
             }
+            uniq {
+              uniques
+            }
           }
         }
       }
@@ -183,6 +186,9 @@ export default async function handler(req, res) {
               cachedRequests
               cachedBytes
             }
+            uniq {
+              uniques
+            }
           }
         }
       }
@@ -200,6 +206,9 @@ export default async function handler(req, res) {
             limit: 100
           ) {
             count
+            uniq {
+              uniques
+            }
             dimensions { country: clientCountryName }
           }
         }
@@ -229,7 +238,7 @@ export default async function handler(req, res) {
     const [totalsResponses, timeseriesResponses, countriesResult, urlsResult] = await Promise.all([
       fetchDailyGraphQLResponses(totalsQuery, since, until),
       fetchDailyGraphQLResponses(timeseriesQuery, since, until),
-      fetchAdaptiveGroups(topCountriesQuery, 'country', since, until, 'uniques'),
+      fetchAdaptiveGroups(topCountriesQuery, 'country', since, until, 'count'),
       fetchAdaptiveGroups(topUrlsQuery, 'path', since, until)
     ]);
 
@@ -245,7 +254,7 @@ export default async function handler(req, res) {
       .flatMap(r => r.data?.data?.viewer?.zones?.[0]?.httpRequests1dGroups || [])
       .reduce((acc, group) => {
         const sum = group?.sum || {};
-        const uniques = group?.uniq?.uniques || 0;
+        const uniques = group?.uniq?.uniques ?? (sum.requests || 0);
         return {
           requests: acc.requests + (sum.requests || 0),
           bytes: acc.bytes + (sum.bytes || 0),
@@ -270,7 +279,7 @@ export default async function handler(req, res) {
         pageViews: totalsSum.pageViews || 0,
         encryptedRequests: totalsSum.encryptedRequests || 0,
         uniques: totalsSum.uniques || 0,
-        visits: totalsSum.uniques || 0
+        visits: totalsSum.uniques || totalsSum.requests || 0
       }],
       timeseries: timeseriesGroups.map(g => ({
         date: g?.dimensions?.date,
@@ -279,7 +288,7 @@ export default async function handler(req, res) {
         pageViews: g?.sum?.pageViews || 0,
         cachedRequests: g?.sum?.cachedRequests || 0,
         cachedBytes: g?.sum?.cachedBytes || 0,
-        uniques: g?.uniq?.uniques || 0
+        uniques: g?.uniq?.uniques ?? (g?.sum?.requests || 0)
       })),
       top_countries: topCountries,
       top_urls: topUrls,
