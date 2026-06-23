@@ -252,13 +252,24 @@ export default function AnalyticsPanel() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="bg-white p-4 rounded-lg border">
-          <h4 className="text-sm font-semibold mb-2">Top Countries</h4>
+          <h4 className="text-sm font-semibold mb-2">Top Countries by Visits</h4>
           {topCountries && topCountries.length > 0 ? (
             <ul className="space-y-2 text-sm text-gray-700">
               {topCountries.slice(0, 10).map((c: any, i: number) => {
-                const name = Array.isArray(c) ? c[0] : c?.country || c?.name || 'Unknown';
-                const count = Array.isArray(c) ? c[1] : c?.count || c?.requests || 0;
-                return <li key={i} className="flex justify-between"><span>{name}</span><span className="text-gray-500">{Number(count).toLocaleString()}</span></li>;
+                const name = Array.isArray(c) ? c[0] : c?.label || c?.country || c?.name || 'Unknown';
+                const visits = Number(Array.isArray(c) ? c[1] : c?.uniques ?? c?.count ?? c?.requests ?? 0);
+                const requests = Number(Array.isArray(c) ? 0 : c?.count ?? 0);
+                return (
+                  <li key={i} className="space-y-1">
+                    <div className="flex justify-between items-center">
+                      <span>{name}</span>
+                      <span className="text-gray-900 font-semibold">{visits.toLocaleString()}</span>
+                    </div>
+                    {requests ? (
+                      <div className="text-xs text-gray-500">Requests: {requests.toLocaleString()}</div>
+                    ) : null}
+                  </li>
+                );
               })}
             </ul>
           ) : (

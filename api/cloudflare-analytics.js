@@ -32,17 +32,20 @@ export default async function handler(req, res) {
     return intervals;
   };
 
-  const aggregateAdaptiveGroupCounts = (groups, dimensionKey) => {
+  const aggregateAdaptiveGroupCounts = (groups, dimensionKey, sortBy = 'count') => {
     const counts = {};
     for (const item of groups || []) {
       const label = item?.dimensions?.[dimensionKey] || 'Unknown';
       const count = item?.count || 0;
-      counts[label] = (counts[label] || 0) + count;
+      const uniques = item?.uniq?.uniques || 0;
+      const existing = counts[label] || { label, count: 0, uniques: 0 };
+      existing.count += count;
+      existing.uniques += uniques;
+      counts[label] = existing;
     }
-    return Object.entries(counts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
-      .map(([label, count]) => [label, count]);
+    return Object.values(counts)
+      .sort((a, b) => b[sortBy] - a[sortBy])
+      .slice(0, 10);
   };
 
   const fetchGraphQL = async (queryText, variables) => {
@@ -55,7 +58,7 @@ export default async function handler(req, res) {
     return { resp, data };
   };
 
-  const fetchAdaptiveGroups = async (queryText, dimensionKey, startDate, endDate) => {
+  const fetchAdaptiveGroups = async (queryText, dimensionKey, startDate, endDate, sortBy = 'count') => {
     const intervals = buildDailyIntervals(startDate, endDate);
     if (!intervals.length) {
       return { aggregated: [], rawResponses: [] };
@@ -66,7 +69,7 @@ export default async function handler(req, res) {
     );
 
     const allGroups = responses.flatMap(r => r.data?.data?.viewer?.zones?.[0]?.httpRequestsAdaptiveGroups || []);
-    return { aggregated: aggregateAdaptiveGroupCounts(allGroups, dimensionKey), rawResponses: responses };
+    return { aggregated: aggregateAdaptiveGroupCounts(allGroups, dimensionKey, sortBy), rawResponses: responses };
   };
 
   const fetchDailyGraphQLResponses = async (queryText, startDate, endDate) => {
@@ -145,7 +148,7 @@ export default async function handler(req, res) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
           httpRequests1dGroups(
-            filter: { date_geq: $start, date_leq: $end }
+            filter: { date_geq: $start, date_leq: $end, trustedClientCategory_ne: HONEST_BOT }
             limit: 1
           ) {
             sum {
@@ -169,7 +172,7 @@ export default async function handler(req, res) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
           httpRequests1dGroups(
-            filter: { date_geq: $start, date_leq: $end }
+            filter: { date_geq: $start, date_leq: $end, trustedClientCategory_ne: HONEST_BOT }
             limit: 100
             orderBy: [date_DESC]
           ) {
@@ -195,11 +198,11 @@ export default async function handler(req, res) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
           httpRequestsAdaptiveGroups(
-            filter: { date_geq: $start, date_leq: $end }
-            limit: 10
-            orderBy: [count_DESC]
+            filter: { date_geq: $start, date_leq: $end, trustedClientCategory_ne: HONEST_BOT }
+            limit: 100
           ) {
             count
+            uniq { uniques }
             dimensions { country: clientCountryName }
           }
         }
@@ -213,7 +216,7 @@ export default async function handler(req, res) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
           httpRequestsAdaptiveGroups(
-            filter: { date_geq: $start, date_leq: $end }
+            filter: { date_geq: $start, date_leq: $end, trustedClientCategory_ne: HONEST_BOT }
             limit: 10
             orderBy: [count_DESC]
           ) {
@@ -229,7 +232,7 @@ export default async function handler(req, res) {
     const [totalsResponses, timeseriesResponses, countriesResult, urlsResult] = await Promise.all([
       fetchDailyGraphQLResponses(totalsQuery, since, until),
       fetchDailyGraphQLResponses(timeseriesQuery, since, until),
-      fetchAdaptiveGroups(topCountriesQuery, 'country', since, until),
+      fetchAdaptiveGroups(topCountriesQuery, 'country', since, until, 'uniques'),
       fetchAdaptiveGroups(topUrlsQuery, 'path', since, until)
     ]);
 
