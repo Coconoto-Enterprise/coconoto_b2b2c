@@ -159,7 +159,6 @@ export default async function handler(req, res) {
               pageViews
               encryptedRequests
             }
-            uniq { uniques }
           }
         }
       }
@@ -184,7 +183,6 @@ export default async function handler(req, res) {
               cachedRequests
               cachedBytes
             }
-            uniq { uniques }
           }
         }
       }
@@ -202,7 +200,6 @@ export default async function handler(req, res) {
             limit: 100
           ) {
             count
-            uniq { uniques }
             dimensions { country: clientCountryName }
           }
         }
