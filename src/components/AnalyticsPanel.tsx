@@ -28,8 +28,29 @@ export default function AnalyticsPanel() {
   const [until, setUntil] = useState(() => getDateString(today));
   const [fetching, setFetching] = useState(false);
 
+  const maxRangeDays = 8;
+
   const fetchRange = async (from: string, to: string) => {
     try {
+      const fromDate = new Date(from);
+      const toDate = new Date(to);
+      const rangeDays = Math.round((toDate.getTime() - fromDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
+      if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
+        setError('Please provide a valid date range.');
+        setLoading(false);
+        return;
+      }
+      if (fromDate > toDate) {
+        setError('The "From" date must be before the "To" date.');
+        setLoading(false);
+        return;
+      }
+      if (rangeDays > maxRangeDays) {
+        setError(`Cloudflare analytics only supports a maximum range of ${maxRangeDays} days.`);
+        setLoading(false);
+        return;
+      }
+
       setFetching(true);
       setError(null);
       const qs = `?since=${encodeURIComponent(from)}&until=${encodeURIComponent(to)}`;
@@ -173,9 +194,6 @@ export default function AnalyticsPanel() {
           </button>
           <button onClick={() => setQuickRange(7)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
             7d
-          </button>
-          <button onClick={() => setQuickRange(30)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
-            30d
           </button>
         </div>
       </div>
