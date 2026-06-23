@@ -24,8 +24,7 @@ export default function AnalyticsPanel() {
 
   const getDateString = (date: Date) => date.toISOString().slice(0, 10);
   const today = new Date();
-  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const [since, setSince] = useState(() => getDateString(yesterday));
+  const [since, setSince] = useState(() => getDateString(today));
   const [until, setUntil] = useState(() => getDateString(today));
   const [fetching, setFetching] = useState(false);
 
