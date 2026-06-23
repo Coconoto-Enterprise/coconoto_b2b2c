@@ -148,7 +148,7 @@ export default async function handler(req, res) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
           httpRequests1dGroups(
-            filter: { date_geq: $start, date_leq: $end, trustedClientCategory_ne: HONEST_BOT }
+            filter: { date_geq: $start, date_leq: $end }
             limit: 1
           ) {
             sum {
@@ -172,7 +172,7 @@ export default async function handler(req, res) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
           httpRequests1dGroups(
-            filter: { date_geq: $start, date_leq: $end, trustedClientCategory_ne: HONEST_BOT }
+            filter: { date_geq: $start, date_leq: $end }
             limit: 100
             orderBy: [date_DESC]
           ) {
@@ -198,7 +198,7 @@ export default async function handler(req, res) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
           httpRequestsAdaptiveGroups(
-            filter: { date_geq: $start, date_leq: $end, trustedClientCategory_ne: HONEST_BOT }
+            filter: { date_geq: $start, date_leq: $end }
             limit: 100
           ) {
             count
@@ -216,7 +216,7 @@ export default async function handler(req, res) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
           httpRequestsAdaptiveGroups(
-            filter: { date_geq: $start, date_leq: $end, trustedClientCategory_ne: HONEST_BOT }
+            filter: { date_geq: $start, date_leq: $end }
             limit: 10
             orderBy: [count_DESC]
           ) {
