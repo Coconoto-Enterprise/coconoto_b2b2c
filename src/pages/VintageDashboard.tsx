@@ -766,7 +766,7 @@ const VintageDashboard: React.FC = () => {
         {activeTab === 'overview' && (
           <div className="space-y-6 sm:space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
               <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 text-center">
                 <div className="flex flex-col items-center gap-3">
                   <div className="bg-green-100 p-2 rounded-lg">
