@@ -117,17 +117,17 @@ export const MernBlogManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-2">
+      <div className="flex justify-between items-center mb-6 gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <BookOpen className="w-6 h-6 text-amber-700" />
-          <h2 className="text-2xl font-bold text-amber-900">Blog Management</h2>
+          <h2 className="text-2xl font-bold text-amber-900 whitespace-nowrap">Blog Management</h2>
         </div>
         <button
           onClick={() => setShowNewBlogModal(true)}
-          className="flex items-center gap-2 bg-amber-700 text-white px-4 py-2 rounded-lg hover:bg-amber-800 transition"
+          className="flex items-center gap-2 bg-amber-700 text-white px-2 py-2 sm:px-4 rounded-lg hover:bg-amber-800 transition"
         >
           <Plus className="w-4 h-4" />
-          New Blog
+          <span className="hidden sm:inline">New Blog</span>
         </button>
       </div>
 
