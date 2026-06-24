@@ -185,16 +185,18 @@ export default function AnalyticsPanel() {
           <label htmlFor="analytics-until" className="text-sm text-gray-600">To</label>
           <input id="analytics-until" type="date" value={until} onChange={e => setUntil(e.target.value)} className="border rounded px-2 py-1 text-sm w-full" />
         </div>
-        <div className="col-span-2 flex flex-wrap gap-2 sm:col-auto sm:ml-2">
+        <div className="col-span-2 flex items-center justify-between gap-2 sm:col-auto sm:ml-2">
           <button onClick={() => fetchRange(since, until)} disabled={fetching} className="bg-green-600 text-white px-3 py-1.5 rounded text-sm">
             {fetching ? 'Fetching…' : 'Apply'}
           </button>
-          <button onClick={() => setQuickRange(1)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
-            24h
-          </button>
-          <button onClick={() => setQuickRange(7)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
-            7d
-          </button>
+          <div className="flex gap-2">
+            <button onClick={() => setQuickRange(1)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
+              24h
+            </button>
+            <button onClick={() => setQuickRange(7)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
+              7d
+            </button>
+          </div>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
