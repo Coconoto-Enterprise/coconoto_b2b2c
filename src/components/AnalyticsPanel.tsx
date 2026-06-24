@@ -176,17 +176,17 @@ export default function AnalyticsPanel() {
           <pre className="whitespace-pre-wrap break-words text-xs max-h-64 overflow-auto">{debugInfo}</pre>
         </div>
       )}
-      <div className="flex flex-col sm:flex-row gap-2 items-center">
-        <div className="flex items-center gap-2">
+      <div className="grid grid-cols-2 gap-2 items-end sm:flex sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-1">
           <label htmlFor="analytics-since" className="text-sm text-gray-600">From</label>
-          <input id="analytics-since" type="date" value={since} onChange={e => setSince(e.target.value)} className="border rounded px-2 py-1 text-sm" />
+          <input id="analytics-since" type="date" value={since} onChange={e => setSince(e.target.value)} className="border rounded px-2 py-1 text-sm w-full" />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-1">
           <label htmlFor="analytics-until" className="text-sm text-gray-600">To</label>
-          <input id="analytics-until" type="date" value={until} onChange={e => setUntil(e.target.value)} className="border rounded px-2 py-1 text-sm" />
+          <input id="analytics-until" type="date" value={until} onChange={e => setUntil(e.target.value)} className="border rounded px-2 py-1 text-sm w-full" />
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button onClick={() => fetchRange(since, until)} disabled={fetching} className="ml-0 sm:ml-2 bg-green-600 text-white px-3 py-1.5 rounded text-sm">
+        <div className="col-span-2 flex flex-wrap gap-2 sm:col-auto sm:ml-2">
+          <button onClick={() => fetchRange(since, until)} disabled={fetching} className="bg-green-600 text-white px-3 py-1.5 rounded text-sm">
             {fetching ? 'Fetching…' : 'Apply'}
           </button>
           <button onClick={() => setQuickRange(1)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
@@ -197,7 +197,7 @@ export default function AnalyticsPanel() {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <div className="bg-white p-4 rounded-lg border flex flex-col">
           <div className="text-sm text-gray-500">Requests</div>
           <div className="text-2xl font-bold text-gray-900">{totalRequests.toLocaleString()}</div>
