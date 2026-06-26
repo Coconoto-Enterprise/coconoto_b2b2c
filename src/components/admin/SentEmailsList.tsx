@@ -246,7 +246,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
               {(currentUser?.role === 'admin' || currentUser) && (
                 <section className="mb-4">
                   <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
-                  <div className="space-y-2">
+                  <div className="overflow-y-auto max-h-[40vh] pr-1 space-y-2">
                     <button
                       onClick={() => {
                         handleUserSelection('');
@@ -272,7 +272,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                         {user.login_email}
                       </button>
                     ))}
-                  </div>
+                    </div>
                   {currentUser?.role === 'admin' && (
                     <button
                       onClick={() => {
