@@ -206,7 +206,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
           <div className="absolute inset-0 bg-black/40" onClick={onToggleMobileSidebar} />
           <div className="absolute left-0 top-0 bottom-0 w-[80vw] max-w-xs bg-white border-r border-gray-200 flex flex-col min-h-full shadow-xl" style={{ borderRightColor: '#d4a574' }}>
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <div className="text-sm font-semibold text-gray-900">Folders</div>
+              <div className="text-sm font-semibold text-gray-900">Sidebar</div>
               <button
                 onClick={onToggleMobileSidebar}
                 className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-gray-100 text-gray-700"
@@ -215,31 +215,84 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                 ✕
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto py-2">
-              <nav className="space-y-1 px-2">
-                {[
-                  { label: 'All', value: 'all' },
-                  { label: 'Sent', value: 'sent' },
-                  { label: 'Failed', value: 'failed' }
-                ].map(folder => (
-                  <button
-                    key={folder.value}
-                    onClick={() => {
-                      setCurrentFolder(folder.value as any);
-                      setPage(1);
-                      onToggleMobileSidebar?.();
-                    }}
-                    className={`w-full text-left px-4 py-3 rounded-xl transition ${
-                      currentFolder === folder.value
-                        ? 'font-semibold text-white bg-green-600'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    {folder.label}
-                  </button>
-                ))}
-              </nav>
+            <div className="flex-1 overflow-y-auto py-2 px-2">
+              <section className="mb-4">
+                <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Folders</div>
+                <div className="space-y-1">
+                  {[
+                    { label: 'All', value: 'all' },
+                    { label: 'Sent', value: 'sent' },
+                    { label: 'Failed', value: 'failed' }
+                  ].map(folder => (
+                    <button
+                      key={folder.value}
+                      onClick={() => {
+                        setCurrentFolder(folder.value as any);
+                        setPage(1);
+                        onToggleMobileSidebar?.();
+                      }}
+                      className={`w-full text-left px-4 py-3 rounded-xl transition ${
+                        currentFolder === folder.value
+                          ? 'font-semibold text-white bg-green-600'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {folder.label}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              {(currentUser?.role === 'admin' || currentUser) && (
+                <section className="mb-4">
+                  <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => {
+                        handleUserSelection('');
+                        onToggleMobileSidebar?.();
+                      }}
+                      className={`w-full text-left px-4 py-3 rounded-xl transition ${
+                        selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      All users
+                    </button>
+                    {mailUsers.map(user => (
+                      <button
+                        key={user.id}
+                        onClick={() => {
+                          handleUserSelection(user.sender_email);
+                          onToggleMobileSidebar?.();
+                        }}
+                        className={`w-full text-left px-4 py-3 rounded-xl transition ${
+                          selectedSender === user.sender_email ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        {user.login_email}
+                      </button>
+                    ))}
+                  </div>
+                  {currentUser?.role === 'admin' && (
+                    <button
+                      onClick={() => {
+                        setShowAddUserModal(true);
+                        onToggleMobileSidebar?.();
+                      }}
+                      className="mt-4 w-full px-4 py-3 rounded-xl bg-gray-100 text-sm font-semibold text-gray-700 hover:bg-gray-200"
+                    >
+                      Add mail user
+                    </button>
+                  )}
+                </section>
+              )}
             </div>
+            {currentUser && (
+              <div className="border-t border-gray-200 p-4 text-sm text-gray-700">
+                <div className="font-semibold truncate">{currentUserEmail}</div>
+                <div className="text-gray-500">{currentUser.role}</div>
+              </div>
+            )}
           </div>
         </div>
       )}
