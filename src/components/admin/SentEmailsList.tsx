@@ -215,7 +215,8 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                 ✕
               </button>
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto py-2 px-2">
+
+            <div className="flex-1 min-h-0 py-2 px-2 flex flex-col">
               <section className="mb-4">
                 <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Folders</div>
                 <div className="space-y-1">
@@ -244,9 +245,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
               </section>
 
               {(currentUser?.role === 'admin' || currentUser) && (
-                <section className="mb-4">
+                <section className="mb-4 flex flex-col flex-1 min-h-0">
                   <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
-                  <div className="overflow-y-auto max-h-[40vh] pr-1 space-y-2">
+                  <div className="overflow-y-auto pr-1 space-y-2">
                     <button
                       onClick={() => {
                         handleUserSelection('');
@@ -272,21 +273,24 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                         {user.login_email}
                       </button>
                     ))}
-                    </div>
+                  </div>
                   {currentUser?.role === 'admin' && (
-                    <button
-                      onClick={() => {
-                        setShowAddUserModal(true);
-                        onToggleMobileSidebar?.();
-                      }}
-                      className="mt-4 w-full px-4 py-3 rounded-xl bg-gray-100 text-sm font-semibold text-gray-700 hover:bg-gray-200"
-                    >
-                      Add mail user
-                    </button>
+                    <div className="mt-4">
+                      <button
+                        onClick={() => {
+                          setShowAddUserModal(true);
+                          onToggleMobileSidebar?.();
+                        }}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-100 text-sm font-semibold text-gray-700 hover:bg-gray-200"
+                      >
+                        Add mail user
+                      </button>
+                    </div>
                   )}
                 </section>
               )}
             </div>
+
             {currentUser && (
               <div className="border-t border-gray-200 p-4 text-sm text-gray-700">
                 <div className="font-semibold truncate">{currentUserEmail}</div>
