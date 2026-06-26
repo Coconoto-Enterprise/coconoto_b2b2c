@@ -14,9 +14,11 @@ interface SentEmailsListProps {
   isLoading?: boolean;
   refreshKey?: number;
   viewerEmail?: string;
+  mobileSidebarOpen?: boolean;
+  onToggleMobileSidebar?: () => void;
 }
 
-export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initialLoading = false, refreshKey, viewerEmail }) => {
+export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initialLoading = false, refreshKey, viewerEmail, mobileSidebarOpen = false, onToggleMobileSidebar }) => {
   const [emails, setEmails] = useState<EmailLog[]>([]);
   const [loading, setLoading] = useState(initialLoading);
   const [selectedEmail, setSelectedEmail] = useState<EmailLog | null>(null);
@@ -199,8 +201,51 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
 
   return (
     <div className="flex h-full bg-gray-50 overflow-hidden rounded-none shadow-sm min-h-0" style={{ backgroundColor: '#f5f5f5' }}>
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/40" onClick={onToggleMobileSidebar} />
+          <div className="absolute left-0 top-0 bottom-0 w-[80vw] max-w-xs bg-white border-r border-gray-200 flex flex-col min-h-full shadow-xl" style={{ borderRightColor: '#d4a574' }}>
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <div className="text-sm font-semibold text-gray-900">Folders</div>
+              <button
+                onClick={onToggleMobileSidebar}
+                className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-gray-100 text-gray-700"
+                title="Close sidebar"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto py-2">
+              <nav className="space-y-1 px-2">
+                {[
+                  { label: 'All', value: 'all' },
+                  { label: 'Sent', value: 'sent' },
+                  { label: 'Failed', value: 'failed' }
+                ].map(folder => (
+                  <button
+                    key={folder.value}
+                    onClick={() => {
+                      setCurrentFolder(folder.value as any);
+                      setPage(1);
+                      onToggleMobileSidebar?.();
+                    }}
+                    className={`w-full text-left px-4 py-3 rounded-xl transition ${
+                      currentFolder === folder.value
+                        ? 'font-semibold text-white bg-green-600'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {folder.label}
+                  </button>
+                ))}
+              </nav>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Left Sidebar */}
-      <div className="w-96 bg-white border-r border-gray-200 flex flex-col h-full min-h-0" style={{ borderRightColor: '#d4a574' }}>
+      <div className="hidden md:flex w-96 bg-white border-r border-gray-200 flex-col h-full min-h-0" style={{ borderRightColor: '#d4a574' }}>
         <div className="flex-1 overflow-y-auto py-2">
           <nav className="space-y-1 px-2">
             {[

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send, LogOut, X } from 'lucide-react';
+import { Send, LogOut, X, Menu, Users } from 'lucide-react';
 import { SentEmailsList } from '../components/admin/SentEmailsList';
 import EmailUsersPanel from '../components/admin/EmailUsersPanel';
 import { getAllSenderConfigs, EmailSenderConfig } from '../services/emailConfigService';
@@ -16,6 +16,7 @@ interface TweetitUser {
 const TweetitDashboard: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showComposer, setShowComposer] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
   const [sending, setSending] = useState(false);
   const [composer, setComposer] = useState({
     to: '',
@@ -154,28 +155,45 @@ const TweetitDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 flex-shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <button
+                onClick={() => setShowSidebar(true)}
+                className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-full bg-gray-100 text-gray-700 shadow-sm"
+                title="Open sidebar"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
               {currentUser.role === 'admin' && (
                 <button
                   onClick={() => setShowUserManager(true)}
-                  className="bg-blue-600 text-white px-3 py-1 rounded-md inline-flex items-center gap-2"
+                  className="hidden sm:inline-flex items-center gap-2 bg-blue-600 text-white px-3 py-1 rounded-md"
                 >
+                  <Users className="h-4 w-4" />
                   Manage Users
+                </button>
+              )}
+              {currentUser.role === 'admin' && (
+                <button
+                  onClick={() => setShowUserManager(true)}
+                  className="sm:hidden inline-flex items-center justify-center h-10 w-10 rounded-full bg-blue-600 text-white"
+                  title="Manage Users"
+                >
+                  <Users className="h-5 w-5" />
                 </button>
               )}
               <button
                 onClick={() => setShowComposer(true)}
-                className="bg-green-600 text-white px-3 py-1 rounded-md inline-flex items-center gap-2"
+                className="inline-flex items-center justify-center sm:justify-center gap-2 bg-green-600 text-white px-3 py-1 rounded-md"
               >
                 <Send className="h-4 w-4" />
-                Compose Email
+                <span className="hidden sm:inline">Compose</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="bg-red-600 text-white px-3 py-1 rounded-md inline-flex items-center gap-2"
+                className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-red-600 text-white"
+                title="Logout"
               >
                 <LogOut className="h-4 w-4" />
-                Logout
               </button>
             </div>
           </div>
@@ -183,7 +201,12 @@ const TweetitDashboard: React.FC = () => {
       </div>
 
       <div className="flex-1 px-0 overflow-hidden min-h-0">
-        <SentEmailsList refreshKey={refreshKey} viewerEmail={currentUser.role === 'staff' ? currentUser.email : undefined} />
+        <SentEmailsList
+          refreshKey={refreshKey}
+          viewerEmail={currentUser.role === 'staff' ? currentUser.email : undefined}
+          mobileSidebarOpen={showSidebar}
+          onToggleMobileSidebar={() => setShowSidebar(!showSidebar)}
+        />
       </div>
 
       {showComposer && (
