@@ -149,13 +149,6 @@ const TweetitDashboard: React.FC = () => {
         <div className="px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between h-14 sm:h-16">
             <div className="flex items-center min-w-0 gap-2 sm:gap-3">
-              <img src={Logo} alt="Coconoto" className="self-end mb-1 h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain flex-shrink-0" />
-              <div>
-                <h2 className="font-semibold text-lg">Email Center</h2>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <button
                 onClick={() => setShowSidebar(true)}
                 className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-full bg-gray-100 text-gray-700 shadow-sm"
@@ -163,6 +156,17 @@ const TweetitDashboard: React.FC = () => {
               >
                 <Menu className="h-5 w-5" />
               </button>
+              <div>
+                <h2 className="font-semibold text-lg">Email Center</h2>
+              </div>
+              <img
+                src={Logo}
+                alt="Coconoto"
+                className="hidden md:block self-end mb-1 h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 object-contain flex-shrink-0"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               {currentUser.role === 'admin' && (
                 <button
                   onClick={() => setShowUserManager(true)}
