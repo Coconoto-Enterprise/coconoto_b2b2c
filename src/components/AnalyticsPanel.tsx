@@ -274,20 +274,6 @@ export default function AnalyticsPanel() {
           )}
         </div>
 
-        <div className="bg-white p-4 rounded-lg border">
-          <h4 className="text-sm font-semibold mb-2">Top Bot Types</h4>
-          {topBots && topBots.length > 0 ? (
-            <ul className="space-y-2 text-sm text-gray-700">
-              {topBots.slice(0, 8).map((b: any, i: number) => {
-                const name = b?.name || (Array.isArray(b) ? b[0] : b?.label || 'Unknown');
-                const count = b?.requests ?? b?.count ?? (Array.isArray(b) ? b[1] : null);
-                return <li key={i} className="flex justify-between"><span>{name}</span><span className="text-gray-500">{count != null ? Number(count).toLocaleString() : '—'}</span></li>;
-              })}
-            </ul>
-          ) : (
-            <div className="text-sm text-gray-500">No bot data</div>
-          )}
-        </div>
       </div>
     </div>
   );
