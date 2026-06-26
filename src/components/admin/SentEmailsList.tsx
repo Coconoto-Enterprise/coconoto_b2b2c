@@ -215,7 +215,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                 ✕
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto py-2 px-2">
+            <div className="flex-1 min-h-0 overflow-y-auto py-2 px-2">
               <section className="mb-4">
                 <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Folders</div>
                 <div className="space-y-1">
