@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Logo from '../../assets/Logo_1.png';
 import {
   getSentEmails,
   searchSentEmails,
@@ -205,8 +206,11 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={onToggleMobileSidebar} />
           <div className="absolute left-0 top-0 bottom-0 w-[80vw] max-w-xs bg-white border-r border-gray-200 flex flex-col min-h-full shadow-xl" style={{ borderRightColor: '#d4a574' }}>
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <div className="text-sm font-semibold text-gray-900">Sidebar</div>
+            <div className="flex items-center justify-between p-3 border-b border-gray-200">
+              <div className="flex items-center gap-2">
+                <img src={Logo} alt="Coconoto" className="h-8 w-8 object-contain" />
+                <div className="text-sm font-semibold text-gray-900">Email Center</div>
+              </div>
               <button
                 onClick={onToggleMobileSidebar}
                 className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-gray-100 text-gray-700"
@@ -247,7 +251,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
               {(currentUser?.role === 'admin' || currentUser) && (
                 <section className="mb-4 flex flex-col flex-1 min-h-0">
                   <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
-                  <div className="overflow-y-auto pr-1 space-y-2">
+
+                  {/* Fixed All users button (not part of scroll) */}
+                  <div className="mb-2">
                     <button
                       onClick={() => {
                         handleUserSelection('');
@@ -259,6 +265,10 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                     >
                       All users
                     </button>
+                  </div>
+
+                  {/* Scrollable user list only */}
+                  <div className="overflow-y-auto flex-1 pr-1 space-y-2 max-h-[40vh]">
                     {mailUsers.map(user => (
                       <button
                         key={user.id}
@@ -274,6 +284,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                       </button>
                     ))}
                   </div>
+
                   {currentUser?.role === 'admin' && (
                     <div className="mt-4">
                       <button
@@ -302,8 +313,14 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
       )}
 
       {/* Left Sidebar */}
-      <div className="hidden md:flex w-96 bg-white border-r border-gray-200 flex-col h-full min-h-0" style={{ borderRightColor: '#d4a574' }}>
-        <div className="flex-1 overflow-y-auto py-2">
+        <div className="hidden md:flex w-96 bg-white border-r border-gray-200 flex-col h-full min-h-0" style={{ borderRightColor: '#d4a574' }}>
+        <div className="p-4 border-b">
+          <div className="flex items-center gap-3">
+            <img src={Logo} alt="Coconoto" className="h-8 w-8 object-contain" />
+            <div className="text-sm font-semibold">Email Center</div>
+          </div>
+        </div>
+        <div className="flex-1 py-2 flex flex-col min-h-0">
           <nav className="space-y-1 px-2">
             {[
               { label: 'All', value: 'all' },
@@ -336,10 +353,12 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
         {(currentUser?.role === 'admin' || currentUser) && (
           <div className="px-4 py-4 border-t border-gray-200 flex flex-col min-h-0">
             {currentUser?.role === 'admin' && (
-              <div className="space-y-4 flex-1 min-h-0">
+              <div className="space-y-4 flex-1 min-h-0 flex flex-col">
                 <div>
                   <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
-                  <div className="overflow-y-auto overflow-x-hidden max-h-[40vh] pr-1">
+
+                  {/* Fixed All users button */}
+                  <div className="mb-2">
                     <button
                       onClick={() => handleUserSelection('')}
                       className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
@@ -348,6 +367,10 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                     >
                       <span className="block truncate">All users</span>
                     </button>
+                  </div>
+
+                  {/* Scrollable user list only */}
+                  <div className="overflow-y-auto overflow-x-hidden flex-1 pr-1">
                     {mailUsers.map(user => (
                       <button
                         key={user.id}
