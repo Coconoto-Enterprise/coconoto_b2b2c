@@ -251,13 +251,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
 
       {/* Left Sidebar */}
         <div className="hidden md:flex w-96 bg-white border-r border-gray-200 flex-col h-full min-h-0" style={{ borderRightColor: '#d4a574' }}>
-        <div className="p-4 border-b">
-          <div className="flex items-center gap-3">
-            <img src={Logo} alt="Coconoto" className="h-8 w-8 object-contain" />
-            <div className="text-sm font-semibold">Email Center</div>
-          </div>
-        </div>
-        <div className="flex-1 py-2 flex flex-col min-h-0">
+        <div className="flex-1 overflow-y-auto py-2">
           <nav className="space-y-1 px-2">
             {[
               { label: 'All', value: 'all' },
