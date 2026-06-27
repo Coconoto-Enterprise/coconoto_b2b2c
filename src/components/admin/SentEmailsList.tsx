@@ -146,7 +146,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
           <div className="absolute left-0 top-0 bottom-0 w-[80vw] max-w-xs bg-white border-r border-gray-200 flex flex-col min-h-full shadow-xl" style={{ borderRightColor: '#d4a574' }}>
             <div className="flex items-center justify-between p-3 border-b border-gray-200">
               <div className="flex items-center">
-                <img src={Logo} alt="Coconoto" className="h-8 w-8 object-contain" />
+                <img src={Logo} alt="Coconoto" className="h-12 w-12 object-contain" />
               </div>
               <button
                 onClick={onToggleMobileSidebar}
