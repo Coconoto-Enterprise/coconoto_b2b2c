@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getStatusColor, getStatusIcon } from '../../utils/status';
 import Logo from '../../assets/Logo_1.png';
 import {
   getSentEmails,
@@ -148,12 +149,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
           <div className="absolute left-0 top-0 bottom-0 w-[80vw] max-w-xs bg-white border-r border-gray-200 flex flex-col min-h-full shadow-xl" style={{ borderRightColor: '#d4a574' }}>
             <div className="flex items-center justify-between p-3 border-b border-gray-200">
               <div className="flex items-center">
-                <img src={Logo} alt="Coconoto" className="h-10 w-10 object-contain" />
+                <img src={Logo} alt="Coconoto" className="h-14 w-14 object-contain" />
               </div>
-              <div className="flex-1 px-3 text-center min-w-0">
-                <div className="text-sm font-semibold text-gray-900 truncate">{currentUserEmail}</div>
-                <div className="text-xs text-gray-500">{currentUser?.role}</div>
-              </div>
+              <div className="flex-1" />
               <button
                 onClick={onToggleMobileSidebar}
                 className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-gray-100 text-gray-700"
