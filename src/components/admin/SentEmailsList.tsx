@@ -301,7 +301,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                   </div>
 
                   {/* Scrollable user list only */}
-                  <div className="overflow-y-auto overflow-x-hidden flex-1 pr-1">
+                  <div className="overflow-y-auto overflow-x-hidden max-h-[40vh] pr-1">
                     {mailUsers.map(user => (
                       <button
                         key={user.id}
