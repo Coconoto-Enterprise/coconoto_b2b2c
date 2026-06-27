@@ -136,68 +136,6 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
     await loadEmails();
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'delivered':
-        return 'text-green-600 bg-green-50';
-      case 'failed':
-        return 'text-red-600 bg-red-50';
-      case 'bounced':
-        return 'text-orange-600 bg-orange-50';
-      default:
-        return 'text-gray-600 bg-gray-50';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'delivered':
-        return '✓';
-      case 'failed':
-        return '✗';
-      case 'bounced':
-        return '⚠';
-      default:
-        return '◐';
-    }
-  };
-
-  const truncatePreview = (text: string | undefined, length: number = 100) => {
-    if (!text) return '';
-    return text.length > length ? text.substring(0, length) + '...' : text;
-  };
-
-  const handleUserSelection = (senderEmail: string) => {
-    setSelectedSender(senderEmail);
-    setSearchQuery('');
-    setPage(1);
-  };
-
-  const handleCreateUser = async () => {
-    setModalError('');
-    if (!newUser.login_email || !newUser.password || !newUser.sender_email) {
-      setModalError('Please fill all required fields.');
-      return;
-    }
-
-    const created = await createMailUser(
-      newUser.login_email,
-      newUser.password,
-      newUser.sender_email,
-      newUser.role,
-    );
-
-    if (!created) {
-      setModalError('Failed to create mail user. Please check the values and try again.');
-      return;
-    }
-
-    setNewUser({ login_email: '', sender_email: '', password: '', role: 'user' });
-    setShowAddUserModal(false);
-    const users = await getMailUsers();
-    setMailUsers(users || []);
-  };
-
   const totalPages = Math.ceil(totalEmails / ITEMS_PER_PAGE);
 
   return (
