@@ -32,6 +32,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   const [mailUsers, setMailUsers] = useState<MailUser[]>([]);
   const [currentUser, setCurrentUser] = useState<MailUser | null>(null);
   const [selectedSender, setSelectedSender] = useState('');
+  const [isMobileView, setIsMobileView] = useState(false);
 
   const currentUserEmail = currentUser?.login_email || (currentUser as any)?.email || '';
   const handleUserSelection = (sender: string) => {
@@ -39,6 +40,17 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
     setPage(1);
     setSelectedEmail(null);
   };
+
+  useEffect(() => {
+    const updateMobileView = () => {
+      setIsMobileView(window.innerWidth < 768);
+    };
+    updateMobileView();
+    window.addEventListener('resize', updateMobileView);
+    return () => window.removeEventListener('resize', updateMobileView);
+  }, []);
+
+  const showMobileDetail = isMobileView && selectedEmail !== null;
 
   const ITEMS_PER_PAGE = 25;
 
@@ -254,41 +266,6 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
         </div>
       )}
 
-      {/* Mobile full-screen detail modal */}
-      {selectedEmail && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-          <div className="w-[94vw] max-h-[90vh] overflow-y-auto bg-white rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-lg" style={{ color: '#8b5e47' }}>Email Details</h3>
-              <button onClick={() => setSelectedEmail(null)} className="text-gray-500">✕</button>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-semibold text-gray-600 uppercase">From</label>
-                <p className="text-sm font-mono text-gray-900 mt-1">{selectedEmail.from_address}</p>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-600 uppercase">To</label>
-                <div className="text-sm font-mono text-gray-900 mt-1 space-y-1">
-                  {selectedEmail.to_addresses.map((addr, i) => (
-                    <p key={i}>{addr}</p>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-600 uppercase">Subject</label>
-                <p className="text-sm font-semibold text-gray-900 mt-1">{selectedEmail.subject}</p>
-              </div>
-              {selectedEmail.preview && (
-                <div>
-                  <label className="text-xs font-semibold text-gray-600 uppercase">Preview</label>
-                  <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap">{selectedEmail.preview}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Left Sidebar */}
         <div className="hidden md:flex w-96 bg-white border-r border-gray-200 flex-col h-full min-h-0" style={{ borderRightColor: '#d4a574' }}>
@@ -380,123 +357,203 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col bg-white h-full min-h-0">
-        {/* Search Bar */}
-        <div className="border-b border-gray-200 p-4" style={{ borderBottomColor: '#d4a574' }}>
-          <input
-            type="text"
-            placeholder="Search emails by subject, sender, or recipient..."
-            value={searchQuery}
-            onChange={e => {
-              setSearchQuery(e.target.value);
-              setPage(1);
-            }}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
-          />
-        </div>
-
-        {loading ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin text-4xl mb-3" style={{ color: '#8CC63F' }}>
-                ⟳
-              </div>
-              <p className="text-gray-500">Loading emails...</p>
+        {showMobileDetail ? (
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="flex items-center justify-between border-b border-gray-200 p-4" style={{ borderBottomColor: '#d4a574' }}>
+              <button
+                onClick={() => setSelectedEmail(null)}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-gray-900"
+              >
+                ← Back
+              </button>
+              <h3 className="font-bold text-lg" style={{ color: '#8b5e47' }}>
+                Email Details
+              </h3>
+              <div className="w-16" />
             </div>
-          </div>
-        ) : emails.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <p className="text-6xl mb-3">📭</p>
-              <p className="text-gray-500 text-lg">
-                {searchQuery ? 'No emails match your search' : 'No emails to display'}
-              </p>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-gray-600 uppercase">From</label>
+                <p className="text-sm font-mono text-gray-900 mt-1 break-words">{selectedEmail?.from_address}</p>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-600 uppercase">To</label>
+                <div className="text-sm font-mono text-gray-900 mt-1 space-y-1 break-words">
+                  {selectedEmail?.to_addresses.map((addr, i) => (
+                    <p key={i} className="break-words">{addr}</p>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-600 uppercase">Subject</label>
+                <p className="text-sm font-semibold text-gray-900 mt-1 break-words">{selectedEmail?.subject}</p>
+              </div>
+              {selectedEmail?.preview && (
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 uppercase">Preview</label>
+                  <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap break-words">{selectedEmail.preview}</p>
+                </div>
+              )}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">Status</label>
+                <div className="inline-block text-sm px-3 py-1.5 rounded-full text-white font-semibold"
+                  style={{ backgroundColor: selectedEmail?.status === 'delivered' ? '#618A42' : selectedEmail?.status === 'failed' ? '#dc2626' : '#f59e0b' }}
+                >
+                  {selectedEmail?.status ? selectedEmail.status.charAt(0).toUpperCase() + selectedEmail.status.slice(1) : ''}
+                </div>
+              </div>
+              {selectedEmail?.email_type && (
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 uppercase">Type</label>
+                  <p className="text-sm text-gray-900 mt-1 capitalize break-words">
+                    {selectedEmail.email_type.replace(/_/g, ' ')}
+                  </p>
+                </div>
+              )}
+              <div>
+                <label className="text-xs font-semibold text-gray-600 uppercase">Sent</label>
+                <p className="text-sm text-gray-900 mt-1">
+                  {selectedEmail?.created_at ? formatDateLong(selectedEmail.created_at) : ''}
+                </p>
+              </div>
+              {selectedEmail?.resend_id && (
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 uppercase">Resend ID</label>
+                  <p className="text-xs font-mono text-gray-600 mt-1 break-all">{selectedEmail.resend_id}</p>
+                </div>
+              )}
+              {selectedEmail?.full_html && (
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 uppercase">Full Email</label>
+                  <div
+                    className="mt-2 p-3 bg-gray-50 rounded-lg text-sm overflow-x-auto"
+                    dangerouslySetInnerHTML={{ __html: selectedEmail.full_html }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col min-h-0">
-            {/* Email Items */}
-            <div className="flex-1 overflow-y-auto min-h-0">
-              {emails.map(email => (
-                <div
-                  key={email.id}
-                  onClick={() => setSelectedEmail(email)}
-                  className={`border-b border-gray-100 px-6 py-4 hover:bg-gray-50 cursor-pointer transition ${
-                    selectedEmail?.id === email.id ? 'bg-blue-50' : ''
-                  }`}
-                  style={selectedEmail?.id === email.id ? { backgroundColor: '#f0e5d8' } : {}}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3 flex-1">
-                      {/* Status Icon */}
-                      <div className={`text-sm font-bold w-8 h-8 md:w-6 md:h-6 rounded-full flex items-center justify-center ${getStatusColor(email.status)}`}>
-                        {getStatusIcon(email.status)}
-                      </div>
-
-                      {/* From Address */}
-                      <div className="flex-1">
-                        <p className="font-semibold" style={{ color: '#8b5e47' }}>
-                          {email.from_address}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          To: {email.to_addresses.join(', ')}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Timestamp */}
-                    <div className="text-right text-sm text-gray-500 whitespace-nowrap ml-4">
-                      {formatDateShort(email.created_at)}
-                    </div>
-                  </div>
-
-                  {/* Subject & Preview */}
-                  <div className="ml-4 md:ml-9">
-                    <p className="font-semibold text-gray-900">{email.subject}</p>
-                    <p className="text-sm text-gray-600 mt-1 break-words">
-                      {truncatePreview(email.preview)}
-                    </p>
-                  </div>
-
-                  {/* Email Type Badge */}
-                  {email.email_type && (
-                    <div className="ml-9 mt-2">
-                      <span
-                        className="inline-block text-xs px-2 py-1 rounded-full text-white"
-                        style={{ backgroundColor: '#8CC63F' }}
-                      >
-                        {email.email_type.replace(/_/g, ' ')}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ))}
+          <>
+            {/* Search Bar */}
+            <div className="border-b border-gray-200 p-4" style={{ borderBottomColor: '#d4a574' }}>
+              <input
+                type="text"
+                placeholder="Search emails by subject, sender, or recipient..."
+                value={searchQuery}
+                onChange={e => {
+                  setSearchQuery(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full box-border px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
+              />
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="border-t border-gray-200 px-6 py-3 flex items-center justify-between" style={{ borderTopColor: '#d4a574' }}>
-                <div className="text-sm text-gray-600">
-                  Page {page} of {totalPages} ({totalEmails} total)
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50"
-                  >
-                    ← Previous
-                  </button>
-                  <button
-                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                    disabled={page === totalPages}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50"
-                  >
-                    Next →
-                  </button>
+            {loading ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="animate-spin text-4xl mb-3" style={{ color: '#8CC63F' }}>
+                    ⟳
+                  </div>
+                  <p className="text-gray-500">Loading emails...</p>
                 </div>
               </div>
+            ) : emails.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <p className="text-6xl mb-3">📭</p>
+                  <p className="text-gray-500 text-lg">
+                    {searchQuery ? 'No emails match your search' : 'No emails to display'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col min-h-0">
+                {/* Email Items */}
+                <div className="flex-1 overflow-y-auto min-h-0">
+                  {emails.map(email => (
+                    <div
+                      key={email.id}
+                      onClick={() => setSelectedEmail(email)}
+                      className={`border-b border-gray-100 px-6 py-4 hover:bg-gray-50 cursor-pointer transition ${
+                        selectedEmail?.id === email.id ? 'bg-blue-50' : ''
+                      }`}
+                      style={selectedEmail?.id === email.id ? { backgroundColor: '#f0e5d8' } : {}}
+                    >
+                      <div className="flex items-start justify-between mb-2 gap-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          {/* Status Icon */}
+                          <div className={`text-sm font-bold w-8 h-8 md:w-6 md:h-6 rounded-full flex items-center justify-center ${getStatusColor(email.status)}`}>
+                            {getStatusIcon(email.status)}
+                          </div>
+
+                          {/* From Address */}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold truncate" style={{ color: '#8b5e47' }}>
+                              {email.from_address}
+                            </p>
+                            <p className="text-sm text-gray-600 break-words">
+                              To: {email.to_addresses.join(', ')}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Timestamp */}
+                        <div className="text-right text-sm text-gray-500 whitespace-nowrap ml-4 flex-shrink-0">
+                          {formatDateShort(email.created_at)}
+                        </div>
+                      </div>
+
+                      {/* Subject & Preview */}
+                      <div className="ml-0 md:ml-9">
+                        <p className="font-semibold text-gray-900 truncate">{email.subject}</p>
+                        <p className="text-sm text-gray-600 mt-1 break-words">
+                          {truncatePreview(email.preview)}
+                        </p>
+                      </div>
+
+                      {/* Email Type Badge */}
+                      {email.email_type && (
+                        <div className="ml-0 md:ml-9 mt-2">
+                          <span
+                            className="inline-block text-xs px-2 py-1 rounded-full text-white"
+                            style={{ backgroundColor: '#8CC63F' }}
+                          >
+                            {email.email_type.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="border-t border-gray-200 px-6 py-3 flex items-center justify-between" style={{ borderTopColor: '#d4a574' }}>
+                    <div className="text-sm text-gray-600">
+                      Page {page} of {totalPages} ({totalEmails} total)
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50"
+                      >
+                        ← Previous
+                      </button>
+                      <button
+                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                        className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50"
+                      >
+                        Next →
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
 
