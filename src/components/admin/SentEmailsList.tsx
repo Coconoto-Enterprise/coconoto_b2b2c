@@ -155,7 +155,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   const totalPages = Math.ceil(totalEmails / ITEMS_PER_PAGE);
 
   return (
-    <div className="flex h-full bg-gray-50 overflow-hidden rounded-none shadow-sm min-h-0" style={{ backgroundColor: '#f5f5f5' }}>
+    <div className="flex h-full min-w-0 w-full max-w-full bg-gray-50 overflow-x-hidden overflow-y-hidden rounded-none shadow-sm min-h-0" style={{ backgroundColor: '#f5f5f5' }}>
       {mobileSidebarOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={onToggleMobileSidebar} />
@@ -356,7 +356,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col bg-white h-full min-h-0">
+      <div className="flex-1 flex flex-col min-w-0 w-full max-w-full bg-white h-full min-h-0">
         {showMobileDetail ? (
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex items-center justify-between border-b border-gray-200 p-4" style={{ borderBottomColor: '#d4a574' }}>
@@ -369,7 +369,16 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
               <h3 className="font-bold text-lg" style={{ color: '#8b5e47' }}>
                 Email Details
               </h3>
-              <div className="w-16" />
+              <div className="flex items-center gap-2">
+                {currentUser?.role === 'admin' && selectedEmail && (
+                  <button
+                    onClick={() => handleDeleteEmailClick(selectedEmail.id)}
+                    className="inline-flex items-center justify-center px-3 py-1.5 rounded-md bg-red-600 text-white text-sm hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               <div>
@@ -436,7 +445,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
         ) : (
           <>
             {/* Search Bar */}
-            <div className="border-b border-gray-200 p-4" style={{ borderBottomColor: '#d4a574' }}>
+            <div className="border-b border-gray-200 p-4 min-w-0 w-full max-w-full" style={{ borderBottomColor: '#d4a574' }}>
               <input
                 type="text"
                 placeholder="Search emails by subject, sender, or recipient..."
@@ -445,7 +454,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                   setSearchQuery(e.target.value);
                   setPage(1);
                 }}
-                className="w-full box-border px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                className="w-full max-w-full box-border min-w-0 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
               />
             </div>
 
@@ -470,17 +479,17 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
             ) : (
               <div className="flex-1 flex flex-col min-h-0">
                 {/* Email Items */}
-                <div className="flex-1 overflow-y-auto min-h-0">
+                <div className="flex-1 overflow-y-auto min-h-0 min-w-0 w-full max-w-full">
                   {emails.map(email => (
                     <div
                       key={email.id}
                       onClick={() => setSelectedEmail(email)}
-                      className={`border-b border-gray-100 px-6 py-4 hover:bg-gray-50 cursor-pointer transition ${
+                      className={`border-b border-gray-100 w-full min-w-0 max-w-full overflow-hidden px-4 sm:px-6 py-4 hover:bg-gray-50 cursor-pointer transition ${
                         selectedEmail?.id === email.id ? 'bg-blue-50' : ''
                       }`}
                       style={selectedEmail?.id === email.id ? { backgroundColor: '#f0e5d8' } : {}}
                     >
-                      <div className="flex items-start justify-between mb-2 gap-3">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-3 min-w-0">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           {/* Status Icon */}
                           <div className={`text-sm font-bold w-8 h-8 md:w-6 md:h-6 rounded-full flex items-center justify-center ${getStatusColor(email.status)}`}>
@@ -488,11 +497,11 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                           </div>
 
                           {/* From Address */}
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold truncate" style={{ color: '#8b5e47' }}>
+                          <div className="flex-1 min-w-0 overflow-hidden">
+                            <p className="font-semibold truncate break-all" style={{ color: '#8b5e47' }}>
                               {email.from_address}
                             </p>
-                            <p className="text-sm text-gray-600 break-words">
+                            <p className="text-sm text-gray-600 break-words whitespace-normal">
                               To: {email.to_addresses.join(', ')}
                             </p>
                           </div>
@@ -505,9 +514,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                       </div>
 
                       {/* Subject & Preview */}
-                      <div className="ml-0 md:ml-9">
+                      <div className="ml-0 md:ml-9 min-w-0 w-full max-w-full overflow-hidden">
                         <p className="font-semibold text-gray-900 truncate">{email.subject}</p>
-                        <p className="text-sm text-gray-600 mt-1 break-words">
+                        <p className="text-sm text-gray-600 mt-1 break-words whitespace-normal">
                           {truncatePreview(email.preview)}
                         </p>
                       </div>
