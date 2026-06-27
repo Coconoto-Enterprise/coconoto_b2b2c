@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getStatusColor, getStatusIcon } from '../../utils/status';
+import { truncatePreview } from '../../utils/text';
 import Logo from '../../assets/Logo_1.png';
 import {
   getSentEmails,
