@@ -254,6 +254,42 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
         </div>
       )}
 
+      {/* Mobile full-screen detail modal */}
+      {selectedEmail && (
+        <div className="md:hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+          <div className="w-[94vw] max-h-[90vh] overflow-y-auto bg-white rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-lg" style={{ color: '#8b5e47' }}>Email Details</h3>
+              <button onClick={() => setSelectedEmail(null)} className="text-gray-500">✕</button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-semibold text-gray-600 uppercase">From</label>
+                <p className="text-sm font-mono text-gray-900 mt-1">{selectedEmail.from_address}</p>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-600 uppercase">To</label>
+                <div className="text-sm font-mono text-gray-900 mt-1 space-y-1">
+                  {selectedEmail.to_addresses.map((addr, i) => (
+                    <p key={i}>{addr}</p>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-600 uppercase">Subject</label>
+                <p className="text-sm font-semibold text-gray-900 mt-1">{selectedEmail.subject}</p>
+              </div>
+              {selectedEmail.preview && (
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 uppercase">Preview</label>
+                  <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap">{selectedEmail.preview}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Left Sidebar */}
         <div className="hidden md:flex w-96 bg-white border-r border-gray-200 flex-col h-full min-h-0" style={{ borderRightColor: '#d4a574' }}>
         <div className="flex-1 overflow-y-auto py-2">
@@ -392,7 +428,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3 flex-1">
                       {/* Status Icon */}
-                      <div className={`text-sm font-bold w-6 h-6 rounded-full flex items-center justify-center ${getStatusColor(email.status)}`}>
+                      <div className={`text-sm font-bold w-8 h-8 md:w-6 md:h-6 rounded-full flex items-center justify-center ${getStatusColor(email.status)}`}>
                         {getStatusIcon(email.status)}
                       </div>
 
@@ -414,9 +450,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                   </div>
 
                   {/* Subject & Preview */}
-                  <div className="ml-9">
+                  <div className="ml-4 md:ml-9">
                     <p className="font-semibold text-gray-900">{email.subject}</p>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 mt-1 break-words">
                       {truncatePreview(email.preview)}
                     </p>
                   </div>
@@ -466,7 +502,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
 
       {/* Email Detail Panel (Right Side) */}
       {selectedEmail && (
-        <div className="w-[36rem] border-l border-gray-200 bg-white overflow-y-auto flex flex-col" style={{ borderLeftColor: '#d4a574' }}>
+        <div className="hidden md:flex w-[36rem] border-l border-gray-200 bg-white overflow-y-auto flex flex-col" style={{ borderLeftColor: '#d4a574' }}>
           {/* Detail Header */}
           <div className="border-b border-gray-200 p-4 sticky top-0 bg-white" style={{ borderBottomColor: '#d4a574' }}>
             <div className="flex items-center justify-between mb-2">
