@@ -202,7 +202,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                 </div>
               </section>
 
-              {(currentUser?.role === 'admin' || currentUser) && (
+              {currentUser?.role === 'admin' && (
                 <section className="mb-4 flex flex-col flex-1 min-h-0">
                   <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mail Users</div>
 
