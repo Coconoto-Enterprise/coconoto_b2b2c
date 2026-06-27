@@ -210,6 +210,7 @@ const TweetitDashboard: React.FC = () => {
           viewerEmail={currentUser.role === 'staff' ? currentUser.email : undefined}
           mobileSidebarOpen={showSidebar}
           onToggleMobileSidebar={() => setShowSidebar(!showSidebar)}
+          onOpenUserManager={() => setShowUserManager(true)}
         />
       </div>
 

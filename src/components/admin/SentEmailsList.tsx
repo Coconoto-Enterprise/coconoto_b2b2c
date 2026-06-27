@@ -5,7 +5,6 @@ import {
   searchSentEmails,
   getSentEmailsBySender,
   getMailUsers,
-  createMailUser,
   deleteEmail,
   EmailLog,
   MailUser,
@@ -17,9 +16,10 @@ interface SentEmailsListProps {
   viewerEmail?: string;
   mobileSidebarOpen?: boolean;
   onToggleMobileSidebar?: () => void;
+  onOpenUserManager?: () => void;
 }
 
-export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initialLoading = false, refreshKey, viewerEmail, mobileSidebarOpen = false, onToggleMobileSidebar }) => {
+export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initialLoading = false, refreshKey, viewerEmail, mobileSidebarOpen = false, onToggleMobileSidebar, onOpenUserManager }) => {
   const [emails, setEmails] = useState<EmailLog[]>([]);
   const [loading, setLoading] = useState(initialLoading);
   const [selectedEmail, setSelectedEmail] = useState<EmailLog | null>(null);
@@ -30,11 +30,13 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   const [mailUsers, setMailUsers] = useState<MailUser[]>([]);
   const [currentUser, setCurrentUser] = useState<MailUser | null>(null);
   const [selectedSender, setSelectedSender] = useState('');
-  const [showAddUserModal, setShowAddUserModal] = useState(false);
 
   const currentUserEmail = currentUser?.login_email || (currentUser as any)?.email || '';
-  const [newUser, setNewUser] = useState({ login_email: '', sender_email: '', password: '', role: 'user' });
-  const [modalError, setModalError] = useState('');
+  const handleUserSelection = (sender: string) => {
+    setSelectedSender(sender);
+    setPage(1);
+    setSelectedEmail(null);
+  };
 
   const ITEMS_PER_PAGE = 25;
 
@@ -146,7 +148,11 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
           <div className="absolute left-0 top-0 bottom-0 w-[80vw] max-w-xs bg-white border-r border-gray-200 flex flex-col min-h-full shadow-xl" style={{ borderRightColor: '#d4a574' }}>
             <div className="flex items-center justify-between p-3 border-b border-gray-200">
               <div className="flex items-center">
-                <img src={Logo} alt="Coconoto" className="h-12 w-12 object-contain" />
+                <img src={Logo} alt="Coconoto" className="h-10 w-10 object-contain" />
+              </div>
+              <div className="flex-1 px-3 text-center min-w-0">
+                <div className="text-sm font-semibold text-gray-900 truncate">{currentUserEmail}</div>
+                <div className="text-xs text-gray-500">{currentUser?.role}</div>
               </div>
               <button
                 onClick={onToggleMobileSidebar}
@@ -226,7 +232,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                     <div className="mt-4">
                       <button
                         onClick={() => {
-                          setShowAddUserModal(true);
+                          onOpenUserManager?.();
                           onToggleMobileSidebar?.();
                         }}
                         className="w-full px-4 py-3 rounded-xl bg-gray-100 text-sm font-semibold text-gray-700 hover:bg-gray-200"
@@ -240,9 +246,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
             </div>
 
             {currentUser && (
-              <div className="border-t border-gray-200 p-4 text-sm text-gray-700">
+              <div className="border-t border-gray-200 px-4 py-3 text-center text-sm text-gray-700">
                 <div className="font-semibold truncate">{currentUserEmail}</div>
-                <div className="text-gray-500">{currentUser.role}</div>
+                <div className="text-xs text-gray-500">{currentUser.role}</div>
               </div>
             )}
           </div>
@@ -318,7 +324,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
 
                 <div>
                   <button
-                    onClick={() => setShowAddUserModal(true)}
+                    onClick={() => onOpenUserManager?.()}
                     className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-700 font-bold hover:bg-gray-200"
                   >
                     Add mail user
@@ -328,8 +334,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
             )}
 
             {currentUser && (
-              <div className="mt-4 text-sm text-gray-700">
-                <div className="font-semibold">{currentUserEmail} ({currentUser.role})</div>
+              <div className="mt-4 text-center text-sm text-gray-700">
+                <div className="font-semibold truncate">{currentUserEmail}</div>
+                <div className="text-xs text-gray-500">{currentUser.role}</div>
               </div>
             )}
           </div>
