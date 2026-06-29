@@ -32,11 +32,20 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   const [mailUsers, setMailUsers] = useState<MailUser[]>([]);
   const [currentUser, setCurrentUser] = useState<MailUser | null>(null);
   const [selectedSender, setSelectedSender] = useState('');
+  const [showAllSenders, setShowAllSenders] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
 
   const currentUserEmail = currentUser?.login_email || (currentUser as any)?.email || '';
   const handleUserSelection = (sender: string) => {
     setSelectedSender(sender);
+    setShowAllSenders(false);
+    setPage(1);
+    setSelectedEmail(null);
+  };
+
+  const handleShowAllUsers = () => {
+    setSelectedSender('');
+    setShowAllSenders(true);
     setPage(1);
     setSelectedEmail(null);
   };
@@ -104,6 +113,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
         const result = await getSentEmailsBySender(selectedSender, ITEMS_PER_PAGE, offset);
         allEmails = result.emails;
         setTotalEmails(result.total || 0);
+      } else if (currentUser?.role === 'admin' && !showAllSenders) {
+        allEmails = [];
+        setTotalEmails(0);
       } else {
         const result = await getSentEmails(ITEMS_PER_PAGE, offset, viewerEmail);
         allEmails = result.emails;
@@ -128,8 +140,13 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
   };
 
   useEffect(() => {
+    if (!currentUser && !viewerEmail) {
+      setEmails([]);
+      setTotalEmails(0);
+      return;
+    }
     loadEmails();
-  }, [page, searchQuery, currentFolder, refreshKey, viewerEmail, selectedSender]);
+  }, [page, searchQuery, currentFolder, refreshKey, viewerEmail, selectedSender, showAllSenders, currentUser]);
 
   const handleDeleteEmailClick = async (emailId: string) => {
     if (!currentUser || currentUser.role !== 'admin') {
@@ -210,11 +227,11 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                   <div className="mb-2">
                     <button
                       onClick={() => {
-                        handleUserSelection('');
+                        handleShowAllUsers();
                         onToggleMobileSidebar?.();
                       }}
                       className={`w-full text-left px-4 py-3 rounded-xl transition ${
-                        selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                        showAllSenders ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
                       All users
@@ -309,9 +326,9 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                   {/* Fixed All users button */}
                   <div className="mb-2">
                     <button
-                      onClick={() => handleUserSelection('')}
+                      onClick={handleShowAllUsers}
                       className={`w-full text-left px-3 py-2 rounded-lg mb-2 transition ${
-                        selectedSender === '' ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
+                        showAllSenders ? 'bg-green-100 text-green-900 font-semibold' : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
                       <span className="block truncate">All users</span>
