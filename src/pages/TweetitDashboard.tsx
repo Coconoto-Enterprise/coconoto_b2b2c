@@ -62,6 +62,16 @@ const TweetitDashboard: React.FC = () => {
     const loadSenderConfigs = async () => {
       const configs = await getAllSenderConfigs();
       const activeSenders = configs.filter((config) => config.is_active);
+      const selfSender: EmailSenderConfig = {
+        id: `self-${currentUser.email}`,
+        email_type: 'admin-self',
+        sender_email: currentUser.email,
+        sender_name: currentUser.email,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
       const specialSenders =
         currentUser.email === 'info@coconoto.africa'
           ? [
@@ -72,7 +82,7 @@ const TweetitDashboard: React.FC = () => {
             ]
           : [];
 
-      const mergedSenders = [...specialSenders, ...activeSenders].reduce<EmailSenderConfig[]>((acc, sender) => {
+      const mergedSenders = [selfSender, ...specialSenders, ...activeSenders].reduce<EmailSenderConfig[]>((acc, sender) => {
         if (!acc.some((item) => item.sender_email === sender.sender_email)) {
           acc.push(sender);
         }
@@ -80,7 +90,7 @@ const TweetitDashboard: React.FC = () => {
       }, []);
 
       setSenderOptions(mergedSenders);
-      setSelectedSender(currentUser.email === 'info@coconoto.africa' ? 'info@coconoto.africa' : mergedSenders[0]?.sender_email || 'team@coconoto.africa');
+      setSelectedSender(currentUser.email);
     };
 
     loadSenderConfigs();
