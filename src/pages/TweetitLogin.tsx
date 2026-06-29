@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Logo from '../assets/Logo_1.png';
 
 const TweetitLogin: React.FC = () => {
@@ -7,7 +7,22 @@ const TweetitLogin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [emailPrefilled, setEmailPrefilled] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const emailFromUrl = params.get('email');
+
+    if (emailFromUrl) {
+      setEmail(emailFromUrl.trim());
+      setEmailPrefilled(true);
+    } else {
+      setEmail('');
+      setEmailPrefilled(false);
+    }
+  }, [location.search]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +78,8 @@ const TweetitLogin: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500"
+                readOnly={emailPrefilled}
+                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100"
                 placeholder="you@coconoto.africa"
               />
             </div>
