@@ -36,7 +36,7 @@ export const profiles: Profile[] = [
     firstName: 'Jamiu',
     lastName: 'Adetona',
     role: 'Production R&D Engineer',
-    email: 'adetonajamiu50@gmail.com',
+    email: 'adetona.jamiu@coconoto.africa',
     phone: '07068957675',
     linkedIn:
       'https://www.linkedin.com/in/adetona-jamiu-6bb6981b1?utm_source=share_via&utm_content=profile&utm_medium=member_android',
@@ -49,7 +49,7 @@ export const profiles: Profile[] = [
     firstName: 'Daniel',
     lastName: 'Abiodun',
     role: 'Head of Operations',
-    email: 'danieliyanuoluwa2@gmail.com',
+    email: 'daniel.iyanuoluwa@coconoto.africa',
     phone: '08108101319',
     profileImage: DanielPhoto,
     description:
@@ -60,7 +60,7 @@ export const profiles: Profile[] = [
     firstName: 'Mojolaoluwa',
     lastName: 'Abiodun',
     role: 'Technical Writer / Creative Lead',
-    email: 'jolabiodun@gmail.com',
+    email: 'jola.abiodun@coconoto.africa',
     phone: '07016547356',
     profileImage: MojolaoluwaPhoto,
     description:
@@ -71,7 +71,7 @@ export const profiles: Profile[] = [
     firstName: 'Precious',
     lastName: 'Charles',
     role: 'Video Editor',
-    email: 'preciouscharles.theva@gmail.com',
+    email: 'precious.charles@coconoto.africa',
     phone: '09165387838',
     linkedIn: 'https://linktr.ee/PreciousCharles1',
     profileImage: PreciousCharlesPhoto,
@@ -83,10 +83,43 @@ export const profiles: Profile[] = [
     firstName: 'Precious',
     lastName: 'Abiola',
     role: 'Creative Director / Graphics Designer',
-    email: 'preciousabiola202726@gmail.com',
+    email: 'precious.abiola@coconoto.africa',
     phone: '08051243003',
     profileImage: AbiolaPreciousPhoto,
     description:
       'A creative, detail-oriented graphic designer with a strong eye for visual storytelling. Precious transforms ideas into engaging designs that enhance brand identity and support marketing campaigns.'
+  },
+  {
+    id: 'elisabeth-omitoyin',
+    firstName: 'Elisabeth',
+    lastName: 'Omitoyin',
+    role: 'Coconoto Team Member',
+    email: 'omitoyin.elisabeth@coconoto.africa',
+    phone: '',
+    profileImage:
+      'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Elisabeth%20Omitoyin',
+    description: 'Elisabeth is a valued member of the Coconoto team. Profile details are being updated.'
+  },
+  {
+    id: 'esther-omitoyin',
+    firstName: 'Esther',
+    lastName: 'Omitoyin',
+    role: 'Coconoto Team Member',
+    email: 'omitoyin.esther@coconoto.africa',
+    phone: '',
+    profileImage:
+      'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Esther%20Omitoyin',
+    description: 'Esther is a valued member of the Coconoto team. Profile details are being updated.'
+  },
+  {
+    id: 'enoch-bamigboye',
+    firstName: 'Enoch',
+    lastName: 'Bamigboye',
+    role: 'Customer Support Lead',
+    email: 'enoch.bamigboye@coconoto.africa',
+    phone: '',
+    profileImage:
+      'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Enoch%20Bamigboye',
+    description: 'Enoch leads customer support and helps manage the support mailbox for Coconoto.'
   }
 ];
