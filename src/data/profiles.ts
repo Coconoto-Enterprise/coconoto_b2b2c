@@ -4,6 +4,7 @@ import DanielPhoto from '../assets/team/Daniel.jpg';
 import MojolaoluwaPhoto from '../assets/team/Mojolaoluwa Abiodun Jolaoluwa.jpg';
 import PreciousCharlesPhoto from '../assets/team/Precious (Charles).jpg';
 import AbiolaPreciousPhoto from '../assets/team/Abiola Precious.jpg';
+import EnochPhoto from '../assets/team/enoch.jpeg';
 
 export interface Profile {
   id: string;
@@ -120,8 +121,7 @@ export const profiles: Profile[] = [
     email: 'enoch.bamigboye@coconoto.africa',
     phone: '+2349131678833',
     linkedIn: 'https://www.linkedin.com/in/bamigboye-enoch-5a82a8368',
-    profileImage:
-      'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Enoch%20Bamigboye',
+    profileImage: EnochPhoto,
     description:
       "I'm a software developer and graduate; I build applications across domains.",
   },
