@@ -61,7 +61,7 @@ export default function ProfilePage() {
                       <h2 className="mt-4 text-2xl font-semibold text-slate-950">
                         {profile.firstName} {profile.lastName}
                       </h2>
-                      <p className="mt-4 text-sm leading-7 text-slate-600">
+                      <p className="mt-4 text-sm leading-7 text-slate-600 min-h-[7rem]">
                         {profile.description}
                       </p>
                     </div>

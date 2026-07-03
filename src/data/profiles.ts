@@ -123,7 +123,7 @@ export const profiles: Profile[] = [
     linkedIn: 'https://www.linkedin.com/in/bamigboye-enoch-5a82a8368',
     profileImage: EnochPhoto,
     description:
-      "I'm a software developer and graduate; I build applications across domains.",
+      "Computer Science graduate from Babcock University and software developer focused on web development, AI, automation, cybersecurity, and cloud computing.",
   },
   {
     id: 'oluwatoke-evelyn-faeji',
