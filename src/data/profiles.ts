@@ -104,22 +104,48 @@ export const profiles: Profile[] = [
     id: 'esther-omitoyin',
     firstName: 'Esther',
     lastName: 'Omitoyin',
-    role: 'Coconoto Team Member',
+    role: 'Leadership & Growth Enthusiast',
     email: 'omitoyin.esther@coconoto.africa',
     phone: '',
     profileImage:
       'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Esther%20Omitoyin',
-    description: 'Esther is a valued member of the Coconoto team. Profile details are being updated.'
+    description:
+      'Esther is passionate about growth and leadership, with a background in adult education and English literature from the University of Benin.'
   },
   {
     id: 'enoch-bamigboye',
     firstName: 'Enoch',
     lastName: 'Bamigboye',
-    role: 'Customer Support Lead',
+    role: 'Full Stack Web Developer',
     email: 'enoch.bamigboye@coconoto.africa',
-    phone: '',
+    phone: '9131678833',
     profileImage:
       'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Enoch%20Bamigboye',
-    description: 'Enoch leads customer support and helps manage the support mailbox for Coconoto.'
+    description:
+      'Enoch is a Computer Science student at Babcock University and a full stack web developer with practical experience building applications for payment and operations workflows.'
+  },
+  {
+    id: 'oluwatoke-evelyn-faeji',
+    firstName: 'Oluwatoke',
+    lastName: 'Faeji',
+    role: 'Fisheries Student & Writer',
+    email: 'oluwatoke.evelyn@coconoto.africa',
+    phone: '',
+    profileImage:
+      'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Oluwatoke%20Evelyn%20Faeji',
+    description:
+      'Oluwatoke is a 500L Fisheries student at the University of Lagos with experience in social media, program management, logistics, creative writing, and team coordination.'
+  },
+  {
+    id: 'timilehin-favour-oluwayemi',
+    firstName: 'Timilehin',
+    lastName: 'Oluwayemi',
+    role: 'Customer Support Specialist',
+    email: 'timilehin.favour@coconoto.africa',
+    phone: '',
+    profileImage:
+      'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Timilehin%20Favour%20Oluwayemi',
+    description:
+      'Timilehin is a literature graduate with strong customer service, communication, and organizational skills, focused on delivering empathetic support and reliable results.'
   }
 ];
