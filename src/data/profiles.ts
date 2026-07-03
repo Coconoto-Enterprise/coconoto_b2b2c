@@ -37,7 +37,7 @@ export const profiles: Profile[] = [
     lastName: 'Adetona',
     role: 'Production R&D Engineer',
     email: 'adetona.jamiu@coconoto.africa',
-    phone: '07068957675',
+    phone: '+2347068957675',
     linkedIn:
       'https://www.linkedin.com/in/adetona-jamiu-6bb6981b1?utm_source=share_via&utm_content=profile&utm_medium=member_android',
     profileImage: JamiuPhoto,
@@ -50,7 +50,7 @@ export const profiles: Profile[] = [
     lastName: 'Abiodun',
     role: 'Head of Operations',
     email: 'daniel.iyanuoluwa@coconoto.africa',
-    phone: '08108101319',
+    phone: '+2348108101319',
     profileImage: DanielPhoto,
     description:
       'A dedicated, hardworking operations leader with strong communication and organizational skills. Daniel works independently and in teams to deliver results, continuously learning and making a positive impact across business operations.'
@@ -61,7 +61,7 @@ export const profiles: Profile[] = [
     lastName: 'Abiodun',
     role: 'Technical Writer / Creative Lead',
     email: 'jola.abiodun@coconoto.africa',
-    phone: '07016547356',
+    phone: '+2347016547356',
     profileImage: MojolaoluwaPhoto,
     description:
       'A versatile writer and creative professional skilled in academic research writing, technical writing, creative brand strategy, and CV building, with a growing interest in business development.'
@@ -72,7 +72,7 @@ export const profiles: Profile[] = [
     lastName: 'Charles',
     role: 'Video Editor',
     email: 'precious.charles@coconoto.africa',
-    phone: '09165387838',
+    phone: '+2349165387838',
     linkedIn: 'https://linktr.ee/PreciousCharles1',
     profileImage: PreciousCharlesPhoto,
     description:
@@ -84,7 +84,7 @@ export const profiles: Profile[] = [
     lastName: 'Abiola',
     role: 'Creative Director / Graphics Designer',
     email: 'precious.abiola@coconoto.africa',
-    phone: '08051243003',
+    phone: '+2348051243003',
     profileImage: AbiolaPreciousPhoto,
     description:
       'A creative, detail-oriented graphic designer with a strong eye for visual storytelling. Precious transforms ideas into engaging designs that enhance brand identity and support marketing campaigns.'
@@ -116,13 +116,14 @@ export const profiles: Profile[] = [
     id: 'enoch-bamigboye',
     firstName: 'Enoch',
     lastName: 'Bamigboye',
-    role: 'Full Stack Web Developer',
+    role: 'Software Developer',
     email: 'enoch.bamigboye@coconoto.africa',
-    phone: '9131678833',
+    phone: '+2349131678833',
+    linkedIn: 'https://www.linkedin.com/in/bamigboye-enoch-5a82a8368',
     profileImage:
       'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Enoch%20Bamigboye',
     description:
-      'Enoch is a Computer Science student at Babcock University and a full stack web developer with practical experience building applications for payment and operations workflows.'
+      "I'm a software developer and graduate; I build applications across domains.",
   },
   {
     id: 'oluwatoke-evelyn-faeji',
