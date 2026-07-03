@@ -44,9 +44,9 @@ export default function ProfilePage() {
               return sorted.map((profile) => (
                 <article
                   key={profile.id}
-                  className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.12)]"
+                  className="flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.12)]"
                 >
-                  <div className="p-6 sm:p-8">
+                  <div className="flex-1 p-6 sm:p-8">
                     <div className="mx-auto mb-6 flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-4 border-emerald-500 bg-slate-100 shadow-sm">
                       <img
                         src={profile.profileImage}
