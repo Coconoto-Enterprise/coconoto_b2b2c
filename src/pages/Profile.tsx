@@ -67,7 +67,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <div className="space-y-4 border-t border-slate-200 bg-slate-50 px-6 py-6 sm:px-8">
+                  <div className="space-y-4 border-t border-slate-200 bg-slate-50 px-6 py-6 sm:px-8 h-28 sm:h-32">
                     <a
                       href={`mailto:${profile.email}`}
                       className="group flex items-center gap-3 text-slate-900 transition hover:text-emerald-700"
