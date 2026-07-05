@@ -5,6 +5,8 @@ import MojolaoluwaPhoto from '../assets/team/Mojolaoluwa Abiodun Jolaoluwa.jpg';
 import PreciousCharlesPhoto from '../assets/team/Precious (Charles).jpg';
 import AbiolaPreciousPhoto from '../assets/team/Abiola Precious.jpg';
 import EnochPhoto from '../assets/team/enoch.jpeg';
+import OluwatokeFaejiPhoto from '../assets/team/Oluwatoke Faeji.jpeg';
+import TimilehinOluwayemiPhoto from '../assets/team/Oluwayemi.jpeg';
 
 export interface Profile {
   id: string;
@@ -134,8 +136,7 @@ export const profiles: Profile[] = [
     phone: '+2349075775276',
     linkedIn:
       'https://www.linkedin.com/in/oluwatoke-faeji-349684251?utm_source=share_via&utm_content=profile&utm_medium=member_ios',
-    profileImage:
-      'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Oluwatoke%20Evelyn%20Faeji',
+    profileImage: OluwatokeFaejiPhoto,
     description:
       'Oluwatoke is a passionate environmentalist and marine science student with experience in climate advocacy, environmental education, waste management, project management, and community-driven sustainability initiatives.'
   },
@@ -148,8 +149,7 @@ export const profiles: Profile[] = [
     phone: '+2348108767512',
     linkedIn:
       'https://www.linkedin.com/in/timilehin-oluwayemi-6963a32ab?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app',
-    profileImage:
-      'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Timilehin%20Favour%20Oluwayemi',
+    profileImage: TimilehinOluwayemiPhoto,
     description:
       'Timilehin is passionate about driving personal growth and operational development, with strong customer service, communication, and organizational skills.'
   }
