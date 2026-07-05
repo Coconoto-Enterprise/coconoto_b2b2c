@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Linkedin, Mail, Phone } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -19,6 +20,42 @@ export default function ProfilePage() {
             <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-700 sm:text-lg">
               Responsive desktop and mobile profile cards built from your submitted team details. Browse each member's role, background, and contact information.
             </p>
+          </div>
+        </section>
+
+        <section className="container mx-auto px-6 py-10 sm:py-14">
+          <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.12)]">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-emerald-700 font-semibold">Unique links for every profile</p>
+                <h2 className="mt-3 text-2xl font-semibold text-slate-950 sm:text-3xl">
+                  Every team member has their own personal profile page.
+                </h2>
+                <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">
+                  Tap any member below to open their individual profile page with no footer. These unique links are available for the whole team.
+                </p>
+              </div>
+              <Link
+                to="/profile/links"
+                className="inline-flex items-center justify-center rounded-full bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800"
+              >
+                View all links
+              </Link>
+            </div>
+
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {profiles.map((profile) => (
+                <Link
+                  key={`link-${profile.id}`}
+                  to={`/profile/${profile.id}`}
+                  className="rounded-[24px] border border-slate-200 bg-slate-50 p-4 transition hover:border-emerald-300 hover:bg-emerald-50"
+                >
+                  <p className="text-sm font-semibold text-slate-950">{profile.firstName} {profile.lastName}</p>
+                  <p className="mt-1 text-xs text-slate-600">{profile.role}</p>
+                  <p className="mt-3 break-all text-xs text-emerald-700">{`${window.location.origin}/profile/${profile.id}`}</p>
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
 
