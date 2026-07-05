@@ -30,7 +30,7 @@ export const profiles: Profile[] = [
       'https://www.linkedin.com/in/jacob-abiodun-0a2aa0109?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
     profileImage: JacobPhoto,
     description:
-      'Jacob Abiodun is an engineer, entrepreneur, and sustainability advocate. He holds a degree in Mechanical Engineering from FUTA and builds Agritech solutions to transform the coconut value chain through innovative processing technologies and waste-to-value systems.'
+      'Jacob Abiodun is an engineer, entrepreneur, and sustainability advocate. He holds a degree in Mechanical Engineering from FUTA and is focused on building technology-driven solutions for societal challenges through agritech and circular economy innovation.'
   },
   {
     id: 'adetonajamiu',
@@ -54,7 +54,7 @@ export const profiles: Profile[] = [
     phone: '+2348108101319',
     profileImage: DanielPhoto,
     description:
-      'A dedicated, hardworking operations leader with strong communication and organizational skills. Daniel works independently and in teams to deliver results, continuously learning and making a positive impact across business operations.'
+      'A dedicated, hardworking, and results-driven professional with strong communication and organizational skills. Daniel enjoys learning new things, taking on challenges, and contributing positively wherever he works.'
   },
   {
     id: 'mojolaoluwa-abiodun',
@@ -77,7 +77,7 @@ export const profiles: Profile[] = [
     linkedIn: 'https://linktr.ee/PreciousCharles1',
     profileImage: PreciousCharlesPhoto,
     description:
-      'Precious Charles is a video content editor and business enthusiast who helps brands create memorable visual stories through editing and production support.'
+      'Precious Charles is a video content editor for business owners and a business enthusiast who helps brands create memorable visual stories through editing and production support.'
   },
   {
     id: 'precious-abiola',
@@ -129,24 +129,28 @@ export const profiles: Profile[] = [
     id: 'oluwatoke-evelyn-faeji',
     firstName: 'Oluwatoke',
     lastName: 'Faeji',
-    role: 'Fisheries Student & Writer',
+    role: 'Project Manager / Website Management & Coco Fiber Sales',
     email: 'oluwatoke.evelyn@coconoto.africa',
-    phone: '',
+    phone: '+2349075775276',
+    linkedIn:
+      'https://www.linkedin.com/in/oluwatoke-faeji-349684251?utm_source=share_via&utm_content=profile&utm_medium=member_ios',
     profileImage:
       'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Oluwatoke%20Evelyn%20Faeji',
     description:
-      'Oluwatoke is a 500L Fisheries student at the University of Lagos with experience in social media, program management, logistics, creative writing, and team coordination.'
+      'Oluwatoke is a passionate environmentalist and marine science student with experience in climate advocacy, environmental education, waste management, project management, and community-driven sustainability initiatives.'
   },
   {
     id: 'timilehin-favour-oluwayemi',
     firstName: 'Timilehin',
     lastName: 'Oluwayemi',
-    role: 'Customer Support Specialist',
+    role: 'Customer Care & Social Media Representative',
     email: 'timilehin.favour@coconoto.africa',
-    phone: '',
+    phone: '+2348108767512',
+    linkedIn:
+      'https://www.linkedin.com/in/timilehin-oluwayemi-6963a32ab?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app',
     profileImage:
       'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Timilehin%20Favour%20Oluwayemi',
     description:
-      'Timilehin is a literature graduate with strong customer service, communication, and organizational skills, focused on delivering empathetic support and reliable results.'
+      'Timilehin is passionate about driving personal growth and operational development, with strong customer service, communication, and organizational skills.'
   }
 ];
