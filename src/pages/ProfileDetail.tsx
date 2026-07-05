@@ -1,12 +1,13 @@
-import React from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { Linkedin, Mail, Phone } from 'lucide-react';
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Copy, Linkedin, Mail, Phone } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { profiles } from '../data/profiles';
 
 export default function ProfileDetailPage() {
   const { profileId } = useParams<{ profileId: string }>();
   const profile = profiles.find((item) => item.id === profileId);
+  const [copied, setCopied] = useState(false);
 
   if (!profile) {
     return (
@@ -18,18 +19,21 @@ export default function ProfileDetailPage() {
           <p className="mt-4 text-base leading-8 text-slate-700">
             The profile you are looking for does not exist. You can return to the team page to choose another member.
           </p>
-          <Link
-            to="/profile"
-            className="mt-8 inline-flex rounded-full bg-emerald-700 px-8 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800"
-          >
-            Back to team profiles
-          </Link>
         </main>
       </div>
     );
   }
 
   const shareUrl = `${window.location.origin}/profile/${profile.id}`;
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch (error) {
+      console.error('Copy failed', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -39,13 +43,10 @@ export default function ProfileDetailPage() {
         <section className="mx-auto max-w-4xl rounded-[32px] border border-slate-200 bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.12)] sm:p-10">
           <div className="flex flex-col gap-8 sm:gap-10">
             <div className="text-center">
-              <p className="text-sm uppercase tracking-[0.3em] text-emerald-700 font-semibold">Personal profile</p>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-700 font-semibold">Coconoto Profile</p>
               <h1 className="mt-4 text-4xl font-semibold text-slate-950 sm:text-5xl">
                 {profile.firstName} {profile.lastName}
               </h1>
-              <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-slate-700 sm:text-lg">
-                A clean individual profile page for every team member with their role, contact details, and unique URL.
-              </p>
             </div>
 
             <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-6 sm:p-8">
@@ -112,19 +113,22 @@ export default function ProfileDetailPage() {
                 </div>
               </div>
 
-              <div className="mt-8 rounded-[20px] border border-emerald-100 bg-emerald-50 px-4 py-4 text-sm text-slate-700 sm:px-6">
-                <p className="font-medium text-slate-900">Share this profile</p>
-                <p className="mt-1 break-all">{shareUrl}</p>
-              </div>
+              <div className="mt-8 rounded-[20px] border border-emerald-100 bg-emerald-50 p-4 text-sm text-slate-700 sm:px-6">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="font-medium text-slate-900">Share this profile</p>
+                    <p className="mt-1 break-all">{shareUrl}</p>
+                  </div>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <Link
-                  to="/profile"
-                  className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-                >
-                  Back to team profiles
-                </Link>
-                <p className="text-sm text-slate-600">Mobile-friendly personal profile view with no footer.</p>
+                  <button
+                    type="button"
+                    onClick={handleCopy}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                  >
+                    <Copy className="h-4 w-4" />
+                    {copied ? 'Copied' : 'Copy link'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
