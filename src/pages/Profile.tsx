@@ -105,21 +105,21 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="border-t border-slate-200 bg-slate-50 px-6 py-6 sm:px-8">
-                    <div className="h-20 sm:h-24 flex flex-col justify-center space-y-4">
+                    <div className="flex flex-col justify-center space-y-4">
                       <a
                         href={`mailto:${profile.email}`}
-                        className="group flex items-center gap-3 text-slate-900 transition hover:text-emerald-700"
+                        className="group flex min-w-0 items-start gap-3 text-slate-900 transition hover:text-emerald-700"
                       >
-                        <Mail className="h-5 w-5 text-emerald-600 transition group-hover:text-emerald-800" />
-                        <span className="text-sm font-medium">{profile.email}</span>
+                        <Mail className="mt-1 h-5 w-5 text-emerald-600 transition group-hover:text-emerald-800" />
+                        <span className="min-w-0 break-words whitespace-normal text-sm font-medium">{profile.email}</span>
                       </a>
 
                       <a
                         href={`tel:${profile.phone}`}
-                        className="group flex items-center gap-3 text-slate-900 transition hover:text-emerald-700"
+                        className="group flex min-w-0 items-start gap-3 text-slate-900 transition hover:text-emerald-700"
                       >
-                        <Phone className="h-5 w-5 text-emerald-600 transition group-hover:text-emerald-800" />
-                        <span className="text-sm font-medium">{profile.phone}</span>
+                        <Phone className="mt-1 h-5 w-5 text-emerald-600 transition group-hover:text-emerald-800" />
+                        <span className="min-w-0 break-words whitespace-normal text-sm font-medium">{profile.phone}</span>
                       </a>
 
                       {profile.linkedIn ? (
@@ -127,7 +127,7 @@ export default function ProfilePage() {
                           href={profile.linkedIn}
                           target="_blank"
                           rel="noreferrer"
-                          className="group flex items-center gap-3 text-slate-900 transition hover:text-emerald-700"
+                          className="group flex min-w-0 items-start gap-3 text-slate-900 transition hover:text-emerald-700"
                         >
                           <Linkedin className="h-5 w-5 text-emerald-600 transition group-hover:text-emerald-800" />
                           <span className="text-sm font-medium break-all">View LinkedIn profile</span>
