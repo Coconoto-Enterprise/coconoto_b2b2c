@@ -42,13 +42,6 @@ export default function ProfileDetailPage() {
       <main className="container mx-auto px-6 py-16 sm:py-24">
         <section className="mx-auto max-w-4xl rounded-[32px] border border-slate-200 bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.12)] sm:p-10">
           <div className="flex flex-col gap-8 sm:gap-10">
-            <div className="text-center">
-              <p className="text-sm uppercase tracking-[0.3em] text-emerald-700 font-semibold">Coconoto Profile</p>
-              <h1 className="mt-4 text-4xl font-semibold text-slate-950 sm:text-5xl">
-                {profile.firstName} {profile.lastName}
-              </h1>
-            </div>
-
             <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-6 sm:p-8">
               <div className="grid gap-6 lg:grid-cols-[1fr_2fr] lg:items-center">
                 <div className="mx-auto flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-emerald-500 bg-white shadow-sm">
@@ -72,28 +65,28 @@ export default function ProfileDetailPage() {
                 </div>
               </div>
 
-              <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              <div className="mt-10 grid gap-4 sm:grid-cols-1 md:grid-cols-3">
                 <a
                   href={`mailto:${profile.email}`}
-                  className="group rounded-[20px] border border-slate-200 bg-white px-4 py-4 text-left transition hover:border-emerald-300 hover:bg-emerald-50"
+                  className="group min-w-0 rounded-[20px] border border-slate-200 bg-white px-4 py-4 text-left transition hover:border-emerald-300 hover:bg-emerald-50"
                 >
                   <div className="flex items-center gap-3 text-slate-900">
                     <Mail className="h-5 w-5 text-emerald-600" />
-                    <span className="text-sm font-medium">{profile.email}</span>
+                    <span className="text-sm font-medium break-words">{profile.email}</span>
                   </div>
                 </a>
 
                 <a
                   href={`tel:${profile.phone}`}
-                  className="group rounded-[20px] border border-slate-200 bg-white px-4 py-4 text-left transition hover:border-emerald-300 hover:bg-emerald-50"
+                  className="group min-w-0 rounded-[20px] border border-slate-200 bg-white px-4 py-4 text-left transition hover:border-emerald-300 hover:bg-emerald-50"
                 >
                   <div className="flex items-center gap-3 text-slate-900">
                     <Phone className="h-5 w-5 text-emerald-600" />
-                    <span className="text-sm font-medium">{profile.phone || 'Phone not provided'}</span>
+                    <span className="text-sm font-medium break-words">{profile.phone || 'Phone not provided'}</span>
                   </div>
                 </a>
 
-                <div className="group rounded-[20px] border border-slate-200 bg-white px-4 py-4 text-left transition hover:border-emerald-300 hover:bg-emerald-50">
+                <div className="group min-w-0 rounded-[20px] border border-slate-200 bg-white px-4 py-4 text-left transition hover:border-emerald-300 hover:bg-emerald-50">
                   <div className="flex items-center gap-3 text-slate-900">
                     <Linkedin className="h-5 w-5 text-emerald-600" />
                     <span className="text-sm font-medium">
