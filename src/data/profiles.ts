@@ -119,7 +119,7 @@ export const profiles: Profile[] = [
     id: 'enoch-bamigboye',
     firstName: 'Enoch',
     lastName: 'Bamigboye',
-    role: 'Software Developer',
+    role: 'Software Engineer',
     email: 'enoch.bamigboye@coconoto.africa',
     phone: '+2349131678833',
     linkedIn: 'https://www.linkedin.com/in/bamigboye-enoch-5a82a8368',

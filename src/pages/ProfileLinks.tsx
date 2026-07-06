@@ -17,9 +17,6 @@ export default function ProfileLinksPage() {
           <div className="text-center">
             <p className="text-sm uppercase tracking-[0.3em] text-emerald-700 font-semibold">Profile links</p>
             <h1 className="mt-4 text-4xl font-semibold text-slate-950 sm:text-5xl">Everyone has a unique personal profile link.</h1>
-            <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-700 sm:text-lg">
-              Tap or copy a link to see each team member’s individual profile page with no footer and mobile-ready layout.
-            </p>
           </div>
 
           <div className="mt-12 grid gap-4 sm:grid-cols-2">
