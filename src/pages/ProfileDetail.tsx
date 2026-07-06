@@ -105,22 +105,21 @@ export default function ProfileDetailPage() {
               </div>
             </div>
 
-              <div className="mt-8 rounded-[20px] border border-emerald-100 bg-emerald-50 p-4 text-sm text-slate-700 sm:px-6">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="font-medium text-slate-900">Share this profile</p>
-                    <p className="mt-1 break-all">{shareUrl}</p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleCopy}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-                  >
-                    <Copy className="h-4 w-4" />
-                    {copied ? 'Copied' : 'Copy link'}
-                  </button>
+            <div className="mt-8 rounded-[20px] border border-emerald-100 bg-emerald-50 p-4 text-sm text-slate-700 sm:px-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="font-medium text-slate-900">Share this profile</p>
+                  <p className="mt-1 break-all">{shareUrl}</p>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                  <Copy className="h-4 w-4" />
+                  {copied ? 'Copied' : 'Copy link'}
+                </button>
               </div>
             </div>
           </div>
