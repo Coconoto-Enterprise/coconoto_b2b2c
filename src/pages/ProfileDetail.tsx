@@ -40,7 +40,7 @@ export default function ProfileDetailPage() {
       <Navbar />
 
       <main className="container mx-auto px-6 py-16 sm:py-24">
-        <section className="mx-auto max-w-4xl">
+        <section className="mx-auto max-w-5xl xl:max-w-6xl">
           <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.12)] sm:p-10">
             <div className="grid gap-6 lg:grid-cols-[1fr_2fr] lg:items-center">
               <div className="mx-auto flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-emerald-500 bg-slate-50 shadow-sm">
