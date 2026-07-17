@@ -1,17 +1,31 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { X, Menu, LogIn } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { X, Menu, LogIn, Store } from 'lucide-react';
 import Logo from '../assets/Logo_1.png';
+
+const NAV_LINKS = [
+  { to: '/', label: 'Home' },
+  { to: '/marketplace', label: 'Marketplace' },
+  { to: '/services', label: 'Coco-Tech' },
+  { to: '/product', label: 'Cococycle Hub' },
+  { to: '/about', label: 'About' },
+];
 
 export default function MarketplaceNavbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const linkClass = (to: string) =>
+    location.pathname === to
+      ? 'text-green-700 font-semibold'
+      : 'text-gray-600 hover:text-green-700';
+
   return (
-    <nav className="bg-white shadow-sm fixed w-full top-0 z-50">
+    <nav className="bg-white/90 backdrop-blur-md shadow-sm fixed w-full top-0 z-50">
       <div className="container mx-auto px-6 py-2 lg:py-4">
         <div className="flex items-center justify-between">
           <Link to="/" onClick={() => window.scrollTo(0, 0)} className="flex items-center">
@@ -33,31 +47,30 @@ export default function MarketplaceNavbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-8">
-            <Link to="/" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
-              Home
-            </Link>
-            <Link to="/services" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
-              Coco-Tech
-            </Link>
-            <Link to="/product" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
-              Cococycle Hub
-            </Link>
-            <Link to="/about" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
-              About
-            </Link>
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => window.scrollTo(0, 0)}
+                className={linkClass(link.to)}
+              >
+                {link.label}
+              </Link>
+            ))}
             <div className="flex items-center space-x-3">
               <Link
                 to="/buyer-login"
-                className="text-green-700 hover:text-green-800 font-medium"
+                className="flex items-center text-green-700 hover:text-green-800 font-medium"
               >
+                <LogIn className="h-4 w-4 mr-1.5" />
                 Buyer Login
               </Link>
               <Link
-                to="/vendor-login"
-                className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                to="/vendor-signup"
+                className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
               >
-                <LogIn className="h-4 w-4 mr-2" />
-                Vendor Login
+                <Store className="h-4 w-4 mr-2" />
+                Sell on Coconoto
               </Link>
             </div>
           </div>
@@ -67,50 +80,42 @@ export default function MarketplaceNavbar() {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-white shadow-md py-4 px-6">
-          <Link 
-            to="/" 
-            className="block py-2 text-gray-600 hover:text-green-700"
-            onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
-          >
-            Home
-          </Link>
-          <Link 
-            to="/services" 
-            className="block py-2 text-gray-600 hover:text-green-700"
-            onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
-          >
-            Coco Tech
-          </Link>
-          <Link 
-            to="/product" 
-            className="block py-2 text-gray-600 hover:text-green-700"
-            onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
-          >
-            Cococycle Hub
-          </Link>
-          <Link 
-            to="/about" 
-            className="block py-2 text-gray-600 hover:text-green-700"
-            onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
-          >
-            About
-          </Link>
-          <Link
-            to="/buyer-login"
-            className="flex items-center w-full text-left bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mt-2"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <LogIn className="h-4 w-4 mr-2" />
-            Buyer Login
-          </Link>
-          <Link
-            to="/vendor-login"
-            className="flex items-center w-full text-left bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mt-2"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <LogIn className="h-4 w-4 mr-2" />
-            Vendor Login
-          </Link>
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`block py-2 ${linkClass(link.to)}`}
+              onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <div className="border-t border-gray-100 mt-3 pt-3 space-y-2">
+            <Link
+              to="/buyer-login"
+              className="flex items-center w-full text-left border border-green-600 text-green-700 px-4 py-2 rounded-lg hover:bg-green-50"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <LogIn className="h-4 w-4 mr-2" />
+              Buyer Login
+            </Link>
+            <Link
+              to="/vendor-login"
+              className="flex items-center w-full text-left border border-green-600 text-green-700 px-4 py-2 rounded-lg hover:bg-green-50"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <LogIn className="h-4 w-4 mr-2" />
+              Vendor Login
+            </Link>
+            <Link
+              to="/vendor-signup"
+              className="flex items-center w-full text-left bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Store className="h-4 w-4 mr-2" />
+              Sell on Coconoto
+            </Link>
+          </div>
         </div>
       )}
     </nav>

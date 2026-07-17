@@ -2,17 +2,23 @@ import React, { useState, useEffect } from 'react';
 import MarketplaceNavbar from '../../components/MarketplaceNavbar';
 import BuyerNavbar from '../../components/BuyerNavbar';
 import Footer from '../../components/Footer';
-import { SlidersHorizontal, X, Search } from 'lucide-react';
+import { SlidersHorizontal, X, Search, BadgeCheck, Minus, Plus, PackageOpen } from 'lucide-react';
 import { getAllMarketplaceProducts, createOrder } from '../../services/vendorService';
 import { createOrderWithBuyer, getBuyerProfile } from '../../services/buyerService';
 import type { VendorProduct, VendorOrderInput } from '../../types/vendor';
 import { PRODUCT_CATEGORIES } from '../../types/vendor';
+
+const formatPrice = (amount: number) =>
+  amount.toLocaleString('en-NG', { maximumFractionDigits: 2 });
+
+type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'name';
 
 export function Marketplace() {
   const [products, setProducts] = useState<VendorProduct[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<VendorProduct[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<VendorProduct | null>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
@@ -29,7 +35,7 @@ export function Marketplace() {
 
   useEffect(() => {
     filterProducts();
-  }, [selectedCategory, searchQuery, products]);
+  }, [selectedCategory, searchQuery, sortBy, products]);
 
   const loadProducts = async () => {
     setIsLoading(true);
@@ -56,8 +62,27 @@ export function Marketplace() {
       );
     }
 
+    // Sort
+    filtered = [...filtered];
+    switch (sortBy) {
+      case 'price-asc':
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case 'name':
+        filtered.sort((a, b) => a.product_name.localeCompare(b.product_name));
+        break;
+      default:
+        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    }
+
     setFilteredProducts(filtered);
   };
+
+  const countForCategory = (category: string) =>
+    category === 'all' ? products.length : products.filter(p => p.category === category).length;
 
   const handleProductClick = (product: VendorProduct) => {
     setSelectedProduct(product);
@@ -92,14 +117,25 @@ export function Marketplace() {
             </div>
           </div>
 
-          <div className="mt-6 max-w-3xl">
+          <div className="mt-6 max-w-3xl relative">
+            <Search className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
               type="text"
               placeholder="Search products, category, or vendor..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-5 py-4 rounded-2xl border border-white/70 bg-white/90 text-gray-900 placeholder:text-gray-500 shadow-[0_6px_22px_rgba(0,0,0,0.06)] focus:outline-none focus:ring-2 focus:ring-green-300"
+              className="w-full pl-12 pr-12 py-4 rounded-2xl border border-white/70 bg-white/90 text-gray-900 placeholder:text-gray-500 shadow-[0_6px_22px_rgba(0,0,0,0.06)] focus:outline-none focus:ring-2 focus:ring-green-300"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -142,25 +178,31 @@ export function Marketplace() {
               <div className="space-y-2">
                 <button
                   onClick={() => selectCategory('all')}
-                  className={`w-full text-left px-4 py-2.5 rounded-xl font-medium transition-all ${
+                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl font-medium transition-all ${
                     selectedCategory === 'all'
                       ? 'bg-green-700 text-white shadow'
                       : 'text-gray-700 bg-white/70 hover:bg-white'
                   }`}
                 >
-                  All Products
+                  <span>All Products</span>
+                  <span className={`text-xs rounded-full px-2 py-0.5 ${selectedCategory === 'all' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                    {countForCategory('all')}
+                  </span>
                 </button>
                 {PRODUCT_CATEGORIES.map((category) => (
                   <button
                     key={category}
                     onClick={() => selectCategory(category)}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl font-medium transition-all ${
+                    className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl font-medium transition-all ${
                       selectedCategory === category
                         ? 'bg-green-700 text-white shadow'
                         : 'text-gray-700 bg-white/70 hover:bg-white'
                     }`}
                   >
-                    {category}
+                    <span className="text-left">{category}</span>
+                    <span className={`text-xs rounded-full px-2 py-0.5 ${selectedCategory === category ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                      {countForCategory(category)}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -170,28 +212,73 @@ export function Marketplace() {
           <section>
             {/* Products Grid */}
             {isLoading ? (
-              <div className="rounded-2xl border border-white/60 bg-white/70 backdrop-blur-xl flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
+              <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="rounded-2xl border border-white/60 bg-white/75 backdrop-blur-lg overflow-hidden animate-pulse">
+                    <div className="w-full h-36 sm:h-52 bg-gray-200/80"></div>
+                    <div className="p-3 sm:p-5 space-y-3">
+                      <div className="h-4 bg-gray-200/80 rounded w-3/4"></div>
+                      <div className="h-3 bg-gray-200/80 rounded w-1/2"></div>
+                      <div className="h-3 bg-gray-200/80 rounded w-full"></div>
+                      <div className="flex justify-between pt-1">
+                        <div className="h-4 bg-gray-200/80 rounded w-1/3"></div>
+                        <div className="h-4 bg-gray-200/80 rounded w-1/4"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : filteredProducts.length === 0 ? (
               <div className="rounded-2xl border border-white/60 bg-white/75 backdrop-blur-xl shadow p-12 text-center">
-                <p className="text-gray-700 mb-4">No products found matching your criteria.</p>
+                <PackageOpen className="h-12 w-12 text-green-700/40 mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-gray-900 mb-1">No products found</h3>
+                <p className="text-gray-600 mb-4">
+                  {searchQuery
+                    ? `Nothing matches "${searchQuery}"${selectedCategory !== 'all' ? ` in ${selectedCategory}` : ''}.`
+                    : 'There are no products in this category yet.'}
+                </p>
                 <button
                   onClick={() => {
                     setSelectedCategory('all');
                     setSearchQuery('');
                   }}
-                  className="text-green-700 font-semibold hover:text-green-800"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-green-700 text-white font-semibold hover:bg-green-800 transition-colors"
                 >
                   Clear Filters
                 </button>
               </div>
             ) : (
               <>
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
                   <p className="text-gray-700 font-medium">
                     Showing {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+                    {selectedCategory !== 'all' && (
+                      <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-1">
+                        {selectedCategory}
+                        <button
+                          type="button"
+                          aria-label="Clear category filter"
+                          onClick={() => setSelectedCategory('all')}
+                          className="hover:text-green-950"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    )}
                   </p>
+                  <label className="flex items-center gap-2 text-sm text-gray-600">
+                    Sort by
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as SortOption)}
+                      className="rounded-xl border border-white/70 bg-white/90 px-3 py-2 text-sm font-medium text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+                    >
+                      <option value="newest">Newest</option>
+                      <option value="price-asc">Price: Low to High</option>
+                      <option value="price-desc">Price: High to Low</option>
+                      <option value="name">Name A–Z</option>
+                    </select>
+                  </label>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
                   {filteredProducts.map((product) => (
@@ -233,25 +320,31 @@ export function Marketplace() {
             <div className="space-y-2">
               <button
                 onClick={() => selectCategory('all')}
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all ${
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all ${
                   selectedCategory === 'all'
                     ? 'bg-green-700 text-white shadow'
                     : 'text-gray-700 bg-white/80 hover:bg-white'
                 }`}
               >
-                All Products
+                <span>All Products</span>
+                <span className={`text-xs rounded-full px-2 py-0.5 ${selectedCategory === 'all' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                  {countForCategory('all')}
+                </span>
               </button>
               {PRODUCT_CATEGORIES.map((category) => (
                 <button
                   key={category}
                   onClick={() => selectCategory(category)}
-                  className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all ${
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all ${
                     selectedCategory === category
                       ? 'bg-green-700 text-white shadow'
                       : 'text-gray-700 bg-white/80 hover:bg-white'
                   }`}
                 >
-                  {category}
+                  <span className="text-left">{category}</span>
+                  <span className={`text-xs rounded-full px-2 py-0.5 ${selectedCategory === category ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                    {countForCategory(category)}
+                  </span>
                 </button>
               ))}
             </div>
@@ -289,50 +382,60 @@ function ProductCard({
   product: VendorProduct;
   onClick: () => void;
 }) {
+  const lowStock = product.stock_quantity > 0 && product.stock_quantity <= 5;
+
   return (
     <div
       onClick={onClick}
-      className="rounded-2xl border border-white/60 bg-white/75 backdrop-blur-lg shadow-[0_10px_24px_rgba(0,0,0,0.08)] overflow-hidden cursor-pointer hover:-translate-y-1 hover:shadow-[0_16px_28px_rgba(0,0,0,0.12)] transition-all duration-300"
+      className="group rounded-2xl border border-white/60 bg-white/75 backdrop-blur-lg shadow-[0_10px_24px_rgba(0,0,0,0.08)] overflow-hidden cursor-pointer hover:-translate-y-1 hover:shadow-[0_16px_28px_rgba(0,0,0,0.12)] transition-all duration-300"
     >
-      {product.image_url ? (
-        <img
-          src={product.image_url}
-          alt={product.product_name}
-          className="w-full h-36 sm:h-52 object-cover"
-        />
-      ) : (
-        <div className="w-full h-36 sm:h-52 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
-          <span className="text-4xl sm:text-6xl">🥥</span>
-        </div>
-      )}
+      <div className="relative overflow-hidden">
+        {product.image_url ? (
+          <img
+            src={product.image_url}
+            alt={product.product_name}
+            loading="lazy"
+            className="w-full h-36 sm:h-52 object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-36 sm:h-52 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+            <span className="text-4xl sm:text-6xl">🥥</span>
+          </div>
+        )}
+        <span className="absolute top-2 left-2 rounded-full bg-white/90 backdrop-blur px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-green-800 shadow-sm">
+          {product.category}
+        </span>
+        {product.stock_quantity === 0 && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <span className="rounded-full bg-white px-3 py-1 text-xs sm:text-sm font-bold text-red-600">Out of Stock</span>
+          </div>
+        )}
+      </div>
       <div className="p-3 sm:p-5">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-sm sm:text-lg font-bold text-gray-900 line-clamp-2 leading-tight">
-            {product.product_name}
-          </h3>
-          {product.vendor?.is_verified && (
-            <span className="text-green-700" title="Verified Vendor">
-              ✓
-            </span>
-          )}
-        </div>
-        <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-1">{product.category}</p>
+        <h3 className="text-sm sm:text-lg font-bold text-gray-900 line-clamp-2 leading-tight mb-1">
+          {product.product_name}
+        </h3>
         <p className="text-gray-700 mb-3 line-clamp-2 text-xs sm:text-sm">
           {product.description}
         </p>
-        <div className="mb-3">
+        <div className="mb-3 flex items-center gap-1">
           <p className="text-[11px] sm:text-xs text-gray-500 line-clamp-1">By {product.vendor?.business_name}</p>
+          {product.vendor?.is_verified && (
+            <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-green-600" aria-label="Verified Vendor" />
+          )}
         </div>
         <div className="flex justify-between items-center">
           <span className="text-sm sm:text-xl font-bold text-green-700">
-            ₦{product.price}
+            ₦{formatPrice(product.price)}
             <span className="text-[10px] sm:text-sm text-gray-600">/{product.unit}</span>
           </span>
-          <span className="text-[10px] sm:text-sm text-gray-600 text-right">
-            {product.stock_quantity > 0 ? (
-              <span className="text-green-600">In Stock</span>
+          <span className="text-[10px] sm:text-sm text-right">
+            {product.stock_quantity === 0 ? (
+              <span className="text-red-600 font-medium">Out of Stock</span>
+            ) : lowStock ? (
+              <span className="text-amber-600 font-medium">Only {product.stock_quantity} left</span>
             ) : (
-              <span className="text-red-600">Out of Stock</span>
+              <span className="text-green-600">In Stock</span>
             )}
           </span>
         </div>
@@ -388,6 +491,11 @@ function OrderModal({
   }, [buyerId]);
 
   const totalPrice = product.price * orderData.quantity;
+
+  const setQuantity = (quantity: number) => {
+    const clamped = Math.max(1, Math.min(quantity, Math.max(product.stock_quantity, 1)));
+    setOrderData(prev => ({ ...prev, quantity: clamped }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -485,7 +593,7 @@ function OrderModal({
                   Vendor: {product.vendor?.business_name}
                 </p>
                 <p className="text-lg font-bold text-green-700 mt-1">
-                  ₦{product.price}/{product.unit}
+                  ₦{formatPrice(product.price)}/{product.unit}
                 </p>
               </div>
             </div>
@@ -570,16 +678,39 @@ function OrderModal({
               <label htmlFor="order-quantity" className="block text-sm font-semibold text-gray-700 mb-2">
                 Quantity * (Available: {product.stock_quantity})
               </label>
-              <input
-                id="order-quantity"
-                type="number"
-                min="1"
-                max={product.stock_quantity}
-                value={orderData.quantity}
-                onChange={(e) => setOrderData({ ...orderData, quantity: parseInt(e.target.value) || 1 })}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-              />
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Decrease quantity"
+                  onClick={() => setQuantity(orderData.quantity - 1)}
+                  disabled={orderData.quantity <= 1}
+                  className="p-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <input
+                  id="order-quantity"
+                  type="number"
+                  min="1"
+                  max={product.stock_quantity}
+                  value={orderData.quantity}
+                  onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                  required
+                  className="w-24 text-center px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                />
+                <button
+                  type="button"
+                  aria-label="Increase quantity"
+                  onClick={() => setQuantity(orderData.quantity + 1)}
+                  disabled={orderData.quantity >= product.stock_quantity}
+                  className="p-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+                <span className="ml-2 text-sm text-gray-500">
+                  × ₦{formatPrice(product.price)}/{product.unit}
+                </span>
+              </div>
             </div>
 
             <div>
@@ -608,10 +739,13 @@ function OrderModal({
               />
             </div>
 
-            <div className="bg-green-50 rounded-lg p-4">
+            <div className="bg-green-50 rounded-lg p-4 space-y-1">
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>{orderData.quantity} × ₦{formatPrice(product.price)}/{product.unit}</span>
+              </div>
               <div className="flex justify-between items-center text-lg font-bold">
                 <span>Total:</span>
-                <span className="text-green-700">₦{totalPrice.toFixed(2)}</span>
+                <span className="text-green-700">₦{formatPrice(totalPrice)}</span>
               </div>
             </div>
 
