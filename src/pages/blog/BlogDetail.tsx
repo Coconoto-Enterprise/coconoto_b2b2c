@@ -80,6 +80,72 @@ export const BlogDetail: React.FC = () => {
     fetchBlog();
   }, [blogId]);
 
+  // Set per-post SEO/social meta tags once the blog loads. Read-only: this
+  // only touches the document head, never the database. Tags are restored to
+  // the site defaults on unmount so other pages aren't affected.
+  useEffect(() => {
+    if (!blog) return;
+
+    const SITE_URL = 'https://www.coconoto.africa';
+    const pageUrl = `${SITE_URL}/blog/${blog.blog_id}`;
+    const description = (blog.des || blog.title || '').slice(0, 160);
+    const image = blog.banner || `${SITE_URL}/Icon_green.png`;
+
+    const prevTitle = document.title;
+    document.title = `${blog.title} | Coconoto Africa`;
+
+    const setMeta = (selector: string, attr: 'name' | 'property', key: string, content: string) => {
+      let el = document.head.querySelector<HTMLMetaElement>(selector);
+      const created = !el;
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute(attr, key);
+        el.setAttribute('data-blog-meta', 'true');
+        document.head.appendChild(el);
+      }
+      const previous = el.getAttribute('content');
+      el.setAttribute('content', content);
+      return { el, created, previous };
+    };
+
+    const setCanonical = (href: string) => {
+      let el = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+      const created = !el;
+      if (!el) {
+        el = document.createElement('link');
+        el.setAttribute('rel', 'canonical');
+        document.head.appendChild(el);
+      }
+      const previous = el.getAttribute('href');
+      el.setAttribute('href', href);
+      return { el, created, previous };
+    };
+
+    const managed = [
+      setMeta('meta[name="description"]', 'name', 'description', description),
+      setMeta('meta[property="og:type"]', 'property', 'og:type', 'article'),
+      setMeta('meta[property="og:title"]', 'property', 'og:title', blog.title),
+      setMeta('meta[property="og:description"]', 'property', 'og:description', description),
+      setMeta('meta[property="og:url"]', 'property', 'og:url', pageUrl),
+      setMeta('meta[property="og:image"]', 'property', 'og:image', image),
+      setMeta('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image'),
+      setMeta('meta[name="twitter:title"]', 'name', 'twitter:title', blog.title),
+      setMeta('meta[name="twitter:description"]', 'name', 'twitter:description', description),
+      setMeta('meta[name="twitter:image"]', 'name', 'twitter:image', image),
+    ];
+    const canonical = setCanonical(pageUrl);
+
+    return () => {
+      document.title = prevTitle;
+      for (const m of managed) {
+        if (m.created) m.el.remove();
+        else if (m.previous !== null) m.el.setAttribute('content', m.previous);
+      }
+      if (canonical.created) canonical.el.remove();
+      else if (canonical.previous !== null) canonical.el.setAttribute('href', canonical.previous);
+    };
+  }, [blog]);
+
   const handleLike = async () => {
     if (!userId || !blog) return;
 

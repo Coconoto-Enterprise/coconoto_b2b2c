@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Private / non-content routes — no SEO value, keep out of the index
+Disallow: /vintage-dashboard
+Disallow: /vintage-login
+Disallow: /blog-editor
+Disallow: /buyer-dashboard
+Disallow: /vendor-dashboard
+Disallow: /buyer-login
+Disallow: /vendor-login
+
+Sitemap: https://www.coconoto.africa/sitemap.xml
