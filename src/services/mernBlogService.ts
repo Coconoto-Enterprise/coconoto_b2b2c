@@ -76,13 +76,6 @@ export async function getBlogById(blogId) {
 
 // Create new blog
 export async function createBlog(blogData, userId) {
-  // Ensure the author row exists, otherwise the insert below fails on a
-  // foreign-key violation (author_id references blog_authors.id).
-  await createAuthorProfile(userId, {
-    username: 'coconoto',
-    fullname: 'Coconoto'
-  });
-
   const blogId = Math.random().toString(36).substring(2, 15);
 
   const { data, error } = await supabase
