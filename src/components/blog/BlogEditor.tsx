@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Loader, Upload, ChevronLeft } from 'lucide-react';
+import { Loader, Upload, ChevronLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import EditorJS, { OutputData } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import Paragraph from '@editorjs/paragraph';
@@ -11,9 +11,9 @@ import Marker from '@editorjs/marker';
 import InlineCode from '@editorjs/inline-code';
 import ImageTool from '@editorjs/image';
 import Embed from '@editorjs/embed';
-import LinkTool from '@editorjs/link';
 import { supabase } from '../../lib/supabase';
 import blogService from '../../services/mernBlogService';
+import './EditorComponent.css';
 
 interface Blog {
   blog_id: string;
@@ -38,6 +38,10 @@ export const BlogEditor: React.FC = () => {
   const [userId] = useState<string>('00000000-0000-0000-0000-000000000001');
   const [error, setError] = useState<string | null>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+  const [isDirty, setIsDirty] = useState(false);
+  const [bannerUploading, setBannerUploading] = useState(false);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -45,6 +49,26 @@ export const BlogEditor: React.FC = () => {
     banner: '',
     tags: ''
   });
+
+  const showToast = (type: 'success' | 'error', text: string) => {
+    setToast({ type, text });
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const uploadImageToStorage = async (file: File): Promise<string> => {
+    const fileName = `${userId}/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+    const { error: uploadError } = await supabase.storage
+      .from('blog-images')
+      .upload(fileName, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('blog-images')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
+  };
 
   // Initialize EditorJS
   useEffect(() => {
@@ -112,13 +136,20 @@ export const BlogEditor: React.FC = () => {
           image: {
             class: ImageTool,
             config: {
-              endpoints: {
-                byFile: '/api/upload',
-                byUrl: '/api/fetch-url',
-              },
-              field: 'image',
               types: 'image/*',
-              captionPlaceholder: 'Image caption'
+              captionPlaceholder: 'Image caption',
+              uploader: {
+                uploadByFile: async (file: File) => {
+                  try {
+                    const url = await uploadImageToStorage(file);
+                    return { success: 1, file: { url } };
+                  } catch (err) {
+                    console.error('Image upload failed:', err);
+                    return { success: 0 };
+                  }
+                },
+                uploadByUrl: async (url: string) => ({ success: 1, file: { url } })
+              }
             }
           },
           embed: {
@@ -131,19 +162,10 @@ export const BlogEditor: React.FC = () => {
                 codepen: true
               }
             }
-          },
-          linkTool: {
-            class: LinkTool,
-            config: {
-              endpoint: '/api/fetch-url'
-            }
           }
         },
-        onReady: () => {
-          console.log('✅ Editor ready');
-        },
-        onChange: async () => {
-          console.log('Editor content changed');
+        onChange: () => {
+          setIsDirty(true);
         }
       });
     };
@@ -193,26 +215,52 @@ export const BlogEditor: React.FC = () => {
     fetchBlog();
   }, [blogId]);
 
+  // Auto-resize title textarea (also on first load with a prefilled title)
+  useEffect(() => {
+    if (titleRef.current) {
+      titleRef.current.style.height = 'auto';
+      titleRef.current.style.height = Math.max(titleRef.current.scrollHeight, 60) + 'px';
+    }
+  }, [formData.title, loading]);
+
+  // Warn before leaving with unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
+
+  // Ctrl/Cmd+S saves a draft
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
   const handleUploadBanner = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !blog) return;
 
     try {
-      const fileName = `${userId}/${Date.now()}_${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from('blog-images')
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('blog-images')
-        .getPublicUrl(fileName);
-
+      setBannerUploading(true);
+      const publicUrl = await uploadImageToStorage(file);
       setFormData({ ...formData, banner: publicUrl });
+      setIsDirty(true);
     } catch (err) {
-      setError('Failed to upload banner');
+      showToast('error', 'Failed to upload banner');
       console.error(err);
+    } finally {
+      setBannerUploading(false);
     }
   };
 
@@ -242,9 +290,10 @@ export const BlogEditor: React.FC = () => {
       }, userId);
 
       setError(null);
-      alert('Blog saved as draft!');
+      setIsDirty(false);
+      showToast('success', 'Draft saved');
     } catch (err) {
-      setError('Failed to save blog');
+      showToast('error', 'Failed to save blog');
       console.error(err);
     } finally {
       setSaving(false);
@@ -279,10 +328,11 @@ export const BlogEditor: React.FC = () => {
       }, userId);
 
       await blogService.publishBlog(blog.blog_id, userId);
-      alert('Blog published successfully!');
-      navigate('/vintage-dashboard?tab=blog');
+      setIsDirty(false);
+      showToast('success', 'Blog published!');
+      setTimeout(() => navigate('/vintage-dashboard?tab=blog'), 1200);
     } catch (err) {
-      setError('Failed to publish blog');
+      showToast('error', 'Failed to publish blog');
       console.error(err);
     } finally {
       setSaving(false);
@@ -333,6 +383,9 @@ export const BlogEditor: React.FC = () => {
               <h1 className="text-2xl font-gelasio font-bold text-gray-900">
                 {blog.is_draft ? '📝 Draft' : '✅ Published'}
               </h1>
+              <p className={`text-xs mt-0.5 ${isDirty ? 'text-amber-600' : 'text-gray-400'}`}>
+                {isDirty ? '● Unsaved changes' : 'All changes saved'}
+              </p>
             </div>
           </div>
 
@@ -366,17 +419,16 @@ export const BlogEditor: React.FC = () => {
         {/* Title Input */}
         <div className="mb-8">
           <textarea
+            ref={titleRef}
             value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            onChange={(e) => {
+              setFormData({ ...formData, title: e.target.value });
+              setIsDirty(true);
+            }}
             placeholder="Blog title"
             className="w-full text-5xl font-gelasio font-bold text-gray-900 placeholder:text-gray-300 resize-none border-0 p-0 focus:outline-none"
             rows={1}
             style={{ minHeight: '60px', overflow: 'hidden' }}
-            onInput={(e) => {
-              const target = e.target as HTMLTextAreaElement;
-              target.style.height = 'auto';
-              target.style.height = Math.max(target.scrollHeight, 60) + 'px';
-            }}
           />
         </div>
 
@@ -384,7 +436,10 @@ export const BlogEditor: React.FC = () => {
         <div className="mb-12">
           <textarea
             value={formData.des}
-            onChange={(e) => setFormData({ ...formData, des: e.target.value.slice(0, 200) })}
+            onChange={(e) => {
+              setFormData({ ...formData, des: e.target.value.slice(0, 200) });
+              setIsDirty(true);
+            }}
             maxLength={200}
             placeholder="Add a short description (max 200 characters)"
             className="w-full text-xl text-gray-700 placeholder:text-gray-400 resize-none border-0 p-0 focus:outline-none"
@@ -402,22 +457,37 @@ export const BlogEditor: React.FC = () => {
                 alt="Blog banner"
                 className="w-full h-96 object-cover rounded-lg shadow-md"
               />
+              {bannerUploading && (
+                <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
+                  <Loader className="w-8 h-8 text-white animate-spin" />
+                </div>
+              )}
               <button
                 onClick={() => bannerInputRef.current?.click()}
-                className="absolute top-4 right-4 bg-white text-gray-900 px-4 py-2 rounded-lg shadow-lg hover:bg-gray-100 transition font-medium"
+                disabled={bannerUploading}
+                className="absolute top-4 right-4 bg-white text-gray-900 px-4 py-2 rounded-lg shadow-lg hover:bg-gray-100 transition font-medium disabled:opacity-50"
               >
-                Change
+                {bannerUploading ? 'Uploading...' : 'Change'}
               </button>
             </div>
           ) : (
             <div
-              onClick={() => bannerInputRef.current?.click()}
-              className="w-full h-96 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition"
+              onClick={() => !bannerUploading && bannerInputRef.current?.click()}
+              className="w-full h-96 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-green-400 transition"
             >
               <div className="text-center">
-                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600 font-medium">Click to upload blog banner</p>
-                <p className="text-sm text-gray-500">Recommended: 16:9 aspect ratio</p>
+                {bannerUploading ? (
+                  <>
+                    <Loader className="w-12 h-12 text-green-600 animate-spin mx-auto mb-2" />
+                    <p className="text-gray-600 font-medium">Uploading banner...</p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-600 font-medium">Click to upload blog banner</p>
+                    <p className="text-sm text-gray-500">Recommended: 16:9 aspect ratio</p>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -437,7 +507,10 @@ export const BlogEditor: React.FC = () => {
           <input
             type="text"
             value={formData.tags}
-            onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+            onChange={(e) => {
+              setFormData({ ...formData, tags: e.target.value });
+              setIsDirty(true);
+            }}
             placeholder="Enter tags separated by commas (e.g., coconut, agriculture, business)"
             className="input-box"
           />
@@ -503,6 +576,22 @@ export const BlogEditor: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <div
+          className={`fixed bottom-6 right-6 z-[100] flex items-center gap-2 rounded-xl px-5 py-3 shadow-lg text-white font-medium ${
+            toast.type === 'success' ? 'bg-green-700' : 'bg-red-600'
+          }`}
+        >
+          {toast.type === 'success' ? (
+            <CheckCircle className="h-5 w-5" />
+          ) : (
+            <AlertCircle className="h-5 w-5" />
+          )}
+          {toast.text}
+        </div>
+      )}
     </div>
   );
 };

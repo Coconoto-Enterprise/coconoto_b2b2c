@@ -184,6 +184,86 @@
   font-weight: 600;
 }
 
+/* Blog editor page (.editor-content holds the EditorJS instance) */
+.editor-content .ce-header {
+  font-weight: 700;
+  color: #111827;
+  padding: 0.25rem 0;
+}
+
+.editor-content h1.ce-header { font-size: 2.25rem; line-height: 1.2; }
+.editor-content h2.ce-header { font-size: 1.75rem; line-height: 1.25; }
+.editor-content h3.ce-header { font-size: 1.5rem; }
+.editor-content h4.ce-header { font-size: 1.25rem; }
+.editor-content h5.ce-header { font-size: 1.125rem; }
+.editor-content h6.ce-header {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.editor-content .ce-paragraph {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: #1f2937;
+}
+
+.editor-content .cdx-quote {
+  border-left: 4px solid #22c55e;
+  padding: 0.25rem 0 0.25rem 1rem;
+  margin: 0.5rem 0;
+  font-style: italic;
+  color: #4b5563;
+}
+
+.editor-content .cdx-quote__caption {
+  font-style: normal;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.editor-content .ce-code__textarea {
+  background-color: #111827;
+  color: #f3f4f6;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  min-height: 120px;
+}
+
+.editor-content .cdx-marker {
+  background: #fef08a;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.editor-content .inline-code {
+  background: #f3f4f6;
+  color: #dc2626;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.editor-content .cdx-list__item {
+  line-height: 1.7;
+  padding: 2px 0;
+}
+
+.editor-content .image-tool__caption {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* Tame EditorJS's huge default bottom padding */
+.editor-content .codex-editor__redactor {
+  padding-bottom: 120px !important;
+}
+
 /* Text Alignment */
 .text-left {
   text-align: left;
