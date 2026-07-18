@@ -259,9 +259,21 @@
   text-align: center;
 }
 
-/* Tame EditorJS's huge default bottom padding */
+/* Give the writing area room without a huge empty gap, and tame EditorJS's
+   default ~300px bottom padding that pushes the "+" toolbar far from content. */
+.editor-content .codex-editor {
+  min-height: 320px;
+}
+
 .editor-content .codex-editor__redactor {
-  padding-bottom: 120px !important;
+  padding-bottom: 60px !important;
+}
+
+/* Keep the block "+"/settings toolbar aligned to the content column so it
+   sits next to the current line instead of floating off on its own. */
+.editor-content .ce-toolbar__content,
+.editor-content .ce-block__content {
+  max-width: 100%;
 }
 
 /* Text Alignment */

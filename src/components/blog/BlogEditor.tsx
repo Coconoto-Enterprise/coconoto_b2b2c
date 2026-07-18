@@ -534,7 +534,7 @@ export const BlogEditor: React.FC = () => {
           </label>
           <div
             ref={editorContainerRef}
-            className="border border-gray-300 rounded-lg overflow-visible bg-white shadow-sm"
+            className="border border-gray-300 rounded-lg overflow-visible bg-white shadow-sm px-4 sm:px-6 py-4"
             style={{
               position: 'relative',
               zIndex: 1
@@ -543,11 +543,7 @@ export const BlogEditor: React.FC = () => {
             <div
               id="editorjs"
               className="editor-content"
-              style={{
-                minHeight: '500px',
-                padding: '1.5rem',
-                outline: 'none'
-              }}
+              style={{ outline: 'none' }}
             />
           </div>
         </div>
