@@ -76,8 +76,15 @@ export async function getBlogById(blogId) {
 
 // Create new blog
 export async function createBlog(blogData, userId) {
+  // Ensure the author row exists, otherwise the insert below fails on a
+  // foreign-key violation (author_id references blog_authors.id).
+  await createAuthorProfile(userId, {
+    username: 'coconoto',
+    fullname: 'Coconoto'
+  });
+
   const blogId = Math.random().toString(36).substring(2, 15);
-  
+
   const { data, error } = await supabase
     .from('mern_blogs')
     .insert([
@@ -113,20 +120,31 @@ export async function updateBlog(blogId, blogData, userId) {
     throw new Error('Unauthorized');
   }
 
+  const updates = {
+    title: blogData.title,
+    banner: blogData.banner,
+    des: blogData.des,
+    content: blogData.content,
+    tags: blogData.tags,
+    content_blocks: blogData.content_blocks,
+    updated_at: new Date().toISOString()
+  };
+
+  // Only touch publish state when the caller explicitly sets it, so that
+  // saving a draft doesn't accidentally unpublish an already-live post.
+  if (blogData.published === true) {
+    updates.published = true;
+    updates.is_draft = false;
+    updates.published_at = new Date().toISOString();
+  } else if (blogData.is_draft === true || blogData.published === false) {
+    updates.published = false;
+    updates.is_draft = true;
+    updates.published_at = null;
+  }
+
   const { data, error } = await supabase
     .from('mern_blogs')
-    .update({
-      title: blogData.title,
-      banner: blogData.banner,
-      des: blogData.des,
-      content: blogData.content,
-      tags: blogData.tags,
-      content_blocks: blogData.content_blocks,
-      is_draft: blogData.is_draft !== false,
-      published: blogData.published || false,
-      published_at: blogData.published ? new Date().toISOString() : null,
-      updated_at: new Date().toISOString()
-    })
+    .update(updates)
     .eq('blog_id', blogId)
     .select();
 
