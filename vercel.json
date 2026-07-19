@@ -1,7 +1,7 @@
 {
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
-    { "source": "/blog/:id", "destination": "/api/blog-meta?id=:id" },
+    { "source": "/sitemap.xml", "destination": "/api/seo?action=sitemap" },
+    { "source": "/blog/:id", "destination": "/api/seo?action=blog-meta&id=:id" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
