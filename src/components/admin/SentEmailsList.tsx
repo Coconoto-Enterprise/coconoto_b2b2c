@@ -81,8 +81,14 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
       try {
         const parsed = JSON.parse(storedMailUser);
         setCurrentUser(parsed);
-        if (parsed?.role !== 'admin' && parsed?.sender_email) {
-          setSelectedSender(parsed.sender_email);
+        // Default everyone (admins included) to their own mailbox so the
+        // list isn't empty on a fresh page load; admins can still switch
+        // to other users or "All users" from the sidebar.
+        const ownSender = parsed?.sender_email || parsed?.login_email || parsed?.email;
+        if (ownSender) {
+          setSelectedSender(ownSender);
+        } else if (parsed?.role === 'admin') {
+          setShowAllSenders(true);
         }
       } catch (error) {
         console.error('Failed to parse currentMailUser', error);
