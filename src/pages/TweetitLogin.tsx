@@ -42,7 +42,11 @@ const TweetitLogin: React.FC = () => {
         localStorage.setItem('tweetitUser', JSON.stringify(loggedUser));
         localStorage.setItem('adminLoggedIn', 'true');
         localStorage.setItem('currentMailUser', JSON.stringify(loggedUser));
-        navigate('/tweetit-dashboard');
+        // Forward reply deep-link params (compose/to/subject) to the dashboard
+        const params = new URLSearchParams(location.search);
+        params.delete('email');
+        const forward = params.toString();
+        navigate(`/tweetit-dashboard${forward ? `?${forward}` : ''}`);
       } else {
         setError(data.error || 'Invalid login credentials. Please try again.');
       }
