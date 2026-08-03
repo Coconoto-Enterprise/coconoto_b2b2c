@@ -1,41 +1,61 @@
-# Inbound Email → Tweetit Reply Button
+# Inbound Email → Reply Button Inside the Mail Itself
 
-## How it works
+Every mail that comes through Cloudflare Email Routing is re-delivered to
+your inbox as ONE email: the original subject, body, and attachments, with
+a green **"↩ Reply from Tweetit"** banner injected at the top. Clicking it
+opens the Tweetit dashboard composer with the sender's address already in
+the Recipients box and "Re: <subject>" as the subject.
 
 ```
 someone@gmail.com  →  info@coconoto.africa
                         │
-                        ▼
-        Cloudflare Email Routing rule fires the Worker below
+              Cloudflare routing rule → Worker
                         │
-                        ├── 1. forwards the original mail to your inbox (unchanged)
-                        └── 2. sends a "New inbound mail" notification via Resend
-                               containing a REPLY button that links to:
-        https://www.coconoto.africa/tweetit-dashboard?compose=1&to=someone@gmail.com&subject=Re:...
+         Worker parses the mail, injects the Reply
+         banner at the top, re-sends it via Resend
                         │
                         ▼
-        Clicking REPLY opens the Tweetit dashboard with the composer
-        already open and the sender's address prefilled in Recipients.
-        (If logged out, you land on login and are forwarded after login.)
+   Your inbox gets the original mail WITH the button in it
+   (native "Reply" in Gmail still works too, via Reply-To)
 ```
 
-The dashboard deep link is already implemented — `/tweetit-dashboard?compose=1&to=<email>&subject=<subject>` opens the composer prefilled. The Worker is what generates that link from each inbound mail.
+If injection ever fails, the worker falls back to a plain forward — mail
+is never lost.
 
-## Setup (one time, ~10 minutes)
+## Deploy (one time)
 
-1. Cloudflare dashboard → your `coconoto.africa` zone → **Workers & Pages → Create Worker**.
-   Name it `inbound-mail-notify`, paste the code from `email-worker.js` (this folder).
+Needs Node on your machine (you have it). From the repo root:
 
-2. Worker → **Settings → Variables** → add:
-   - `RESEND_API_KEY` (secret) — same key as in Vercel
-   - `TWEETIT_URL` — `https://www.coconoto.africa/tweetit-dashboard`
-   - `NOTIFY_FROM` — `notify@coconoto.africa` (any verified sender on Resend)
+```bash
+cd email-routing
+npm install
+npx wrangler login          # opens browser, authorize your Cloudflare account
+npx wrangler secret put RESEND_API_KEY   # paste the same key Vercel uses
+npx wrangler deploy
+```
 
-3. **Email → Email Routing → Routing rules**: for each address
-   (info@, support@, team@, jacob.abiodun@ …) change the action from
-   "Send to an email" to **Run Worker → inbound-mail-notify**.
-   Put the final destination inbox for each address in the
-   `FORWARD_MAP` at the top of the worker.
+Before deploying, edit `FORWARD_MAP` at the top of `email-worker.js` —
+one line per coconoto address, mapping it to the inbox that should
+receive the mail. `wrangler.toml` holds `TWEETIT_URL` and `NOTIFY_FROM`
+(NOTIFY_FROM must be a verified sender in Resend).
 
-That's it — every inbound mail still lands in the usual inbox, plus each
-routed address gets a notification with the one-click Reply button.
+## Point the routing rules at the worker
+
+Cloudflare dashboard → your zone → **Email → Email Routing → Routing
+rules** → edit each address → change the action to
+**Run Worker → inbound-mail-notify**.
+
+## Test
+
+Send a mail from a personal address to info@coconoto.africa. Within a
+minute the destination inbox receives it with the green banner on top.
+Click the button → Tweetit composer opens prefilled (login first if
+needed — the prefill survives login).
+
+## Notes
+
+- The re-sent mail arrives "from" `NOTIFY_FROM` with the original
+  sender's name in the display name; `Reply-To` is set to the original
+  sender, so replying natively from Gmail also works.
+- The Tweetit deep link (`?compose=1&to=...&subject=...`) is handled in
+  `src/pages/TweetitDashboard.tsx` — make sure the main app is deployed.

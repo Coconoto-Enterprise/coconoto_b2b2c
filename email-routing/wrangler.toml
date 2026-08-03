@@ -1,0 +1,10 @@
+name = "inbound-mail-notify"
+main = "email-worker.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+TWEETIT_URL = "https://www.coconoto.africa/tweetit-dashboard"
+NOTIFY_FROM = "mail@coconoto.africa"
+
+# Set the secret separately (never commit it):
+#   npx wrangler secret put RESEND_API_KEY

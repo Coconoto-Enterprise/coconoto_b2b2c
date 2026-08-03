@@ -1,19 +1,28 @@
 // Cloudflare Email Worker: inbound-mail-notify
 //
-// Attach this Worker to your Email Routing rules (one rule per coconoto
-// address). For every inbound mail it:
-//   1. forwards the original message to the real destination inbox, and
-//   2. sends a notification email (via Resend) containing a Reply button
-//      that opens the Tweetit dashboard composer with the sender's address
-//      already in the Recipients box.
+// For every mail that hits a routing rule, this worker parses the original
+// message and re-sends it to your real inbox with a "Reply from Tweetit"
+// button injected at the top of the body. You receive ONE email — the
+// original content with the button embedded — not a separate notification.
 //
-// Required Worker variables (Settings → Variables):
-//   RESEND_API_KEY  (secret)  – your Resend API key
-//   TWEETIT_URL               – https://www.coconoto.africa/tweetit-dashboard
-//   NOTIFY_FROM               – verified Resend sender, e.g. notify@coconoto.africa
+// Why re-send instead of forward? Cloudflare forwards messages unmodified
+// (changing a message would break DKIM signatures), so injecting a button
+// into a plain forward is impossible. Re-sending via Resend is the way.
+// If the re-send fails for any reason, the worker falls back to a normal
+// forward so mail is never lost.
+//
+// Deploy with wrangler (needs the postal-mime npm package — see README):
+//   cd email-routing && npm install && npx wrangler deploy
+//
+// Secrets/vars (wrangler.toml + `npx wrangler secret put RESEND_API_KEY`):
+//   RESEND_API_KEY  – your Resend API key
+//   TWEETIT_URL     – https://www.coconoto.africa/tweetit-dashboard
+//   NOTIFY_FROM     – verified Resend sender, e.g. mail@coconoto.africa
 
-// Where each routed address actually delivers. The notification is also
-// sent to this inbox. Add one line per routing rule.
+import PostalMime from 'postal-mime';
+
+// Where each routed coconoto address actually delivers.
+// Add one line per routing rule.
 const FORWARD_MAP = {
   'info@coconoto.africa': 'infococonoto@gmail.com',
   'support@coconoto.africa': 'infococonoto@gmail.com',
@@ -25,85 +34,90 @@ const escapeHtml = (v = '') =>
   String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-export default {
-  async email(message, env, ctx) {
-    const from = message.from;                 // the outside sender
-    const to = message.to;                     // the coconoto address hit
-    const subject = message.headers.get('subject') || '(no subject)';
-    const destination = FORWARD_MAP[to.toLowerCase()];
-
-    // 1) Forward the original mail so the normal inbox flow is unchanged.
-    if (destination) {
-      await message.forward(destination);
-    }
-
-    // 2) Fire the Reply-button notification. Failures here must never block
-    //    delivery, so it runs via waitUntil and swallows errors.
-    ctx.waitUntil(sendNotification(env, { from, to, subject, destination }));
-  },
+const toBase64 = (data) => {
+  const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
 };
 
-async function sendNotification(env, { from, to, subject, destination }) {
-  try {
-    const base = (env.TWEETIT_URL || 'https://www.coconoto.africa/tweetit-dashboard').replace(/\/$/, '');
-    const replySubject = subject.startsWith('Re:') ? subject : `Re: ${subject}`;
-    const replyUrl =
-      `${base}?compose=1&to=${encodeURIComponent(from)}&subject=${encodeURIComponent(replySubject)}`;
+const replyBanner = (replyUrl, from) => `
+<div style="border:1px solid #bbf7d0;background:#f0fdf4;border-radius:12px;padding:16px 20px;margin:0 0 20px 0;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+    <td style="font-size:13px;color:#166534;">
+      <strong>From:</strong> ${escapeHtml(from)}<br/>
+      <span style="color:#4d7c0f;">Reply straight from the Tweetit dashboard — recipient is prefilled.</span>
+    </td>
+    <td align="right" style="vertical-align:middle;">
+      <a href="${replyUrl}"
+         style="display:inline-block;background:#16a34a;color:#ffffff;text-decoration:none;font-weight:bold;font-size:14px;padding:10px 26px;border-radius:999px;white-space:nowrap;">
+        ↩ Reply from Tweetit
+      </a>
+    </td>
+  </tr></table>
+</div>`;
 
-    const html = `<!DOCTYPE html>
-<html>
-  <body style="margin:0;padding:0;background:#f5f8f6;font-family:Arial,Helvetica,sans-serif;">
-    <div style="max-width:520px;margin:24px auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
-      <div style="background:#15803d;padding:16px 24px;">
-        <p style="margin:0;color:#ffffff;font-size:16px;font-weight:bold;">📬 New inbound mail</p>
-      </div>
-      <div style="padding:24px;">
-        <table style="width:100%;font-size:14px;color:#374151;border-collapse:collapse;">
-          <tr>
-            <td style="padding:6px 0;color:#6b7280;width:80px;">From</td>
-            <td style="padding:6px 0;font-weight:bold;">${escapeHtml(from)}</td>
-          </tr>
-          <tr>
-            <td style="padding:6px 0;color:#6b7280;">To</td>
-            <td style="padding:6px 0;">${escapeHtml(to)}</td>
-          </tr>
-          <tr>
-            <td style="padding:6px 0;color:#6b7280;">Subject</td>
-            <td style="padding:6px 0;">${escapeHtml(subject)}</td>
-          </tr>
-        </table>
-        <div style="text-align:center;margin:28px 0 8px;">
-          <a href="${replyUrl}"
-             style="display:inline-block;background:#16a34a;color:#ffffff;text-decoration:none;font-weight:bold;font-size:15px;padding:12px 36px;border-radius:999px;">
-            Reply from Tweetit
-          </a>
-        </div>
-        <p style="text-align:center;color:#9ca3af;font-size:12px;margin-top:16px;">
-          Opens the Tweetit composer with ${escapeHtml(from)} already in the recipient box.
-        </p>
-      </div>
-    </div>
-  </body>
-</html>`;
+export default {
+  async email(message, env, ctx) {
+    const to = message.to.toLowerCase();
+    const destination = FORWARD_MAP[to];
 
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: env.NOTIFY_FROM || 'notify@coconoto.africa',
-        to: destination || to,
-        subject: `📬 ${from} → ${to}: ${subject}`,
-        html,
-      }),
-    });
-
-    if (!res.ok) {
-      console.error('Notification send failed:', res.status, await res.text());
+    if (!destination) {
+      // Unknown address: just forward wherever the catch-all points, if any.
+      return;
     }
-  } catch (err) {
-    console.error('Notification error:', err);
-  }
-}
+
+    try {
+      const parsed = await new PostalMime().parse(await message.raw());
+
+      const fromAddr = parsed.from?.address || message.from;
+      const fromName = parsed.from?.name || fromAddr;
+      const subject = parsed.subject || '(no subject)';
+
+      const base = (env.TWEETIT_URL || 'https://www.coconoto.africa/tweetit-dashboard').replace(/\/$/, '');
+      const replySubject = subject.startsWith('Re:') ? subject : `Re: ${subject}`;
+      const replyUrl =
+        `${base}?compose=1&to=${encodeURIComponent(fromAddr)}&subject=${encodeURIComponent(replySubject)}`;
+
+      // Original body with the button injected at the top.
+      const banner = replyBanner(replyUrl, `${fromName} <${fromAddr}>`);
+      const originalHtml = parsed.html
+        || `<pre style="font-family:inherit;white-space:pre-wrap;">${escapeHtml(parsed.text || '')}</pre>`;
+      const html = `${banner}${originalHtml}`;
+
+      const attachments = (parsed.attachments || []).map((att) => ({
+        filename: att.filename || 'attachment',
+        content: toBase64(att.content),
+      }));
+
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          // Show who it's really from in the display name; Reply-To keeps
+          // native mail-client replies going to the original sender too.
+          from: `${fromName.replace(/[<>"]/g, '')} via Coconoto <${env.NOTIFY_FROM || 'mail@coconoto.africa'}>`,
+          to: destination,
+          reply_to: fromAddr,
+          subject,
+          html,
+          attachments: attachments.length ? attachments : undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Resend ${res.status}: ${await res.text()}`);
+      }
+    } catch (err) {
+      // Never lose mail: fall back to a plain forward without the button.
+      console.error('Inject-and-resend failed, forwarding original:', err);
+      await message.forward(destination);
+    }
+  },
+};
