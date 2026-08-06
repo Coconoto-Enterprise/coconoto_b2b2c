@@ -1,6 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Loader, Upload, ChevronLeft, CheckCircle, AlertCircle } from 'lucide-react';
+import {
+  Loader,
+  Upload,
+  ChevronLeft,
+  CheckCircle,
+  AlertCircle,
+  X as XIcon,
+  Image as ImageIcon,
+  Save,
+  Send,
+  Sparkles,
+  Keyboard,
+  FileText,
+  Tag as TagIcon,
+} from 'lucide-react';
 import EditorJS, { OutputData } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import Paragraph from '@editorjs/paragraph';
@@ -27,6 +41,12 @@ interface Blog {
   published: boolean;
 }
 
+const countWords = (s: string) => {
+  const trimmed = s.trim();
+  if (!trimmed) return 0;
+  return trimmed.split(/\s+/).length;
+};
+
 export const BlogEditor: React.FC = () => {
   const { blogId } = useParams();
   const navigate = useNavigate();
@@ -41,7 +61,9 @@ export const BlogEditor: React.FC = () => {
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [bannerUploading, setBannerUploading] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [tagChips, setTagChips] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -198,12 +220,14 @@ export const BlogEditor: React.FC = () => {
         }
 
         setBlog(data);
+        const initialTags = data.tags || [];
         setFormData({
           title: data.title,
           des: data.des,
           banner: data.banner,
-          tags: data.tags.join(', ')
+          tags: initialTags.join(', ')
         });
+        setTagChips(initialTags);
       } catch (err) {
         setError('Failed to load blog');
         console.error(err);
@@ -269,7 +293,7 @@ export const BlogEditor: React.FC = () => {
 
     try {
       setSaving(true);
-      const tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
+      const tags = tagChips.length > 0 ? tagChips : formData.tags.split(',').map(t => t.trim()).filter(t => t);
 
       let editorContent: OutputData = { blocks: [] };
       if (editorRef.current) {
@@ -291,6 +315,7 @@ export const BlogEditor: React.FC = () => {
 
       setError(null);
       setIsDirty(false);
+      setLastSavedAt(new Date());
       showToast('success', 'Draft saved');
     } catch (err) {
       showToast('error', 'Failed to save blog');
@@ -305,7 +330,7 @@ export const BlogEditor: React.FC = () => {
 
     try {
       setSaving(true);
-      const tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
+      const tags = tagChips.length > 0 ? tagChips : formData.tags.split(',').map(t => t.trim()).filter(t => t);
 
       let editorContent: OutputData = { blocks: [] };
       if (editorRef.current) {
@@ -329,6 +354,7 @@ export const BlogEditor: React.FC = () => {
 
       await blogService.publishBlog(blog.blog_id, userId);
       setIsDirty(false);
+      setLastSavedAt(new Date());
       showToast('success', 'Blog published!');
       setTimeout(() => navigate('/vintage-dashboard?tab=blog'), 1200);
     } catch (err) {
@@ -338,6 +364,26 @@ export const BlogEditor: React.FC = () => {
       setSaving(false);
     }
   };
+
+  const removeTag = (idx: number) => {
+    setTagChips(prev => {
+      const next = prev.filter((_, i) => i !== idx);
+      setFormData(f => ({ ...f, tags: next.join(', ') }));
+      return next;
+    });
+    setIsDirty(true);
+  };
+
+  const handleTagsChange = (value: string) => {
+    setFormData(prev => ({ ...prev, tags: value }));
+    const parts = value.split(',').map(t => t.trim()).filter(t => t);
+    setTagChips(parts);
+    setIsDirty(true);
+  };
+
+  const formattedSavedTime = lastSavedAt
+    ? lastSavedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : null;
 
   if (loading) {
     return (
@@ -367,41 +413,74 @@ export const BlogEditor: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50/50 to-white">
       {/* Header */}
-      <header className="navbar border-b border-gray-300">
-        <div className="max-w-6xl mx-auto w-full flex items-center justify-between px-4 py-4">
+      <header className="bg-white/85 backdrop-blur-md border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+        <div className="max-w-5xl mx-auto w-full flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/vintage-dashboard?tab=blog')}
-              className="p-2 hover:bg-gray-100 rounded transition"
+              className="p-2 hover:bg-gray-100 rounded-xl transition"
               title="Back to blogs"
             >
-              <ChevronLeft className="w-6 h-6 text-gray-900" />
+              <ChevronLeft className="w-5 h-5 text-gray-900" />
             </button>
             <div>
-              <h1 className="text-2xl font-gelasio font-bold text-gray-900">
-                {blog.is_draft ? '📝 Draft' : '✅ Published'}
+              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                    blog.is_draft
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-emerald-100 text-emerald-800'
+                  }`}
+                >
+                  {blog.is_draft ? (
+                    <>
+                      <FileText className="h-3 w-3" />
+                      Draft
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="h-3 w-3" />
+                      Published
+                    </>
+                  )}
+                </span>
+                <span
+                  className={`inline-flex items-center gap-1 text-[11px] font-medium ${
+                    isDirty ? 'text-amber-600' : 'text-gray-400'
+                  }`}
+                >
+                  <span className={`h-1.5 w-1.5 rounded-full ${isDirty ? 'bg-amber-500' : 'bg-gray-300'}`} />
+                  {isDirty
+                    ? 'Unsaved changes'
+                    : formattedSavedTime
+                      ? `Saved at ${formattedSavedTime}`
+                      : 'All changes saved'}
+                </span>
+              </div>
+              <h1 className="text-base font-semibold text-gray-900 tracking-tight mt-0.5">
+                Blog Editor
               </h1>
-              <p className={`text-xs mt-0.5 ${isDirty ? 'text-amber-600' : 'text-gray-400'}`}>
-                {isDirty ? '● Unsaved changes' : 'All changes saved'}
-              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={handleSave}
               disabled={saving || !formData.title.trim()}
-              className="px-6 py-2 text-gray-900 border border-gray-300 rounded-full hover:bg-gray-50 transition disabled:opacity-50 font-medium"
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm text-gray-700 border border-gray-200 bg-white rounded-full hover:bg-gray-50 transition disabled:opacity-50 font-medium shadow-sm"
+              title="Save draft (Ctrl+S)"
             >
+              <Save className="w-3.5 h-3.5" />
               {saving ? 'Saving...' : 'Save Draft'}
             </button>
             <button
               onClick={handlePublish}
               disabled={saving || !formData.title.trim()}
-              className="btn-dark disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full font-semibold disabled:opacity-50 transition shadow-sm hover:shadow-md"
             >
+              <Send className="w-3.5 h-3.5" />
               {saving ? 'Publishing...' : 'Publish'}
             </button>
           </div>
@@ -409,10 +488,11 @@ export const BlogEditor: React.FC = () => {
       </header>
 
       {/* Editor */}
-      <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="max-w-4xl mx-auto px-4 py-10 sm:py-14">
         {error && (
-          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800 font-medium">{error}</p>
+          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
+            <p className="text-red-800 font-medium text-sm">{error}</p>
           </div>
         )}
 
@@ -426,7 +506,7 @@ export const BlogEditor: React.FC = () => {
               setIsDirty(true);
             }}
             placeholder="Blog title"
-            className="w-full text-5xl font-gelasio font-bold text-gray-900 placeholder:text-gray-300 resize-none border-0 p-0 focus:outline-none"
+            className="w-full text-4xl sm:text-5xl font-gelasio font-bold text-gray-900 placeholder:text-gray-300 resize-none border-0 p-0 focus:outline-none leading-tight"
             rows={1}
             style={{ minHeight: '60px', overflow: 'hidden' }}
           />
@@ -442,50 +522,57 @@ export const BlogEditor: React.FC = () => {
             }}
             maxLength={200}
             placeholder="Add a short description (max 200 characters)"
-            className="w-full text-xl text-gray-700 placeholder:text-gray-400 resize-none border-0 p-0 focus:outline-none"
+            className="w-full text-lg sm:text-xl text-gray-700 placeholder:text-gray-400 resize-none border-0 p-0 focus:outline-none leading-relaxed"
             rows={2}
           />
-          <p className="text-sm text-gray-500 mt-2">{formData.des.length}/200</p>
+          <div className="flex items-center justify-between mt-2 text-xs">
+            <p className="text-gray-500">
+              <span className="font-medium text-gray-700">{countWords(formData.des)}</span> words · <span className="font-medium text-gray-700">{formData.des.length}</span>/200
+            </p>
+          </div>
         </div>
 
         {/* Banner */}
         <div className="mb-12">
           {formData.banner ? (
-            <div className="relative mb-6">
+            <div className="relative mb-6 group">
               <img
                 src={formData.banner}
                 alt="Blog banner"
-                className="w-full h-96 object-cover rounded-lg shadow-md"
+                className="w-full h-72 sm:h-96 object-cover rounded-2xl shadow-lg"
               />
               {bannerUploading && (
-                <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center">
                   <Loader className="w-8 h-8 text-white animate-spin" />
                 </div>
               )}
               <button
                 onClick={() => bannerInputRef.current?.click()}
                 disabled={bannerUploading}
-                className="absolute top-4 right-4 bg-white text-gray-900 px-4 py-2 rounded-lg shadow-lg hover:bg-gray-100 transition font-medium disabled:opacity-50"
+                className="absolute top-4 right-4 bg-white/95 backdrop-blur text-gray-900 px-4 py-2 rounded-xl shadow-lg hover:bg-white transition font-medium disabled:opacity-50 inline-flex items-center gap-2"
               >
+                <ImageIcon className="w-4 h-4" />
                 {bannerUploading ? 'Uploading...' : 'Change'}
               </button>
             </div>
           ) : (
             <div
               onClick={() => !bannerUploading && bannerInputRef.current?.click()}
-              className="w-full h-96 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-green-400 transition"
+              className="w-full h-56 sm:h-72 bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl border-2 border-dashed border-emerald-200/80 flex items-center justify-center cursor-pointer hover:border-emerald-400 hover:bg-emerald-50 transition group"
             >
-              <div className="text-center">
+              <div className="text-center px-6">
                 {bannerUploading ? (
                   <>
-                    <Loader className="w-12 h-12 text-green-600 animate-spin mx-auto mb-2" />
+                    <Loader className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-2" />
                     <p className="text-gray-600 font-medium">Uploading banner...</p>
                   </>
                 ) : (
                   <>
-                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600 font-medium">Click to upload blog banner</p>
-                    <p className="text-sm text-gray-500">Recommended: 16:9 aspect ratio</p>
+                    <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-emerald-100 shadow-sm group-hover:scale-105 transition mb-3">
+                      <Upload className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <p className="text-gray-800 font-medium">Click to upload blog banner</p>
+                    <p className="text-sm text-gray-500 mt-1">Recommended: 16:9 aspect ratio</p>
                   </>
                 )}
               </div>
@@ -503,38 +590,53 @@ export const BlogEditor: React.FC = () => {
 
         {/* Tags */}
         <div className="mb-12">
-          <label className="block text-sm font-medium text-gray-700 mb-3">Tags</label>
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+            <TagIcon className="h-4 w-4" />
+            Tags
+          </label>
           <input
             type="text"
             value={formData.tags}
-            onChange={(e) => {
-              setFormData({ ...formData, tags: e.target.value });
-              setIsDirty(true);
-            }}
+            onChange={(e) => handleTagsChange(e.target.value)}
             placeholder="Enter tags separated by commas (e.g., coconut, agriculture, business)"
             className="input-box"
           />
-          <div className="flex flex-wrap gap-2 mt-3">
-            {formData.tags
-              .split(',')
-              .map(t => t.trim())
-              .filter(t => t)
-              .map((tag, i) => (
-                <span key={i} className="tag">
+          {tagChips.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {tagChips.map((tag, i) => (
+                <span
+                  key={`${tag}-${i}`}
+                  className="tag group inline-flex items-center gap-1.5"
+                >
                   {tag}
+                  <button
+                    type="button"
+                    onClick={() => removeTag(i)}
+                    className="opacity-60 group-hover:opacity-100 hover:text-red-600 transition"
+                    aria-label={`Remove tag ${tag}`}
+                  >
+                    <XIcon className="h-3 w-3" />
+                  </button>
                 </span>
               ))}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Editor */}
         <div className="mb-12">
-          <label className="block text-lg font-gelasio font-bold text-gray-900 mb-4">
-            Story
-          </label>
+          <div className="flex items-center justify-between mb-4">
+            <label className="text-lg font-gelasio font-bold text-gray-900 tracking-tight">
+              Story
+            </label>
+            <span className="inline-flex items-center gap-1 text-[11px] text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+              <Keyboard className="h-3 w-3" />
+              Ctrl+S to save
+            </span>
+          </div>
           <div
             ref={editorContainerRef}
-            className="border border-gray-300 rounded-lg overflow-visible bg-white shadow-sm px-4 sm:px-6 py-4"
+            className="border border-gray-200 rounded-2xl overflow-visible bg-white shadow-sm hover:shadow-md transition px-4 sm:px-8 py-6 sm:py-8"
             style={{
               position: 'relative',
               zIndex: 1
@@ -549,25 +651,27 @@ export const BlogEditor: React.FC = () => {
         </div>
 
         {/* Footer Actions */}
-        <div className="flex gap-4 justify-center pb-12 border-t pt-8">
+        <div className="flex flex-wrap gap-3 justify-center sm:justify-end pb-12 border-t border-gray-100 pt-8">
           <button
             onClick={() => navigate('/vintage-dashboard?tab=blog')}
-            className="px-8 py-3 border border-gray-300 rounded-full hover:bg-gray-50 transition font-medium text-gray-900"
+            className="px-6 py-2.5 border border-gray-200 rounded-full hover:bg-gray-50 transition font-medium text-gray-700 text-sm shadow-sm"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving || !formData.title.trim()}
-            className="px-8 py-3 bg-gray-200 text-gray-900 rounded-full hover:bg-gray-300 transition font-medium disabled:opacity-50"
+            className="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-full hover:bg-gray-50 transition font-medium text-sm disabled:opacity-50 inline-flex items-center gap-2 shadow-sm"
           >
+            <Save className="w-4 h-4" />
             {saving ? 'Saving...' : 'Save as Draft'}
           </button>
           <button
             onClick={handlePublish}
             disabled={saving || !formData.title.trim()}
-            className="btn-dark disabled:opacity-50"
+            className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full font-semibold text-sm transition shadow-sm hover:shadow-md disabled:opacity-50 inline-flex items-center gap-2"
           >
+            <Sparkles className="w-4 h-4" />
             {saving ? 'Publishing...' : 'Publish Now'}
           </button>
         </div>
@@ -576,8 +680,9 @@ export const BlogEditor: React.FC = () => {
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-[100] flex items-center gap-2 rounded-xl px-5 py-3 shadow-lg text-white font-medium ${
-            toast.type === 'success' ? 'bg-green-700' : 'bg-red-600'
+          role="status"
+          className={`fixed bottom-6 right-6 z-[100] flex items-center gap-2 rounded-2xl px-5 py-3 shadow-xl text-white font-medium ${
+            toast.type === 'success' ? 'bg-emerald-700' : 'bg-red-600'
           }`}
         >
           {toast.type === 'success' ? (
