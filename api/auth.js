@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
+import { clearSessionCookie, publicSession, readSession, setSessionCookie } from './_marketplace-session.js';
 
 // Initialize Supabase only when needed
 let supabase;
@@ -56,6 +57,11 @@ export default async function handler(req, res) {
         return await handleVendorLogin(data, res);
       case 'vendor-signup':
         return await handleVendorSignup(data, res);
+      case 'marketplace-session':
+        return res.status(200).json({ success: true, session: publicSession(readSession(req)) });
+      case 'marketplace-logout':
+        clearSessionCookie(res);
+        return res.status(200).json({ success: true });
       case 'admin-login':
         return await handleAdminLogin(data, res);
       case 'email-user-login':
@@ -124,6 +130,12 @@ async function handleBuyerLogin(data, res) {
     }
 
     const { password_hash, ...buyerData } = buyer;
+    setSessionCookie(res, {
+      id: buyer.id,
+      role: 'buyer',
+      email: buyer.email,
+      name: `${buyer.first_name} ${buyer.last_name}`.trim(),
+    });
     console.log('✅ Buyer login successful:', email);
     return res.status(200).json({
       success: true,
@@ -201,6 +213,12 @@ async function handleBuyerSignup(data, res) {
     }
 
     const { password_hash, ...buyerData } = buyer;
+    setSessionCookie(res, {
+      id: buyer.id,
+      role: 'buyer',
+      email: buyer.email,
+      name: `${buyer.first_name} ${buyer.last_name}`.trim(),
+    });
     console.log('✅ Buyer signup successful:', email);
     return res.status(201).json({
       success: true,
@@ -255,6 +273,12 @@ async function handleVendorLogin(data, res) {
     }
 
     const { password_hash, ...vendorData } = vendor;
+    setSessionCookie(res, {
+      id: vendor.id,
+      role: 'vendor',
+      email: vendor.email,
+      name: vendor.business_name,
+    });
     console.log('✅ Vendor login successful:', email);
     return res.status(200).json({
       success: true,
@@ -326,6 +350,12 @@ async function handleVendorSignup(data, res) {
     }
 
     const { password_hash, ...vendorData } = vendor;
+    setSessionCookie(res, {
+      id: vendor.id,
+      role: 'vendor',
+      email: vendor.email,
+      name: vendor.business_name,
+    });
     console.log('✅ Vendor signup successful:', email);
     return res.status(201).json({
       success: true,

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ShoppingBag, Sparkles, ShieldCheck, Loader2, BarChart3, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { vendorLogin } from '../../services/vendorService';
+import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
 
 export function VendorLogin() {
   const [email, setEmail] = useState('');
@@ -13,6 +14,8 @@ export function VendorLogin() {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { refreshSession } = useMarketplaceAuth();
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const passwordValid = password.length >= 6;
@@ -44,14 +47,12 @@ export function VendorLogin() {
     const result = await vendorLogin({ email, password });
 
     if (result.success && result.vendor) {
-      // Store vendor info in localStorage
-      localStorage.setItem('vendorId', result.vendor.id);
-      localStorage.setItem('vendorEmail', result.vendor.email);
-      localStorage.setItem('vendorBusinessName', result.vendor.business_name);
       if (rememberMe) localStorage.setItem('vendorEmailRemember', result.vendor.email);
       else localStorage.removeItem('vendorEmailRemember');
 
-      navigate('/vendor-dashboard');
+      await refreshSession();
+      const returnTo = searchParams.get('returnTo');
+      navigate(returnTo?.startsWith('/') ? returnTo : '/vendor-dashboard');
     } else {
       setError(result.error || 'Invalid email or password. Please try again.');
     }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { buyerSignup } from '../../services/buyerService';
 import type { BuyerSignupInput } from '../../types/buyer';
+import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
 
 export function BuyerSignup() {
   const navigate = useNavigate();

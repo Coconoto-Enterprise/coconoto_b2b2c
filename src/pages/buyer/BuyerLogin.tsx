@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, Store, Sparkles, ShieldCheck, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { buyerLogin } from '../../services/buyerService';
 import type { BuyerLoginInput } from '../../types/buyer';
+import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
 
 export function BuyerLogin() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { refreshSession } = useMarketplaceAuth();
   const emailRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<BuyerLoginInput>({
     email: '',
@@ -49,19 +52,15 @@ export function BuyerLogin() {
     const result = await buyerLogin(formData);
 
     if (result.success && result.buyer) {
-      // Store buyer info in localStorage
-      localStorage.setItem('buyerId', result.buyer.id);
-      localStorage.setItem('buyerEmail', result.buyer.email);
-      localStorage.setItem('buyerName', `${result.buyer.first_name} ${result.buyer.last_name}`);
-
       if (rememberMe) {
         localStorage.setItem('buyerEmailRemember', result.buyer.email);
       } else {
         localStorage.removeItem('buyerEmailRemember');
       }
 
-      // Redirect to buyer dashboard
-      navigate('/buyer-dashboard');
+      await refreshSession();
+      const returnTo = searchParams.get('returnTo');
+      navigate(returnTo?.startsWith('/') ? returnTo : '/buyer-dashboard');
     } else {
       setError(result.error || 'Invalid email or password. Please try again.');
     }

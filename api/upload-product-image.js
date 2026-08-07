@@ -1,6 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
 import formidable from 'formidable';
 import fs from 'fs';
+import { getMarketplaceSupabase, requireSession } from './_marketplace-session.js';
 
 export const config = {
   api: {
@@ -23,18 +23,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Initialize Supabase client
-    const supabaseUrl = process.env.VITE_SUPABASE_URL;
-    const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
-    
-    if (!supabaseUrl || !supabaseKey) {
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Server configuration error' 
-      });
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const session = requireSession(req, res, 'vendor');
+    if (!session) return;
+    const supabase = getMarketplaceSupabase();
 
     // Parse form data
     const form = formidable({ 
@@ -43,22 +34,15 @@ export default async function handler(req, res) {
       multiples: false
     });
 
-    const [fields, files] = await new Promise((resolve, reject) => {
+    const [, files] = await new Promise((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
         if (err) reject(err);
         resolve([fields, files]);
       });
     });
 
-    const vendorId = fields.vendorId?.[0] || fields.vendorId;
     const uploadedFile = files.image?.[0] || files.image;
-
-    if (!vendorId) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Vendor ID is required' 
-      });
-    }
+    const vendorId = session.id;
 
     if (!uploadedFile) {
       return res.status(400).json({ 

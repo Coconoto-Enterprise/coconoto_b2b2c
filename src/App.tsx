@@ -37,10 +37,13 @@ import { BuyerSignup } from './pages/buyer/BuyerSignup';
 import { BuyerDashboard } from './pages/buyer/BuyerDashboard';
 import { NotFound } from './pages/errors/NotFound';
 import { ServerError } from './pages/errors/ServerError';
+import { MarketplaceAuthProvider } from './context/MarketplaceAuthContext';
+import { MarketplaceProtectedRoute } from './components/auth/MarketplaceProtectedRoute';
 
 function App() {
   return (
     <BrowserRouter>
+      <MarketplaceAuthProvider>
       <div className="min-h-screen bg-gray-50">
         <Routes>
           <Route path="/" element={
@@ -86,15 +89,16 @@ function App() {
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/vendor-login" element={<VendorLogin />} />
           <Route path="/vendor-signup" element={<VendorSignup />} />
-          <Route path="/vendor-dashboard" element={<VendorDashboard />} />
+          <Route path="/vendor-dashboard" element={<MarketplaceProtectedRoute role="vendor"><VendorDashboard /></MarketplaceProtectedRoute>} />
           <Route path="/buyer-login" element={<BuyerLogin />} />
           <Route path="/buyer-signup" element={<BuyerSignup />} />
-          <Route path="/buyer-dashboard" element={<BuyerDashboard />} />
+          <Route path="/buyer-dashboard" element={<MarketplaceProtectedRoute role="buyer"><BuyerDashboard /></MarketplaceProtectedRoute>} />
           <Route path="/500" element={<ServerError />} />
           {/* Catch-all route for 404 - must be last */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
+      </MarketplaceAuthProvider>
     </BrowserRouter>
   );
 }
