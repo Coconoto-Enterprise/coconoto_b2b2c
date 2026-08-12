@@ -26,7 +26,6 @@ export interface Profile {
   courseOfStudy?: string;
   institution?: string;
   bankName?: string;
-  accountNumber?: string;
   headshotUrl?: string;
 }
 
@@ -58,11 +57,10 @@ export const profiles: Profile[] = [
     profileImage: JamiuPhoto,
     description:
       'Designing the future of agritech hardware through end-to-end 3D CAD development, parametric modeling, and assembly verification. Jamiu bridges virtual engineering with practical fabrication to build patent-backed, high-efficiency industrial processing machinery.',
-    dateOfBirth: 'Friday, June 18, 1999',
+    dateOfBirth: 'June 18',
     courseOfStudy: 'Industrial and Production Engineering',
     institution: 'Federal University of Technology Akure',
     bankName: 'FCMB',
-    accountNumber: '6605575016',
     headshotUrl: 'https://drive.google.com/open?id=1LfWdsReigpW_udQpfX0fiV8ZBePAwGcQ'
   },
   {
@@ -77,11 +75,10 @@ export const profiles: Profile[] = [
     profileImage: DanielPhoto,
     description:
       'A dedicated, hardworking, and results-driven professional with strong communication and organizational skills. Daniel enjoys learning new things, taking on challenges, and contributing positively wherever he works.',
-    dateOfBirth: 'Saturday, July 24, 1999',
+    dateOfBirth: 'July 24',
     courseOfStudy: 'Sociology and Anthropology',
     institution: 'Obafemi Awolowo University',
     bankName: 'Opay',
-    accountNumber: '8108101319',
     headshotUrl: 'https://drive.google.com/open?id=1pi4stBhXIxBDmOS_e08sqySbLn7rhbdX'
   },
   {
@@ -96,11 +93,10 @@ export const profiles: Profile[] = [
     profileImage: MojolaoluwaPhoto,
     description:
       'A versatile writer and creative professional skilled in academic research writing, technical writing, creative brand strategy, and CV building, with a growing interest in business development.',
-    dateOfBirth: 'Thursday, June 20, 2002',
+    dateOfBirth: 'June 20',
     courseOfStudy: 'Pure and Applied Chemistry',
     institution: 'Obafemi Awolowo University',
     bankName: 'Opay',
-    accountNumber: '7016547356',
     headshotUrl: 'https://drive.google.com/open?id=19z_kzw85-RNN8E_Pf6oXaDDNtVTUD8YA'
   },
   {
@@ -116,11 +112,10 @@ export const profiles: Profile[] = [
     profileImage: PreciousCharlesPhoto,
     description:
       'Precious Charles is a video content editor for business owners and a business enthusiast who helps brands create memorable visual stories through editing and production support.',
-    dateOfBirth: 'Sunday, April 21, 1996',
+    dateOfBirth: 'April 21',
     courseOfStudy: 'Economics',
     institution: 'Ambrose Alli University',
     bankName: 'United Bank of Africa',
-    accountNumber: '2245102433',
     headshotUrl: 'https://drive.google.com/open?id=1xeIUWI9YmCOpX4TdOngD6cdJgZ6UDxzD'
   },
   {
@@ -135,11 +130,10 @@ export const profiles: Profile[] = [
     profileImage: AbiolaPreciousPhoto,
     description:
       'A creative, detail-oriented graphic designer with a strong eye for visual storytelling. Precious transforms ideas into engaging designs that enhance brand identity and support marketing campaigns.',
-    dateOfBirth: 'Wednesday, December 26, 2001',
+    dateOfBirth: 'December 26',
     courseOfStudy: 'Biochemistry',
     institution: 'Ladoke Akintola University of Technology',
     bankName: 'Opay',
-    accountNumber: '8128123112',
     headshotUrl: 'https://drive.google.com/open?id=1a60Ol-MhQanFT36CERqdUzj_V4Stif9v'
   },
   {
@@ -164,11 +158,10 @@ export const profiles: Profile[] = [
     profileImage: TaiwoPhoto,
     description:
       'I am friendly and easily motivated. Passionate about growth, leadership and self development.',
-    dateOfBirth: 'Wednesday, July 3, 2002',
+    dateOfBirth: 'July 3',
     courseOfStudy: 'Adult Education / English Literature',
     institution: 'University of Benin',
     bankName: 'First Bank',
-    accountNumber: '3155165303',
     headshotUrl: 'https://drive.google.com/open?id=1Bs-xGd8iUnbzx0qlSlsXf4pexq3xdYsL'
   },
   {
@@ -184,11 +177,10 @@ export const profiles: Profile[] = [
     profileImage: EnochPhoto,
     description:
       "Computer Science graduate from Babcock University and software developer focused on web development, AI, automation, cybersecurity, and cloud computing.",
-    dateOfBirth: 'Monday, August 8, 2005',
+    dateOfBirth: 'August 8',
     courseOfStudy: 'Computer Science',
     institution: 'Babcock University',
     bankName: 'Opay',
-    accountNumber: '9131678833',
     headshotUrl: 'https://drive.google.com/open?id=1yY6ewZPSt5SGkZ8zMCUXNSrxXHsW9ivz'
   },
   {
@@ -205,11 +197,10 @@ export const profiles: Profile[] = [
     profileImage: OluwatokeFaejiPhoto,
     description:
       'Oluwatoke is a passionate environmentalist and marine science student with experience in climate advocacy, environmental education, waste management, project management, and community-driven sustainability initiatives.',
-    dateOfBirth: 'Sunday, May 25, 2003',
+    dateOfBirth: 'May 25',
     courseOfStudy: 'Fisheries',
     institution: 'University of Lagos',
     bankName: 'Access Bank',
-    accountNumber: '1224235296',
     headshotUrl: 'https://drive.google.com/open?id=1gL1Qe5z354zqJYhh6O7BUTQiw1EzHceZ'
   },
   {
@@ -226,13 +217,10 @@ export const profiles: Profile[] = [
     profileImage: TimilehinOluwayemiPhoto,
     description:
       'Timilehin is passionate about driving personal growth and operational development, with strong customer service, communication, and organizational skills.',
-    dateOfBirth: 'Saturday, August 19, 2000',
+    dateOfBirth: 'August 19',
     courseOfStudy: 'Literature-in-English',
     institution: 'Obafemi Awolowo University',
     bankName: 'United Bank of Africa',
-    accountNumber: '2134239398',
     headshotUrl: 'https://drive.google.com/open?id=1k_AKRoXzBWo67DkwzeHKLhnrPVSdTdHH'
   }
 ];
-
-

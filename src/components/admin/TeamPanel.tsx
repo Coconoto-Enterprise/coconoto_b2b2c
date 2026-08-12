@@ -103,7 +103,7 @@ const TeamPanel: React.FC = () => {
                   <Detail
                     icon={<Banknote className="h-4 w-4" />}
                     label="Bank"
-                    value={`${member.bankName}${member.accountNumber ? ` · ${member.accountNumber}` : ''}`}
+                    value={member.bankName}
                   />
                 )}
                 {member.linkedIn && (
