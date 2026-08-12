@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
-import { TemplateService } from './templateService.js';
+import { TemplateService } from './_templateService.js';
 
 // Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
