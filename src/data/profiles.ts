@@ -25,7 +25,6 @@ export interface Profile {
   dateOfBirth?: string;
   courseOfStudy?: string;
   institution?: string;
-  bankName?: string;
   headshotUrl?: string;
 }
 
@@ -60,7 +59,6 @@ export const profiles: Profile[] = [
     dateOfBirth: 'June 18',
     courseOfStudy: 'Industrial and Production Engineering',
     institution: 'Federal University of Technology Akure',
-    bankName: 'FCMB',
     headshotUrl: 'https://drive.google.com/open?id=1LfWdsReigpW_udQpfX0fiV8ZBePAwGcQ'
   },
   {
@@ -78,7 +76,6 @@ export const profiles: Profile[] = [
     dateOfBirth: 'July 24',
     courseOfStudy: 'Sociology and Anthropology',
     institution: 'Obafemi Awolowo University',
-    bankName: 'Opay',
     headshotUrl: 'https://drive.google.com/open?id=1pi4stBhXIxBDmOS_e08sqySbLn7rhbdX'
   },
   {
@@ -96,7 +93,6 @@ export const profiles: Profile[] = [
     dateOfBirth: 'June 20',
     courseOfStudy: 'Pure and Applied Chemistry',
     institution: 'Obafemi Awolowo University',
-    bankName: 'Opay',
     headshotUrl: 'https://drive.google.com/open?id=19z_kzw85-RNN8E_Pf6oXaDDNtVTUD8YA'
   },
   {
@@ -115,7 +111,6 @@ export const profiles: Profile[] = [
     dateOfBirth: 'April 21',
     courseOfStudy: 'Economics',
     institution: 'Ambrose Alli University',
-    bankName: 'United Bank of Africa',
     headshotUrl: 'https://drive.google.com/open?id=1xeIUWI9YmCOpX4TdOngD6cdJgZ6UDxzD'
   },
   {
@@ -133,7 +128,6 @@ export const profiles: Profile[] = [
     dateOfBirth: 'December 26',
     courseOfStudy: 'Biochemistry',
     institution: 'Ladoke Akintola University of Technology',
-    bankName: 'Opay',
     headshotUrl: 'https://drive.google.com/open?id=1a60Ol-MhQanFT36CERqdUzj_V4Stif9v'
   },
   {
@@ -161,7 +155,6 @@ export const profiles: Profile[] = [
     dateOfBirth: 'July 3',
     courseOfStudy: 'Adult Education / English Literature',
     institution: 'University of Benin',
-    bankName: 'First Bank',
     headshotUrl: 'https://drive.google.com/open?id=1Bs-xGd8iUnbzx0qlSlsXf4pexq3xdYsL'
   },
   {
@@ -180,7 +173,6 @@ export const profiles: Profile[] = [
     dateOfBirth: 'August 8',
     courseOfStudy: 'Computer Science',
     institution: 'Babcock University',
-    bankName: 'Opay',
     headshotUrl: 'https://drive.google.com/open?id=1yY6ewZPSt5SGkZ8zMCUXNSrxXHsW9ivz'
   },
   {
@@ -200,7 +192,6 @@ export const profiles: Profile[] = [
     dateOfBirth: 'May 25',
     courseOfStudy: 'Fisheries',
     institution: 'University of Lagos',
-    bankName: 'Access Bank',
     headshotUrl: 'https://drive.google.com/open?id=1gL1Qe5z354zqJYhh6O7BUTQiw1EzHceZ'
   },
   {
@@ -220,7 +211,6 @@ export const profiles: Profile[] = [
     dateOfBirth: 'August 19',
     courseOfStudy: 'Literature-in-English',
     institution: 'Obafemi Awolowo University',
-    bankName: 'United Bank of Africa',
     headshotUrl: 'https://drive.google.com/open?id=1k_AKRoXzBWo67DkwzeHKLhnrPVSdTdHH'
   }
 ];

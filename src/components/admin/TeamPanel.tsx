@@ -6,7 +6,6 @@ import {
   Phone,
   Linkedin,
   GraduationCap,
-  Banknote,
   CalendarDays,
   User,
   Users
@@ -98,13 +97,6 @@ const TeamPanel: React.FC = () => {
                 )}
                 {member.institution && (
                   <Detail icon={<GraduationCap className="h-4 w-4" />} label="Institution" value={member.institution} />
-                )}
-                {member.bankName && (
-                  <Detail
-                    icon={<Banknote className="h-4 w-4" />}
-                    label="Bank"
-                    value={member.bankName}
-                  />
                 )}
                 {member.linkedIn && (
                   <div className="flex items-start gap-2 text-gray-600">
