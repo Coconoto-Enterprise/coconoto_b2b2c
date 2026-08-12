@@ -1,26 +1,191 @@
-TSC_EXIT=1
-node.exe : 
-C:\Users\user\Documents\GitHub\coconoto_b2b2c\node_modules\.bin\tsc:2
-At line:439 char:155
-+ ... \.bin\tsc"; & $node $tsc --noEmit *> "C:\Users\user\Documents\GitHub\ ...
-+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (C:\Users\user\D...ules\.bin\tsc:2 
-   :String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
-          ^^^^^^^
-
-SyntaxError: missing ) after argument list
-    at wrapSafe (node:internal/modules/cjs/loader:1637:18)
-    at Module._compile (node:internal/modules/cjs/loader:1679:20)
-    at Object..js (node:internal/modules/cjs/loader:1838:10)
-    at Module.load (node:internal/modules/cjs/loader:1441:32)
-    at Function._load (node:internal/modules/cjs/loader:1263:12)
-    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
-    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
-    at Function.executeUserEntryPoint [as runMain] 
-(node:internal/modules/run_main:171:5)
-    at node:internal/main/run_main_module:36:49
-
-Node.js v22.22.2
+TSC_EXIT=2
+src/App.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/About.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/About.tsx(6,25): error TS6133: 'Factory' is declared but its value is never read.
+src/components/About.tsx(6,42): error TS6133: 'Wheat' is declared but its value is never read.
+src/components/About.tsx(7,10): error TS6133: 'Home' is declared but its value is never read.
+src/components/About.tsx(7,16): error TS6133: 'Lightbulb' is declared but its value is never read.
+src/components/About.tsx(7,27): error TS6133: 'TrendingUp' is declared but its value is never read.
+src/components/About.tsx(7,39): error TS6133: 'HandshakeIcon' is declared but its value is never read.
+src/components/About.tsx(8,30): error TS6133: 'Target' is declared but its value is never read.
+src/components/About.tsx(9,18): error TS6133: 'CheckCircle' is declared but its value is never read.
+src/components/About.tsx(9,31): error TS6133: 'Phone' is declared but its value is never read.
+src/components/About.tsx(10,3): error TS6133: 'Building2' is declared but its value is never read.
+src/components/About.tsx(10,14): error TS6133: 'PartyPopper' is declared but its value is never read.
+src/components/About.tsx(10,27): error TS6133: 'Utensils' is declared but its value is never read.
+src/components/About.tsx(10,37): error TS6133: 'Cake' is declared but its value is never read.
+src/components/About.tsx(10,43): error TS6133: 'Tent' is declared but its value is never read.
+src/components/About.tsx(11,3): error TS6133: 'Sparkles' is declared but its value is never read.
+src/components/About.tsx(11,13): error TS6133: 'TreePine' is declared but its value is never read.
+src/components/About.tsx(11,23): error TS6133: 'Heart' is declared but its value is never read.
+src/components/About.tsx(11,30): error TS6133: 'UserCheck' is declared but its value is never read.
+src/components/admin/EmailConfigPanel.tsx(128,34): error TS2353: Object literal may only specify known properties, and 'focusRing' does not exist in type 'Properties<string | number, string & {}>'.
+src/components/admin/EmailConfigPanel.tsx(143,34): error TS2353: Object literal may only specify known properties, and 'focusRing' does not exist in type 'Properties<string | number, string & {}>'.
+src/components/blog/BlogEditor.tsx(24,20): error TS7016: Could not find a declaration file for module '@editorjs/marker'. 'C:/Users/user/Documents/GitHub/coconoto_b2b2c/node_modules/@editorjs/marker/dist/marker.mjs' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/editorjs__marker` if it exists or add a new declaration (.d.ts) file containing `declare module '@editorjs/marker';`
+src/components/blog/BlogEditor.tsx(27,19): error TS7016: Could not find a declaration file for module '@editorjs/embed'. 'C:/Users/user/Documents/GitHub/coconoto_b2b2c/node_modules/@editorjs/embed/dist/embed.mjs' implicitly has an 'any' type.
+  There are types at 'C:/Users/user/Documents/GitHub/coconoto_b2b2c/node_modules/@editorjs/embed/dist/index.d.ts', but this result could not be resolved when respecting package.json "exports". The '@editorjs/embed' library may need to update its package.json or typings.
+src/components/blog/BlogEditor.tsx(124,13): error TS2322: Type 'typeof Paragraph' is not assignable to type 'ToolConstructable | undefined'.
+  Type 'typeof Paragraph' is not assignable to type 'BlockToolConstructable'.
+    Types of parameters '__0' and 'config' are incompatible.
+      Type 'BlockToolConstructorOptions<any, any>' is not assignable to type 'ParagraphParams'.
+        Property 'config' is optional in type 'BlockToolConstructorOptions<any, any>' but required in type 'ParagraphParams'.
+src/components/blog/ImageUploader.tsx(45,15): error TS6133: 'data' is declared but its value is never read.
+src/components/blog/MarkdownRenderer.tsx(1,17): error TS6133: 'useEffect' is declared but its value is never read.
+src/components/blog/MarkdownRenderer.tsx(1,28): error TS6133: 'useState' is declared but its value is never read.
+src/components/blog/MernBlogManagement.tsx(7,3): error TS6133: 'EyeOff' is declared but its value is never read.
+src/components/blog/MernBlogManagement.tsx(8,3): error TS6133: 'Save' is declared but its value is never read.
+src/components/blog/MernBlogManagement.tsx(15,1): error TS6133: 'supabase' is declared but its value is never read.
+src/components/blog/RichMarkdownEditor.tsx(113,15): error TS6133: 'data' is declared but its value is never read.
+src/components/blog/WysiwygEditor.tsx(10,18): error TS6133: 'view' is declared but its value is never read.
+src/components/blog/WysiwygEditor.tsx(60,41): error TS2559: Type 'false' has no properties in common with type 'SetContentOptions'.
+src/components/CocoConnect.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/CocoConnect.tsx(12,9): error TS6133: 'navigate' is declared but its value is never read.
+src/components/CococycleHub.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/CocoDrinkEat.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/CocoDrinkEat.tsx(5,1): error TS6133: 'IMG_0023' is declared but its value is never read.
+src/components/CocotechRD.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/CTA.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/Features.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/FloatingCartButton.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/Footer.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/Footer.tsx(3,1): error TS6133: 'Palmtree' is declared but its value is never read.
+src/components/Hero.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/Hero.tsx(2,1): error TS6133: 'Link' is declared but its value is never read.
+src/components/Hero.tsx(3,1): error TS6133: 'Logo' is declared but its value is never read.
+src/components/Navbar.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/Navbar.tsx(3,10): error TS6133: 'ShoppingBag' is declared but its value is never read.
+src/components/ProductCartContext.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/components/ProductCheckoutModal.tsx(2,13): error TS6133: 'ShoppingBag' is declared but its value is never read.
+src/components/WaitlistModal.tsx(187,9): error TS6133: 'buyerBusinessTypes' is declared but its value is never read.
+src/lib/supabase.ts(3,33): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/lib/supabase.ts(4,37): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/pages/blog/BlogList.tsx(3,28): error TS6133: 'TrendingUp' is declared but its value is never read.
+src/pages/blog/BlogList.tsx(14,9): error TS6133: 'navigate' is declared but its value is never read.
+src/pages/buyer/BuyerSignup.tsx(5,1): error TS6133: 'useMarketplaceAuth' is declared but its value is never read.
+src/pages/errors/NotFound.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/errors/ServerError.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/policies/CookiePolicy.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/policies/CookiePolicy.tsx(3,20): error TS2307: Cannot find module '/src/components/Navbar' or its corresponding type declarations.
+src/pages/policies/CookiePolicy.tsx(4,20): error TS2307: Cannot find module '/src/components/Footer' or its corresponding type declarations.
+src/pages/policies/PrivacyPolicy.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/policies/PrivacyPolicy.tsx(3,20): error TS2307: Cannot find module '/src/components/Navbar' or its corresponding type declarations.
+src/pages/policies/PrivacyPolicy.tsx(4,20): error TS2307: Cannot find module '/src/components/Footer' or its corresponding type declarations.
+src/pages/policies/TermsOfService.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/policies/TermsOfService.tsx(3,20): error TS2307: Cannot find module '/src/components/Navbar' or its corresponding type declarations.
+src/pages/policies/TermsOfService.tsx(4,20): error TS2307: Cannot find module '/src/components/Footer' or its corresponding type declarations.
+src/pages/product/building/BuildingSection.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/product/certificates/CertificatesSection.tsx(2,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/product/certificates/CertificatesSection.tsx(52,86): error TS2345: Argument of type '{ type: string; title: string; number: string; issueDate: string; image: string; description: string; }' is not assignable to parameter of type 'SetStateAction<null>'.
+  Type '{ type: string; title: string; number: string; issueDate: string; image: string; description: string; }' provides no match for the signature '(prevState: null): null'.
+src/pages/product/certificates/CertificatesSection.tsx(95,35): error TS2339: Property 'image' does not exist on type 'never'.
+src/pages/product/certificates/CertificatesSection.tsx(96,35): error TS2339: Property 'title' does not exist on type 'never'.
+src/pages/product/certificates/CertificatesSection.tsx(100,74): error TS2339: Property 'title' does not exist on type 'never'.
+src/pages/product/certificates/CertificatesSection.tsx(101,65): error TS2339: Property 'description' does not exist on type 'never'.
+src/pages/product/certificates/CertificatesSection.tsx(103,52): error TS2339: Property 'number' does not exist on type 'never'.
+src/pages/product/certificates/CertificatesSection.tsx(104,48): error TS2339: Property 'issueDate' does not exist on type 'never'.
+src/pages/product/investment/InvestmentSection.tsx(6,27): error TS2307: Cannot find module '../../../utils/emailService' or its corresponding type declarations.
+src/pages/product/investment/InvestmentSection.tsx(30,13): error TS6133: 'data' is declared but its value is never read.
+src/pages/product/investment/InvestmentSection.tsx(75,9): error TS6133: 'metrics' is declared but its value is never read.
+src/pages/product/machines/MachineCard.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/product/machines/MachineCard.tsx(5,1): error TS6133: 'OrderCocopeatModal' is declared but its value is never read.
+src/pages/product/machines/MachinesList.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/product/machines/OrderCoconutMilkExtractorModal.tsx(5,27): error TS2307: Cannot find module '../../../utils/emailService' or its corresponding type declarations.
+src/pages/product/machines/OrderCocopeatModal.tsx(3,1): error TS6133: 'WaitlistService' is declared but its value is never read.
+src/pages/product/machines/OrderCocopeatModal.tsx(4,27): error TS2307: Cannot find module '../../../utils/emailService' or its corresponding type declarations.
+src/pages/product/machines/OrderCocopeatModal.tsx(99,9): error TS6133: 'products' is declared but its value is never read.
+src/pages/product/machines/OrderDehuskerModal.tsx(4,1): error TS6133: 'WaitlistService' is declared but its value is never read.
+src/pages/product/machines/OrderDehuskerModal.tsx(5,1): error TS6133: 'sendContactEmails' is declared but its value is never read.
+src/pages/product/machines/OrderDehuskerModal.tsx(81,13): error TS2304: Cannot find name 'sendEmail'.
+src/pages/product/machines/OrderDehuskerModal.tsx(116,9): error TS6133: 'products' is declared but its value is never read.
+src/pages/product/machines/OrderDeshellerModal.tsx(4,1): error TS6133: 'sendContactEmails' is declared but its value is never read.
+src/pages/product/machines/OrderDeshellerModal.tsx(86,13): error TS2304: Cannot find name 'sendEmail'.
+src/pages/product/machines/OrderDeshellerModal.tsx(121,9): error TS6133: 'products' is declared but its value is never read.
+src/pages/product/ProductFooter.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/product/ProductFooter.tsx(3,1): error TS6133: 'Palmtree' is declared but its value is never read.
+src/pages/product/ProductHeader.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/product/ProductHero.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/product/ProductHero.tsx(2,1): error TS6133: 'Link' is declared but its value is never read.
+src/pages/product/production/ProductionSection.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/product/ProductLayout.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/product/ProductLayout.tsx(3,1): error TS6133: 'ProductHero' is declared but its value is never read.
+src/pages/product/ProductLayout.tsx(7,1): error TS6133: 'InvestmentSection' is declared but its value is never read.
+src/pages/product/products/ProductsList.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/Profile.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/ProfileDetail.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/ProfileLinks.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/services/building/BuildingSection.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/services/certificates/CertificatesSection.tsx(2,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/services/certificates/CertificatesSection.tsx(52,86): error TS2345: Argument of type '{ type: string; title: string; number: string; issueDate: string; image: string; description: string; }' is not assignable to parameter of type 'SetStateAction<null>'.
+  Type '{ type: string; title: string; number: string; issueDate: string; image: string; description: string; }' provides no match for the signature '(prevState: null): null'.
+src/pages/services/certificates/CertificatesSection.tsx(95,35): error TS2339: Property 'image' does not exist on type 'never'.
+src/pages/services/certificates/CertificatesSection.tsx(96,35): error TS2339: Property 'title' does not exist on type 'never'.
+src/pages/services/certificates/CertificatesSection.tsx(100,74): error TS2339: Property 'title' does not exist on type 'never'.
+src/pages/services/certificates/CertificatesSection.tsx(101,65): error TS2339: Property 'description' does not exist on type 'never'.
+src/pages/services/certificates/CertificatesSection.tsx(103,52): error TS2339: Property 'number' does not exist on type 'never'.
+src/pages/services/certificates/CertificatesSection.tsx(104,48): error TS2339: Property 'issueDate' does not exist on type 'never'.
+src/pages/services/investment/InvestmentSection.tsx(6,27): error TS2307: Cannot find module '../../../utils/emailService' or its corresponding type declarations.
+src/pages/services/investment/InvestmentSection.tsx(30,13): error TS6133: 'data' is declared but its value is never read.
+src/pages/services/investment/InvestmentSection.tsx(75,9): error TS6133: 'metrics' is declared but its value is never read.
+src/pages/services/machines/MachineCard.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/services/machines/MachineCard.tsx(5,1): error TS6133: 'OrderCocopeatModal' is declared but its value is never read.
+src/pages/services/machines/MachinesList.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/services/machines/OrderCocopeatModal.tsx(3,1): error TS6133: 'WaitlistService' is declared but its value is never read.
+src/pages/services/machines/OrderCocopeatModal.tsx(77,9): error TS6133: 'products' is declared but its value is never read.
+src/pages/services/machines/OrderDehuskerModal.tsx(4,1): error TS6133: 'WaitlistService' is declared but its value is never read.
+src/pages/services/machines/OrderDehuskerModal.tsx(108,9): error TS6133: 'products' is declared but its value is never read.
+src/pages/services/machines/OrderDeshellerModal.tsx(60,9): error TS6133: 'supabaseSuccess' is declared but its value is never read.
+src/pages/services/machines/OrderDeshellerModal.tsx(122,9): error TS6133: 'products' is declared but its value is never read.
+src/pages/services/machines/OrderMachineModal.tsx(3,1): error TS6133: 'WaitlistService' is declared but its value is never read.
+src/pages/services/machines/OrderMachineModal.tsx(101,9): error TS6133: 'products' is declared but its value is never read.
+src/pages/services/production/ProductionSection.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/services/products/ProductsList.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/services/ServicesFooter.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/services/ServicesFooter.tsx(3,1): error TS6133: 'Palmtree' is declared but its value is never read.
+src/pages/services/ServicesHeader.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/services/ServicesHero.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/services/ServicesHero.tsx(2,1): error TS6133: 'Link' is declared but its value is never read.
+src/pages/services/ServicesLayout.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/services/ServicesLayout.tsx(3,1): error TS6133: 'ServicesHero' is declared but its value is never read.
+src/pages/services/ServicesLayout.tsx(7,1): error TS6133: 'InvestmentSection' is declared but its value is never read.
+src/pages/support/HelpCenter.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/pages/support/HelpCenter.tsx(4,20): error TS2307: Cannot find module '/src/components/Navbar' or its corresponding type declarations.
+src/pages/support/HelpCenter.tsx(5,20): error TS2307: Cannot find module '/src/components/Footer' or its corresponding type declarations.
+src/services/mernBlogService.ts(19,36): error TS7006: Parameter 'userId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(34,35): error TS7006: Parameter 'blogId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(78,34): error TS7006: Parameter 'blogData' implicitly has an 'any' type.
+src/services/mernBlogService.ts(78,44): error TS7006: Parameter 'userId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(104,34): error TS7006: Parameter 'blogId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(104,42): error TS7006: Parameter 'blogData' implicitly has an 'any' type.
+src/services/mernBlogService.ts(104,52): error TS7006: Parameter 'userId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(129,13): error TS2339: Property 'published' does not exist on type '{ title: any; banner: any; des: any; content: any; tags: any; content_blocks: any; updated_at: string; }'.
+src/services/mernBlogService.ts(130,13): error TS2339: Property 'is_draft' does not exist on type '{ title: any; banner: any; des: any; content: any; tags: any; content_blocks: any; updated_at: string; }'.
+src/services/mernBlogService.ts(131,13): error TS2339: Property 'published_at' does not exist on type '{ title: any; banner: any; des: any; content: any; tags: any; content_blocks: any; updated_at: string; }'.
+src/services/mernBlogService.ts(133,13): error TS2339: Property 'published' does not exist on type '{ title: any; banner: any; des: any; content: any; tags: any; content_blocks: any; updated_at: string; }'.
+src/services/mernBlogService.ts(134,13): error TS2339: Property 'is_draft' does not exist on type '{ title: any; banner: any; des: any; content: any; tags: any; content_blocks: any; updated_at: string; }'.
+src/services/mernBlogService.ts(135,13): error TS2339: Property 'published_at' does not exist on type '{ title: any; banner: any; des: any; content: any; tags: any; content_blocks: any; updated_at: string; }'.
+src/services/mernBlogService.ts(149,35): error TS7006: Parameter 'blogId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(149,43): error TS7006: Parameter 'userId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(175,34): error TS7006: Parameter 'blogId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(175,42): error TS7006: Parameter 'userId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(195,38): error TS7006: Parameter 'blogId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(195,46): error TS7006: Parameter 'userId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(228,34): error TS7006: Parameter 'blogId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(228,42): error TS7006: Parameter 'commentData' implicitly has an 'any' type.
+src/services/mernBlogService.ts(228,55): error TS7006: Parameter 'userId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(254,56): error TS2339: Property 'is_reply_to' does not exist on type '{ id: any; }'.
+src/services/mernBlogService.ts(268,39): error TS7006: Parameter 'blogId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(284,37): error TS7006: Parameter 'commentId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(284,48): error TS7006: Parameter 'userId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(302,40): error TS7006: Parameter 'userId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(314,43): error TS7006: Parameter 'userId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(314,51): error TS7006: Parameter 'profileData' implicitly has an 'any' type.
+src/services/mernBlogService.ts(338,35): error TS7006: Parameter 'query' implicitly has an 'any' type.
+src/services/mernBlogService.ts(354,43): error TS7006: Parameter 'userId' implicitly has an 'any' type.
+src/services/mernBlogService.ts(354,51): error TS7006: Parameter 'userData' implicitly has an 'any' type.
+src/utils/emailTemplates.ts(161,3): error TS6133: 'notificationType' is declared but its value is never read.
+src/utils/emailTemplates.ts(162,3): error TS6133: 'customerInfo' is declared but its value is never read.
+src/utils/emailTemplates.ts(164,3): error TS6133: 'timestamp' is declared but its value is never read.
+src/utils/emailTemplates.ts(165,3): error TS6133: 'priority' is declared but its value is never read.
+src/utils/supabaseEmailService.ts(31,35): error TS2304: Cannot find name 'supabase'.
+src/utils/supabaseEmailService.ts(65,35): error TS2304: Cannot find name 'supabase'.
