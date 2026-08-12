@@ -7,17 +7,27 @@ import AbiolaPreciousPhoto from '../assets/team/Abiola Precious.jpg';
 import EnochPhoto from '../assets/team/enoch.jpeg';
 import OluwatokeFaejiPhoto from '../assets/team/Oluwatoke Faeji.jpeg';
 import TimilehinOluwayemiPhoto from '../assets/team/Oluwayemi.jpeg';
+import KehindePhoto from '../assets/team/Kehinde Elizabeth OMITOYIN.jpg';
+import TaiwoPhoto from '../assets/team/taiwo omitoyin .jpeg';
 
 export interface Profile {
   id: string;
   firstName: string;
+  middleName?: string;
   lastName: string;
   role: string;
   email: string;
+  personalEmail?: string;
   phone: string;
   linkedIn?: string;
   profileImage: string;
   description: string;
+  dateOfBirth?: string;
+  courseOfStudy?: string;
+  institution?: string;
+  bankName?: string;
+  accountNumber?: string;
+  headshotUrl?: string;
 }
 
 export const profiles: Profile[] = [
@@ -37,120 +47,190 @@ export const profiles: Profile[] = [
   {
     id: 'adetonajamiu',
     firstName: 'Jamiu',
+    middleName: 'Olalekan',
     lastName: 'Adetona',
     role: 'Production R&D Engineer',
     email: 'adetona.jamiu@coconoto.africa',
+    personalEmail: 'Adetonajamiu50@gmail.com',
     phone: '+2347068957675',
     linkedIn:
       'https://www.linkedin.com/in/adetona-jamiu-6bb6981b1?utm_source=share_via&utm_content=profile&utm_medium=member_android',
     profileImage: JamiuPhoto,
     description:
-      'Designing the future of agritech hardware through end-to-end 3D CAD development, parametric modeling, and assembly verification. Jamiu bridges virtual engineering with practical fabrication to build patent-backed, high-efficiency industrial processing machinery.'
+      'Designing the future of agritech hardware through end-to-end 3D CAD development, parametric modeling, and assembly verification. Jamiu bridges virtual engineering with practical fabrication to build patent-backed, high-efficiency industrial processing machinery.',
+    dateOfBirth: 'Friday, June 18, 1999',
+    courseOfStudy: 'Industrial and Production Engineering',
+    institution: 'Federal University of Technology Akure',
+    bankName: 'FCMB',
+    accountNumber: '6605575016',
+    headshotUrl: 'https://drive.google.com/open?id=1LfWdsReigpW_udQpfX0fiV8ZBePAwGcQ'
   },
   {
     id: 'daniel-abiodun',
     firstName: 'Daniel',
+    middleName: 'Iyanuoluwa',
     lastName: 'Abiodun',
     role: 'Head of Operations',
     email: 'daniel.iyanuoluwa@coconoto.africa',
+    personalEmail: 'danieliyanuoluwa2@gmail.com',
     phone: '+2348108101319',
     profileImage: DanielPhoto,
     description:
-      'A dedicated, hardworking, and results-driven professional with strong communication and organizational skills. Daniel enjoys learning new things, taking on challenges, and contributing positively wherever he works.'
+      'A dedicated, hardworking, and results-driven professional with strong communication and organizational skills. Daniel enjoys learning new things, taking on challenges, and contributing positively wherever he works.',
+    dateOfBirth: 'Saturday, July 24, 1999',
+    courseOfStudy: 'Sociology and Anthropology',
+    institution: 'Obafemi Awolowo University',
+    bankName: 'Opay',
+    accountNumber: '8108101319',
+    headshotUrl: 'https://drive.google.com/open?id=1pi4stBhXIxBDmOS_e08sqySbLn7rhbdX'
   },
   {
     id: 'mojolaoluwa-abiodun',
     firstName: 'Mojolaoluwa',
+    middleName: 'Folagbade',
     lastName: 'Abiodun',
     role: 'Technical Writer / Creative Lead',
     email: 'jola.abiodun@coconoto.africa',
+    personalEmail: 'jolabiodun@gmail.com',
     phone: '+2347016547356',
     profileImage: MojolaoluwaPhoto,
     description:
-      'A versatile writer and creative professional skilled in academic research writing, technical writing, creative brand strategy, and CV building, with a growing interest in business development.'
+      'A versatile writer and creative professional skilled in academic research writing, technical writing, creative brand strategy, and CV building, with a growing interest in business development.',
+    dateOfBirth: 'Thursday, June 20, 2002',
+    courseOfStudy: 'Pure and Applied Chemistry',
+    institution: 'Obafemi Awolowo University',
+    bankName: 'Opay',
+    accountNumber: '7016547356',
+    headshotUrl: 'https://drive.google.com/open?id=19z_kzw85-RNN8E_Pf6oXaDDNtVTUD8YA'
   },
   {
     id: 'precious-charles',
     firstName: 'Precious',
+    middleName: 'Omowunmi',
     lastName: 'Charles',
     role: 'Video Editor',
     email: 'precious.charles@coconoto.africa',
+    personalEmail: 'preciouscharles.theva@gmail.com',
     phone: '+2349165387838',
     linkedIn: 'https://linktr.ee/PreciousCharles1',
     profileImage: PreciousCharlesPhoto,
     description:
-      'Precious Charles is a video content editor for business owners and a business enthusiast who helps brands create memorable visual stories through editing and production support.'
+      'Precious Charles is a video content editor for business owners and a business enthusiast who helps brands create memorable visual stories through editing and production support.',
+    dateOfBirth: 'Sunday, April 21, 1996',
+    courseOfStudy: 'Economics',
+    institution: 'Ambrose Alli University',
+    bankName: 'United Bank of Africa',
+    accountNumber: '2245102433',
+    headshotUrl: 'https://drive.google.com/open?id=1xeIUWI9YmCOpX4TdOngD6cdJgZ6UDxzD'
   },
   {
     id: 'precious-abiola',
     firstName: 'Precious',
+    middleName: 'David',
     lastName: 'Abiola',
     role: 'Creative Director / Graphics Designer',
     email: 'precious.abiola@coconoto.africa',
+    personalEmail: 'preciousabiola202726@gmail.com',
     phone: '+2348051243003',
     profileImage: AbiolaPreciousPhoto,
     description:
-      'A creative, detail-oriented graphic designer with a strong eye for visual storytelling. Precious transforms ideas into engaging designs that enhance brand identity and support marketing campaigns.'
+      'A creative, detail-oriented graphic designer with a strong eye for visual storytelling. Precious transforms ideas into engaging designs that enhance brand identity and support marketing campaigns.',
+    dateOfBirth: 'Wednesday, December 26, 2001',
+    courseOfStudy: 'Biochemistry',
+    institution: 'Ladoke Akintola University of Technology',
+    bankName: 'Opay',
+    accountNumber: '8128123112',
+    headshotUrl: 'https://drive.google.com/open?id=1a60Ol-MhQanFT36CERqdUzj_V4Stif9v'
   },
   {
-    id: 'elisabeth-omitoyin',
-    firstName: 'Elisabeth',
+    id: 'kehinde-elizabeth-omitoyin',
+    firstName: 'Kehinde',
+    middleName: 'Elizabeth',
     lastName: 'Omitoyin',
-    role: 'Coconoto Team Member',
-    email: 'omitoyin.elisabeth@coconoto.africa',
-    phone: '',
-    profileImage:
-      'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Elisabeth%20Omitoyin',
-    description: 'Elisabeth is a valued member of the Coconoto team. Profile details are being updated.'
+    role: 'Account Officer',
+    email: 'kenny4omitoyin@gmail.com',
+    phone: '+2347086961691',
+    profileImage: KehindePhoto,
+    description: 'I love to learn new things.'
   },
   {
-    id: 'esther-omitoyin',
-    firstName: 'Esther',
+    id: 'taiwo-esther-omitoyin',
+    firstName: 'Taiwo',
+    middleName: 'Esther',
     lastName: 'Omitoyin',
-    role: 'Leadership & Growth Enthusiast',
-    email: 'omitoyin.esther@coconoto.africa',
-    phone: '',
-    profileImage:
-      'https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=Esther%20Omitoyin',
+    role: 'Head of Sales and Marketing',
+    email: 'omitoyinesther@gmail.com',
+    phone: '+2348099865166',
+    profileImage: TaiwoPhoto,
     description:
-      'Esther is passionate about growth and leadership, with a background in adult education and English literature from the University of Benin.'
+      'I am friendly and easily motivated. Passionate about growth, leadership and self development.',
+    dateOfBirth: 'Wednesday, July 3, 2002',
+    courseOfStudy: 'Adult Education / English Literature',
+    institution: 'University of Benin',
+    bankName: 'First Bank',
+    accountNumber: '3155165303',
+    headshotUrl: 'https://drive.google.com/open?id=1Bs-xGd8iUnbzx0qlSlsXf4pexq3xdYsL'
   },
   {
     id: 'enoch-bamigboye',
     firstName: 'Enoch',
+    middleName: 'Ayomide',
     lastName: 'Bamigboye',
     role: 'Software Engineer',
     email: 'enoch.bamigboye@coconoto.africa',
+    personalEmail: 'bamigboyeayomide095@gmail.com',
     phone: '+2349131678833',
     linkedIn: 'https://www.linkedin.com/in/bamigboye-enoch-5a82a8368',
     profileImage: EnochPhoto,
     description:
       "Computer Science graduate from Babcock University and software developer focused on web development, AI, automation, cybersecurity, and cloud computing.",
+    dateOfBirth: 'Monday, August 8, 2005',
+    courseOfStudy: 'Computer Science',
+    institution: 'Babcock University',
+    bankName: 'Opay',
+    accountNumber: '9131678833',
+    headshotUrl: 'https://drive.google.com/open?id=1yY6ewZPSt5SGkZ8zMCUXNSrxXHsW9ivz'
   },
   {
     id: 'oluwatoke-evelyn-faeji',
     firstName: 'Oluwatoke',
+    middleName: 'Evelyn',
     lastName: 'Faeji',
     role: 'Project Manager / Website Management & Coco Fiber Sales',
     email: 'oluwatoke.evelyn@coconoto.africa',
+    personalEmail: 'faejioluwatoke@gmail.com',
     phone: '+2349075775276',
     linkedIn:
       'https://www.linkedin.com/in/oluwatoke-faeji-349684251?utm_source=share_via&utm_content=profile&utm_medium=member_ios',
     profileImage: OluwatokeFaejiPhoto,
     description:
-      'Oluwatoke is a passionate environmentalist and marine science student with experience in climate advocacy, environmental education, waste management, project management, and community-driven sustainability initiatives.'
+      'Oluwatoke is a passionate environmentalist and marine science student with experience in climate advocacy, environmental education, waste management, project management, and community-driven sustainability initiatives.',
+    dateOfBirth: 'Sunday, May 25, 2003',
+    courseOfStudy: 'Fisheries',
+    institution: 'University of Lagos',
+    bankName: 'Access Bank',
+    accountNumber: '1224235296',
+    headshotUrl: 'https://drive.google.com/open?id=1gL1Qe5z354zqJYhh6O7BUTQiw1EzHceZ'
   },
   {
     id: 'timilehin-favour-oluwayemi',
     firstName: 'Timilehin',
+    middleName: 'Favour',
     lastName: 'Oluwayemi',
     role: 'Customer Care & Social Media Representative',
     email: 'timilehin.favour@coconoto.africa',
+    personalEmail: 'oluwayemitimilehin@gmail.com',
     phone: '+2348108767512',
     linkedIn:
       'https://www.linkedin.com/in/timilehin-oluwayemi-6963a32ab?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app',
     profileImage: TimilehinOluwayemiPhoto,
     description:
-      'Timilehin is passionate about driving personal growth and operational development, with strong customer service, communication, and organizational skills.'
+      'Timilehin is passionate about driving personal growth and operational development, with strong customer service, communication, and organizational skills.',
+    dateOfBirth: 'Saturday, August 19, 2000',
+    courseOfStudy: 'Literature-in-English',
+    institution: 'Obafemi Awolowo University',
+    bankName: 'United Bank of Africa',
+    accountNumber: '2134239398',
+    headshotUrl: 'https://drive.google.com/open?id=1k_AKRoXzBWo67DkwzeHKLhnrPVSdTdHH'
   }
 ];
