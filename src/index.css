@@ -464,3 +464,108 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
 }
+
+/* ============================================================
+   shadcn/ui theme tokens — emerald/green brand palette
+   ============================================================ */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 155 30% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 155 30% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 155 30% 10%;
+
+    --primary: 158 64% 28%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 150 30% 94%;
+    --secondary-foreground: 155 40% 18%;
+
+    --muted: 150 20% 95%;
+    --muted-foreground: 155 12% 40%;
+
+    --accent: 150 45% 92%;
+    --accent-foreground: 155 40% 18%;
+
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 35%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 150 18% 88%;
+    --input: 150 18% 88%;
+    --ring: 158 64% 28%;
+
+    --sidebar-background: 150 35% 97%;
+    --sidebar-foreground: 155 30% 15%;
+    --sidebar-primary: 158 64% 28%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 150 45% 90%;
+    --sidebar-accent-foreground: 155 40% 18%;
+    --sidebar-border: 150 18% 88%;
+    --sidebar-ring: 158 64% 28%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 155 25% 8%;
+    --foreground: 150 15% 94%;
+
+    --card: 155 22% 11%;
+    --card-foreground: 150 15% 94%;
+
+    --popover: 155 22% 11%;
+    --popover-foreground: 150 15% 94%;
+
+    --primary: 158 58% 42%;
+    --primary-foreground: 155 25% 8%;
+
+    --secondary: 155 18% 18%;
+    --secondary-foreground: 150 15% 94%;
+
+    --muted: 155 18% 16%;
+    --muted-foreground: 150 12% 65%;
+
+    --accent: 155 18% 20%;
+    --accent-foreground: 150 15% 94%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 60% 42%;
+    --success-foreground: 155 25% 8%;
+
+    --border: 155 15% 22%;
+    --input: 155 15% 22%;
+    --ring: 158 58% 42%;
+
+    --sidebar-background: 155 25% 10%;
+    --sidebar-foreground: 150 15% 90%;
+    --sidebar-primary: 158 58% 45%;
+    --sidebar-primary-foreground: 155 25% 8%;
+    --sidebar-accent: 155 18% 18%;
+    --sidebar-accent-foreground: 150 15% 94%;
+    --sidebar-border: 155 15% 20%;
+    --sidebar-ring: 158 58% 42%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+}
+
+/* Small utility helpers used by shadcn primitives */
+@layer utilities {
+  .animate-fade-in { animation: fade-in 0.2s ease-out; }
+  .animate-zoom-in { animation: zoom-in 0.2s ease-out; }
+  .animate-slide-in-right { animation: slide-in-right 0.3s ease-out; }
+  .animate-slide-in-left { animation: slide-in-left 0.3s ease-out; }
+}

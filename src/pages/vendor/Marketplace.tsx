@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import MarketplaceNavbar from '../../components/MarketplaceNavbar';
 import BuyerNavbar from '../../components/BuyerNavbar';
 import Footer from '../../components/Footer';
-import { SlidersHorizontal, X, Search, BadgeCheck, Minus, Plus, PackageOpen } from 'lucide-react';
+import { SlidersHorizontal, X, Search, BadgeCheck, Minus, Plus, PackageOpen, Check, Info } from 'lucide-react';
 import { getAllMarketplaceProducts, createOrder } from '../../services/vendorService';
 import { createOrderWithBuyer, getBuyerProfile } from '../../services/buyerService';
+import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
 import type { VendorProduct, VendorOrderInput } from '../../types/vendor';
 import { PRODUCT_CATEGORIES } from '../../types/vendor';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/toast';
 
 const formatPrice = (amount: number) =>
   amount.toLocaleString('en-NG', { maximumFractionDigits: 2 });
@@ -25,8 +35,16 @@ export function Marketplace() {
   const [isCategoryDrawerOpen, setIsCategoryDrawerOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   
-  // Check if buyer is logged in
-  const buyerId = localStorage.getItem('buyerId');
+  // Buyer identity is derived from the authoritative cookie-based session so it
+  // stays reactive (re-renders once the async session resolves). Fall back to
+  // localStorage for resilience across reloads.
+  const { session } = useMarketplaceAuth();
+  const buyerId =
+    session?.role === 'buyer' ? session.id : localStorage.getItem('buyerId');
+  const buyerName =
+    session?.role === 'buyer' ? session.name : localStorage.getItem('buyerName') || '';
+  const buyerEmail =
+    session?.role === 'buyer' ? session.email : localStorage.getItem('buyerEmail') || '';
   const isBuyerLoggedIn = !!buyerId;
 
   useEffect(() => {
@@ -356,6 +374,9 @@ export function Marketplace() {
       {showOrderModal && selectedProduct && (
         <OrderModal
           product={selectedProduct}
+          buyerId={buyerId}
+          buyerName={buyerName}
+          buyerEmail={buyerEmail}
           onClose={() => {
             setShowOrderModal(false);
             setSelectedProduct(null);
@@ -385,9 +406,9 @@ function ProductCard({
   const lowStock = product.stock_quantity > 0 && product.stock_quantity <= 5;
 
   return (
-    <div
+    <Card
       onClick={onClick}
-      className="group rounded-2xl border border-white/60 bg-white/75 backdrop-blur-lg shadow-[0_10px_24px_rgba(0,0,0,0.08)] overflow-hidden cursor-pointer hover:-translate-y-1 hover:shadow-[0_16px_28px_rgba(0,0,0,0.12)] transition-all duration-300"
+      className="group cursor-pointer overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
     >
       <div className="relative overflow-hidden">
         {product.image_url ? (
@@ -395,52 +416,57 @@ function ProductCard({
             src={product.image_url}
             alt={product.product_name}
             loading="lazy"
-            className="w-full h-36 sm:h-52 object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-105 sm:h-52"
           />
         ) : (
-          <div className="w-full h-36 sm:h-52 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
-            <span className="text-4xl sm:text-6xl">🥥</span>
+          <div className="flex h-40 w-full items-center justify-center bg-gradient-to-br from-emerald-100 to-emerald-200 sm:h-52">
+            <span className="text-5xl sm:text-6xl">🥥</span>
           </div>
         )}
-        <span className="absolute top-2 left-2 rounded-full bg-white/90 backdrop-blur px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-green-800 shadow-sm">
+        <Badge
+          variant="secondary"
+          className="absolute left-2 top-2 bg-white/90 text-emerald-800 shadow-sm backdrop-blur"
+        >
           {product.category}
-        </span>
+        </Badge>
         {product.stock_quantity === 0 && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="rounded-full bg-white px-3 py-1 text-xs sm:text-sm font-bold text-red-600">Out of Stock</span>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+            <span className="rounded-full bg-white px-3 py-1 text-sm font-bold text-red-600">Out of Stock</span>
           </div>
         )}
       </div>
-      <div className="p-3 sm:p-5">
-        <h3 className="text-sm sm:text-lg font-bold text-gray-900 line-clamp-2 leading-tight mb-1">
+      <CardContent className="p-3 sm:p-5">
+        <h3 className="mb-1 line-clamp-2 text-sm font-bold leading-tight text-foreground sm:text-lg">
           {product.product_name}
         </h3>
-        <p className="text-gray-700 mb-3 line-clamp-2 text-xs sm:text-sm">
+        <p className="mb-3 line-clamp-2 text-xs text-muted-foreground sm:text-sm">
           {product.description}
         </p>
         <div className="mb-3 flex items-center gap-1">
-          <p className="text-[11px] sm:text-xs text-gray-500 line-clamp-1">By {product.vendor?.business_name}</p>
+          <p className="line-clamp-1 text-[11px] text-muted-foreground sm:text-xs">
+            By {product.vendor?.business_name}
+          </p>
           {product.vendor?.is_verified && (
-            <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-green-600" aria-label="Verified Vendor" />
+            <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-emerald-600" aria-label="Verified Vendor" />
           )}
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-sm sm:text-xl font-bold text-green-700">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-bold text-primary sm:text-xl">
             ₦{formatPrice(product.price)}
-            <span className="text-[10px] sm:text-sm text-gray-600">/{product.unit}</span>
+            <span className="text-[10px] text-muted-foreground sm:text-sm">/{product.unit}</span>
           </span>
-          <span className="text-[10px] sm:text-sm text-right">
-            {product.stock_quantity === 0 ? (
-              <span className="text-red-600 font-medium">Out of Stock</span>
-            ) : lowStock ? (
-              <span className="text-amber-600 font-medium">Only {product.stock_quantity} left</span>
-            ) : (
-              <span className="text-green-600">In Stock</span>
-            )}
-          </span>
+          {product.stock_quantity === 0 ? (
+            <Badge variant="destructive">Out of Stock</Badge>
+          ) : lowStock ? (
+            <Badge variant="outline" className="border-amber-300 text-amber-700">
+              Only {product.stock_quantity} left
+            </Badge>
+          ) : (
+            <Badge variant="success">In Stock</Badge>
+          )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -448,15 +474,18 @@ function ProductCard({
 function OrderModal({
   product,
   onClose,
-  onSuccess
+  onSuccess,
+  buyerId,
+  buyerName,
+  buyerEmail
 }: {
   product: VendorProduct;
   onClose: () => void;
   onSuccess: () => void;
+  buyerId: string | null;
+  buyerName: string;
+  buyerEmail: string;
 }) {
-  const buyerId = localStorage.getItem('buyerId');
-  const buyerName = localStorage.getItem('buyerName') || '';
-  const buyerEmail = localStorage.getItem('buyerEmail') || '';
 
   const [orderData, setOrderData] = useState<VendorOrderInput>({
     product_id: product.id,
@@ -470,6 +499,7 @@ function OrderModal({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const { toast } = useToast();
 
   // Load buyer profile if logged in
   useEffect(() => {
@@ -528,6 +558,11 @@ function OrderModal({
     }
 
     if (result.success) {
+      toast({
+        title: 'Order placed!',
+        description: 'The vendor will contact you shortly to confirm.',
+        variant: 'success'
+      });
       setSuccess(true);
       setTimeout(() => {
         onSuccess();
@@ -539,87 +574,66 @@ function OrderModal({
     setIsLoading(false);
   };
 
-  if (success) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-lg max-w-md w-full p-8 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">Order Placed!</h3>
-          <p className="text-gray-600">
-            The vendor will contact you shortly to confirm your order.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-lg max-w-2xl w-full my-8">
-        <div className="p-6">
-          <div className="flex justify-between items-start mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Place Order</h2>
-            <button
-              type="button"
-              aria-label="Close order modal"
-              title="Close order modal"
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      {success ? (
+        <div className="flex flex-col items-center text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/15">
+            <Check className="h-8 w-8 text-success" />
           </div>
+          <DialogTitle>Order Placed!</DialogTitle>
+          <DialogDescription className="mt-2">
+            The vendor will contact you shortly to confirm your order.
+          </DialogDescription>
+        </div>
+      ) : (
+        <>
+          <DialogHeader>
+            <DialogTitle>Place Order</DialogTitle>
+            <DialogDescription>
+              Review the details below and submit your request to the vendor.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogClose />
 
-          {/* Product Info */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <div className="flex gap-4">
-              {product.image_url && (
-                <img
-                  src={product.image_url}
-                  alt={product.product_name}
-                  className="w-20 h-20 object-cover rounded"
-                />
+          {/* Product summary */}
+          <div className="flex gap-4 rounded-lg border bg-muted/40 p-4">
+            {product.image_url && (
+              <img
+                src={product.image_url}
+                alt={product.product_name}
+                className="h-20 w-20 rounded-md object-cover"
+              />
+            )}
+            <div className="flex-1">
+              <h3 className="font-semibold text-foreground">{product.product_name}</h3>
+              <p className="text-sm text-muted-foreground">{product.category}</p>
+              {product.vendor?.business_name && (
+                <p className="text-sm text-muted-foreground">Vendor: {product.vendor.business_name}</p>
               )}
-              <div className="flex-1">
-                <h3 className="font-bold text-gray-900">{product.product_name}</h3>
-                <p className="text-sm text-gray-600">{product.category}</p>
-                <p className="text-sm text-gray-600">
-                  Vendor: {product.vendor?.business_name}
-                </p>
-                <p className="text-lg font-bold text-green-700 mt-1">
-                  ₦{formatPrice(product.price)}/{product.unit}
-                </p>
-              </div>
+              <p className="mt-1 text-lg font-bold text-primary">
+                ₦{formatPrice(product.price)}/{product.unit}
+              </p>
             </div>
           </div>
 
-          {/* Login/Signup Prompt for Guests */}
+          {/* Guest prompt */}
           {!buyerId && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
               <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <Info className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                 <div className="flex-1">
-                  <p className="text-sm text-blue-800 font-medium mb-2">
-                    💡 Save time on future orders!
-                  </p>
-                  <p className="text-xs text-blue-700 mb-3">
+                  <p className="text-sm font-medium text-foreground">Save time on future orders!</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Create an account to save your details, track orders, and checkout faster.
                   </p>
-                  <div className="flex gap-2">
-                    <a href="/buyer-login" className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700">
-                      Login
-                    </a>
-                    <a href="/buyer-signup" className="text-xs bg-white text-blue-600 px-3 py-1.5 rounded border border-blue-600 hover:bg-blue-50">
-                      Create Account
-                    </a>
+                  <div className="mt-3 flex gap-2">
+                    <Button asChild size="sm">
+                      <Link to="/buyer-login">Login</Link>
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/buyer-signup">Create Account</Link>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -628,150 +642,127 @@ function OrderModal({
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 {error}
               </div>
             )}
 
-            <div>
-              <label htmlFor="order-customer-name" className="block text-sm font-semibold text-gray-700 mb-2">
-                Your Name *
-              </label>
-              <input
-                id="order-customer-name"
-                type="text"
-                value={orderData.customer_name}
-                onChange={(e) => setOrderData({ ...orderData, customer_name: e.target.value })}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-              />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="order-customer-name">Your Name *</Label>
+                <Input
+                  id="order-customer-name"
+                  value={orderData.customer_name}
+                  onChange={(e) => setOrderData({ ...orderData, customer_name: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="order-customer-email">Email *</Label>
+                <Input
+                  id="order-customer-email"
+                  type="email"
+                  value={orderData.customer_email}
+                  onChange={(e) => setOrderData({ ...orderData, customer_email: e.target.value })}
+                  required
+                />
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="order-customer-email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Email *
-              </label>
-              <input
-                id="order-customer-email"
-                type="email"
-                value={orderData.customer_email}
-                onChange={(e) => setOrderData({ ...orderData, customer_email: e.target.value })}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="order-customer-phone" className="block text-sm font-semibold text-gray-700 mb-2">
-                Phone
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="order-customer-phone">Phone</Label>
+              <Input
                 id="order-customer-phone"
                 type="tel"
                 value={orderData.customer_phone}
                 onChange={(e) => setOrderData({ ...orderData, customer_phone: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
               />
             </div>
 
-            <div>
-              <label htmlFor="order-quantity" className="block text-sm font-semibold text-gray-700 mb-2">
-                Quantity * (Available: {product.stock_quantity})
-              </label>
+            <div className="space-y-2">
+              <Label htmlFor="order-quantity">Quantity * (Available: {product.stock_quantity})</Label>
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="icon"
                   aria-label="Decrease quantity"
                   onClick={() => setQuantity(orderData.quantity - 1)}
                   disabled={orderData.quantity <= 1}
-                  className="p-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
                 >
                   <Minus className="h-4 w-4" />
-                </button>
-                <input
+                </Button>
+                <Input
                   id="order-quantity"
                   type="number"
-                  min="1"
+                  min={1}
                   max={product.stock_quantity}
                   value={orderData.quantity}
                   onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
                   required
-                  className="w-24 text-center px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  className="w-24 text-center"
                 />
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="icon"
                   aria-label="Increase quantity"
                   onClick={() => setQuantity(orderData.quantity + 1)}
                   disabled={orderData.quantity >= product.stock_quantity}
-                  className="p-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
                 >
                   <Plus className="h-4 w-4" />
-                </button>
-                <span className="ml-2 text-sm text-gray-500">
+                </Button>
+                <span className="ml-2 text-sm text-muted-foreground">
                   × ₦{formatPrice(product.price)}/{product.unit}
                 </span>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Delivery Address
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="order-delivery-address">Delivery Address</Label>
+              <Textarea
+                id="order-delivery-address"
                 value={orderData.delivery_address}
                 onChange={(e) => setOrderData({ ...orderData, delivery_address: e.target.value })}
-                rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 placeholder="Enter your delivery address"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Additional Notes
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="order-notes">Additional Notes</Label>
+              <Textarea
+                id="order-notes"
                 value={orderData.notes}
                 onChange={(e) => setOrderData({ ...orderData, notes: e.target.value })}
-                rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 placeholder="Any special requests or notes..."
               />
             </div>
 
-            <div className="bg-green-50 rounded-lg p-4 space-y-1">
-              <div className="flex justify-between text-sm text-gray-600">
+            <div className="space-y-1 rounded-lg border bg-muted/40 p-4">
+              <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{orderData.quantity} × ₦{formatPrice(product.price)}/{product.unit}</span>
               </div>
-              <div className="flex justify-between items-center text-lg font-bold">
+              <div className="flex items-center justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span className="text-green-700">₦{formatPrice(totalPrice)}</span>
+                <span className="text-primary">₦{formatPrice(totalPrice)}</span>
               </div>
             </div>
 
-            <div className="flex gap-4 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-semibold"
-              >
+            <div className="flex gap-3 pt-2">
+              <Button type="button" variant="outline" className="flex-1" onClick={onClose}>
                 Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading || product.stock_quantity === 0}
-                className="flex-1 px-6 py-3 bg-green-700 text-white rounded-lg hover:bg-green-800 disabled:opacity-50 font-semibold"
-              >
+              </Button>
+              <Button type="submit" className="flex-1" disabled={isLoading || product.stock_quantity === 0}>
                 {isLoading ? 'Placing Order...' : 'Place Order'}
-              </button>
+              </Button>
             </div>
 
-            <p className="text-xs text-gray-500 text-center">
+            <p className="text-center text-xs text-muted-foreground">
               By placing this order, the vendor will be notified and will contact you to confirm details and payment.
             </p>
           </form>
-        </div>
-      </div>
-    </div>
+        </>
+      )}
+    </Dialog>
   );
 }

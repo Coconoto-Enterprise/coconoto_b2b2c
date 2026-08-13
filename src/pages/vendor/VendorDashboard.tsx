@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import VendorNavbar from '../../components/VendorNavbar';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   getVendorProducts,
   getVendorOrders,
@@ -13,6 +12,29 @@ import {
 } from '../../services/vendorService';
 import type { VendorProduct, VendorOrder, VendorProductInput, Vendor } from '../../types/vendor';
 import { PRODUCT_CATEGORIES, UNITS } from '../../types/vendor';
+import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
+import { useToast } from '@/components/ui/toast';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select } from '@/components/ui/select';
+import {
+  Table, TableHeader, TableBody, TableRow, TableHead, TableCell
+} from '@/components/ui/table';
+import {
+  Dialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose
+} from '@/components/ui/dialog';
+import {
+  Sidebar, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter
+} from '@/components/ui/sidebar-lite';
+import { Sheet, SheetHeader, SheetClose, SheetTitle } from '@/components/ui/sheet';
+import {
+  Package, ShoppingBag, User, Store, Plus, Pencil, Trash2, LogOut, Menu,
+  UploadCloud, Loader2, X
+} from 'lucide-react';
 
 export function VendorDashboard() {
   const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'profile'>('products');
@@ -22,134 +44,164 @@ export function VendorDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<VendorProduct | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
 
-  const vendorId = localStorage.getItem('vendorId');
-  const vendorBusinessName = localStorage.getItem('vendorBusinessName');
+  const { session, logout } = useMarketplaceAuth();
+  const { toast } = useToast();
+  const vendorId = session?.role === 'vendor' ? session.id : localStorage.getItem('vendorId');
+  const vendorName =
+    session?.role === 'vendor' ? session.name : localStorage.getItem('vendorBusinessName') || 'Vendor';
 
   useEffect(() => {
     if (!vendorId) {
       navigate('/vendor-login');
       return;
     }
-
     loadDashboardData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vendorId, navigate]);
 
   const loadDashboardData = async () => {
     if (!vendorId) return;
-
     setIsLoading(true);
     const [productsData, ordersData, vendorData] = await Promise.all([
       getVendorProducts(vendorId),
       getVendorOrders(vendorId),
       getVendorProfile(vendorId)
     ]);
-
     setProducts(productsData);
     setOrders(ordersData);
     setVendor(vendorData);
     setIsLoading(false);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('vendorId');
-    localStorage.removeItem('vendorEmail');
-    localStorage.removeItem('vendorBusinessName');
+  const handleLogout = async () => {
+    await logout();
     navigate('/vendor-login');
   };
 
   const handleDeleteProduct = async (productId: string) => {
     if (!vendorId || !confirm('Are you sure you want to delete this product?')) return;
-
     const success = await deleteProduct(productId, vendorId);
     if (success) {
-      setProducts(products.filter(p => p.id !== productId));
+      setProducts(products.filter((p) => p.id !== productId));
+      toast({ title: 'Product deleted', variant: 'success' });
     }
   };
 
   const handleUpdateOrderStatus = async (orderId: string, status: VendorOrder['status']) => {
     if (!vendorId) return;
-
     const success = await updateOrderStatus(orderId, vendorId, status);
     if (success) {
-      setOrders(orders.map(o => o.id === orderId ? { ...o, status } : o));
+      setOrders(orders.map((o) => (o.id === orderId ? { ...o, status } : o)));
+      toast({ title: `Order marked as ${status}`, variant: 'success' });
     }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
+      <div className="flex min-h-screen items-center justify-center bg-muted/30">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
-      <VendorNavbar 
-        vendorBusinessName={vendorBusinessName || undefined} 
-        onLogout={handleLogout} 
-      />
+  const navItems = [
+    { key: 'products' as const, label: 'Products', icon: Package },
+    { key: 'orders' as const, label: 'Orders', icon: ShoppingBag },
+    { key: 'profile' as const, label: 'Profile', icon: User }
+  ];
 
-      {/* Tabs */}
-      <div className="bg-white border-b mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab('products')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'products'
-                  ? 'border-green-700 text-green-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Products ({products.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('orders')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'orders'
-                  ? 'border-green-700 text-green-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Orders ({orders.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'profile'
-                  ? 'border-green-700 text-green-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Profile
-            </button>
-          </nav>
+  return (
+    <div className="min-h-screen bg-muted/30">
+      {/* Desktop sidebar */}
+      <Sidebar>
+        <SidebarHeader>
+          <div className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <Store className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-sidebar-foreground">{vendorName}</p>
+              <p className="text-xs text-muted-foreground">Vendor Dashboard</p>
+            </div>
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            {navItems.map(({ key, label, icon: Icon }) => (
+              <SidebarMenuItem key={key}>
+                <SidebarMenuButton isActive={activeTab === key} onClick={() => setActiveTab(key)}>
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter>
+          <Button variant="outline" className="w-full" onClick={handleLogout}>
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </Button>
+          <Button asChild variant="ghost" size="sm" className="mt-2 w-full">
+            <Link to="/marketplace">View Marketplace</Link>
+          </Button>
+        </SidebarFooter>
+      </Sidebar>
+
+      {/* Mobile top bar */}
+      <div className="sticky top-0 z-40 flex items-center justify-between border-b bg-background px-4 py-3 md:hidden">
+        <div className="flex items-center gap-2">
+          <Store className="h-5 w-5 text-primary" />
+          <span className="font-semibold">{vendorName}</span>
         </div>
+        <Button variant="outline" size="icon" onClick={() => setMobileOpen(true)}>
+          <Menu className="h-4 w-4" />
+        </Button>
       </div>
 
-      {/* Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'products' && (
-          <ProductsTab
-            products={products}
-            onAddProduct={() => setShowAddProductModal(true)}
-            onEditProduct={setEditingProduct}
-            onDeleteProduct={handleDeleteProduct}
-          />
-        )}
+      {/* Mobile navigation sheet */}
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetHeader>
+          <SheetTitle>Menu</SheetTitle>
+          <SheetClose onClose={() => setMobileOpen(false)} />
+        </SheetHeader>
+        <div className="mt-4 space-y-1">
+          {navItems.map(({ key, label, icon: Icon }) => (
+            <SidebarMenuButton
+              key={key}
+              isActive={activeTab === key}
+              onClick={() => {
+                setActiveTab(key);
+                setMobileOpen(false);
+              }}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </SidebarMenuButton>
+          ))}
+        </div>
+      </Sheet>
 
-        {activeTab === 'orders' && (
-          <OrdersTab orders={orders} onUpdateStatus={handleUpdateOrderStatus} />
-        )}
-
-        {activeTab === 'profile' && vendor && <ProfileTab vendor={vendor} />}
+      <main className="md:ml-64 p-4 sm:p-8">
+        <div className="mx-auto max-w-6xl">
+          {activeTab === 'products' && (
+            <ProductsTab
+              products={products}
+              onAddProduct={() => setShowAddProductModal(true)}
+              onEditProduct={setEditingProduct}
+              onDeleteProduct={handleDeleteProduct}
+            />
+          )}
+          {activeTab === 'orders' && (
+            <OrdersTab orders={orders} onUpdateStatus={handleUpdateOrderStatus} />
+          )}
+          {activeTab === 'profile' && vendor && <ProfileTab vendor={vendor} />}
+        </div>
       </main>
 
-      {/* Add/Edit Product Modal */}
       {(showAddProductModal || editingProduct) && (
         <ProductModal
           product={editingProduct}
@@ -165,7 +217,7 @@ export function VendorDashboard() {
   );
 }
 
-// Products Tab Component
+// Products Tab
 function ProductsTab({
   products,
   onAddProduct,
@@ -179,74 +231,75 @@ function ProductsTab({
 }) {
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">My Products</h2>
-        <button
-          onClick={onAddProduct}
-          className="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 font-semibold"
-        >
-          + Add Product
-        </button>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground">My Products</h2>
+          <p className="text-sm text-muted-foreground">Manage the items you list on the marketplace.</p>
+        </div>
+        <Button onClick={onAddProduct}>
+          <Plus className="h-4 w-4" />
+          Add Product
+        </Button>
       </div>
 
       {products.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <p className="text-gray-600 mb-4">You haven't added any products yet.</p>
-          <button
-            onClick={onAddProduct}
-            className="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 font-semibold"
-          >
-            Add Your First Product
-          </button>
-        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <Package className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <p className="text-muted-foreground">You haven't added any products yet.</p>
+            <Button onClick={onAddProduct}>
+              <Plus className="h-4 w-4" />
+              Add Your First Product
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product) => (
-            <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-              {product.image_url && (
-                <img
-                  src={product.image_url}
-                  alt={product.product_name}
-                  className="w-full h-48 object-cover"
-                />
-              )}
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-bold text-gray-900">{product.product_name}</h3>
-                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                    product.is_active
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {product.is_active ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600 mb-2">{product.category}</p>
-                <p className="text-gray-700 mb-3 line-clamp-2">{product.description}</p>
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-xl font-bold text-green-700">
+            <Card key={product.id} className="overflow-hidden">
+              <div className="relative h-44 w-full overflow-hidden bg-muted">
+                {product.image_url ? (
+                  <img
+                    src={product.image_url}
+                    alt={product.product_name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-100 to-emerald-200">
+                    <span className="text-4xl">🥥</span>
+                  </div>
+                )}
+                <Badge
+                  variant={product.is_active ? 'success' : 'secondary'}
+                  className="absolute right-2 top-2"
+                >
+                  {product.is_active ? 'Active' : 'Inactive'}
+                </Badge>
+              </div>
+              <CardContent className="space-y-2 p-4">
+                <h3 className="text-lg font-semibold text-foreground">{product.product_name}</h3>
+                <p className="text-sm text-muted-foreground">{product.category}</p>
+                <p className="line-clamp-2 text-sm text-muted-foreground">{product.description}</p>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-lg font-bold text-primary">
                     ₦{product.price}/{product.unit}
                   </span>
-                  <span className="text-sm text-gray-600">
-                    Stock: {product.stock_quantity}
-                  </span>
+                  <span className="text-sm text-muted-foreground">Stock: {product.stock_quantity}</span>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => onEditProduct(product)}
-                    className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm"
-                  >
+                <div className="flex gap-2 pt-1">
+                  <Button variant="secondary" size="sm" className="flex-1" onClick={() => onEditProduct(product)}>
+                    <Pencil className="h-4 w-4" />
                     Edit
-                  </button>
-                  <button
-                    onClick={() => onDeleteProduct(product.id)}
-                    className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 text-sm"
-                  >
+                  </Button>
+                  <Button variant="destructive" size="sm" className="flex-1" onClick={() => onDeleteProduct(product.id)}>
+                    <Trash2 className="h-4 w-4" />
                     Delete
-                  </button>
+                  </Button>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
@@ -254,7 +307,7 @@ function ProductsTab({
   );
 }
 
-// Orders Tab Component
+// Orders Tab
 function OrdersTab({
   orders,
   onUpdateStatus
@@ -276,65 +329,52 @@ function OrdersTab({
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Orders</h2>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-foreground">Orders</h2>
+        <p className="text-sm text-muted-foreground">Track and update incoming customer orders.</p>
+      </div>
 
       {orders.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <p className="text-gray-600">No orders yet.</p>
-        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <ShoppingBag className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <p className="text-muted-foreground">No orders yet.</p>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Product
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Quantity
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+        <Card className="overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Customer</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Qty</TableHead>
+                <TableHead>Total</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {orders.map((order) => (
-                <tr key={order.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{order.customer_name}</div>
-                      <div className="text-sm text-gray-500">{order.customer_email}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {order.product?.product_name || 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {order.quantity}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                    ₦{order.total_price.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <select
+                <TableRow key={order.id}>
+                  <TableCell>
+                    <div className="font-medium text-foreground">{order.customer_name}</div>
+                    <div className="text-sm text-muted-foreground">{order.customer_email}</div>
+                  </TableCell>
+                  <TableCell className="text-foreground">{order.product?.product_name || 'N/A'}</TableCell>
+                  <TableCell className="text-foreground">{order.quantity}</TableCell>
+                  <TableCell className="font-semibold text-foreground">
+                    ₦{(order.total_price ?? 0).toFixed(2)}
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Select
                       value={order.status}
                       onChange={(e) => onUpdateStatus(order.id, e.target.value as VendorOrder['status'])}
-                      className="border border-gray-300 rounded px-2 py-1"
                     >
                       <option value="pending">Pending</option>
                       <option value="confirmed">Confirmed</option>
@@ -342,72 +382,62 @@ function OrdersTab({
                       <option value="shipped">Shipped</option>
                       <option value="delivered">Delivered</option>
                       <option value="cancelled">Cancelled</option>
-                    </select>
-                  </td>
-                </tr>
+                    </Select>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </Card>
       )}
     </div>
   );
 }
 
-// Profile Tab Component
+// Profile Tab
 function ProfileTab({ vendor }: { vendor: Vendor }) {
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Profile</h2>
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Business Name</label>
-            <p className="mt-1 text-lg text-gray-900">{vendor.business_name}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Contact Name</label>
-            <p className="mt-1 text-lg text-gray-900">{vendor.contact_name}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <p className="mt-1 text-lg text-gray-900">{vendor.email}</p>
-          </div>
-          {vendor.phone && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Phone</label>
-              <p className="mt-1 text-lg text-gray-900">{vendor.phone}</p>
-            </div>
-          )}
-          {vendor.address && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Address</label>
-              <p className="mt-1 text-lg text-gray-900">{vendor.address}</p>
-            </div>
-          )}
-          {vendor.description && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Description</label>
-              <p className="mt-1 text-gray-900">{vendor.description}</p>
-            </div>
-          )}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Verification Status</label>
-            <span className={`mt-1 inline-flex px-3 py-1 rounded-full text-sm font-semibold ${
-              vendor.is_verified
-                ? 'bg-green-100 text-green-800'
-                : 'bg-yellow-100 text-yellow-800'
-            }`}>
-              {vendor.is_verified ? 'Verified' : 'Pending Verification'}
-            </span>
-          </div>
-        </div>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-foreground">Profile</h2>
+        <p className="text-sm text-muted-foreground">Your storefront details.</p>
       </div>
+      <Card className="max-w-2xl">
+        <CardHeader>
+          <CardTitle>{vendor.business_name}</CardTitle>
+          <CardDescription>
+            {vendor.is_verified ? 'Verified seller' : 'Verification pending'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <ProfileRow label="Business Name" value={vendor.business_name} />
+          <ProfileRow label="Contact Name" value={vendor.contact_name} />
+          <ProfileRow label="Email" value={vendor.email} />
+          {vendor.phone && <ProfileRow label="Phone" value={vendor.phone} />}
+          {vendor.address && <ProfileRow label="Address" value={vendor.address} />}
+          {vendor.description && <ProfileRow label="Description" value={vendor.description} />}
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Verification Status</p>
+            <Badge variant={vendor.is_verified ? 'success' : 'outline'} className="mt-1">
+              {vendor.is_verified ? 'Verified' : 'Pending Verification'}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-// Product Modal Component
+function ProfileRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-sm font-medium text-muted-foreground">{label}</p>
+      <p className="text-lg text-foreground">{value}</p>
+    </div>
+  );
+}
+
+// Product Modal
 function ProductModal({
   product,
   vendorId,
@@ -437,64 +467,48 @@ function ProductModal({
   const [isDragging, setIsDragging] = useState(false);
 
   const validateAndSetImage = (file: File) => {
-    // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
       setError('Image file size must be less than 5MB');
       return false;
     }
-
-    // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
     if (!allowedTypes.includes(file.type)) {
       setError('Please upload a valid image file (JPEG, PNG, WEBP, or AVIF)');
       return false;
     }
-
     setSelectedImage(file);
     setError('');
-    
-    // Create preview
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
+    reader.onloadend = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
     return true;
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      validateAndSetImage(file);
-    }
-  };
-
-  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+    if (file) validateAndSetImage(file);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
   };
-
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-
     const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
-      validateAndSetImage(files[0]);
-    }
+    if (files && files.length > 0) validateAndSetImage(files[0]);
   };
 
   const handleRemoveImage = () => {
@@ -510,42 +524,30 @@ function ProductModal({
 
     let imageUrl = formData.image_url;
 
-    // Upload image if a new one was selected
     if (selectedImage) {
       setIsUploading(true);
       const uploadResult = await uploadProductImage(vendorId, selectedImage);
       setIsUploading(false);
-
       if (!uploadResult.success) {
         setError(uploadResult.error || 'Failed to upload image');
         setIsLoading(false);
         return;
       }
-
       imageUrl = uploadResult.imageUrl || '';
     }
 
-    const productData = {
-      ...formData,
-      image_url: imageUrl
-    };
-
+    const productData = { ...formData, image_url: imageUrl };
     let success = false;
 
     if (product) {
-      // Update existing product
       success = await updateProduct(product.id, vendorId, productData);
     } else {
-      // Create new product
       const result = await createProduct(vendorId, productData);
       success = result.success;
-      if (!success) {
-        setError(result.error || 'Failed to create product');
-      }
+      if (!success) setError(result.error || 'Failed to create product');
     }
 
     setIsLoading(false);
-
     if (success) {
       onSave();
       onClose();
@@ -553,240 +555,179 @@ function ProductModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            {product ? 'Edit Product' : 'Add New Product'}
-          </h2>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogHeader>
+        <DialogTitle>{product ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+        <DialogDescription>
+          {product ? 'Update the details of this product.' : 'List a new product on the marketplace.'}
+        </DialogDescription>
+        <DialogClose />
+      </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Product Name *</label>
+        <div className="space-y-2">
+          <Label htmlFor="product-name">Product Name *</Label>
+          <Input
+            id="product-name"
+            value={formData.product_name}
+            onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="product-category">Category *</Label>
+          <Select
+            id="product-category"
+            value={formData.category}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            required
+          >
+            {PRODUCT_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="product-description">Description *</Label>
+          <Textarea
+            id="product-description"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            required
+            rows={4}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="product-price">Price *</Label>
+            <Input
+              id="product-price"
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.price}
+              onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="product-unit">Unit *</Label>
+            <Select
+              id="product-unit"
+              value={formData.unit}
+              onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+              required
+            >
+              {UNITS.map((unit) => (
+                <option key={unit} value={unit}>{unit}</option>
+              ))}
+            </Select>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="product-stock">Stock Quantity *</Label>
+          <Input
+            id="product-stock"
+            type="number"
+            min="0"
+            value={formData.stock_quantity}
+            onChange={(e) => setFormData({ ...formData, stock_quantity: parseInt(e.target.value) })}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Product Image</Label>
+          {!imagePreview ? (
+            <div
+              onDragEnter={handleDragEnter}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+                isDragging ? 'border-primary bg-primary/5' : 'border-input bg-muted/40 hover:border-primary/50'
+              }`}
+            >
               <input
-                type="text"
-                value={formData.product_name}
-                onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
+                onChange={handleImageChange}
+                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                id="image-upload"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Category *</label>
-              <select
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+              <UploadCloud className={`h-10 w-10 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+              <p className="mt-2 text-sm font-medium text-foreground">
+                {isDragging ? 'Drop image here' : 'Drag & drop your image here'}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">or</p>
+              <label
+                htmlFor="image-upload"
+                className="mt-2 inline-block cursor-pointer rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
-                {PRODUCT_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
+                Browse Files
+              </label>
+              <p className="mt-2 text-xs text-muted-foreground">JPEG, PNG, WEBP, AVIF (Max 5MB)</p>
             </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                required
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Price *</label>
+          ) : (
+            <div className="space-y-3">
+              <div className="relative overflow-hidden rounded-lg border-2 border-border">
+                <img src={imagePreview} alt="Preview" className="h-64 w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute right-2 top-2 rounded-full bg-destructive p-2 text-destructive-foreground shadow-lg transition-colors hover:bg-destructive/90"
+                  title="Remove image"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">{selectedImage ? selectedImage.name : 'Current image'}</span>
+                <label htmlFor="image-upload-change" className="cursor-pointer font-medium text-primary hover:text-primary/80">
+                  Change Image
+                </label>
                 <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  id="image-upload-change"
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Unit *</label>
-                <select
-                  value={formData.unit}
-                  onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                >
-                  {UNITS.map((unit) => (
-                    <option key={unit} value={unit}>{unit}</option>
-                  ))}
-                </select>
-              </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity *</label>
-              <input
-                type="number"
-                min="0"
-                value={formData.stock_quantity}
-                onChange={(e) => setFormData({ ...formData, stock_quantity: parseInt(e.target.value) })}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Product Image</label>
-              
-              {!imagePreview ? (
-                <div
-                  onDragEnter={handleDragEnter}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    isDragging 
-                      ? 'border-green-500 bg-green-50' 
-                      : 'border-gray-300 hover:border-green-400 bg-gray-50'
-                  }`}
-                >
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
-                    onChange={handleImageChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    id="image-upload"
-                  />
-                  
-                  <div className="space-y-3">
-                    <div className="flex justify-center">
-                      <svg 
-                        className={`w-16 h-16 ${isDragging ? 'text-green-500' : 'text-gray-400'}`}
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
-                        />
-                      </svg>
-                    </div>
-                    
-                    <div>
-                      <p className="text-base font-medium text-gray-700">
-                        {isDragging ? 'Drop image here' : 'Drag & drop your image here'}
-                      </p>
-                      <p className="text-sm text-gray-500 mt-1">or</p>
-                      <label 
-                        htmlFor="image-upload" 
-                        className="inline-block mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer font-medium transition-colors"
-                      >
-                        Browse Files
-                      </label>
-                    </div>
-                    
-                    <p className="text-xs text-gray-500">
-                      Supported formats: JPEG, PNG, WEBP, AVIF (Max 5MB)
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="relative rounded-lg border-2 border-gray-200 overflow-hidden">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-64 object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleRemoveImage}
-                      className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors shadow-lg"
-                      title="Remove image"
-                    >
-                      <svg 
-                        className="w-5 h-5" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M6 18L18 6M6 6l12 12" 
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">
-                      {selectedImage ? selectedImage.name : 'Current image'}
-                    </span>
-                    <label 
-                      htmlFor="image-upload-change" 
-                      className="text-green-600 hover:text-green-700 font-medium cursor-pointer"
-                    >
-                      Change Image
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
-                      onChange={handleImageChange}
-                      className="hidden"
-                      id="image-upload-change"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="is_active"
-                checked={formData.is_active}
-                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-              />
-              <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
-                Active (visible in marketplace)
-              </label>
-            </div>
-
-            <div className="flex gap-4 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                disabled={isLoading}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading || isUploading}
-                className="flex-1 px-6 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 disabled:opacity-50"
-              >
-                {isUploading ? 'Uploading Image...' : isLoading ? 'Saving...' : product ? 'Update Product' : 'Add Product'}
-              </button>
-            </div>
-          </form>
+          )}
         </div>
-      </div>
-    </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="is_active"
+            checked={formData.is_active}
+            onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+            className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
+          />
+          <Label htmlFor="is_active" className="cursor-pointer">Active (visible in marketplace)</Label>
+        </div>
+
+        <DialogFooter className="pt-2">
+          <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading || isUploading}>
+            {isUploading ? 'Uploading Image...' : isLoading ? 'Saving...' : product ? 'Update Product' : 'Add Product'}
+          </Button>
+        </DialogFooter>
+      </form>
+    </Dialog>
   );
 }

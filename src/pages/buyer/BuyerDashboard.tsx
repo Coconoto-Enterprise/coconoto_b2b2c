@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import BuyerNavbar from '../../components/BuyerNavbar';
+import { useNavigate, Link } from 'react-router-dom';
 import { getBuyerProfile, getBuyerOrders, updateBuyerProfile } from '../../services/buyerService';
 import type { Buyer, BuyerOrder, BuyerUpdateInput } from '../../types/buyer';
+import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Sidebar, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter
+} from '@/components/ui/sidebar-lite';
+import { Sheet, SheetHeader, SheetClose, SheetTitle } from '@/components/ui/sheet';
+import { ShoppingBag, User, Store, LogOut, Menu, Pencil, Mail, Phone, Loader2 } from 'lucide-react';
 
 export function BuyerDashboard() {
   const [activeTab, setActiveTab] = useState<'orders' | 'profile'>('orders');
@@ -10,28 +20,30 @@ export function BuyerDashboard() {
   const [orders, setOrders] = useState<BuyerOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
 
-  const buyerId = localStorage.getItem('buyerId');
+  const { session, logout } = useMarketplaceAuth();
+  const buyerId = session?.role === 'buyer' ? session.id : localStorage.getItem('buyerId');
+  const buyerName =
+    session?.role === 'buyer' ? session.name : localStorage.getItem('buyerName') || 'Buyer';
 
   useEffect(() => {
     if (!buyerId) {
       navigate('/buyer-login');
       return;
     }
-
     loadDashboardData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buyerId, navigate]);
 
   const loadDashboardData = async () => {
     if (!buyerId) return;
-
     setIsLoading(true);
     const [buyerData, ordersData] = await Promise.all([
       getBuyerProfile(buyerId),
       getBuyerOrders(buyerId)
     ]);
-
     setBuyer(buyerData);
     setOrders(ordersData);
     setIsLoading(false);
@@ -39,104 +51,139 @@ export function BuyerDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed':
-        return 'bg-blue-100 text-blue-800';
-      case 'processing':
-        return 'bg-purple-100 text-purple-800';
-      case 'shipped':
-        return 'bg-indigo-100 text-indigo-800';
-      case 'delivered':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'confirmed': return 'bg-blue-100 text-blue-800';
+      case 'processing': return 'bg-purple-100 text-purple-800';
+      case 'shipped': return 'bg-indigo-100 text-indigo-800';
+      case 'delivered': return 'bg-green-100 text-green-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/buyer-login');
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <BuyerNavbar />
-        <div className="flex justify-center items-center h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-muted/30">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!buyer) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <BuyerNavbar />
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-gray-600">Failed to load buyer data</p>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-muted/30">
+        <p className="text-muted-foreground">Failed to load buyer data</p>
       </div>
     );
   }
 
+  const navItems = [
+    { key: 'orders' as const, label: 'My Orders', icon: ShoppingBag },
+    { key: 'profile' as const, label: 'Profile', icon: User }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <BuyerNavbar />
+    <div className="min-h-screen bg-muted/30">
+      {/* Desktop sidebar */}
+      <Sidebar>
+        <SidebarHeader>
+          <div className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <Store className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-sidebar-foreground">{buyerName}</p>
+              <p className="text-xs text-muted-foreground">Buyer Account</p>
+            </div>
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            {navItems.map(({ key, label, icon: Icon }) => (
+              <SidebarMenuItem key={key}>
+                <SidebarMenuButton isActive={activeTab === key} onClick={() => setActiveTab(key)}>
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter>
+          <Button variant="outline" className="w-full" onClick={handleLogout}>
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </Button>
+          <Button asChild variant="ghost" size="sm" className="mt-2 w-full">
+            <Link to="/marketplace">Browse Marketplace</Link>
+          </Button>
+        </SidebarFooter>
+      </Sidebar>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-16">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {buyer.first_name}!
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Manage your orders and account settings
-          </p>
+      {/* Mobile top bar */}
+      <div className="sticky top-0 z-40 flex items-center justify-between border-b bg-background px-4 py-3 md:hidden">
+        <div className="flex items-center gap-2">
+          <Store className="h-5 w-5 text-primary" />
+          <span className="font-semibold">{buyerName}</span>
         </div>
-
-        {/* Tabs */}
-        <div className="border-b border-gray-200 mb-8">
-          <nav className="-mb-px flex space-x-8">
-            <button
-              onClick={() => setActiveTab('orders')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'orders'
-                  ? 'border-green-700 text-green-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              My Orders ({orders.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'profile'
-                  ? 'border-green-700 text-green-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Profile
-            </button>
-          </nav>
-        </div>
-
-        {/* Content */}
-        {activeTab === 'orders' && (
-          <OrdersTab orders={orders} getStatusColor={getStatusColor} />
-        )}
-        {activeTab === 'profile' && (
-          <ProfileTab 
-            buyer={buyer} 
-            isEditing={isEditing}
-            setIsEditing={setIsEditing}
-            onUpdate={loadDashboardData}
-          />
-        )}
+        <Button variant="outline" size="icon" onClick={() => setMobileOpen(true)}>
+          <Menu className="h-4 w-4" />
+        </Button>
       </div>
+
+      {/* Mobile navigation sheet */}
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetHeader>
+          <SheetTitle>Menu</SheetTitle>
+          <SheetClose onClose={() => setMobileOpen(false)} />
+        </SheetHeader>
+        <div className="mt-4 space-y-1">
+          {navItems.map(({ key, label, icon: Icon }) => (
+            <SidebarMenuButton
+              key={key}
+              isActive={activeTab === key}
+              onClick={() => {
+                setActiveTab(key);
+                setMobileOpen(false);
+              }}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </SidebarMenuButton>
+          ))}
+        </div>
+      </Sheet>
+
+      <main className="md:ml-64 p-4 sm:p-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-foreground">
+              Welcome back, {buyer.first_name}!
+            </h1>
+            <p className="mt-1 text-muted-foreground">Manage your orders and account settings.</p>
+          </div>
+
+          {activeTab === 'orders' && <OrdersTab orders={orders} getStatusColor={getStatusColor} />}
+          {activeTab === 'profile' && (
+            <ProfileTab
+              buyer={buyer}
+              isEditing={isEditing}
+              setIsEditing={setIsEditing}
+              onUpdate={loadDashboardData}
+            />
+          )}
+        </div>
+      </main>
     </div>
   );
 }
 
-// Orders Tab Component
+// Orders Tab
 function OrdersTab({
   orders,
   getStatusColor
@@ -146,41 +193,34 @@ function OrdersTab({
 }) {
   if (orders.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-12 text-center">
-        <div className="text-6xl mb-4">🛒</div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">No orders yet</h3>
-        <p className="text-gray-600 mb-6">
-          Start shopping in our marketplace to see your orders here
-        </p>
-        <a
-          href="/marketplace"
-          className="inline-block bg-green-700 text-white px-6 py-3 rounded-lg hover:bg-green-800"
-        >
-          Browse Products
-        </a>
-      </div>
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+          <div className="text-6xl">🛒</div>
+          <h3 className="text-xl font-semibold text-foreground">No orders yet</h3>
+          <p className="text-muted-foreground">Start shopping in our marketplace to see your orders here.</p>
+          <Button asChild>
+            <Link to="/marketplace">Browse Products</Link>
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {orders.map((order) => (
-        <div key={order.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-4 mb-2">
-                  <h3 className="text-lg font-bold text-gray-900">
+        <Card key={order.id} className="overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <div className="mb-2 flex items-center gap-3">
+                  <h3 className="truncate text-lg font-bold text-foreground">
                     {order.product_name || 'Product'}
                   </h3>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>
-                    {order.status}
-                  </span>
+                  <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
                 </div>
-                <p className="text-sm text-gray-600">
-                  Order ID: {order.id.substring(0, 8)}...
-                </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">Order ID: {order.id.substring(0, 8)}…</p>
+                <p className="text-sm text-muted-foreground">
                   Ordered: {new Date(order.created_at).toLocaleDateString()}
                 </p>
               </div>
@@ -188,64 +228,58 @@ function OrdersTab({
                 <img
                   src={order.product_image_url}
                   alt={order.product_name}
-                  className="w-20 h-20 object-cover rounded"
+                  className="h-20 w-20 rounded-md object-cover"
                 />
               )}
             </div>
 
-            <div className="border-t border-gray-200 pt-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Vendor:</span>
-                <span className="font-medium">{order.vendor_business_name}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Quantity:</span>
-                <span className="font-medium">{order.quantity}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Total:</span>
-                <span className="font-bold text-green-700 text-lg">
-                  ₦{order.total_price.toFixed(2)}
-                </span>
-              </div>
-              {order.delivery_address && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Delivery Address:</span>
-                  <span className="font-medium text-right">{order.delivery_address}</span>
-                </div>
-              )}
+            <div className="mt-4 space-y-2 border-t pt-4 text-sm">
+              <Row label="Vendor" value={order.vendor_business_name} />
+              <Row label="Quantity" value={String(order.quantity)} />
+              <Row label="Total" value={`₦${(order.total_price ?? 0).toFixed(2)}`} highlight />
+              {order.delivery_address && <Row label="Delivery Address" value={order.delivery_address} />}
               {order.notes && (
-                <div className="mt-2 text-sm">
-                  <span className="text-gray-600">Notes:</span>
-                  <p className="text-gray-700 mt-1">{order.notes}</p>
+                <div>
+                  <span className="text-muted-foreground">Notes: </span>
+                  <p className="mt-1 text-foreground">{order.notes}</p>
                 </div>
               )}
             </div>
 
-            {/* Vendor Contact */}
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500 mb-2">Vendor Contact:</p>
-              <div className="flex gap-4 text-sm">
-                {order.vendor_email && (
-                  <a href={`mailto:${order.vendor_email}`} className="text-green-700 hover:text-green-800">
-                    📧 {order.vendor_email}
-                  </a>
-                )}
-                {order.vendor_phone && (
-                  <a href={`tel:${order.vendor_phone}`} className="text-green-700 hover:text-green-800">
-                    📞 {order.vendor_phone}
-                  </a>
-                )}
+            {(order.vendor_email || order.vendor_phone) && (
+              <div className="mt-4 border-t pt-4">
+                <p className="mb-2 text-xs text-muted-foreground">Vendor Contact:</p>
+                <div className="flex flex-wrap gap-4 text-sm">
+                  {order.vendor_email && (
+                    <a href={`mailto:${order.vendor_email}`} className="inline-flex items-center gap-1 text-primary hover:text-primary/80">
+                      <Mail className="h-4 w-4" /> {order.vendor_email}
+                    </a>
+                  )}
+                  {order.vendor_phone && (
+                    <a href={`tel:${order.vendor_phone}`} className="inline-flex items-center gap-1 text-primary hover:text-primary/80">
+                      <Phone className="h-4 w-4" /> {order.vendor_phone}
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
+            )}
+          </CardContent>
+        </Card>
       ))}
     </div>
   );
 }
 
-// Profile Tab Component
+function Row({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div className="flex justify-between gap-4">
+      <span className="text-muted-foreground">{label}:</span>
+      <span className={highlight ? 'text-lg font-bold text-primary' : 'font-medium text-foreground'}>{value}</span>
+    </div>
+  );
+}
+
+// Profile Tab
 function ProfileTab({
   buyer,
   isEditing,
@@ -273,191 +307,123 @@ function ProfileTab({
   const handleSave = async () => {
     setIsSaving(true);
     setMessage('');
-
     const result = await updateBuyerProfile(buyer.id, formData);
-
     if (result.success) {
       setMessage('Profile updated successfully!');
       setIsEditing(false);
       onUpdate();
-      
-      // Update localStorage
       localStorage.setItem('buyerName', `${formData.first_name} ${formData.last_name}`);
     } else {
       setMessage(result.error || 'Failed to update profile');
     }
-
     setIsSaving(false);
   };
 
   if (!isEditing) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex justify-between items-start mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Profile Information</h2>
-          <button
-            onClick={() => setIsEditing(true)}
-            className="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800"
-          >
+      <Card className="max-w-2xl">
+        <CardHeader className="flex-row items-start justify-between space-y-0">
+          <div>
+            <CardTitle>Profile Information</CardTitle>
+            <CardDescription>Your personal and contact details.</CardDescription>
+          </div>
+          <Button onClick={() => setIsEditing(true)}>
+            <Pencil className="h-4 w-4" />
             Edit Profile
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">First Name</label>
-            <p className="mt-1 text-lg text-gray-900">{buyer.first_name}</p>
+          </Button>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <ProfileRow label="First Name" value={buyer.first_name} />
+          <ProfileRow label="Last Name" value={buyer.last_name} />
+          <ProfileRow label="Email" value={buyer.email} />
+          <ProfileRow label="Phone" value={buyer.phone} />
+          <div className="sm:col-span-2">
+            <ProfileRow label="Address" value={buyer.address} />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Last Name</label>
-            <p className="mt-1 text-lg text-gray-900">{buyer.last_name}</p>
+          <ProfileRow label="City" value={buyer.city} />
+          <ProfileRow label="State" value={buyer.state} />
+          <ProfileRow label="Country" value={buyer.country} />
+          <ProfileRow label="Postal Code" value={buyer.postal_code} />
+          <div className="sm:col-span-2 border-t pt-4">
+            <p className="text-sm text-muted-foreground">
+              Account created: {new Date(buyer.created_at).toLocaleDateString()}
+            </p>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <p className="mt-1 text-lg text-gray-900">{buyer.email}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Phone</label>
-            <p className="mt-1 text-lg text-gray-900">{buyer.phone || 'Not provided'}</p>
-          </div>
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Address</label>
-            <p className="mt-1 text-lg text-gray-900">{buyer.address || 'Not provided'}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">City</label>
-            <p className="mt-1 text-lg text-gray-900">{buyer.city || 'Not provided'}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">State</label>
-            <p className="mt-1 text-lg text-gray-900">{buyer.state || 'Not provided'}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Country</label>
-            <p className="mt-1 text-lg text-gray-900">{buyer.country || 'Not provided'}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Postal Code</label>
-            <p className="mt-1 text-lg text-gray-900">{buyer.postal_code || 'Not provided'}</p>
-          </div>
-        </div>
-
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-500">
-            Account created: {new Date(buyer.created_at).toLocaleDateString()}
-          </p>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Profile</h2>
+    <Card className="max-w-2xl">
+      <CardHeader>
+        <CardTitle>Edit Profile</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {message && (
+          <div className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+            message.includes('success')
+              ? 'border-success/30 bg-success/10 text-success'
+              : 'border-destructive/30 bg-destructive/10 text-destructive'
+          }`}>
+            {message}
+          </div>
+        )}
 
-      {message && (
-        <div className={`mb-6 px-4 py-3 rounded-lg ${
-          message.includes('success') 
-            ? 'bg-green-50 border border-green-200 text-green-700'
-            : 'bg-red-50 border border-red-200 text-red-700'
-        }`}>
-          {message}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="First Name" value={formData.first_name} onChange={(v) => setFormData({ ...formData, first_name: v })} />
+          <Field label="Last Name" value={formData.last_name} onChange={(v) => setFormData({ ...formData, last_name: v })} />
+          <Field label="Phone" value={formData.phone} onChange={(v) => setFormData({ ...formData, phone: v })} />
+          <div className="sm:col-span-2">
+            <Field label="Address" value={formData.address} onChange={(v) => setFormData({ ...formData, address: v })} />
+          </div>
+          <Field label="City" value={formData.city} onChange={(v) => setFormData({ ...formData, city: v })} />
+          <Field label="State" value={formData.state} onChange={(v) => setFormData({ ...formData, state: v })} />
+          <Field label="Country" value={formData.country} onChange={(v) => setFormData({ ...formData, country: v })} />
+          <Field label="Postal Code" value={formData.postal_code} onChange={(v) => setFormData({ ...formData, postal_code: v })} />
         </div>
-      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-          <input
-            type="text"
-            value={formData.first_name}
-            onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-          />
+        <div className="mt-6 flex gap-3">
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? 'Saving...' : 'Save Changes'}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setIsEditing(false);
+              setMessage('');
+            }}
+          >
+            Cancel
+          </Button>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-          <input
-            type="text"
-            value={formData.last_name}
-            onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-          <input
-            type="tel"
-            value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-          <input
-            type="text"
-            value={formData.address}
-            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-          <input
-            type="text"
-            value={formData.city}
-            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-          <input
-            type="text"
-            value={formData.state}
-            onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
-          <input
-            type="text"
-            value={formData.country}
-            onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
-          <input
-            type="text"
-            value={formData.postal_code}
-            onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-      </div>
+      </CardContent>
+    </Card>
+  );
+}
 
-      <div className="flex gap-4 mt-6">
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 disabled:opacity-50"
-        >
-          {isSaving ? 'Saving...' : 'Save Changes'}
-        </button>
-        <button
-          onClick={() => {
-            setIsEditing(false);
-            setMessage('');
-          }}
-          className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
-        >
-          Cancel
-        </button>
-      </div>
+function ProfileRow({ label, value }: { label: string; value?: string | null }) {
+  return (
+    <div>
+      <p className="text-sm font-medium text-muted-foreground">{label}</p>
+      <p className="text-lg text-foreground">{value || 'Not provided'}</p>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  value,
+  onChange
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <Input value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 }

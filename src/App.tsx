@@ -39,11 +39,13 @@ import { NotFound } from './pages/errors/NotFound';
 import { ServerError } from './pages/errors/ServerError';
 import { MarketplaceAuthProvider } from './context/MarketplaceAuthContext';
 import { MarketplaceProtectedRoute } from './components/auth/MarketplaceProtectedRoute';
+import { ToastProvider } from './components/ui/toast';
 
 function App() {
   return (
     <BrowserRouter>
       <MarketplaceAuthProvider>
+      <ToastProvider>
       <div className="min-h-screen bg-gray-50">
         <Routes>
           <Route path="/" element={
@@ -98,6 +100,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
+      </ToastProvider>
       </MarketplaceAuthProvider>
     </BrowserRouter>
   );

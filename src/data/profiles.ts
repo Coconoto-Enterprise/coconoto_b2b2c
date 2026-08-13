@@ -32,15 +32,21 @@ export const profiles: Profile[] = [
   {
     id: 'jacob-abiodun',
     firstName: 'Jacob',
+    middleName: 'Oluwayanmife',
     lastName: 'Abiodun',
     role: 'Founder / CEO',
     email: 'Jacob.abiodun@coconoto.africa',
+    personalEmail: 'Jacobyanmife@gmail.com',
     phone: '+2348148609051',
     linkedIn:
       'https://www.linkedin.com/in/jacob-abiodun-0a2aa0109?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
     profileImage: JacobPhoto,
     description:
-      'Jacob Abiodun is an engineer, entrepreneur, and sustainability advocate. He holds a degree in Mechanical Engineering from FUTA and is focused on building technology-driven solutions for societal challenges through agritech and circular economy innovation.'
+      'Jacob Abiodun is an engineer, entrepreneur, and sustainability advocate. He holds a degree in Mechanical Engineering from FUTA and is focused on building technology-driven solutions for societal challenges through agritech and circular economy innovation.',
+    dateOfBirth: 'November 13',
+    courseOfStudy: 'Mechanical Engineering',
+    institution: 'Federal University of Technology, Akure',
+    headshotUrl: 'https://drive.google.com/open?id=1NNblACebm7GO-Krz8DjtU25QiwSjg-Sc'
   },
   {
     id: 'adetonajamiu',
@@ -139,7 +145,12 @@ export const profiles: Profile[] = [
     email: 'kenny4omitoyin@gmail.com',
     phone: '+2347086961691',
     profileImage: KehindePhoto,
-    description: 'I love to learn new things.'
+    description:
+      'I have skills in event management and planning, critical thinking and effective communication. I have interest in numbers.',
+    dateOfBirth: 'July 3',
+    courseOfStudy: 'Banking and Finance',
+    institution: 'University of Benin',
+    headshotUrl: 'https://drive.google.com/open?id=17rQ5djF1pGXuolIrs5FnWlsUSzpPZh2-'
   },
   {
     id: 'taiwo-esther-omitoyin',

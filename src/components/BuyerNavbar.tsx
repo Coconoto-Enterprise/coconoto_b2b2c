@@ -2,18 +2,18 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { X, Menu, LogOut, Store, Package } from 'lucide-react';
 import Logo from '../assets/Logo_1.png';
+import { useMarketplaceAuth } from '../context/MarketplaceAuthContext';
 
 export default function BuyerNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useMarketplaceAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const buyerName = localStorage.getItem('buyerName') || 'Buyer';
   const initial = buyerName.charAt(0).toUpperCase();
 
-  const handleLogout = () => {
-    localStorage.removeItem('buyerId');
-    localStorage.removeItem('buyerEmail');
-    localStorage.removeItem('buyerName');
+  const handleLogout = async () => {
+    await logout();
     navigate('/buyer-login');
   };
 

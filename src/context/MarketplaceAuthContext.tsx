@@ -22,6 +22,30 @@ export function MarketplaceAuthProvider({ children }: { children: React.ReactNod
   const [session, setSession] = useState<MarketplaceSession | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Keep the legacy localStorage keys (buyerId / vendorId / name / email) in
+  // sync with the authoritative cookie-based session. This is what the
+  // dashboards and the marketplace order flow read, so logging in must
+  // populate them — otherwise a logged-in buyer is treated as a guest.
+  const clearLocalStorage = () => {
+    ['buyerId', 'buyerEmail', 'buyerName', 'vendorId', 'vendorEmail', 'vendorBusinessName'].forEach((key) =>
+      localStorage.removeItem(key)
+    );
+  };
+
+  const syncLocalStorage = (s: MarketplaceSession | null) => {
+    clearLocalStorage();
+    if (!s) return;
+    if (s.role === 'buyer') {
+      localStorage.setItem('buyerId', s.id);
+      if (s.email) localStorage.setItem('buyerEmail', s.email);
+      if (s.name) localStorage.setItem('buyerName', s.name);
+    } else if (s.role === 'vendor') {
+      localStorage.setItem('vendorId', s.id);
+      if (s.email) localStorage.setItem('vendorEmail', s.email);
+      if (s.name) localStorage.setItem('vendorBusinessName', s.name);
+    }
+  };
+
   const refreshSession = useCallback(async () => {
     try {
       const response = await fetch('/api/auth', {
@@ -31,11 +55,13 @@ export function MarketplaceAuthProvider({ children }: { children: React.ReactNod
         body: JSON.stringify({ action: 'marketplace-session' }),
       });
       const result = await response.json();
-      const nextSession = result.success ? (result.session as MarketplaceSession | null) : null;
+      const nextSession = result.success ? ((result.session as MarketplaceSession | null) ?? null) : null;
       setSession(nextSession);
+      syncLocalStorage(nextSession);
       return nextSession;
     } catch {
       setSession(null);
+      syncLocalStorage(null);
       return null;
     } finally {
       setLoading(false);
@@ -56,7 +82,7 @@ export function MarketplaceAuthProvider({ children }: { children: React.ReactNod
       });
     } finally {
       setSession(null);
-      ['buyerId', 'buyerEmail', 'buyerName', 'vendorId', 'vendorEmail', 'vendorBusinessName'].forEach((key) => localStorage.removeItem(key));
+      clearLocalStorage();
     }
   }, []);
 
