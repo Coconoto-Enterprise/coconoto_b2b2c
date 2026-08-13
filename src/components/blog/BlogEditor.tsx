@@ -121,7 +121,7 @@ export const BlogEditor: React.FC = () => {
             }
           },
           paragraph: {
-            class: Paragraph,
+            class: Paragraph as any,
             config: {
               placeholder: 'Tell your story...'
             }

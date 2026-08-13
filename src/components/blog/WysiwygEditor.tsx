@@ -7,7 +7,7 @@ import './WysiwygEditor.css';
 // Helper to apply block formatting only to selected text (splitting blocks)
 function setBlockTypeForSelection(editor: any, type: string, attrs: any = {}) {
   if (!editor) return;
-  const { state, view } = editor;
+  const { state } = editor;
   const { from, to } = state.selection;
   // Split at selection boundaries
   editor.commands.splitBlock();
@@ -57,7 +57,7 @@ export const WysiwygEditor: React.FC<WysiwygEditorProps> = ({ value, onChange, p
   // Only update editor content if value prop changes from outside
   useEffect(() => {
     if (editor && value !== lastValue.current) {
-      editor.commands.setContent(value, false);
+      editor.commands.setContent(value);
       lastValue.current = value;
     }
   }, [value, editor]);

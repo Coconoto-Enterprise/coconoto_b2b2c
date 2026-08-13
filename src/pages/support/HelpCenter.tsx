@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Book, MessageCircle, FileText } from 'lucide-react';
-import Navbar from '/src/components/Navbar';
-import Footer from '/src/components/Footer';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export function HelpCenter() {
   const categories = [

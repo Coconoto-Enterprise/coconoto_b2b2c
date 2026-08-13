@@ -270,7 +270,7 @@ function OrdersTab({
   );
 }
 
-function Row({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+function Row({ label, value, highlight }: { label: string; value?: string; highlight?: boolean }) {
   return (
     <div className="flex justify-between gap-4">
       <span className="text-muted-foreground">{label}:</span>
@@ -417,13 +417,13 @@ function Field({
   onChange
 }: {
   label: string;
-  value: string;
+  value?: string;
   onChange: (value: string) => void;
 }) {
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} />
+      <Input value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 }

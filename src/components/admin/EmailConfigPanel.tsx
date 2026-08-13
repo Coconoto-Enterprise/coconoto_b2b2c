@@ -124,8 +124,7 @@ export const EmailConfigPanel: React.FC<EmailConfigPanelProps> = ({ isLoading: i
                         type="email"
                         value={editValues.sender_email || ''}
                         onChange={e => setEditValues({ ...editValues, sender_email: e.target.value })}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2"
-                        style={{ focusRing: '#8CC63F' }}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#8CC63F]"
                       />
                     ) : (
                       <code className="text-sm font-mono" style={{ color: '#8b5e47' }}>{config.sender_email}</code>
@@ -139,8 +138,7 @@ export const EmailConfigPanel: React.FC<EmailConfigPanelProps> = ({ isLoading: i
                         type="text"
                         value={editValues.sender_name || ''}
                         onChange={e => setEditValues({ ...editValues, sender_name: e.target.value })}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2"
-                        style={{ focusRing: '#8CC63F' }}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#8CC63F]"
                       />
                     ) : (
                       <span className="text-gray-700">{config.sender_name}</span>

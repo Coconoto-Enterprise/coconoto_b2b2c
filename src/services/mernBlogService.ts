@@ -16,7 +16,7 @@ export async function getPublishedBlogs() {
 }
 
 // Get all blogs for logged-in user (including drafts)
-export async function getUserBlogs(userId) {
+export async function getUserBlogs(userId: string) {
   const { data, error } = await supabase
     .from('mern_blogs')
     .select(`
@@ -31,7 +31,7 @@ export async function getUserBlogs(userId) {
 }
 
 // Get single blog by blog_id
-export async function getBlogById(blogId) {
+export async function getBlogById(blogId: string) {
   // Fetch blog with author details
   const { data: blogData, error: blogError } = await supabase
     .from('mern_blogs')
@@ -75,7 +75,7 @@ export async function getBlogById(blogId) {
 }
 
 // Create new blog
-export async function createBlog(blogData, userId) {
+export async function createBlog(blogData: any, userId: string) {
   const blogId = Math.random().toString(36).substring(2, 15);
 
   const { data, error } = await supabase
@@ -101,7 +101,7 @@ export async function createBlog(blogData, userId) {
 }
 
 // Update blog
-export async function updateBlog(blogId, blogData, userId) {
+export async function updateBlog(blogId: string, blogData: any, userId: string) {
   // Verify ownership
   const { data: blog } = await supabase
     .from('mern_blogs')
@@ -113,7 +113,7 @@ export async function updateBlog(blogId, blogData, userId) {
     throw new Error('Unauthorized');
   }
 
-  const updates = {
+  const updates: Record<string, any> = {
     title: blogData.title,
     banner: blogData.banner,
     des: blogData.des,
@@ -146,7 +146,7 @@ export async function updateBlog(blogId, blogData, userId) {
 }
 
 // Publish blog
-export async function publishBlog(blogId, userId) {
+export async function publishBlog(blogId: string, userId: string) {
   const { data: blog } = await supabase
     .from('mern_blogs')
     .select('author_id')
@@ -172,7 +172,7 @@ export async function publishBlog(blogId, userId) {
 }
 
 // Delete blog
-export async function deleteBlog(blogId, userId) {
+export async function deleteBlog(blogId: string, userId: string) {
   const { data: blog } = await supabase
     .from('mern_blogs')
     .select('author_id')
@@ -192,7 +192,7 @@ export async function deleteBlog(blogId, userId) {
 }
 
 // Like/Unlike blog
-export async function toggleBlogLike(blogId, userId, liked = true) {
+export async function toggleBlogLike(blogId: string, userId: string, liked: boolean = true) {
   const { data: existing } = await supabase
     .from('blog_likes')
     .select('*')
@@ -225,7 +225,7 @@ export async function toggleBlogLike(blogId, userId, liked = true) {
 }
 
 // Add comment
-export async function addComment(blogId, commentData, userId) {
+export async function addComment(blogId: string, commentData: any, userId: string) {
   const commentId = Math.random().toString(36).substring(2, 15);
 
   const { data, error } = await supabase
@@ -251,7 +251,7 @@ export async function addComment(blogId, commentData, userId) {
     .eq('blog_id', blogId)
     .eq('is_deleted', false);
 
-  const totalParentComments = comments?.filter(c => !c.is_reply_to).length || 0;
+  const totalParentComments = (comments as any[] | null)?.filter((c: any) => !c.is_reply_to).length || 0;
 
   await supabase
     .from('mern_blogs')
@@ -265,7 +265,7 @@ export async function addComment(blogId, commentData, userId) {
 }
 
 // Get blog comments
-export async function getBlogComments(blogId) {
+export async function getBlogComments(blogId: string) {
   const { data, error } = await supabase
     .from('blog_comments')
     .select(`
@@ -281,7 +281,7 @@ export async function getBlogComments(blogId) {
 }
 
 // Delete comment
-export async function deleteComment(commentId, userId) {
+export async function deleteComment(commentId: string, userId: string) {
   const { data: comment } = await supabase
     .from('blog_comments')
     .select('author_id, blog_id')
@@ -299,7 +299,7 @@ export async function deleteComment(commentId, userId) {
 }
 
 // Get author profile
-export async function getAuthorProfile(userId) {
+export async function getAuthorProfile(userId: string) {
   const { data, error } = await supabase
     .from('blog_authors')
     .select('*')
@@ -311,7 +311,7 @@ export async function getAuthorProfile(userId) {
 }
 
 // Update author profile
-export async function updateAuthorProfile(userId, profileData) {
+export async function updateAuthorProfile(userId: string, profileData: any) {
   const { data, error } = await supabase
     .from('blog_authors')
     .update({
@@ -335,7 +335,7 @@ export async function updateAuthorProfile(userId, profileData) {
 }
 
 // Search blogs
-export async function searchBlogs(query) {
+export async function searchBlogs(query: string) {
   const { data, error } = await supabase
     .from('mern_blogs')
     .select(`
@@ -351,7 +351,7 @@ export async function searchBlogs(query) {
 }
 
 // Create author profile (called when user first creates a blog)
-export async function createAuthorProfile(userId, userData) {
+export async function createAuthorProfile(userId: string, userData: any) {
   const { data, error } = await supabase
     .from('blog_authors')
     .insert([

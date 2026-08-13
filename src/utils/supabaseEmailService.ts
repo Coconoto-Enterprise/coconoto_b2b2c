@@ -1,5 +1,7 @@
 // BACK TO WORKING VERCEL API - No more 500 errors!
 
+import { supabase } from '../lib/supabase';
+
 interface EmailData {
   customerName?: string;
   customerEmail?: string;

@@ -5,8 +5,17 @@ import patent1 from '../../../assets/patent docs _page-0001.jpg';
 import patent2 from '../../../assets/patent docs _page-0002.jpg';
 import companyCert from '../../../assets/CompanyCertificate.jpg';
 
+interface Certificate {
+  type: string;
+  title: string;
+  number: string;
+  issueDate: string;
+  image: string;
+  description: string;
+}
+
 export function CertificatesSection() {
-  const certificates = [
+  const certificates: Certificate[] = [
     {
       type: 'Patent',
       title: 'Certificate of Registration of Utility Model Patent',
@@ -34,7 +43,7 @@ export function CertificatesSection() {
   ];
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedCert, setSelectedCert] = useState(null);
+  const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
 
   return (
     <section id="certifications" className="py-5 bg-white">

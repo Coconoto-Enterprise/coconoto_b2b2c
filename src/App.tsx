@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -10,33 +10,36 @@ import { Features } from './components/Features';
 import { CTA } from './components/CTA';
 import Footer from './components/Footer';
 import { About } from './components/About';
-import { ServicesLayout } from './pages/services/ServicesLayout';
-import { ProductLayout } from './pages/product/ProductLayout';
-import PrivacyPolicy from './pages/policies/PrivacyPolicy';
-import TermsOfService from './pages/policies/TermsOfService';
-import CookiePolicy from './pages/policies/CookiePolicy';
-import { HelpCenter } from './pages/support/HelpCenter';
-import { Contact } from './pages/support/Contact';
-import ProfilePage from './pages/Profile';
-import ProfileLinksPage from './pages/ProfileLinks';
-import ProfileDetailPage from './pages/ProfileDetail';
-import VintageLogin from './pages/VintageLogin';
-import VintageDashboard from './pages/VintageDashboard';
-import TweetitLogin from './pages/TweetitLogin';
-import TweetitDashboard from './pages/TweetitDashboard';
 import FloatingChatIcon from './components/FloatingChatIcon';
-import BlogHome from './pages/blog/BlogHome';
-import BlogDetail from './pages/blog/BlogDetail';
-import BlogEditor from './components/blog/BlogEditor';
-import { Marketplace } from './pages/vendor/Marketplace';
-import { VendorLogin } from './pages/vendor/VendorLogin';
-import { VendorSignup } from './pages/vendor/VendorSignup';
-import { VendorDashboard } from './pages/vendor/VendorDashboard';
-import { BuyerLogin } from './pages/buyer/BuyerLogin';
-import { BuyerSignup } from './pages/buyer/BuyerSignup';
-import { BuyerDashboard } from './pages/buyer/BuyerDashboard';
-import { NotFound } from './pages/errors/NotFound';
-import { ServerError } from './pages/errors/ServerError';
+import {
+  ServicesLayout,
+  ProductLayout,
+  PrivacyPolicy,
+  TermsOfService,
+  CookiePolicy,
+  HelpCenter,
+  Contact,
+  ProfilePage,
+  ProfileLinksPage,
+  ProfileDetailPage,
+  VintageLogin,
+  VintageDashboard,
+  TweetitLogin,
+  TweetitDashboard,
+  BlogHome,
+  BlogDetail,
+  BlogEditor,
+  Marketplace,
+  VendorLogin,
+  VendorSignup,
+  VendorDashboard,
+  BuyerLogin,
+  BuyerSignup,
+  BuyerDashboard,
+  NotFound,
+  ServerError,
+  RouteFallback,
+} from './lazyComponents';
 import { MarketplaceAuthProvider } from './context/MarketplaceAuthContext';
 import { MarketplaceProtectedRoute } from './components/auth/MarketplaceProtectedRoute';
 import { ToastProvider } from './components/ui/toast';
@@ -47,6 +50,7 @@ function App() {
       <MarketplaceAuthProvider>
       <ToastProvider>
       <div className="min-h-screen bg-gray-50">
+        <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/" element={
             <>
@@ -99,6 +103,7 @@ function App() {
           {/* Catch-all route for 404 - must be last */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       </div>
       </ToastProvider>
       </MarketplaceAuthProvider>
