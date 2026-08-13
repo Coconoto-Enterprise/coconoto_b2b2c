@@ -15,7 +15,7 @@ export function VendorLogin() {
   const emailRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { refreshSession } = useMarketplaceAuth();
+  const { login } = useMarketplaceAuth();
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const passwordValid = password.length >= 6;
@@ -50,7 +50,12 @@ export function VendorLogin() {
       if (rememberMe) localStorage.setItem('vendorEmailRemember', result.vendor.email);
       else localStorage.removeItem('vendorEmailRemember');
 
-      await refreshSession();
+      login({
+        id: result.vendor.id,
+        role: 'vendor',
+        email: result.vendor.email,
+        name: result.vendor.business_name,
+      });
       const returnTo = searchParams.get('returnTo');
       navigate(returnTo?.startsWith('/') ? returnTo : '/vendor-dashboard');
     } else {

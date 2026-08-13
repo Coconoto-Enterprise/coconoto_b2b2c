@@ -13,6 +13,7 @@ interface MarketplaceAuthValue {
   session: MarketplaceSession | null;
   loading: boolean;
   refreshSession: () => Promise<MarketplaceSession | null>;
+  login: (session: MarketplaceSession) => void;
   logout: () => Promise<void>;
 }
 
@@ -68,6 +69,16 @@ export function MarketplaceAuthProvider({ children }: { children: React.ReactNod
     }
   }, []);
 
+  // Establish the SPA session directly from a successful login response. This
+  // avoids a second cookie round-trip that can return null (proxy/cookie
+  // delivery, SameSite, transient API error) and bounce the user back to login
+  // even though auth actually succeeded. The cookie is still set server-side
+  // for API calls, and refreshSession() re-hydrates from it on full reloads.
+  const login = useCallback((s: MarketplaceSession) => {
+    setSession(s);
+    syncLocalStorage(s);
+  }, []);
+
   useEffect(() => {
     refreshSession();
   }, [refreshSession]);
@@ -86,7 +97,7 @@ export function MarketplaceAuthProvider({ children }: { children: React.ReactNod
     }
   }, []);
 
-  const value = useMemo(() => ({ session, loading, refreshSession, logout }), [session, loading, refreshSession, logout]);
+  const value = useMemo(() => ({ session, loading, refreshSession, login, logout }), [session, loading, refreshSession, login, logout]);
   return <MarketplaceAuthContext.Provider value={value}>{children}</MarketplaceAuthContext.Provider>;
 }
 

@@ -8,7 +8,7 @@ import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
 export function BuyerLogin() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { refreshSession } = useMarketplaceAuth();
+  const { login } = useMarketplaceAuth();
   const emailRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<BuyerLoginInput>({
     email: '',
@@ -58,7 +58,12 @@ export function BuyerLogin() {
         localStorage.removeItem('buyerEmailRemember');
       }
 
-      await refreshSession();
+      login({
+        id: result.buyer.id,
+        role: 'buyer',
+        email: result.buyer.email,
+        name: `${result.buyer.first_name} ${result.buyer.last_name}`.trim(),
+      });
       const returnTo = searchParams.get('returnTo');
       navigate(returnTo?.startsWith('/') ? returnTo : '/buyer-dashboard');
     } else {
