@@ -27,3 +27,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# WorkBuddy AI internal data (local agent memory, skills, diagnostics)
+.workbuddy-ai/
