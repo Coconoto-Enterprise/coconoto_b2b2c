@@ -12,8 +12,8 @@ import {
 } from 'lucide-react';
 import { WaitlistModal } from './WaitlistModal';
 import { BookEventModal } from './BookEventModal';
-import GoogleSearch1 from '../assets/coconut_google_search.png';
-import GoogleSearch2 from '../assets/coconut_google_search-2.png';
+import GoogleSearch1 from '../assets/coconut_google_search.webp';
+import GoogleSearch2 from '../assets/coconut_google_search-2.webp';
 import Threads from './Threads';
 
 export function About() {
@@ -52,11 +52,11 @@ export function About() {
           <div className="mt-[32vh] md:mt-[22vh] lg:mt-[17vh] mb-0">
             <div className="flex flex-row absolute left-0 right-0">
               <div className="overflow-hidden w-[150px] md:w-[340px] h-auto md:h-[25vh] rounded-lg">
-                <img src={GoogleSearch1} alt="Coconut Search 1" className="w-full" style={{marginTop: 0}} />
+                <img src={GoogleSearch1} alt="Coconut Search 1" width={542} height={461} fetchPriority="high" className="w-full" style={{marginTop: 0}} />
               </div>
               <div className="flex-grow" />
               <div className="overflow-hidden w-[150px] md:w-[340px] h-auto md:h-[25vh] rounded-lg">
-                <img src={GoogleSearch2} alt="Coconut Search 2" className="w-full" style={{marginTop: 0}} />
+                <img src={GoogleSearch2} alt="Coconut Search 2" width={542} height={461} className="w-full" style={{marginTop: 0}} />
               </div>
             </div>
             <div className="h-[15vh] md:h-[25vh]"></div>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../../assets/Logo_1.png';
-import GoogleSearch1 from '../../assets/coconut_google_search.png';
-import GoogleSearch2 from '../../assets/coconut_google_search-2.png';
+import GoogleSearch1 from '../../assets/coconut_google_search.webp';
+import GoogleSearch2 from '../../assets/coconut_google_search-2.webp';
 import { WaitlistModal } from '../../components/WaitlistModal';
 
 export function ProductHero() {
@@ -34,11 +34,11 @@ export function ProductHero() {
           <div className="mt-12 md:mt-0 mb-0">
             <div className="flex flex-row absolute left-0 right-0">
               <div className="overflow-hidden w-[150px] md:w-[340px] h-auto md:h-[200px] rounded-lg">
-                <img src={GoogleSearch1} alt="Coconut Search 1" className="w-full" style={{marginTop: 0}} />
+                <img src={GoogleSearch1} alt="Coconut Search 1" width={542} height={461} fetchPriority="high" className="w-full" style={{marginTop: 0}} />
               </div>
               <div className="flex-grow" />
               <div className="overflow-hidden w-[150px] md:w-[340px] h-auto md:h-[200px] rounded-lg">
-                <img src={GoogleSearch2} alt="Coconut Search 2" className="w-full" style={{marginTop: 0}} />
+                <img src={GoogleSearch2} alt="Coconut Search 2" width={542} height={461} className="w-full" style={{marginTop: 0}} />
               </div>
             </div>
             <div className="h-[120px] md:h-[200px]"></div>
