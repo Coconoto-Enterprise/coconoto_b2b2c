@@ -139,15 +139,11 @@ export function BuyerLogin() {
             </div>
 
             <div className="relative">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-sm px-3 py-1 text-xs font-semibold uppercase tracking-wider">
-                <Sparkles className="h-3.5 w-3.5" />
-                Buyer Access
-              </div>
-              <h2 className="mt-5 text-4xl font-black leading-tight">
+              <h2 className="text-4xl font-black leading-tight">
                 Welcome back to <span className="text-amber-200">Coconoto</span>.
               </h2>
               <p className="mt-3 text-white/85 text-base leading-relaxed max-w-md">
-                Track your orders, save favorites, and checkout faster across our verified coconut marketplace.
+                Browse, save favorites, and enjoy a faster experience across the Coconoto marketplace.
               </p>
             </div>
 
@@ -157,8 +153,8 @@ export function BuyerLogin() {
                   <ShieldCheck className="h-4 w-4" />
                 </span>
                 <div>
-                  <p className="font-semibold">Verified vendors only</p>
-                  <p className="text-white/70">Every seller is vetted by Coconoto.</p>
+                  <p className="font-semibold">Quality assured</p>
+                  <p className="text-white/70">Curated products you can trust.</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
@@ -167,7 +163,7 @@ export function BuyerLogin() {
                 </span>
                 <div>
                   <p className="font-semibold">Save your details</p>
-                  <p className="text-white/70">One-click checkout on future orders.</p>
+                  <p className="text-white/70">Resume your activity anytime.</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
@@ -182,19 +178,15 @@ export function BuyerLogin() {
             </ul>
 
             <div className="relative pt-6 mt-6 border-t border-white/15 text-xs text-white/70">
-              Secured by Coconoto Buyer Portal
+              Secured by Coconoto
             </div>
           </div>
 
           {/* Login form */}
           <div>
             <div className="text-center mb-6 lg:hidden">
-              <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-green-700">
-                <Sparkles className="h-3.5 w-3.5" />
-                Buyer Access
-              </div>
-              <h2 className="mt-4 text-3xl font-bold text-gray-900">Sign in to your account</h2>
-              <p className="text-gray-600 mt-1">Track your orders and save favorites.</p>
+              <h2 className="text-3xl font-bold text-gray-900">Sign in to your account</h2>
+              <p className="text-gray-600 mt-1">Welcome back. Please enter your details.</p>
             </div>
 
             <div className="bg-white rounded-3xl shadow-xl border border-green-100/50 p-6 sm:p-8">
