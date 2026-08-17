@@ -1,4 +1,20 @@
-import { getMarketplaceSupabase, requireSession } from './_marketplace-session.js';
+import { getMarketplaceSupabase, requireSession, readSession } from './_marketplace-session.js';
+
+// Resolve the vendor id for any authenticated seller: a pure 'vendor' session,
+// or a 'buyer' session that has opted in to sell (isSeller + vendorId).
+function requireSeller(req, res) {
+  const session = readSession(req);
+  if (!session) {
+    res.status(401).json({ success: false, error: 'Please sign in to continue' });
+    return null;
+  }
+  const vendorId = session.role === 'vendor' ? session.id : (session.isSeller ? session.vendorId : null);
+  if (!vendorId) {
+    res.status(403).json({ success: false, error: 'Seller access required' });
+    return null;
+  }
+  return { ...session, vendorId };
+}
 
 const ORDER_STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 const PROFILE_FIELDS = ['first_name', 'last_name', 'phone', 'address', 'city', 'state', 'country', 'postal_code'];
@@ -77,12 +93,12 @@ export default async function handler(req, res) {
     }
 
     if (action === 'vendor-dashboard') {
-      const session = requireSession(req, res, 'vendor');
-      if (!session) return;
+      const seller = requireSeller(req, res);
+      if (!seller) return;
       const [{ data: vendor, error: vendorError }, { data: products, error: productsError }, { data: orders, error: ordersError }] = await Promise.all([
-        supabase.from('vendors').select('id, email, business_name, contact_name, phone, address, description, logo_url, is_verified, is_active, created_at, updated_at').eq('id', session.id).eq('is_active', true).single(),
-        supabase.from('vendor_products').select('*').eq('vendor_id', session.id).order('created_at', { ascending: false }),
-        supabase.from('vendor_orders').select('*, product:vendor_products(product_name, category, unit, price, image_url)').eq('vendor_id', session.id).order('created_at', { ascending: false }),
+        supabase.from('vendors').select('id, email, business_name, contact_name, phone, address, description, logo_url, is_verified, is_active, created_at, updated_at').eq('id', seller.vendorId).eq('is_active', true).single(),
+        supabase.from('vendor_products').select('*').eq('vendor_id', seller.vendorId).order('created_at', { ascending: false }),
+        supabase.from('vendor_orders').select('*, product:vendor_products(product_name, category, unit, price, image_url)').eq('vendor_id', seller.vendorId).order('created_at', { ascending: false }),
       ]);
       if (vendorError) return res.status(401).json({ success: false, error: 'Vendor account is unavailable' });
       if (productsError || ordersError) throw productsError || ordersError;
@@ -90,8 +106,8 @@ export default async function handler(req, res) {
     }
 
     if (action === 'vendor-product-save') {
-      const session = requireSession(req, res, 'vendor');
-      if (!session) return;
+      const seller = requireSeller(req, res);
+      if (!seller) return;
       const product = pick(data.product, PRODUCT_FIELDS);
       product.price = Number(product.price);
       product.stock_quantity = Number.parseInt(product.stock_quantity, 10);
@@ -100,9 +116,9 @@ export default async function handler(req, res) {
       }
       let query;
       if (data.productId) {
-        query = supabase.from('vendor_products').update(product).eq('id', data.productId).eq('vendor_id', session.id).select().single();
+        query = supabase.from('vendor_products').update(product).eq('id', data.productId).eq('vendor_id', seller.vendorId).select().single();
       } else {
-        query = supabase.from('vendor_products').insert([{ ...product, vendor_id: session.id }]).select().single();
+        query = supabase.from('vendor_products').insert([{ ...product, vendor_id: seller.vendorId }]).select().single();
       }
       const { data: saved, error } = await query;
       if (error) throw error;
@@ -110,18 +126,18 @@ export default async function handler(req, res) {
     }
 
     if (action === 'vendor-product-delete') {
-      const session = requireSession(req, res, 'vendor');
-      if (!session) return;
-      const { error } = await supabase.from('vendor_products').delete().eq('id', data.productId).eq('vendor_id', session.id);
+      const seller = requireSeller(req, res);
+      if (!seller) return;
+      const { error } = await supabase.from('vendor_products').delete().eq('id', data.productId).eq('vendor_id', seller.vendorId);
       if (error) throw error;
       return res.status(200).json({ success: true });
     }
 
     if (action === 'vendor-order-status') {
-      const session = requireSession(req, res, 'vendor');
-      if (!session) return;
+      const seller = requireSeller(req, res);
+      if (!seller) return;
       if (!ORDER_STATUSES.includes(data.status)) return res.status(400).json({ success: false, error: 'Invalid order status' });
-      const { error } = await supabase.from('vendor_orders').update({ status: data.status }).eq('id', data.orderId).eq('vendor_id', session.id);
+      const { error } = await supabase.from('vendor_orders').update({ status: data.status }).eq('id', data.orderId).eq('vendor_id', seller.vendorId);
       if (error) throw error;
       return res.status(200).json({ success: true });
     }

@@ -2,13 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, Store, Sparkles, ShieldCheck, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { buyerLogin } from '../../services/buyerService';
+import { vendorLogin } from '../../services/vendorService';
 import type { BuyerLoginInput } from '../../types/buyer';
 import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
 
 export function BuyerLogin() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { login } = useMarketplaceAuth();
+  const { login, refreshSession } = useMarketplaceAuth();
   const emailRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<BuyerLoginInput>({
     email: '',
@@ -57,18 +58,40 @@ export function BuyerLogin() {
       } else {
         localStorage.removeItem('buyerEmailRemember');
       }
-
       login({
         id: result.buyer.id,
         role: 'buyer',
         email: result.buyer.email,
         name: `${result.buyer.first_name} ${result.buyer.last_name}`.trim(),
       });
-      const returnTo = searchParams.get('returnTo');
-      navigate(returnTo?.startsWith('/') ? returnTo : '/buyer-dashboard');
     } else {
-      setError(result.error || 'Invalid email or password. Please try again.');
+      // Unified login: a registered seller can use the same form and lands on the marketplace too.
+      const vendorResult = await vendorLogin(formData);
+      if (vendorResult.success && vendorResult.vendor) {
+        if (rememberMe) {
+          localStorage.setItem('buyerEmailRemember', vendorResult.vendor.email);
+        } else {
+          localStorage.removeItem('buyerEmailRemember');
+        }
+        login({
+          id: vendorResult.vendor.id,
+          role: 'vendor',
+          email: vendorResult.vendor.email,
+          name: vendorResult.vendor.business_name,
+          isSeller: true,
+          vendorId: vendorResult.vendor.id,
+        });
+      } else {
+        setError(result.error || vendorResult.error || 'Invalid email or password. Please try again.');
+        setIsLoading(false);
+        return;
+      }
     }
+
+    // Sync the seller flag (if any) from the authoritative session cookie, then land on the marketplace.
+    await refreshSession();
+    const returnTo = searchParams.get('returnTo');
+    navigate(returnTo?.startsWith('/') ? returnTo : '/marketplace');
 
     setIsLoading(false);
   };
@@ -311,25 +334,6 @@ export function BuyerLogin() {
                   Continue as Guest →
                 </Link>
               </form>
-
-              {/* Sign up link */}
-              <p className="mt-6 text-center text-sm text-gray-600">
-                Don't have an account?{' '}
-                <Link to="/buyer-signup" className="text-green-700 font-semibold hover:text-green-800">
-                  Create one
-                </Link>
-              </p>
-            </div>
-
-            {/* Vendor login link below the card */}
-            <div className="mt-5 text-center">
-              <p className="text-sm text-gray-600">
-                Selling on Coconoto?{' '}
-                <Link to="/vendor-login" className="text-green-700 font-semibold hover:text-green-800 inline-flex items-center gap-1">
-                  <Store className="h-3.5 w-3.5" />
-                  Vendor Login
-                </Link>
-              </p>
             </div>
           </div>
         </div>

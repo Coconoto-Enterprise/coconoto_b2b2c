@@ -17,12 +17,16 @@ const sign = (payload) => crypto
   .update(payload)
   .digest('base64url');
 
-export const createSessionToken = ({ id, role, email, name }) => {
+// `isSeller`/`vendorId` let a buyer who opted in to sell keep a single session
+// while still reaching seller-only endpoints (product management, etc.).
+export const createSessionToken = (session) => {
   const payload = base64url(JSON.stringify({
-    id,
-    role,
-    email,
-    name,
+    id: session.id,
+    role: session.role,
+    email: session.email,
+    name: session.name,
+    isSeller: !!session.isSeller,
+    vendorId: session.vendorId || null,
     exp: Math.floor(Date.now() / 1000) + SESSION_MAX_AGE_SECONDS,
   }));
   return `${payload}.${sign(payload)}`;
@@ -96,4 +100,6 @@ export const publicSession = (session) => session ? {
   role: session.role,
   email: session.email,
   name: session.name,
+  isSeller: !!session.isSeller,
+  vendorId: session.vendorId || null,
 } : null;

@@ -63,6 +63,33 @@ export async function buyerLogin(input: BuyerLoginInput): Promise<BuyerAuthRespo
   }
 }
 
+// Buyer "Become a Seller" — upgrades the logged-in buyer to also sell on Coconoto.
+export async function buyerBecomeSeller(input: {
+  password: string;
+  business_name: string;
+  contact_name: string;
+  phone?: string;
+  address?: string;
+  description?: string;
+}): Promise<{ success: boolean; vendor?: unknown; error?: string }> {
+  try {
+    const response = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ action: 'buyer-become-seller', ...input }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      return { success: false, error: data.error || 'Failed to become a seller' };
+    }
+    return { success: true, vendor: data.vendor };
+  } catch (error) {
+    console.error('Become a seller error:', error);
+    return { success: false, error: 'Failed to become a seller' };
+  }
+}
+
 // Get Buyer Profile from the authenticated server session
 export async function getBuyerProfile(_buyerId?: string): Promise<Buyer | null> {
   const dashboard = await getBuyerDashboard();

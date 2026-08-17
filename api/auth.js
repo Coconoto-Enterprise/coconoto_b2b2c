@@ -57,6 +57,8 @@ export default async function handler(req, res) {
         return await handleVendorLogin(data, res);
       case 'vendor-signup':
         return await handleVendorSignup(data, res);
+      case 'buyer-become-seller':
+        return await handleBuyerBecomeSeller(req, data, res);
       case 'marketplace-session':
         return res.status(200).json({ success: true, session: publicSession(readSession(req)) });
       case 'marketplace-logout':
@@ -129,12 +131,23 @@ async function handleBuyerLogin(data, res) {
       });
     }
 
+    // A buyer who also registered as a seller keeps one session but is flagged
+    // so the marketplace can surface their seller tools.
+    const { data: linkedVendor } = await getSupabaseClient()
+      .from('vendors')
+      .select('id')
+      .eq('email', buyer.email)
+      .eq('is_active', true)
+      .maybeSingle();
+
     const { password_hash, ...buyerData } = buyer;
     setSessionCookie(res, {
       id: buyer.id,
       role: 'buyer',
       email: buyer.email,
       name: `${buyer.first_name} ${buyer.last_name}`.trim(),
+      isSeller: !!linkedVendor,
+      vendorId: linkedVendor?.id || null,
     });
     console.log('✅ Buyer login successful:', email);
     return res.status(200).json({
@@ -218,6 +231,8 @@ async function handleBuyerSignup(data, res) {
       role: 'buyer',
       email: buyer.email,
       name: `${buyer.first_name} ${buyer.last_name}`.trim(),
+      isSeller: false,
+      vendorId: null,
     });
     console.log('✅ Buyer signup successful:', email);
     return res.status(201).json({
@@ -278,6 +293,8 @@ async function handleVendorLogin(data, res) {
       role: 'vendor',
       email: vendor.email,
       name: vendor.business_name,
+      isSeller: true,
+      vendorId: vendor.id,
     });
     console.log('✅ Vendor login successful:', email);
     return res.status(200).json({
@@ -355,6 +372,8 @@ async function handleVendorSignup(data, res) {
       role: 'vendor',
       email: vendor.email,
       name: vendor.business_name,
+      isSeller: true,
+      vendorId: vendor.id,
     });
     console.log('✅ Vendor signup successful:', email);
     return res.status(201).json({
@@ -368,6 +387,76 @@ async function handleVendorSignup(data, res) {
       success: false,
       error: 'Signup failed: ' + error.message
     });
+  }
+}
+
+// Buyer "Become a Seller" — upgrades the logged-in buyer to also be a seller.
+// Reuses the buyer's email (so the single login keeps working) and links the
+// new vendor record to the buyer session via isSeller/vendorId in the cookie.
+async function handleBuyerBecomeSeller(req, data, res) {
+  const session = readSession(req);
+  if (!session || session.role !== 'buyer') {
+    return res.status(401).json({ success: false, error: 'Please sign in as a buyer to continue' });
+  }
+
+  const { password, business_name, contact_name, phone, address, description } = data;
+  if (!password || !business_name || !contact_name) {
+    return res.status(400).json({
+      success: false,
+      error: 'Password, business name, and contact name are required'
+    });
+  }
+
+  try {
+    // If a seller account already exists for this email, just link to it.
+    const { data: existing } = await getSupabaseClient()
+      .from('vendors')
+      .select('id')
+      .eq('email', session.email)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    let vendor = existing;
+    if (!vendor) {
+      const passwordHash = await bcrypt.hash(password, 10);
+      const { data: created, error: insertError } = await getSupabaseClient()
+        .from('vendors')
+        .insert([{
+          email: session.email,
+          password_hash: passwordHash,
+          business_name,
+          contact_name,
+          phone: phone || null,
+          address: address || null,
+          description: description || null
+        }])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('❌ Become seller error:', insertError);
+        if (insertError.message.includes('duplicate') || insertError.code === '23505') {
+          return res.status(400).json({ success: false, error: 'A seller account already exists for this email' });
+        }
+        return res.status(500).json({ success: false, error: 'Failed to create seller account' });
+      }
+      vendor = created;
+    }
+
+    const { password_hash, ...vendorData } = vendor;
+    setSessionCookie(res, {
+      id: session.id,
+      role: 'buyer',
+      email: session.email,
+      name: session.name,
+      isSeller: true,
+      vendorId: vendor.id,
+    });
+    console.log('✅ Buyer became seller:', session.email);
+    return res.status(200).json({ success: true, vendor: vendorData });
+  } catch (error) {
+    console.error('❌ Become seller exception:', error.message);
+    return res.status(500).json({ success: false, error: 'Failed to create seller account' });
   }
 }
 

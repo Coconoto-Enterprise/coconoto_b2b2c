@@ -7,6 +7,9 @@ export interface MarketplaceSession {
   role: MarketplaceRole;
   email: string;
   name: string;
+  // Present when a buyer has also registered as a seller (single unified login).
+  isSeller?: boolean;
+  vendorId?: string;
 }
 
 interface MarketplaceAuthValue {

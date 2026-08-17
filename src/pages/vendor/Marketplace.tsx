@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import MarketplaceNavbar from '../../components/MarketplaceNavbar';
 import BuyerNavbar from '../../components/BuyerNavbar';
 import Footer from '../../components/Footer';
-import { SlidersHorizontal, X, Search, BadgeCheck, Minus, Plus, PackageOpen, Check, Info } from 'lucide-react';
-import { getAllMarketplaceProducts, createOrder } from '../../services/vendorService';
+import { SlidersHorizontal, X, Search, BadgeCheck, Minus, Plus, PackageOpen, Check, Info, Store } from 'lucide-react';
+import { getAllMarketplaceProducts, createOrder, getVendorDashboard, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../../services/vendorService';
 import { createOrderWithBuyer, getBuyerProfile } from '../../services/buyerService';
 import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
-import type { VendorProduct, VendorOrderInput } from '../../types/vendor';
-import { PRODUCT_CATEGORIES } from '../../types/vendor';
+import type { VendorProduct, VendorOrderInput, VendorProductInput } from '../../types/vendor';
+import { PRODUCT_CATEGORIES, UNITS } from '../../types/vendor';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -39,6 +39,8 @@ export function Marketplace() {
   // stays reactive (re-renders once the async session resolves). Fall back to
   // localStorage for resilience across reloads.
   const { session } = useMarketplaceAuth();
+  const isSeller = !!session?.isSeller;
+  const vendorId = session?.vendorId || null;
   const buyerId =
     session?.role === 'buyer' ? session.id : localStorage.getItem('buyerId');
   const buyerName =
@@ -159,6 +161,8 @@ export function Marketplace() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 lg:pt-10 pb-8 lg:pb-10">
+        {isSeller && <SellerTools vendorId={vendorId} />}
+
         <div className="lg:hidden mb-4">
           <div className="flex items-center gap-2">
             <button
@@ -764,5 +768,208 @@ function OrderModal({
         </>
       )}
     </Dialog>
+  );
+}
+
+// Seller tools shown on the marketplace for a buyer who has also become a seller
+// (single unified login). Lets them view, add, edit and remove their own products.
+function SellerTools({ vendorId }: { vendorId: string | null }) {
+  const [products, setProducts] = useState<VendorProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState<Partial<VendorProductInput>>({
+    product_name: '',
+    description: '',
+    category: PRODUCT_CATEGORIES[0],
+    price: 0,
+    unit: UNITS[0],
+    stock_quantity: 0,
+    image_url: ''
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
+  const { toast } = useToast();
+
+  const load = async () => {
+    if (!vendorId) return;
+    setLoading(true);
+    const data = await getVendorDashboard();
+    setProducts(data?.products || []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vendorId]);
+
+  const handleImage = async (file: File | null) => {
+    if (!file || !vendorId) return;
+    const res = await uploadProductImage(vendorId, file);
+    if (res.success && res.imageUrl) {
+      setForm((f) => ({ ...f, image_url: res.imageUrl }));
+    } else {
+      setError(res.error || 'Image upload failed');
+    }
+  };
+
+  const startEdit = (p: VendorProduct) => {
+    setEditingId(p.id);
+    setForm({
+      product_name: p.product_name,
+      description: p.description,
+      category: p.category,
+      price: p.price,
+      unit: p.unit,
+      stock_quantity: p.stock_quantity,
+      image_url: p.image_url
+    });
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (!form.product_name?.trim() || !form.description?.trim() || !(Number(form.price) > 0)) {
+      setError('Product name, description and a valid price are required.');
+      return;
+    }
+    if (!vendorId) return;
+
+    const payload: VendorProductInput = {
+      product_name: form.product_name!,
+      description: form.description!,
+      category: form.category!,
+      price: Number(form.price),
+      unit: form.unit!,
+      stock_quantity: Number(form.stock_quantity),
+      image_url: form.image_url
+    };
+
+    setIsSaving(true);
+    let ok = false;
+    let errMsg = '';
+    if (editingId) {
+      ok = await updateProduct(editingId, vendorId, payload);
+      if (!ok) errMsg = 'Failed to update product';
+    } else {
+      const result = await createProduct(vendorId, payload);
+      ok = !!result.success;
+      errMsg = result.error || 'Failed to add product';
+    }
+    setIsSaving(false);
+
+    if (ok) {
+      toast({ title: editingId ? 'Product updated' : 'Product added', variant: 'success' });
+      setShowForm(false);
+      setEditingId(null);
+      setForm({ product_name: '', description: '', category: PRODUCT_CATEGORIES[0], price: 0, unit: UNITS[0], stock_quantity: 0, image_url: '' });
+      load();
+    } else {
+      setError(errMsg);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!vendorId) return;
+    if (!window.confirm('Delete this product?')) return;
+    const ok = await deleteProduct(id, vendorId);
+    if (ok) {
+      toast({ title: 'Product deleted', variant: 'success' });
+      load();
+    } else {
+      setError('Failed to delete product');
+    }
+  };
+
+  return (
+    <div className="mb-8 rounded-3xl border border-green-200 bg-white/85 backdrop-blur p-6 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="flex items-center gap-2 text-xl font-bold text-gray-900">
+            <Store className="h-5 w-5 text-green-700" /> Your Seller Dashboard
+          </h3>
+          <p className="text-sm text-gray-600">Manage the products you sell on Coconoto.</p>
+        </div>
+        <Button onClick={() => { setShowForm((s) => !s); setEditingId(null); }}>
+          {showForm ? 'Cancel' : 'Add Product'}
+        </Button>
+      </div>
+
+      {showForm && (
+        <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {error && (
+            <div className="sm:col-span-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
+          <div className="sm:col-span-2">
+            <Label>Product name *</Label>
+            <Input value={form.product_name || ''} onChange={(e) => setForm((f) => ({ ...f, product_name: e.target.value }))} />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Description *</Label>
+            <Textarea value={form.description || ''} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+          </div>
+          <div>
+            <Label>Category</Label>
+            <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm">
+              {PRODUCT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <Label>Unit</Label>
+            <select value={form.unit} onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm">
+              {UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
+            </select>
+          </div>
+          <div>
+            <Label>Price (₦)</Label>
+            <Input type="number" min={0} value={form.price ?? 0} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} />
+          </div>
+          <div>
+            <Label>Stock quantity</Label>
+            <Input type="number" min={0} value={form.stock_quantity ?? 0} onChange={(e) => setForm((f) => ({ ...f, stock_quantity: Number(e.target.value) }))} />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Product image</Label>
+            <Input type="file" accept="image/*" onChange={(e) => handleImage(e.target.files?.[0] || null)} />
+            {form.image_url && <img src={form.image_url} alt="preview" className="mt-2 h-24 w-24 rounded-lg object-cover" />}
+          </div>
+          <div className="sm:col-span-2">
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
+            </Button>
+          </div>
+        </form>
+      )}
+
+      <div className="mt-6">
+        {loading ? (
+          <p className="text-sm text-gray-500">Loading your products…</p>
+        ) : products.length === 0 ? (
+          <p className="text-sm text-gray-500">You haven't added any products yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {products.map((p) => (
+              <div key={p.id} className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-3">
+                {p.image_url ? (
+                  <img src={p.image_url} alt={p.product_name} className="h-14 w-14 rounded-md object-cover" />
+                ) : (
+                  <div className="flex h-14 w-14 items-center justify-center rounded-md bg-emerald-100 text-2xl">🥥</div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold text-gray-900">{p.product_name}</p>
+                  <p className="text-xs text-gray-500">₦{Number(p.price).toLocaleString()} / {p.unit} · {p.stock_quantity} in stock</p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => startEdit(p)}>Edit</Button>
+                <Button variant="outline" size="sm" className="text-red-600" onClick={() => handleDelete(p.id)}>Delete</Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

@@ -1,21 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { getBuyerProfile, getBuyerOrders, updateBuyerProfile } from '../../services/buyerService';
+import { getBuyerProfile, getBuyerOrders, updateBuyerProfile, buyerBecomeSeller } from '../../services/buyerService';
 import type { Buyer, BuyerOrder, BuyerUpdateInput } from '../../types/buyer';
 import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
   Sidebar, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter
 } from '@/components/ui/sidebar-lite';
 import { Sheet, SheetHeader, SheetClose, SheetTitle } from '@/components/ui/sheet';
-import { ShoppingBag, User, Store, LogOut, Menu, Pencil, Mail, Phone, Loader2 } from 'lucide-react';
+import { ShoppingBag, User, Store, LogOut, Menu, Pencil, Mail, Phone, Loader2, CheckCircle2 } from 'lucide-react';
 
 export function BuyerDashboard() {
-  const [activeTab, setActiveTab] = useState<'orders' | 'profile'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'profile' | 'sell'>('orders');
   const [buyer, setBuyer] = useState<Buyer | null>(null);
   const [orders, setOrders] = useState<BuyerOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,7 +24,7 @@ export function BuyerDashboard() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
 
-  const { session, logout } = useMarketplaceAuth();
+  const { session, logout, refreshSession } = useMarketplaceAuth();
   const buyerId = session?.role === 'buyer' ? session.id : localStorage.getItem('buyerId');
   const buyerName =
     session?.role === 'buyer' ? session.name : localStorage.getItem('buyerName') || 'Buyer';
@@ -84,7 +85,8 @@ export function BuyerDashboard() {
 
   const navItems = [
     { key: 'orders' as const, label: 'My Orders', icon: ShoppingBag },
-    { key: 'profile' as const, label: 'Profile', icon: User }
+    { key: 'profile' as const, label: 'Profile', icon: User },
+    { key: 'sell' as const, label: 'Sell on Coconoto', icon: Store }
   ];
 
   return (
@@ -175,6 +177,12 @@ export function BuyerDashboard() {
               isEditing={isEditing}
               setIsEditing={setIsEditing}
               onUpdate={loadDashboardData}
+            />
+          )}
+          {activeTab === 'sell' && (
+            <BecomeSellerTab
+              isSeller={!!session?.isSeller}
+              onBecameSeller={async () => { await refreshSession(); }}
             />
           )}
         </div>
@@ -425,5 +433,137 @@ function Field({
       <Label>{label}</Label>
       <Input value={value ?? ''} onChange={(e) => onChange(e.target.value)} />
     </div>
+  );
+}
+
+// "Become a Seller" — reachable from the buyer dashboard once logged in.
+// Upgrades the single buyer account to also sell (handled by the backend, which
+// keeps one login and flags the session as a seller).
+function BecomeSellerTab({
+  isSeller,
+  onBecameSeller
+}: {
+  isSeller: boolean;
+  onBecameSeller: () => void | Promise<void>;
+}) {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    password: '',
+    business_name: '',
+    contact_name: '',
+    phone: '',
+    address: '',
+    description: ''
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  const setField = (key: keyof typeof form, value: string) =>
+    setForm((f) => ({ ...f, [key]: value }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setMessage('');
+
+    if (form.password.length < 6) {
+      setError('Your login password must be at least 6 characters.');
+      return;
+    }
+    if (!form.business_name.trim() || !form.contact_name.trim()) {
+      setError('Business name and contact name are required.');
+      return;
+    }
+
+    setIsSaving(true);
+    const result = await buyerBecomeSeller({
+      password: form.password,
+      business_name: form.business_name,
+      contact_name: form.contact_name,
+      phone: form.phone,
+      address: form.address,
+      description: form.description
+    });
+    setIsSaving(false);
+
+    if (result.success) {
+      await onBecameSeller();
+      setMessage('You are now a seller on Coconoto. You can add and manage your products from the marketplace.');
+      setForm({ password: '', business_name: '', contact_name: '', phone: '', address: '', description: '' });
+    } else {
+      setError(result.error || 'Failed to create your seller account.');
+    }
+  };
+
+  if (isSeller) {
+    return (
+      <Card className="max-w-2xl">
+        <CardContent className="py-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-success/15">
+              <CheckCircle2 className="h-6 w-6 text-success" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-foreground">You're a seller on Coconoto</h3>
+              <p className="text-sm text-muted-foreground">Add and manage the products you want to sell.</p>
+            </div>
+          </div>
+          <Button asChild>
+            <Link to="/marketplace">Go to Marketplace to manage products</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="max-w-2xl">
+      <CardHeader>
+        <CardTitle>Become a Seller</CardTitle>
+        <CardDescription>
+          Want to sell on Coconoto? Set up your seller account using your login password so everything stays under one account.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {message && (
+          <div className="mb-6 rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">{message}</div>
+        )}
+        {error && (
+          <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div>
+        )}
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <Label>Login password *</Label>
+            <Input type="password" value={form.password} onChange={(e) => setField('password', e.target.value)} placeholder="Your account password" />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Business name *</Label>
+            <Input value={form.business_name} onChange={(e) => setField('business_name', e.target.value)} placeholder="e.g. Green Coconut Farms" />
+          </div>
+          <div>
+            <Label>Contact name *</Label>
+            <Input value={form.contact_name} onChange={(e) => setField('contact_name', e.target.value)} placeholder="Full name" />
+          </div>
+          <div>
+            <Label>Phone</Label>
+            <Input value={form.phone} onChange={(e) => setField('phone', e.target.value)} placeholder="+234..." />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Address</Label>
+            <Input value={form.address} onChange={(e) => setField('address', e.target.value)} placeholder="Business address" />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>Description</Label>
+            <Textarea value={form.description} onChange={(e) => setField('description', e.target.value)} placeholder="Tell buyers about your business" />
+          </div>
+          <div className="sm:col-span-2">
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? 'Setting up...' : 'Become a Seller'}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
