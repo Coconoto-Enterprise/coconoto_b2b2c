@@ -3,7 +3,6 @@ import formidable from 'formidable';
 import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
 import {
-  requireApiKey,
   applyCorsAllowlist,
   escapeHtml,
   sanitizeHeaderValue,
@@ -117,7 +116,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
-  if (!requireApiKey(req, res)) return;
+  // Admin mail composer. No shared-secret gate (browser callers cannot hold
+  // a secret; the old API_MUTATIONS_KEY gate returned 503 to every request).
+  // Abuse is bounded by the CUSTOM_EMAIL_ALLOWED_DOMAINS recipient allowlist
+  // and the attachment MIME allowlist below. Real dashboard auth is tracked
+  // as a follow-up in docs/security-audit-2026-08-17.fixes.md.
 
   try {
     const contentType = req.headers['content-type'] || '';

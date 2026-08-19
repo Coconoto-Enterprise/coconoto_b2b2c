@@ -1,8 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { applyCorsAllowlist } from './_shared-auth.js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+// Server-side read path for the admin dashboard: use the service role key
+// so reads keep working after RLS locks the form tables to anon-INSERT
+// only. This key never leaves the serverless function. A VITE_ fallback
+// keeps local dev functioning when the service key is not set.
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  || process.env.VITE_SUPABASE_ANON_KEY;
 
 let supabase = null;
 
@@ -15,10 +21,12 @@ if (supabaseUrl && supabaseKey) {
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // Strict CORS allowlist instead of `Access-Control-Allow-Origin: *`: this
+  // endpoint returns customer submissions (names, emails, phones, addresses),
+  // so browsers from non-allowlisted origins must not be able to read it.
+  // Direct (non-browser) callers are a separate concern — real dashboard
+  // auth is tracked in docs/security-audit-2026-08-17.fixes.md.
+  applyCorsAllowlist(req, res);
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();

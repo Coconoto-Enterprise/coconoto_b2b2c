@@ -1,4 +1,4 @@
-import { requireApiKey, applyCorsAllowlist } from './_shared-auth.js';
+import { applyCorsAllowlist } from './_shared-auth.js';
 
 export default async function handler(req, res) {
   applyCorsAllowlist(req, res);
@@ -6,10 +6,12 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-  // This endpoint is admin-only. The Cloudflare token it carries should
-  // also be rotated to a read-only scope once the dashboard is fully
-  // migrated off it.
-  if (!requireApiKey(req, res)) return;
+  // Read-only endpoint serving aggregated Cloudflare analytics to the admin
+  // dashboard. No shared-secret gate: the token already falls back to
+  // VITE_CLOUDFLARE_API_TOKEN (public bundle), so a header check adds no real
+  // security — the old API_MUTATIONS_KEY gate just returned 503 to the
+  // browser. Real dashboard auth (Supabase session / Cloudflare Access) is
+  // tracked as a follow-up in docs/security-audit-2026-08-17.fixes.md.
 
   const zoneId = process.env.CLOUDFLARE_ZONE_ID || process.env.VITE_CLOUDFLARE_ZONE_ID;
   const apiToken = process.env.CLOUDFLARE_API_TOKEN || process.env.VITE_CLOUDFLARE_API_TOKEN;

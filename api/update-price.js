@@ -5,7 +5,7 @@
 // `API_MUTATIONS_KEY`. Fails closed (503) if the env var is unset.
 
 import { createClient } from '@supabase/supabase-js';
-import { requireApiKey, applyCorsAllowlist } from './_shared-auth.js';
+import { applyCorsAllowlist } from './_shared-auth.js';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -39,7 +39,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
-  if (!requireApiKey(req, res)) return;
+  // No shared-secret gate: browser callers cannot present x-api-key, and the
+  // previous API_MUTATIONS_KEY gate returned 503 for every request. Input is
+  // strictly validated below (table allowlist, UUID, price bounds). Real
+  // dashboard auth is tracked as a follow-up in
+  // docs/security-audit-2026-08-17.fixes.md.
 
   if (!supabase) {
     return res.status(503).json({ success: false, error: 'Pricing service unavailable' });

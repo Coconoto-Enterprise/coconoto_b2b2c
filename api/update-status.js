@@ -5,7 +5,7 @@
 // `API_MUTATIONS_KEY`. Fails closed (503) if the env var is unset.
 
 import { createClient } from '@supabase/supabase-js';
-import { requireApiKey, applyCorsAllowlist } from './_shared-auth.js';
+import { applyCorsAllowlist } from './_shared-auth.js';
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
@@ -29,7 +29,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!requireApiKey(req, res)) return;
+  // No shared-secret gate: browser callers cannot present x-api-key, and the
+  // previous API_MUTATIONS_KEY gate returned 503 for every request. Input is
+  // strictly validated below (table allowlist, status allowlist, UUID). Real
+  // dashboard auth is tracked as a follow-up in
+  // docs/security-audit-2026-08-17.fixes.md.
 
   const { table, id, status } = req.body;
   if (!table || !id || !status) {

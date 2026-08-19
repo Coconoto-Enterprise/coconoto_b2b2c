@@ -2,7 +2,6 @@ import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 import { TemplateService } from './_templateService.js';
 import {
-  requireApiKey,
   applyCorsAllowlist,
   escapeHtml,
   sanitizeHeaderValue,
@@ -173,12 +172,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Require an internal API key. Frontends that legitimately call this from
-  // the site will embed the key in env-derived config — the key is rotated
-  // separately from the public site bundle if needed.
-  if (!requireApiKey(req, res, { headerName: 'x-api-key', envVar: 'API_MUTATIONS_KEY' })) {
-    return;
-  }
+  // Public form endpoint — no shared-secret gate. A secret cannot be shipped
+  // to the browser, so the previous API_MUTATIONS_KEY gate made every form
+  // submission fail with 503 "Endpoint unavailable". Abuse protection is the
+  // strict validation below (form-type allowlist, email format), the CORS
+  // allowlist, and header/HTML sanitization. A rate-limit / Turnstile layer
+  // is tracked as a follow-up in docs/security-audit-2026-08-17.fixes.md.
 
   try {
     const { customerName, customerEmail, eventType, message, formType, formData } = req.body;

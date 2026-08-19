@@ -75,3 +75,45 @@ P1 hardening items the audit raised but that need a follow-up ticket rather than
   `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https://*.supabase.co data:; connect-src 'self' https://*.supabase.co https://api.resend.com`.
 
 Once the migrations in `supabase/migrations/20260817*.sql` are applied, the **immediate P0 blast radius from the audit** is closed for the items addressed above. The remaining items are tracked above for the next pass.
+
+---
+
+# 2026-08-18 follow-up — endpoint gate rework (supersedes part of "API endpoints" above)
+
+**What happened:** the `requireApiKey` gates added on 2026-08-17 made every
+browser caller fail with `503 Endpoint unavailable`. Root cause: the gates
+demand an `x-api-key` header matching `API_MUTATIONS_KEY`, but (a) that env
+var was never set in the deployment, so every call failed closed, and (b) no
+browser caller can hold that secret — `grep` of `src/` shows zero
+`x-api-key` usage, and a secret cannot be shipped in the public bundle. The
+admin dashboard also has no real auth (`adminLoggedIn` in `localStorage` is
+auto-set to `true` by `VintageDashboard.tsx` itself), so there was no session
+layer to verify against.
+
+**Decision:** a shared-secret gate that cannot be satisfied is worse than no
+gate — it turns a working public site into a 503 wall. These endpoints are
+reverted to validation-only (fail open on auth, fail closed on input) so the
+site works again, and the real auth layer is listed as the top follow-up.
+
+| File | Change |
+|---|---|
+| `api/send-email.js` | **Removed** `requireApiKey` gate (public form endpoint — this was the "Machine order service error: Endpoint unavailable" 503). Kept form-type allowlist, email-format validation, CORS allowlist, header/HTML sanitization. Sender config still read via the `get_sender_config_for_type` RPC (anon-safe). |
+| `api/cloudflare-analytics.js` | **Removed** gate (read-only aggregated analytics; the token already falls back to `VITE_CLOUDFLARE_API_TOKEN`, i.e. public-bundle). Kept error hygiene — never echoes the raw CF payload. |
+| `api/send-custom-email.js` | **Removed** gate (admin mail composer). Abuse bounded by `CUSTOM_EMAIL_ALLOWED_DOMAINS` (default `coconoto.africa`) + attachment MIME allowlist via magic bytes. |
+| `api/update-price.js` | **Removed** gate. Kept table allowlist, UUID regex, price bounds (0..1e9), price column derived from table name. |
+| `api/delete-record.js` | **Removed** gate. Kept table allowlist + UUID regex; production errors not echoed. |
+| `api/update-status.js` | **Removed** gate. Kept table + status-enum allowlists + UUID regex. |
+| `api/data.js` | **Hardened** — was `Access-Control-Allow-Origin: *` returning every customer submission (names, emails, phones, addresses) to any site. Now `applyCorsAllowlist` + **service-role key** (server-side only) so the dashboard read keeps working after the form tables are RLS-locked to anon-INSERT-only. |
+
+**Still open (top of the next pass):**
+- The admin endpoints + `api/data.js` have **no real authentication**: any
+  direct (non-browser) caller can hit them. Proper fix: a dashboard login
+  that issues a Supabase session, and endpoints that verify the JWT (`jose`
+  verify against `SUPABASE_JWT_SECRET`, `aud: authenticated`, plus an
+  admin-email allowlist checked against `mail_users`). This replaces the
+  removed shared-secret gates and is the P1 for the next pass.
+- `src/services/emailConfigService.ts` (`EmailConfigPanel`) still reads/writes
+  `email_sender_config` with the anon-key client — the v6 RLS lock breaks it.
+  Rewire through `/api/auth` (service_role) like the mail-user actions.
+- Public forms still have no rate-limit / Turnstile (unchanged — already
+  tracked in the out-of-scope list above).
