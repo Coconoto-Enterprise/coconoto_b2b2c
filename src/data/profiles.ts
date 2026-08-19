@@ -9,6 +9,7 @@ import OluwatokeFaejiPhoto from '../assets/team/Oluwatoke Faeji.jpeg';
 import TimilehinOluwayemiPhoto from '../assets/team/Oluwayemi.jpeg';
 import KehindePhoto from '../assets/team/Kehinde Elizabeth OMITOYIN.jpg';
 import TaiwoPhoto from '../assets/team/taiwo omitoyin .jpeg';
+import TunmisePhoto from '../assets/team/Oyeyode Tunmise.jpeg';
 
 export interface Profile {
   id: string;
@@ -223,5 +224,23 @@ export const profiles: Profile[] = [
     courseOfStudy: 'Literature-in-English',
     institution: 'Obafemi Awolowo University',
     headshotUrl: 'https://drive.google.com/open?id=1k_AKRoXzBWo67DkwzeHKLhnrPVSdTdHH'
+  },
+  {
+    id: 'tunmise-ajibola-oyeyode',
+    firstName: 'Tunmise',
+    middleName: 'Ajibola',
+    lastName: 'Oyeyode',
+    role: 'UIUX Designer',
+    email: 'Oyeyodetunmise30@gmail.com',
+    phone: '+2347080021562',
+    linkedIn:
+      'https://www.linkedin.com/in/tunmise-oyeyode-9b07b024a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app',
+    profileImage: TunmisePhoto,
+    description:
+      'I am a passionate and adaptable professional with a background in Agriculture having graduated from the university of Ilorin as an agriculture student, alongside this I\'m a UI/UX and product designer. I have developed strong skills in user research, wireframing, prototyping, visual/interface design, and creating user-centered digital experiences using tools such as Figma. Agriculture and Tech has always been my passion and this opportunity to combine the two and do something great really excites me. I enjoy learning new skills, working on meaningful projects, and finding creative solutions to real-world problems.',
+    dateOfBirth: 'September 14',
+    courseOfStudy: 'Agriculture',
+    institution: 'University of Ilorin',
+    headshotUrl: 'https://drive.google.com/open?id=12PRCfAfnQRwLc3Wo0XIv8zLJq4oWPdUJ'
   }
 ];

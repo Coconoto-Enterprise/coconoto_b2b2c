@@ -7,8 +7,12 @@ const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 const base64url = (value) => Buffer.from(value).toString('base64url');
 
 const getSecret = () => {
-  const secret = process.env.MARKETPLACE_SESSION_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!secret) throw new Error('MARKETPLACE_SESSION_SECRET is not configured');
+  // We deliberately refuse to fall back to the Supabase service-role key:
+  // anyone who can read that env value can forge marketplace cookies.
+  const secret = process.env.MARKETPLACE_SESSION_SECRET;
+  if (!secret) {
+    throw new Error('MARKETPLACE_SESSION_SECRET is not configured');
+  }
   return secret;
 };
 

@@ -1,4 +1,7 @@
-// Local development API server
+// Local development API server.
+//
+// Hardened so it cannot accidentally run in production with a fallback
+// admin password, log credentials to stdout, or answer requests on the LAN.
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -14,35 +17,90 @@ const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 const app = express();
-const PORT = 3001;
+const PORT = parseInt(process.env.LOCAL_API_PORT || '3001', 10);
+const HOST = process.env.LOCAL_API_HOST || '127.0.0.1';
 
-// Middleware
-app.use(cors());
+// Production guard: refuse to bind on 0.0.0.0 and refuse to run if no
+// admin password is configured.
+if (process.env.NODE_ENV === 'production' && (HOST === '0.0.0.0' || HOST === '::')) {
+  console.error('[local-api-server] Refusing to bind to LAN-reachable address in production.');
+  process.exit(1);
+}
+
+const getAdminPassword = () => {
+  const pwd = process.env.ADMIN_PASSWORD;
+  if (!pwd) {
+    // Fail closed: never silently fall back to a known string.
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('ADMIN_PASSWORD must be configured in production');
+    }
+    if (!process.env.ALLOW_DEV_FALLBACK_PASSWORD) {
+      throw new Error('ADMIN_PASSWORD is not set. Set it in .env, or ALLOW_DEV_FALLBACK_PASSWORD=1 for local-only dev with a temporary password.');
+    }
+    console.warn('[local-api-server] ⚠️ Running with a dev fallback password (ALLOW_DEV_FALLBACK_PASSWORD=1). DO NOT use in production.');
+    return 'COCO1234';
+  }
+  return pwd;
+};
+
+const ADMIN_PASSWORD = (() => {
+  try {
+    return getAdminPassword();
+  } catch (err) {
+    console.error(`[local-api-server] ${err.message}`);
+    return null;
+  }
+})();
+
+const allowedDevOrigins = [
+  'http://localhost:5173',
+  'http://localhost:4173',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:4173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow same-origin / curl with no Origin header.
+    if (!origin) return callback(null, true);
+    if (allowedDevOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Origin not allowed by local-api-server'));
+  },
+  credentials: false,
+}));
 app.use(express.json());
+
+const requireAdminPassword = (res) => {
+  if (!ADMIN_PASSWORD) {
+    res.status(503).json({ success: false, error: 'Admin login is not configured' });
+    return false;
+  }
+  return true;
+};
 
 // Admin login endpoint
 app.post('/api/admin-login', (req, res) => {
-  console.log('🔐 Admin login attempt (local dev)');
-  
-  const { password } = req.body;
-  const adminPassword = process.env.ADMIN_PASSWORD || 'COCO1234';
-  
-  console.log('📝 Received password:', password);
-  console.log('📝 Expected password:', adminPassword);
+  console.log('[local-api-server] admin-login attempt');
 
-  if (password === adminPassword) {
-    console.log('✅ Admin login successful');
-    return res.json({
-      success: true,
-      message: 'Login successful'
-    });
-  } else {
-    console.log('❌ Admin login failed - invalid password');
-    return res.status(401).json({
-      success: false,
-      error: 'Invalid password'
-    });
+  if (!requireAdminPassword(res)) return;
+
+  const { password } = req.body;
+  // Constant-time comparison to avoid timing oracles on the dev password.
+  if (typeof password !== 'string' || password.length !== ADMIN_PASSWORD.length) {
+    return res.status(401).json({ success: false, error: 'Invalid password' });
   }
+  let mismatch = 0;
+  for (let i = 0; i < password.length; i++) {
+    mismatch |= password.charCodeAt(i) ^ ADMIN_PASSWORD.charCodeAt(i);
+  }
+  if (mismatch !== 0) {
+    return res.status(401).json({ success: false, error: 'Invalid password' });
+  }
+  return res.json({ success: true, message: 'Login successful' });
 });
 
 // Generic auth endpoint with action routing
@@ -50,42 +108,29 @@ app.post('/api/auth', (req, res) => {
   const { action, password } = req.body;
 
   if (action === 'admin-login') {
-    console.log('🔐 Admin login attempt via /api/auth (local dev)');
-    
-    const adminPassword = process.env.ADMIN_PASSWORD || 'COCO1234';
-    
-    console.log('📝 Received password:', password);
-    console.log('📝 Expected password:', adminPassword);
-
-    if (password === adminPassword) {
-      console.log('✅ Admin login successful');
-      return res.json({
-        success: true,
-        message: 'Login successful'
-      });
-    } else {
-      console.log('❌ Admin login failed - invalid password');
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid password'
-      });
+    if (!requireAdminPassword(res)) return;
+    if (typeof password !== 'string' || password.length !== ADMIN_PASSWORD.length) {
+      return res.status(401).json({ success: false, error: 'Invalid password' });
     }
+    let mismatch = 0;
+    for (let i = 0; i < password.length; i++) {
+      mismatch |= password.charCodeAt(i) ^ ADMIN_PASSWORD.charCodeAt(i);
+    }
+    if (mismatch !== 0) {
+      return res.status(401).json({ success: false, error: 'Invalid password' });
+    }
+    return res.json({ success: true, message: 'Login successful' });
   }
 
-  // Default: invalid action
-  res.status(400).json({
-    success: false,
-    error: 'Invalid action'
-  });
+  res.status(400).json({ success: false, error: 'Invalid action' });
 });
 
 // Consolidated data endpoint (mock for local dev)
 app.get('/api/data', (req, res) => {
   const type = req.query.type || 'all-data';
-  
+
   if (type === 'emails') {
-    console.log('📧 Fetching emails (local dev - mock data)');
-    
+    console.log('[local-api-server] serving mock emails');
     const mockEmails = [
       {
         id: '1',
@@ -94,28 +139,23 @@ app.get('/api/data', (req, res) => {
         subject: 'Welcome to Coconoto',
         created_at: new Date().toISOString(),
         last_event: 'delivered',
-        html: '<p>Welcome to Coconoto! Thank you for your interest.</p>'
+        html: '<p>Welcome to Coconoto! Thank you for your interest.</p>',
       },
       {
-        id: '2', 
+        id: '2',
         to: ['coconotoenterprise@gmail.com'],
         from: 'team@coconoto.africa',
         subject: 'New Customer Inquiry',
         created_at: new Date(Date.now() - 86400000).toISOString(),
         last_event: 'delivered',
-        html: '<p>You have received a new customer inquiry.</p>'
-      }
+        html: '<p>You have received a new customer inquiry.</p>',
+      },
     ];
-
-    return res.json({
-      success: true,
-      emails: mockEmails
-    });
+    return res.json({ success: true, emails: mockEmails });
   }
 
   if (type === 'orders') {
-    console.log('📦 Fetching orders (local dev - mock data)');
-    
+    console.log('[local-api-server] serving mock orders');
     const mockOrders = [
       {
         id: '1',
@@ -125,29 +165,24 @@ app.get('/api/data', (req, res) => {
         quantity: 5,
         status: 'completed',
         created_at: new Date().toISOString(),
-        total_amount: 125.50
+        total_amount: 125.5,
       },
       {
         id: '2',
-        customer_name: 'Jane Smith', 
+        customer_name: 'Jane Smith',
         customer_email: 'jane@example.com',
         product_type: 'Coconut Fiber',
         quantity: 10,
         status: 'pending',
         created_at: new Date(Date.now() - 86400000).toISOString(),
-        total_amount: 89.99
-      }
+        total_amount: 89.99,
+      },
     ];
-
-    return res.json({
-      success: true,
-      orders: mockOrders
-    });
+    return res.json({ success: true, orders: mockOrders });
   }
 
-  // Default: all-data
-  console.log('📊 Fetching all data (local dev - mock data)');
-  res.json({
+  console.log('[local-api-server] serving mock all-data');
+  return res.json({
     success: true,
     data: {
       bookEventRequests: [],
@@ -157,78 +192,65 @@ app.get('/api/data', (req, res) => {
       serviceContacts: [],
       toxicResults: [],
       waitlist: [],
-      huskSaleRequests: []
+      huskSaleRequests: [],
     },
     total_records: 0,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
-// Send custom email endpoint (mock for local dev)
+// Send custom email endpoint (mock for local dev).
+// Logs only the request shape — never the body.
 app.post('/api/send-custom-email', (req, res) => {
-  console.log('📤 Sending custom email (local dev - mock)');
-  console.log('Email data:', req.body);
-  
+  console.log('[local-api-server] send-custom-email invoked', {
+    to: Array.isArray(req.body?.to) ? req.body.to.length : (req.body?.to ? 1 : 0),
+    subjectLength: typeof req.body?.subject === 'string' ? req.body.subject.length : 0,
+    messageLength: typeof req.body?.message === 'string' ? req.body.message.length : 0,
+  });
+
   const { to, subject, message } = req.body;
-  
   if (!to || !subject || !message) {
-    return res.status(400).json({
-      success: false,
-      error: 'Missing required fields'
-    });
+    return res.status(400).json({ success: false, error: 'Missing required fields' });
   }
 
-  // Simulate email sending
   setTimeout(() => {
     res.json({
       success: true,
       message: 'Email sent successfully (mock)',
-      emailId: 'mock-' + Date.now()
+      emailId: 'mock-' + Date.now(),
     });
   }, 1000);
 });
 
 // Vendor signup endpoint
 app.post('/api/vendor-signup', async (req, res) => {
-  console.log('👥 Vendor signup attempt (local dev)');
-  
+  console.log('[local-api-server] vendor-signup attempt');
   try {
     const { email, password, business_name, contact_name, phone, address, description } = req.body;
 
-    // Validate required fields
     if (!email || !password || !business_name || !contact_name) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Email, password, business name, and contact name are required' 
-      });
+      return res.status(400).json({ success: false, error: 'Email, password, business name, and contact name are required' });
     }
 
     if (!supabase) {
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Supabase not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY' 
-      });
+      return res.status(500).json({ success: false, error: 'Supabase not configured' });
     }
 
-    // Check if vendor already exists
     const { data: existingVendor } = await supabase
       .from('vendors')
       .select('email')
       .eq('email', email)
       .single();
 
+    // Use a constant-time-vague error to prevent account-enumeration oracles.
     if (existingVendor) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Email already registered' 
-      });
+      return res.status(400).json({ success: false, error: 'Email already registered or otherwise unavailable' });
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
+    // bcrypt cost 12 (was 10) to keep pace with modern hardware.
+    const salt = await bcrypt.genSalt(12);
     const password_hash = await bcrypt.hash(password, salt);
 
-    // Insert new vendor
     const { data: newVendor, error } = await supabase
       .from('vendors')
       .insert([{
@@ -238,121 +260,75 @@ app.post('/api/vendor-signup', async (req, res) => {
         contact_name,
         phone: phone || null,
         address: address || null,
-        description: description || null
+        description: description || null,
       }])
       .select()
       .single();
 
     if (error) {
-      console.error('Supabase error:', error);
-      return res.status(500).json({ 
-        success: false, 
-        error: error.message 
-      });
+      console.error('[local-api-server] supabase error:', error.message);
+      return res.status(500).json({ success: false, error: 'Could not create vendor account' });
     }
 
-    // Remove password hash from response
     const { password_hash: _, ...vendorData } = newVendor;
+    console.log('[local-api-server] vendor signup ok:', vendorData.email);
 
-    console.log('✅ Vendor signup successful:', vendorData.email);
-
-    return res.status(200).json({ 
-      success: true, 
-      vendor: vendorData 
-    });
-
+    return res.status(200).json({ success: true, vendor: vendorData });
   } catch (error) {
-    console.error('❌ Vendor signup error:', error);
-    return res.status(500).json({ 
-      success: false, 
-      error: 'Failed to create vendor account' 
-    });
+    console.error('[local-api-server] vendor-signup error:', error?.message);
+    return res.status(500).json({ success: false, error: 'Failed to create vendor account' });
   }
 });
 
 // Vendor login endpoint
 app.post('/api/vendor-login', async (req, res) => {
-  console.log('🔐 Vendor login attempt (local dev)');
-  
+  console.log('[local-api-server] vendor-login attempt');
   try {
     const { email, password } = req.body;
-
-    // Validate required fields
     if (!email || !password) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Email and password are required' 
-      });
+      return res.status(400).json({ success: false, error: 'Email and password are required' });
     }
-
     if (!supabase) {
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Supabase not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY' 
-      });
+      return res.status(500).json({ success: false, error: 'Supabase not configured' });
     }
 
-    // Get vendor by email
     const { data: vendor, error } = await supabase
       .from('vendors')
       .select('*')
       .eq('email', email)
       .single();
 
-    if (error || !vendor) {
-      return res.status(401).json({ 
-        success: false, 
-        error: 'Invalid email or password' 
-      });
+    // Always run bcrypt.compare to keep timings constant regardless of whether
+    // the email exists.
+    const dummyHash = '$2a$12$0000000000000000000000000000000000000000000000000000';
+    const compareTarget = vendor?.password_hash || dummyHash;
+    const isValidPassword = await bcrypt.compare(password, compareTarget);
+
+    if (error || !vendor || !isValidPassword) {
+      return res.status(401).json({ success: false, error: 'Invalid email or password' });
     }
 
-    // Verify password
-    const isValidPassword = await bcrypt.compare(password, vendor.password_hash);
-
-    if (!isValidPassword) {
-      return res.status(401).json({ 
-        success: false, 
-        error: 'Invalid email or password' 
-      });
-    }
-
-    // Check if account is active
     if (!vendor.is_active) {
-      return res.status(403).json({ 
-        success: false, 
-        error: 'Account is deactivated. Please contact support.' 
-      });
+      return res.status(403).json({ success: false, error: 'Account is deactivated. Please contact support.' });
     }
 
-    // Remove password hash from response
     const { password_hash, ...vendorData } = vendor;
+    console.log('[local-api-server] vendor login ok:', vendorData.email);
 
-    console.log('✅ Vendor login successful:', vendorData.email);
-
-    return res.status(200).json({ 
-      success: true, 
-      vendor: vendorData 
-    });
-
+    return res.status(200).json({ success: true, vendor: vendorData });
   } catch (error) {
-    console.error('❌ Vendor login error:', error);
-    return res.status(500).json({ 
-      success: false, 
-      error: 'Failed to login' 
-    });
+    console.error('[local-api-server] vendor-login error:', error?.message);
+    return res.status(500).json({ success: false, error: 'Failed to login' });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Local API server running on http://localhost:${PORT}`);
-  console.log('📝 Available endpoints:');
-  console.log('  POST /api/admin-login');
-  console.log('  GET  /api/data?type=emails');
-  console.log('  GET  /api/data?type=orders');
-  console.log('  GET  /api/data (default: all-data)');
-  console.log('  POST /api/send-custom-email');
-  console.log('  POST /api/vendor-signup');
-  console.log('  POST /api/vendor-login');
-});
+if (ADMIN_PASSWORD) {
+  app.listen(PORT, HOST, () => {
+    console.log(`[local-api-server] listening on http://${HOST}:${PORT}`);
+    console.log('[local-api-server] endpoints: /api/admin-login, /api/auth, /api/data, /api/send-custom-email, /api/vendor-signup, /api/vendor-login');
+  });
+} else {
+  console.warn('[local-api-server] not starting because ADMIN_PASSWORD is not configured.');
+}
 
 export default app;

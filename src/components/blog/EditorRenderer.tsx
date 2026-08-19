@@ -7,6 +7,32 @@ interface EditorRendererProps {
   className?: string;
 }
 
+// Allow only legitimate embed providers and force http(s) URLs. This blocks
+// author-side pivots from a Markdown editor into `javascript:` / `data:`
+// URIs or attacker-controlled iframe content.
+const ALLOWED_EMBED_HOSTS = new Set([
+  'www.youtube.com',
+  'youtube.com',
+  'youtu.be',
+  'player.vimeo.com',
+  'vimeo.com',
+  'codepen.io',
+  'codesandbox.io',
+]);
+
+const sanitizeEmbedUrl = (raw: any) => {
+  if (!raw || typeof raw !== 'string') return '';
+  let parsed;
+  try {
+    parsed = new URL(raw, 'https://coconoto.africa');
+  } catch {
+    return '';
+  }
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return '';
+  if (!ALLOWED_EMBED_HOSTS.has(parsed.hostname)) return '';
+  return parsed.toString();
+};
+
 export const EditorRenderer: React.FC<EditorRendererProps> = ({
   data,
   className = ''
@@ -33,20 +59,22 @@ export const EditorRenderer: React.FC<EditorRendererProps> = ({
 
     switch (type) {
       case 'header':
-        const HeaderTag = `h${blockData.level || 2}` as keyof JSX.IntrinsicElements;
-        const headerSizes: Record<number, string> = {
-          1: 'text-4xl',
-          2: 'text-3xl',
-          3: 'text-2xl'
-        };
-        return (
-          <HeaderTag
-            key={index}
-            className={`font-bold mb-4 ${headerSizes[blockData.level || 2] || 'text-2xl'} ${getAlignment(blockData.alignment)}`}
-          >
-            {blockData.text}
-          </HeaderTag>
-        );
+        {
+          const HeaderTag = `h${blockData.level || 2}` as keyof JSX.IntrinsicElements;
+          const headerSizes: Record<number, string> = {
+            1: 'text-4xl',
+            2: 'text-3xl',
+            3: 'text-2xl',
+          };
+          return (
+            <HeaderTag
+              key={index}
+              className={`font-bold mb-4 ${headerSizes[blockData.level || 2] || 'text-2xl'} ${getAlignment(blockData.alignment)}`}
+            >
+              {blockData.text}
+            </HeaderTag>
+          );
+        }
 
       case 'paragraph':
         return (
@@ -69,17 +97,16 @@ export const EditorRenderer: React.FC<EditorRendererProps> = ({
               ))}
             </ol>
           );
-        } else {
-          return (
-            <ul key={index} className="mb-4 ml-6 list-disc text-gray-700">
-              {blockData.items.map((item: string, i: number) => (
-                <li key={i} className="mb-2">
-                  {item}
-                </li>
-              ))}
-            </ul>
-          );
         }
+        return (
+          <ul key={index} className="mb-4 ml-6 list-disc text-gray-700">
+            {blockData.items.map((item: string, i: number) => (
+              <li key={i} className="mb-2">
+                {item}
+              </li>
+            ))}
+          </ul>
+        );
 
       case 'quote':
         return (
@@ -115,23 +142,32 @@ export const EditorRenderer: React.FC<EditorRendererProps> = ({
           </figure>
         );
 
-      case 'embed':
+      case 'embed': {
+        const safeUrl = sanitizeEmbedUrl(blockData.embed);
+        if (!safeUrl) {
+          // Render an inert placeholder rather than trusting the URL.
+          return (
+            <div key={index} className="my-6 p-4 border border-gray-200 bg-gray-50 rounded-lg text-sm text-gray-500 italic">
+              Embedded content is unavailable.
+            </div>
+          );
+        }
         return (
           <div key={index} className="mb-6 aspect-video rounded-lg overflow-hidden">
-            {blockData.embed ? (
-              <iframe
-                src={blockData.embed}
-                width="100%"
-                height="100%"
-                frameBorder="0"
-                title="Embedded content"
-                allowFullScreen
-              />
-            ) : (
-              <div dangerouslySetInnerHTML={{ __html: blockData.embed }} />
-            )}
+            <iframe
+              src={safeUrl}
+              width="100%"
+              height="100%"
+              frameBorder="0"
+              title="Embedded content"
+              allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-presentation"
+              loading="lazy"
+              referrerPolicy="no-referrer"
+            />
           </div>
         );
+      }
 
       case 'table':
         return (

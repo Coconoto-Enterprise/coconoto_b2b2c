@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
 
@@ -10,15 +11,19 @@ interface MarkdownRendererProps {
   className?: string;
 }
 
-export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ 
-  content, 
-  className = '' 
+export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
+  content,
+  className = ''
 }) => {
+  // rehype-raw alone re-renders every raw HTML tag the markdown contains,
+  // including <script>, <iframe>, and inline event handlers. Pairing it with
+  // rehype-sanitize gives us the GitHub-style schema so author-controlled
+  // rich text still renders, but stored XSS payloads are stripped.
   return (
     <div className={`prose prose-lg max-w-none ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw, rehypeHighlight]}
+        rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeHighlight]}
         components={{
           h1: ({ node, ...props }) => (
             <h1 className="text-4xl font-bold mt-8 mb-4 text-gray-900" {...props} />

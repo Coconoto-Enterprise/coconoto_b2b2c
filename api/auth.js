@@ -65,9 +65,9 @@ export default async function handler(req, res) {
         clearSessionCookie(res);
         return res.status(200).json({ success: true });
       case 'admin-login':
-        return await handleAdminLogin(data, res);
+        return await handleAdminLogin(req, data, res);
       case 'email-user-login':
-        return await handleEmailUserLogin(data, res);
+        return await handleEmailUserLogin(req, data, res);
       case 'email-user-create':
         return await handleEmailUserCreate(data, res);
       case 'email-user-update-password':
@@ -190,7 +190,8 @@ async function handleBuyerSignup(data, res) {
   }
 
   try {
-    const passwordHash = await bcrypt.hash(password, 10);
+    // bcrypt cost 12 (was 10) to track hardware improvements; P1 finding.
+    const passwordHash = await bcrypt.hash(password, 12);
 
     const { data: buyer, error: insertError } = await getSupabaseClient()
       .from('buyers')
@@ -211,17 +212,19 @@ async function handleBuyerSignup(data, res) {
 
     if (insertError) {
       console.error('❌ Buyer signup error:', insertError);
-      
-      if (insertError.message.includes('duplicate') || insertError.code === '23505') {
+
+      // Generic error to prevent account-enumeration oracles (P1-4). The
+      // client cannot distinguish "duplicate email" from any other failure.
+      if (insertError.message?.includes('duplicate') || insertError.code === '23505') {
         return res.status(400).json({
           success: false,
-          error: 'Email already registered'
+          error: 'Could not create account',
         });
       }
-      
+
       return res.status(500).json({
         success: false,
-        error: 'Signup failed: ' + insertError.message
+        error: 'Signup failed',
       });
     }
 
@@ -334,7 +337,8 @@ async function handleVendorSignup(data, res) {
   }
 
   try {
-    const passwordHash = await bcrypt.hash(password, 10);
+    // bcrypt cost 12 (was 10) — P1 finding.
+    const passwordHash = await bcrypt.hash(password, 12);
 
     const { data: vendor, error: insertError } = await getSupabaseClient()
       .from('vendors')
@@ -352,18 +356,14 @@ async function handleVendorSignup(data, res) {
 
     if (insertError) {
       console.error('❌ Vendor signup error:', insertError);
-      
-      if (insertError.message.includes('duplicate') || insertError.code === '23505') {
-        return res.status(400).json({
-          success: false,
-          error: 'Email already registered'
-        });
+
+      // Generic message so the public endpoint can't be used as an
+      // account-enumeration oracle (P1-4).
+      if (insertError.message?.includes('duplicate') || insertError.code === '23505') {
+        return res.status(400).json({ success: false, error: 'Could not create account' });
       }
-      
-      return res.status(500).json({
-        success: false,
-        error: 'Signup failed: ' + insertError.message
-      });
+
+      return res.status(500).json({ success: false, error: 'Signup failed' });
     }
 
     const { password_hash, ...vendorData } = vendor;
@@ -461,7 +461,7 @@ async function handleBuyerBecomeSeller(req, data, res) {
 }
 
 // Admin Login / Mail User Login
-async function handleAdminLogin(data, res) {
+async function handleAdminLogin(req, data, res) {
   const { password } = data;
 
   console.log('🔐 Admin login attempt');
@@ -487,33 +487,63 @@ async function handleAdminLogin(data, res) {
       });
     }
 
+    // Always run an equal number of bcrypt.compare calls regardless of which
+    // (if any) user matched, so the response time does not reveal whether
+    // any of the existing accounts is valid for the submitted password.
+    const dummyHash = '$2a$12$0000000000000000000000000000000000000000000000000000';
+    let matchedUser = null;
+    let anyError = false;
     for (const user of mailUsers || []) {
-      if (!user.password_hash) continue;
-      const passwordMatch = await bcrypt.compare(password, user.password_hash);
-      if (passwordMatch) {
-        const { password_hash, ...userData } = user;
-        console.log('✅ Mail user login successful:', user.login_email);
-        return res.status(200).json({
-          success: true,
-          mailUser: userData
-        });
+      try {
+        const target = user.password_hash || dummyHash;
+        const passwordMatch = await bcrypt.compare(password, target);
+        if (passwordMatch && user.password_hash) matchedUser = user;
+      } catch {
+        anyError = true;
       }
     }
-
-    // Optional fallback admin password for super-admin access
-    const adminPassword = process.env.ADMIN_PASSWORD;
-    if (adminPassword && password === adminPassword) {
-      console.log('✅ Super admin login successful');
+    if (matchedUser) {
+      const { password_hash, ...userData } = matchedUser;
+      console.log('✅ Mail user login successful:', userData.login_email);
       return res.status(200).json({
         success: true,
-        mailUser: {
-          id: 'super-admin',
-          login_email: 'admin@coconoto.africa',
-          sender_email: 'team@coconoto.africa',
-          role: 'admin',
-          is_active: true,
-        }
+        mailUser: userData
       });
+    }
+    if (anyError) {
+      // pretend we kept going so the timing stays even
+      await bcrypt.compare(password, dummyHash);
+    }
+
+    // Optional super-admin fallback. Gated behind a real admin secret so it
+    // is not a public plaintext-password comparison. Without the secret the
+    // endpoint refuses to grant super-admin access.
+    const adminSecret = process.env.ADMIN_PASSWORD;
+    const providedAdminSecret = req.headers?.['x-api-key'];
+    if (
+      adminSecret
+      && providedAdminSecret
+      && typeof providedAdminSecret === 'string'
+      && providedAdminSecret.length === adminSecret.length
+    ) {
+      // constant-time comparison
+      let mismatch = 0;
+      for (let i = 0; i < providedAdminSecret.length; i++) {
+        mismatch |= providedAdminSecret.charCodeAt(i) ^ adminSecret.charCodeAt(i);
+      }
+      if (mismatch === 0 && password === adminSecret) {
+        console.log('✅ Super admin login successful');
+        return res.status(200).json({
+          success: true,
+          mailUser: {
+            id: 'super-admin',
+            login_email: 'admin@coconoto.africa',
+            sender_email: 'team@coconoto.africa',
+            role: 'admin',
+            is_active: true,
+          }
+        });
+      }
     }
 
     console.log('❌ Admin login failed - invalid password');
@@ -581,7 +611,7 @@ async function handleCreateMailUser(data, res) {
 }
 
 // Email user login for admin/staff email portal
-async function handleEmailUserLogin(data, res) {
+async function handleEmailUserLogin(req, data, res) {
   const { email, password } = data;
 
   if (!email || !password) {
@@ -599,32 +629,47 @@ async function handleEmailUserLogin(data, res) {
       .eq('is_active', true)
       .single();
 
-    if (error || !user) {
-      // Fallback default admin account for initial setup only
-      const defaultAdminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'info@coconoto.africa';
-      const defaultAdminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'COCONOTO';
+    // Always run bcrypt.compare to keep timings constant regardless of
+    // whether the email exists. This blocks account-enumeration oracles
+    // that measure response time.
+    const dummyHash = '$2a$12$0000000000000000000000000000000000000000000000000000';
+    const passwordMatch = user?.password_hash
+      ? await bcrypt.compare(password, user.password_hash)
+      : (await bcrypt.compare(password, dummyHash), false);
 
-      if (email === defaultAdminEmail && password === defaultAdminPassword) {
-        return res.status(200).json({
-          success: true,
-          user: {
-            id: 'default-admin',
-            email: defaultAdminEmail,
-            sender_email: defaultAdminEmail,
-            role: 'admin',
-            is_active: true
-          }
-        });
+    if (error || !user || !passwordMatch) {
+      // Default-admin password fallback: refuse unless the admin secret is
+      // explicitly configured AND the caller proves they hold it. Never
+      // silently fall back to a hard-coded password (P0 / P1 finding).
+      const defaultAdminEmail = process.env.DEFAULT_ADMIN_EMAIL || '';
+      const defaultAdminSecret = process.env.DEFAULT_ADMIN_SECRET;
+      const providedSecret = req.headers?.['x-api-key'];
+
+      if (
+        defaultAdminEmail
+        && defaultAdminSecret
+        && email === defaultAdminEmail
+        && typeof providedSecret === 'string'
+        && providedSecret.length === defaultAdminSecret.length
+      ) {
+        let mismatch = 0;
+        for (let i = 0; i < providedSecret.length; i++) {
+          mismatch |= providedSecret.charCodeAt(i) ^ defaultAdminSecret.charCodeAt(i);
+        }
+        if (mismatch === 0) {
+          return res.status(200).json({
+            success: true,
+            user: {
+              id: 'default-admin',
+              email: defaultAdminEmail,
+              sender_email: defaultAdminEmail,
+              role: 'admin',
+              is_active: true,
+            },
+          });
+        }
       }
 
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid email or password'
-      });
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user.password_hash);
-    if (!passwordMatch) {
       return res.status(401).json({
         success: false,
         error: 'Invalid email or password'
@@ -663,7 +708,7 @@ async function handleEmailUserCreate(data, res) {
     });
   }
 
-  if (!(await authorizeAdmin(requesterId, requesterEmail))) {
+  if (!(await authorizeAdmin(req, requesterId, requesterEmail))) {
     return res.status(403).json({
       success: false,
       error: 'Admin privileges required'
@@ -724,7 +769,7 @@ async function handleEmailUserUpdatePassword(data, res) {
     });
   }
 
-  if (!(await authorizeAdmin(requesterId, requesterEmail))) {
+  if (!(await authorizeAdmin(req, requesterId, requesterEmail))) {
     return res.status(403).json({
       success: false,
       error: 'Admin privileges required'
@@ -773,7 +818,7 @@ async function handleEmailUserUpdatePassword(data, res) {
 async function handleEmailUserList(data, res) {
   const { requesterId, requesterEmail } = data;
 
-  if (!(await authorizeAdmin(requesterId, requesterEmail))) {
+  if (!(await authorizeAdmin(req, requesterId, requesterEmail))) {
     return res.status(403).json({
       success: false,
       error: 'Admin privileges required'
@@ -822,7 +867,7 @@ async function handleDeleteEmail(data, res) {
     return res.status(400).json({ success: false, error: 'Email ID is required' });
   }
 
-  if (!(await authorizeAdmin(requesterId, requesterEmail))) {
+  if (!(await authorizeAdmin(req, requesterId, requesterEmail))) {
     return res.status(403).json({ success: false, error: 'Admin privileges required' });
   }
 
@@ -849,11 +894,28 @@ async function handleDeleteEmail(data, res) {
   }
 }
 
-async function authorizeAdmin(requesterId, requesterEmail) {
-  const defaultAdminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'info@coconoto.africa';
+async function authorizeAdmin(req, requesterId, requesterEmail) {
+  const defaultAdminEmail = process.env.DEFAULT_ADMIN_EMAIL || '';
 
-  if (requesterId === 'default-admin' && requesterEmail === defaultAdminEmail) {
-    return true;
+  // default-admin path is only honored when the request also carries the
+  // shared admin secret. This protects against the original P0 finding
+  // where any caller could claim to be `default-admin` by sending the right
+  // strings in the request body.
+  if (
+    requesterId === 'default-admin'
+    && requesterEmail === defaultAdminEmail
+    && defaultAdminEmail
+  ) {
+    const expected = process.env.DEFAULT_ADMIN_SECRET || process.env.API_MUTATIONS_KEY;
+    const provided = req?.headers?.['x-api-key'];
+    if (expected && typeof provided === 'string' && provided.length === expected.length) {
+      let mismatch = 0;
+      for (let i = 0; i < expected.length; i++) {
+        mismatch |= provided.charCodeAt(i) ^ expected.charCodeAt(i);
+      }
+      if (mismatch === 0) return true;
+    }
+    return false;
   }
 
   if (!requesterId || !requesterEmail) {

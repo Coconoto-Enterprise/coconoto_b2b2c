@@ -1,10 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { ArrowLeft, Loader, Heart, MessageCircle, Share2, AlertCircle, Calendar, Eye } from 'lucide-react';
 import blogService from '../../services/mernBlogService';
 import { supabase } from '../../lib/supabase';
 import blogLogo from '../../assets/blog-logo.png';
 import Navbar from '../../components/Navbar';
+
+// EditorJS-authored blocks get rendered verbatim via dangerouslySetInnerHTML.
+// Without sanitization, an XSS payload in any block (`<img src=x onerror=…>`)
+// would execute on every visitor's browser. DOMPurify with a strict profile
+// strips those before they reach the DOM but keeps the common HTML the editor
+// (bold, links, lists, etc.) actually emits.
+const sanitizeInline = (value: any) => {
+  if (typeof window === 'undefined' || !value) return '';
+  const sanitized = DOMPurify.sanitize(String(value), {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ['style', 'script', 'iframe', 'object', 'embed', 'form'],
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'style'],
+  });
+  return typeof sanitized === 'string' ? sanitized : '';
+};
+
+// EditorJS `embed` blocks accept arbitrary URLs, including javascript: and
+// data: schemes that would let a blog author pivot from iframe XSS to plain
+// DOM XSS. Allowlist the legitimate embed providers and force https.
+const ALLOWED_EMBED_HOSTS = new Set([
+  'www.youtube.com',
+  'youtube.com',
+  'youtu.be',
+  'player.vimeo.com',
+  'vimeo.com',
+  'codepen.io',
+  'codesandbox.io',
+]);
+
+const sanitizeEmbedUrl = (raw: any) => {
+  if (!raw || typeof raw !== 'string') return '';
+  let parsed;
+  try {
+    parsed = new URL(raw, 'https://coconoto.africa');
+  } catch {
+    return '';
+  }
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return '';
+  if (!ALLOWED_EMBED_HOSTS.has(parsed.hostname)) return '';
+  return parsed.toString();
+};
 
 interface Blog {
   blog_id: string;
@@ -301,34 +343,35 @@ export const BlogDetail: React.FC = () => {
                     const level = block.data.level || 2;
                     const sizes: Record<number, string> = { 1: 'text-4xl', 2: 'text-3xl', 3: 'text-2xl', 4: 'text-xl', 5: 'text-lg', 6: 'text-base uppercase tracking-wide' };
                     const Tag = `h${level}` as keyof JSX.IntrinsicElements;
+                    const safeHeaderHtml = sanitizeInline(block.data.text);
                     return (
                       <Tag key={index} className={`font-bold text-gray-900 mt-6 mb-2 ${sizes[level] || 'text-2xl'}`}
-                        dangerouslySetInnerHTML={{ __html: block.data.text }} />
+                        dangerouslySetInnerHTML={{ __html: safeHeaderHtml }} />
                     );
                   }
                   case 'paragraph':
                     return (
                       <p key={index} className="text-gray-700 leading-relaxed text-base sm:text-lg"
-                        dangerouslySetInnerHTML={{ __html: block.data.text }} />
+                        dangerouslySetInnerHTML={{ __html: sanitizeInline(block.data.text) }} />
                     );
                   case 'list':
                     return block.data.style === 'ordered' ? (
                       <ol key={index} className="list-decimal ml-6 space-y-1 text-gray-700">
                         {block.data.items.map((item: any, i: number) => (
-                          <li key={i} dangerouslySetInnerHTML={{ __html: typeof item === 'string' ? item : item.content || '' }} />
+                          <li key={i} dangerouslySetInnerHTML={{ __html: sanitizeInline(typeof item === 'string' ? item : item.content || '') }} />
                         ))}
                       </ol>
                     ) : (
                       <ul key={index} className="list-disc ml-6 space-y-1 text-gray-700">
                         {block.data.items.map((item: any, i: number) => (
-                          <li key={i} dangerouslySetInnerHTML={{ __html: typeof item === 'string' ? item : item.content || '' }} />
+                          <li key={i} dangerouslySetInnerHTML={{ __html: sanitizeInline(typeof item === 'string' ? item : item.content || '') }} />
                         ))}
                       </ul>
                     );
                   case 'quote':
                     return (
                       <blockquote key={index} className="border-l-4 border-amber-400 pl-5 py-1 my-4 italic text-gray-600 bg-amber-50 rounded-r-lg">
-                        <p dangerouslySetInnerHTML={{ __html: block.data.text }} />
+                        <p dangerouslySetInnerHTML={{ __html: sanitizeInline(block.data.text) }} />
                         {block.data.caption && <footer className="text-sm mt-2 not-italic text-gray-500">— {block.data.caption}</footer>}
                       </blockquote>
                     );
@@ -345,12 +388,25 @@ export const BlogDetail: React.FC = () => {
                         {block.data.caption && <figcaption className="text-sm text-gray-500 text-center mt-2 italic">{block.data.caption}</figcaption>}
                       </figure>
                     );
-                  case 'embed':
+                  case 'embed': {
+                    const safeEmbedUrl = sanitizeEmbedUrl(block.data.embed);
+                    if (!safeEmbedUrl) return null;
                     return (
                       <div key={index} className="my-6 aspect-video rounded-xl overflow-hidden shadow">
-                        <iframe src={block.data.embed} width="100%" height="100%" title={block.data.caption || 'Embedded'} frameBorder="0" allowFullScreen />
+                        <iframe
+                          src={safeEmbedUrl}
+                          width="100%"
+                          height="100%"
+                          title={block.data.caption || 'Embedded'}
+                          frameBorder="0"
+                          allowFullScreen
+                          sandbox="allow-scripts allow-same-origin allow-presentation"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
                       </div>
                     );
+                  }
                   case 'delimiter':
                     return <hr key={index} className="my-8 border-gray-200" />;
                   default:

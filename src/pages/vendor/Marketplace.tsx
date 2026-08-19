@@ -115,9 +115,12 @@ export function Marketplace() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#e9fff2,_#f5f8f6_38%,_#edf3ef_100%)] relative overflow-x-hidden">
-      <div className="pointer-events-none absolute -top-28 -right-20 h-72 w-72 rounded-full bg-green-200/40 blur-3xl"></div>
-      <div className="pointer-events-none absolute top-80 -left-24 h-72 w-72 rounded-full bg-emerald-100/60 blur-3xl"></div>
+    <div className="min-h-screen bg-white lg:bg-[radial-gradient(circle_at_top,_#e9fff2,_#f5f8f6_38%,_#edf3ef_100%)] relative overflow-x-hidden">
+      {/* Decorative blur orbs - desktop only. On mobile these overlap the
+          product card area and create a "fading" wash that makes the card
+          look faded in. */}
+      <div className="pointer-events-none absolute -top-28 -right-20 h-72 w-72 rounded-full bg-green-200/40 blur-3xl hidden lg:block"></div>
+      <div className="pointer-events-none absolute top-80 -left-24 h-72 w-72 rounded-full bg-emerald-100/60 blur-3xl hidden lg:block"></div>
 
       {/* Navbar */}
       {isBuyerLoggedIn ? <BuyerNavbar /> : <MarketplaceNavbar />}
@@ -160,14 +163,14 @@ export function Marketplace() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 lg:pt-10 pb-8 lg:pb-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 lg:pt-10 pb-10 lg:pb-10">
         {isSeller && <SellerTools vendorId={vendorId} />}
 
         <div className="lg:hidden mb-4">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsCategoryDrawerOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/80 px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm backdrop-blur-md"
+              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm"
             >
               <SlidersHorizontal className="h-4 w-4" />
               Categories
@@ -176,7 +179,7 @@ export function Marketplace() {
               type="button"
               aria-label="Toggle search"
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="inline-flex items-center justify-center rounded-xl border border-white/70 bg-white/80 p-2.5 text-gray-800 shadow-sm backdrop-blur-md"
+              className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white p-2.5 text-gray-800 shadow-sm"
             >
               <Search className="h-4 w-4" />
             </button>
@@ -412,7 +415,7 @@ function ProductCard({
   return (
     <Card
       onClick={onClick}
-      className="group cursor-pointer overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+      className="group cursor-pointer overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md"
     >
       <div className="relative overflow-hidden">
         {product.image_url ? (
@@ -420,7 +423,7 @@ function ProductCard({
             src={product.image_url}
             alt={product.product_name}
             loading="lazy"
-            className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-105 sm:h-52"
+            className="h-40 w-full object-cover sm:h-52"
           />
         ) : (
           <div className="flex h-40 w-full items-center justify-center bg-gradient-to-br from-emerald-100 to-emerald-200 sm:h-52">
@@ -429,7 +432,7 @@ function ProductCard({
         )}
         <Badge
           variant="secondary"
-          className="absolute left-2 top-2 bg-white/90 text-emerald-800 shadow-sm backdrop-blur"
+          className="absolute left-2 top-2 bg-white text-emerald-800 shadow-sm border border-emerald-100"
         >
           {product.category}
         </Badge>

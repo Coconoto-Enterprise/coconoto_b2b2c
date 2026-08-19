@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { getStatusColor, getStatusIcon } from '../../utils/status';
 import { truncatePreview } from '../../utils/text';
 import Logo from '../../assets/Logo_1.png';
@@ -11,6 +12,16 @@ import {
   EmailLog,
   MailUser,
 } from '../../services/emailConfigService';
+
+const sanitizeEmailHtml = (html: any) => {
+  if (typeof window === 'undefined' || !html) return '';
+  const cleaned = DOMPurify.sanitize(String(html), {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ['style', 'script', 'iframe', 'object', 'embed', 'form'],
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'style'],
+  });
+  return typeof cleaned === 'string' ? cleaned : '';
+};
 
 interface SentEmailsListProps {
   isLoading?: boolean;
@@ -459,7 +470,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                   <label className="text-xs font-semibold text-gray-600 uppercase">Full Email</label>
                   <div
                     className="mt-2 p-3 bg-gray-50 rounded-lg text-sm overflow-x-auto"
-                    dangerouslySetInnerHTML={{ __html: selectedEmail.full_html }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeEmailHtml(selectedEmail.full_html) }}
                   />
                 </div>
               )}
@@ -692,7 +703,7 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
                 <label className="text-xs font-semibold text-gray-600 uppercase">Full Email</label>
                 <div
                   className="mt-2 p-3 bg-gray-50 rounded-lg text-sm overflow-x-auto"
-                  dangerouslySetInnerHTML={{ __html: selectedEmail.full_html }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeEmailHtml(selectedEmail.full_html) }}
                 />
               </div>
             )}

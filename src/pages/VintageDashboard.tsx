@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { 
   Mail, 
   Users, 
@@ -32,6 +33,16 @@ interface Email {
   html?: string;
   status?: 'pending' | 'processing' | 'completed';
 }
+
+const sanitizeEmailHtml = (html: any) => {
+  if (typeof window === 'undefined' || !html) return '';
+  const cleaned = DOMPurify.sanitize(String(html), {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ['style', 'script', 'iframe', 'object', 'embed', 'form'],
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'style'],
+  });
+  return typeof cleaned === 'string' ? cleaned : '';
+};
 
 
 
@@ -2045,7 +2056,7 @@ const VintageDashboard: React.FC = () => {
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Email Content</label>
                   <div className="border rounded-lg p-3 sm:p-4 bg-gray-50 max-h-60 overflow-y-auto text-xs sm:text-sm">
-                    <div dangerouslySetInnerHTML={{ __html: selectedEmail.html }} />
+                    <div dangerouslySetInnerHTML={{ __html: sanitizeEmailHtml(selectedEmail.html) }} />
                   </div>
                 </div>
               )}
