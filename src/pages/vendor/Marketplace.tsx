@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom';
 import MarketplaceNavbar from '../../components/MarketplaceNavbar';
 import BuyerNavbar from '../../components/BuyerNavbar';
 import Footer from '../../components/Footer';
-import { SlidersHorizontal, X, Search, BadgeCheck, Minus, Plus, PackageOpen, Check, Info, Store } from 'lucide-react';
-import { getAllMarketplaceProducts, createOrder, getVendorDashboard, createProduct, updateProduct, deleteProduct, uploadProductImage } from '../../services/vendorService';
+import {
+  SlidersHorizontal, X, Search, BadgeCheck, PackageOpen, Check, Info,
+  Sparkles, ShieldCheck, Truck, ArrowRight
+} from 'lucide-react';
+import { getAllMarketplaceProducts, createOrder } from '../../services/vendorService';
 import { createOrderWithBuyer, getBuyerProfile } from '../../services/buyerService';
 import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
-import type { VendorProduct, VendorOrderInput, VendorProductInput } from '../../types/vendor';
-import { PRODUCT_CATEGORIES, UNITS } from '../../types/vendor';
+import type { VendorProduct, VendorOrderInput } from '../../types/vendor';
+import { PRODUCT_CATEGORIES } from '../../types/vendor';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -34,12 +37,11 @@ export function Marketplace() {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [isCategoryDrawerOpen, setIsCategoryDrawerOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  
+
   // Buyer identity is derived from the authoritative cookie-based session so it
   // stays reactive (re-renders once the async session resolves). Fall back to
   // localStorage for resilience across reloads.
   const { session } = useMarketplaceAuth();
-  const isSeller = !!session?.isSeller;
   const vendorId = session?.vendorId || null;
   const buyerId =
     session?.role === 'buyer' ? session.id : localStorage.getItem('buyerId');
@@ -68,12 +70,10 @@ export function Marketplace() {
   const filterProducts = () => {
     let filtered = products;
 
-    // Filter by category
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(p => p.category === selectedCategory);
     }
 
-    // Filter by search query
     if (searchQuery) {
       filtered = filtered.filter(p =>
         p.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,7 +82,6 @@ export function Marketplace() {
       );
     }
 
-    // Sort
     filtered = [...filtered];
     switch (sortBy) {
       case 'price-asc':
@@ -116,11 +115,9 @@ export function Marketplace() {
 
   return (
     <div className="min-h-screen bg-white lg:bg-[radial-gradient(circle_at_top,_#e9fff2,_#f5f8f6_38%,_#edf3ef_100%)] relative overflow-x-hidden">
-      {/* Decorative blur orbs - desktop only. On mobile these overlap the
-          product card area and create a "fading" wash that makes the card
-          look faded in. */}
-      <div className="pointer-events-none absolute -top-28 -right-20 h-72 w-72 rounded-full bg-green-200/40 blur-3xl hidden lg:block"></div>
-      <div className="pointer-events-none absolute top-80 -left-24 h-72 w-72 rounded-full bg-emerald-100/60 blur-3xl hidden lg:block"></div>
+      {/* Decorative blur orbs - desktop only */}
+      <div className="pointer-events-none absolute -top-28 -right-20 h-72 w-72 rounded-full bg-green-200/40 blur-3xl hidden lg:block" />
+      <div className="pointer-events-none absolute top-80 -left-24 h-72 w-72 rounded-full bg-emerald-100/60 blur-3xl hidden lg:block" />
 
       {/* Navbar */}
       {isBuyerLoggedIn ? <BuyerNavbar /> : <MarketplaceNavbar />}
@@ -128,15 +125,23 @@ export function Marketplace() {
       {/* Hero Section */}
       <div className="hidden lg:block mt-20 px-4 sm:px-6 lg:px-8 pt-8">
         <div className="max-w-7xl mx-auto rounded-3xl border border-white/40 bg-white/65 backdrop-blur-xl shadow-[0_10px_50px_rgba(12,64,39,0.12)] p-6 sm:p-8 lg:p-10">
-          <div>
-            <div>
-              <p className="text-sm font-semibold tracking-[0.18em] uppercase text-green-700/80">Marketplace</p>
-              <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-2">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold tracking-wider uppercase text-emerald-800">
+                <Sparkles className="h-3 w-3" />
+                Marketplace
+              </p>
+              <h2 className="mt-3 text-3xl sm:text-4xl font-black tracking-tight text-gray-900">
                 Discover Quality Coconut Products
               </h2>
-              <p className="text-base sm:text-lg text-gray-600 mt-3 max-w-2xl">
+              <p className="mt-3 text-base sm:text-lg text-gray-600">
                 Direct from verified farmers and processors across the value chain.
               </p>
+              <div className="mt-5 flex flex-wrap gap-3 text-xs text-gray-600">
+                <TrustBadge icon={ShieldCheck} label="Verified vendors" />
+                <TrustBadge icon={Truck} label="Nationwide delivery" />
+                <TrustBadge icon={BadgeCheck} label="Quality guaranteed" />
+              </div>
             </div>
           </div>
 
@@ -164,8 +169,6 @@ export function Marketplace() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 lg:pt-10 pb-10 lg:pb-10">
-        {isSeller && <SellerTools vendorId={vendorId} />}
-
         <div className="lg:hidden mb-4">
           <div className="flex items-center gap-2">
             <button
@@ -201,53 +204,38 @@ export function Marketplace() {
             <div className="sticky top-24 rounded-2xl border border-white/60 bg-white/70 backdrop-blur-xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.07)]">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Categories</h3>
               <div className="space-y-2">
-                <button
+                <CategoryButton
+                  label="All Products"
+                  active={selectedCategory === 'all'}
+                  count={countForCategory('all')}
                   onClick={() => selectCategory('all')}
-                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl font-medium transition-all ${
-                    selectedCategory === 'all'
-                      ? 'bg-green-700 text-white shadow'
-                      : 'text-gray-700 bg-white/70 hover:bg-white'
-                  }`}
-                >
-                  <span>All Products</span>
-                  <span className={`text-xs rounded-full px-2 py-0.5 ${selectedCategory === 'all' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
-                    {countForCategory('all')}
-                  </span>
-                </button>
+                />
                 {PRODUCT_CATEGORIES.map((category) => (
-                  <button
+                  <CategoryButton
                     key={category}
+                    label={category}
+                    active={selectedCategory === category}
+                    count={countForCategory(category)}
                     onClick={() => selectCategory(category)}
-                    className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl font-medium transition-all ${
-                      selectedCategory === category
-                        ? 'bg-green-700 text-white shadow'
-                        : 'text-gray-700 bg-white/70 hover:bg-white'
-                    }`}
-                  >
-                    <span className="text-left">{category}</span>
-                    <span className={`text-xs rounded-full px-2 py-0.5 ${selectedCategory === category ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
-                      {countForCategory(category)}
-                    </span>
-                  </button>
+                  />
                 ))}
               </div>
             </div>
           </aside>
 
           <section>
-            {/* Products Grid */}
             {isLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="rounded-2xl border border-white/60 bg-white/75 backdrop-blur-lg overflow-hidden animate-pulse">
-                    <div className="w-full h-36 sm:h-52 bg-gray-200/80"></div>
+                    <div className="w-full h-36 sm:h-52 bg-gray-200/80" />
                     <div className="p-3 sm:p-5 space-y-3">
-                      <div className="h-4 bg-gray-200/80 rounded w-3/4"></div>
-                      <div className="h-3 bg-gray-200/80 rounded w-1/2"></div>
-                      <div className="h-3 bg-gray-200/80 rounded w-full"></div>
+                      <div className="h-4 bg-gray-200/80 rounded w-3/4" />
+                      <div className="h-3 bg-gray-200/80 rounded w-1/2" />
+                      <div className="h-3 bg-gray-200/80 rounded w-full" />
                       <div className="flex justify-between pt-1">
-                        <div className="h-4 bg-gray-200/80 rounded w-1/3"></div>
-                        <div className="h-4 bg-gray-200/80 rounded w-1/4"></div>
+                        <div className="h-4 bg-gray-200/80 rounded w-1/3" />
+                        <div className="h-4 bg-gray-200/80 rounded w-1/4" />
                       </div>
                     </div>
                   </div>
@@ -343,34 +331,20 @@ export function Marketplace() {
             </div>
 
             <div className="space-y-2">
-              <button
+              <CategoryButton
+                label="All Products"
+                active={selectedCategory === 'all'}
+                count={countForCategory('all')}
                 onClick={() => selectCategory('all')}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all ${
-                  selectedCategory === 'all'
-                    ? 'bg-green-700 text-white shadow'
-                    : 'text-gray-700 bg-white/80 hover:bg-white'
-                }`}
-              >
-                <span>All Products</span>
-                <span className={`text-xs rounded-full px-2 py-0.5 ${selectedCategory === 'all' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
-                  {countForCategory('all')}
-                </span>
-              </button>
+              />
               {PRODUCT_CATEGORIES.map((category) => (
-                <button
+                <CategoryButton
                   key={category}
+                  label={category}
+                  active={selectedCategory === category}
+                  count={countForCategory(category)}
                   onClick={() => selectCategory(category)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all ${
-                    selectedCategory === category
-                      ? 'bg-green-700 text-white shadow'
-                      : 'text-gray-700 bg-white/80 hover:bg-white'
-                  }`}
-                >
-                  <span className="text-left">{category}</span>
-                  <span className={`text-xs rounded-full px-2 py-0.5 ${selectedCategory === category ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
-                    {countForCategory(category)}
-                  </span>
-                </button>
+                />
               ))}
             </div>
           </div>
@@ -402,6 +376,45 @@ export function Marketplace() {
   );
 }
 
+function TrustBadge({
+  icon: Icon, label
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 ring-1 ring-emerald-100">
+      <Icon className="h-3.5 w-3.5 text-emerald-700" />
+      <span className="font-medium">{label}</span>
+    </span>
+  );
+}
+
+function CategoryButton({
+  label, active, count, onClick
+}: {
+  label: string;
+  active: boolean;
+  count: number;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl font-medium transition-all ${
+        active
+          ? 'bg-green-700 text-white shadow'
+          : 'text-gray-700 bg-white/70 hover:bg-white'
+      }`}
+    >
+      <span className={active ? '' : 'text-left'}>{label}</span>
+      <span className={`text-xs rounded-full px-2 py-0.5 ${active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
+        {count}
+      </span>
+    </button>
+  );
+}
+
 // Product Card Component
 function ProductCard({
   product,
@@ -415,7 +428,7 @@ function ProductCard({
   return (
     <Card
       onClick={onClick}
-      className="group cursor-pointer overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md"
+      className="group cursor-pointer overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
     >
       <div className="relative overflow-hidden">
         {product.image_url ? (
@@ -423,7 +436,7 @@ function ProductCard({
             src={product.image_url}
             alt={product.product_name}
             loading="lazy"
-            className="h-40 w-full object-cover sm:h-52"
+            className="h-40 w-full object-cover sm:h-52 transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="flex h-40 w-full items-center justify-center bg-gradient-to-br from-emerald-100 to-emerald-200 sm:h-52">
@@ -508,7 +521,6 @@ function OrderModal({
   const [success, setSuccess] = useState(false);
   const { toast } = useToast();
 
-  // Load buyer profile if logged in
   useEffect(() => {
     const loadBuyerProfile = async () => {
       if (buyerId) {
@@ -546,8 +558,7 @@ function OrderModal({
     }
 
     let result;
-    
-    // Use buyer-specific order creation if logged in
+
     if (buyerId) {
       result = await createOrderWithBuyer(
         product.vendor_id,
@@ -560,7 +571,6 @@ function OrderModal({
         }
       );
     } else {
-      // Guest checkout
       result = await createOrder(product.vendor_id, orderData);
     }
 
@@ -697,7 +707,7 @@ function OrderModal({
                   onClick={() => setQuantity(orderData.quantity - 1)}
                   disabled={orderData.quantity <= 1}
                 >
-                  <Minus className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4 rotate-180" />
                 </Button>
                 <Input
                   id="order-quantity"
@@ -717,7 +727,7 @@ function OrderModal({
                   onClick={() => setQuantity(orderData.quantity + 1)}
                   disabled={orderData.quantity >= product.stock_quantity}
                 >
-                  <Plus className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
                 <span className="ml-2 text-sm text-muted-foreground">
                   × ₦{formatPrice(product.price)}/{product.unit}
@@ -771,208 +781,5 @@ function OrderModal({
         </>
       )}
     </Dialog>
-  );
-}
-
-// Seller tools shown on the marketplace for a buyer who has also become a seller
-// (single unified login). Lets them view, add, edit and remove their own products.
-function SellerTools({ vendorId }: { vendorId: string | null }) {
-  const [products, setProducts] = useState<VendorProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<Partial<VendorProductInput>>({
-    product_name: '',
-    description: '',
-    category: PRODUCT_CATEGORIES[0],
-    price: 0,
-    unit: UNITS[0],
-    stock_quantity: 0,
-    image_url: ''
-  });
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState('');
-  const { toast } = useToast();
-
-  const load = async () => {
-    if (!vendorId) return;
-    setLoading(true);
-    const data = await getVendorDashboard();
-    setProducts(data?.products || []);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vendorId]);
-
-  const handleImage = async (file: File | null) => {
-    if (!file || !vendorId) return;
-    const res = await uploadProductImage(vendorId, file);
-    if (res.success && res.imageUrl) {
-      setForm((f) => ({ ...f, image_url: res.imageUrl }));
-    } else {
-      setError(res.error || 'Image upload failed');
-    }
-  };
-
-  const startEdit = (p: VendorProduct) => {
-    setEditingId(p.id);
-    setForm({
-      product_name: p.product_name,
-      description: p.description,
-      category: p.category,
-      price: p.price,
-      unit: p.unit,
-      stock_quantity: p.stock_quantity,
-      image_url: p.image_url
-    });
-    setShowForm(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (!form.product_name?.trim() || !form.description?.trim() || !(Number(form.price) > 0)) {
-      setError('Product name, description and a valid price are required.');
-      return;
-    }
-    if (!vendorId) return;
-
-    const payload: VendorProductInput = {
-      product_name: form.product_name!,
-      description: form.description!,
-      category: form.category!,
-      price: Number(form.price),
-      unit: form.unit!,
-      stock_quantity: Number(form.stock_quantity),
-      image_url: form.image_url
-    };
-
-    setIsSaving(true);
-    let ok = false;
-    let errMsg = '';
-    if (editingId) {
-      ok = await updateProduct(editingId, vendorId, payload);
-      if (!ok) errMsg = 'Failed to update product';
-    } else {
-      const result = await createProduct(vendorId, payload);
-      ok = !!result.success;
-      errMsg = result.error || 'Failed to add product';
-    }
-    setIsSaving(false);
-
-    if (ok) {
-      toast({ title: editingId ? 'Product updated' : 'Product added', variant: 'success' });
-      setShowForm(false);
-      setEditingId(null);
-      setForm({ product_name: '', description: '', category: PRODUCT_CATEGORIES[0], price: 0, unit: UNITS[0], stock_quantity: 0, image_url: '' });
-      load();
-    } else {
-      setError(errMsg);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!vendorId) return;
-    if (!window.confirm('Delete this product?')) return;
-    const ok = await deleteProduct(id, vendorId);
-    if (ok) {
-      toast({ title: 'Product deleted', variant: 'success' });
-      load();
-    } else {
-      setError('Failed to delete product');
-    }
-  };
-
-  return (
-    <div className="mb-8 rounded-3xl border border-green-200 bg-white/85 backdrop-blur p-6 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h3 className="flex items-center gap-2 text-xl font-bold text-gray-900">
-            <Store className="h-5 w-5 text-green-700" /> Your Seller Dashboard
-          </h3>
-          <p className="text-sm text-gray-600">Manage the products you sell on Coconoto.</p>
-        </div>
-        <Button onClick={() => { setShowForm((s) => !s); setEditingId(null); }}>
-          {showForm ? 'Cancel' : 'Add Product'}
-        </Button>
-      </div>
-
-      {showForm && (
-        <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {error && (
-            <div className="sm:col-span-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-              {error}
-            </div>
-          )}
-          <div className="sm:col-span-2">
-            <Label>Product name *</Label>
-            <Input value={form.product_name || ''} onChange={(e) => setForm((f) => ({ ...f, product_name: e.target.value }))} />
-          </div>
-          <div className="sm:col-span-2">
-            <Label>Description *</Label>
-            <Textarea value={form.description || ''} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
-          </div>
-          <div>
-            <Label>Category</Label>
-            <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm">
-              {PRODUCT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div>
-            <Label>Unit</Label>
-            <select value={form.unit} onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))} className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm">
-              {UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
-            </select>
-          </div>
-          <div>
-            <Label>Price (₦)</Label>
-            <Input type="number" min={0} value={form.price ?? 0} onChange={(e) => setForm((f) => ({ ...f, price: Number(e.target.value) }))} />
-          </div>
-          <div>
-            <Label>Stock quantity</Label>
-            <Input type="number" min={0} value={form.stock_quantity ?? 0} onChange={(e) => setForm((f) => ({ ...f, stock_quantity: Number(e.target.value) }))} />
-          </div>
-          <div className="sm:col-span-2">
-            <Label>Product image</Label>
-            <Input type="file" accept="image/*" onChange={(e) => handleImage(e.target.files?.[0] || null)} />
-            {form.image_url && <img src={form.image_url} alt="preview" className="mt-2 h-24 w-24 rounded-lg object-cover" />}
-          </div>
-          <div className="sm:col-span-2">
-            <Button type="submit" disabled={isSaving}>
-              {isSaving ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
-            </Button>
-          </div>
-        </form>
-      )}
-
-      <div className="mt-6">
-        {loading ? (
-          <p className="text-sm text-gray-500">Loading your products…</p>
-        ) : products.length === 0 ? (
-          <p className="text-sm text-gray-500">You haven't added any products yet.</p>
-        ) : (
-          <div className="space-y-3">
-            {products.map((p) => (
-              <div key={p.id} className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-3">
-                {p.image_url ? (
-                  <img src={p.image_url} alt={p.product_name} className="h-14 w-14 rounded-md object-cover" />
-                ) : (
-                  <div className="flex h-14 w-14 items-center justify-center rounded-md bg-emerald-100 text-2xl">🥥</div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold text-gray-900">{p.product_name}</p>
-                  <p className="text-xs text-gray-500">₦{Number(p.price).toLocaleString()} / {p.unit} · {p.stock_quantity} in stock</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => startEdit(p)}>Edit</Button>
-                <Button variant="outline" size="sm" className="text-red-600" onClick={() => handleDelete(p.id)}>Delete</Button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
   );
 }

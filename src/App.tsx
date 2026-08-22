@@ -33,6 +33,7 @@ import {
   VendorLogin,
   VendorSignup,
   VendorDashboard,
+  SellerDashboard,
   BuyerLogin,
   BuyerSignup,
   BuyerDashboard,
@@ -99,6 +100,8 @@ function App() {
           <Route path="/buyer-login" element={<BuyerLogin />} />
           <Route path="/buyer-signup" element={<BuyerSignup />} />
           <Route path="/buyer-dashboard" element={<MarketplaceProtectedRoute role="buyer"><BuyerDashboard /></MarketplaceProtectedRoute>} />
+          {/* Seller dashboard for buyers who have also opted in to sell (single unified login) */}
+          <Route path="/seller-dashboard" element={<MarketplaceProtectedRoute role="buyer"><SellerDashboard /></MarketplaceProtectedRoute>} />
           <Route path="/500" element={<ServerError />} />
           {/* Catch-all route for 404 - must be last */}
           <Route path="*" element={<NotFound />} />

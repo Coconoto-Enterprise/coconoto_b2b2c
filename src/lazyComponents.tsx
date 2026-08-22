@@ -54,6 +54,9 @@ export const VendorSignup = lazy(() =>
 export const VendorDashboard = lazy(() =>
   import('./pages/vendor/VendorDashboard').then((m) => ({ default: m.VendorDashboard })),
 );
+export const SellerDashboard = lazy(() =>
+  import('./pages/vendor/SellerDashboard').then((m) => ({ default: m.SellerDashboard })),
+);
 export const BuyerLogin = lazy(() =>
   import('./pages/buyer/BuyerLogin').then((m) => ({ default: m.BuyerLogin })),
 );
