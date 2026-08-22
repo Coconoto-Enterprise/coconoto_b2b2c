@@ -470,19 +470,19 @@ function ProductCard({
             <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-emerald-600" aria-label="Verified Vendor" />
           )}
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-bold text-primary sm:text-xl">
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
+          <span className="whitespace-nowrap text-sm font-bold text-primary sm:text-xl">
             ₦{formatPrice(product.price)}
-            <span className="text-[10px] text-muted-foreground sm:text-sm">/{product.unit}</span>
+            <span className="text-[10px] font-medium text-muted-foreground sm:text-sm">/{product.unit}</span>
           </span>
           {product.stock_quantity === 0 ? (
-            <Badge variant="destructive">Out of Stock</Badge>
+            <Badge variant="destructive" className="shrink-0">Out of Stock</Badge>
           ) : lowStock ? (
-            <Badge variant="outline" className="border-amber-300 text-amber-700">
+            <Badge variant="outline" className="shrink-0 border-amber-300 text-amber-700">
               Only {product.stock_quantity} left
             </Badge>
           ) : (
-            <Badge variant="success">In Stock</Badge>
+            <Badge variant="success" className="shrink-0">In Stock</Badge>
           )}
         </div>
       </CardContent>
