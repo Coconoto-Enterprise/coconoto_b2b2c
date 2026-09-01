@@ -456,7 +456,7 @@ function ProductCard({
         )}
       </div>
       <CardContent className="p-3 sm:p-5">
-        <h3 className="mb-1 line-clamp-2 text-sm font-bold leading-tight text-foreground sm:text-lg">
+        <h3 className="mb-1 mt-2 line-clamp-2 text-sm font-bold leading-tight text-foreground sm:mt-0 sm:text-lg">
           {product.product_name}
         </h3>
         <p className="mb-3 line-clamp-2 text-xs text-muted-foreground sm:text-sm">

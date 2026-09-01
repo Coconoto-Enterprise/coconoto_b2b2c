@@ -398,7 +398,7 @@ function OrdersTab({
                       🥥
                     </span>
                   )}
-                  <div className="min-w-0 pt-1">
+                  <div className="min-w-0 pt-3">
                     <div className="mb-2 flex flex-wrap items-center gap-2">
                       <h3 className="truncate text-lg font-bold text-gray-900">
                         {order.product_name || 'Product'}
@@ -595,7 +595,7 @@ function ProfileTab({
       <div className="space-y-6">
         {/* Header card — compact, no big green band overlapping the avatar/name */}
         <Card className="overflow-hidden border-gray-200/70 shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-xl font-bold text-white shadow-md">
@@ -793,7 +793,7 @@ function BecomeSellerTab({
   if (isSeller) {
     return (
       <Card className="overflow-hidden border-emerald-200 shadow-sm">
-        <CardContent className="py-8">
+        <CardContent className="py-10">
           <div className="mb-6 flex items-start gap-4">
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
               <CheckCircle2 className="h-6 w-6" />
