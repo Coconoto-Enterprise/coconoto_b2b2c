@@ -13,17 +13,19 @@ import {
   Sidebar, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter
 } from '@/components/ui/sidebar-lite';
 import { Sheet, SheetHeader, SheetClose, SheetTitle } from '@/components/ui/sheet';
+import { SellerProductsPanel } from '@/components/SellerProductsPanel';
 import {
   ShoppingBag, User, Store, LogOut, Menu, Pencil, Mail, Phone, Loader2, CheckCircle2,
-  LayoutDashboard, ChevronRight, MapPin, CalendarDays, Package, ArrowRight, Star
+  LayoutDashboard, MapPin, CalendarDays, Package, ArrowRight, Star
 } from 'lucide-react';
 
-type Tab = 'orders' | 'profile' | 'sell';
+type Tab = 'orders' | 'profile' | 'sell' | 'seller-dashboard';
 
 const TAB_LABELS: Record<Tab, string> = {
   orders: 'My Orders',
   profile: 'Profile',
   sell: 'Sell on Coconoto',
+  'seller-dashboard': 'Seller Dashboard',
 };
 
 export function BuyerDashboard() {
@@ -51,7 +53,8 @@ export function BuyerDashboard() {
   // dropdown's "Profile" link). Keeps everything on a single URL.
   useEffect(() => {
     const state = (location.state as { tab?: Tab } | null);
-    if (state?.tab && (state.tab === 'orders' || state.tab === 'profile' || state.tab === 'sell')) {
+    const validTabs: Tab[] = ['orders', 'profile', 'sell', 'seller-dashboard'];
+    if (state?.tab && validTabs.includes(state.tab)) {
       setActiveTab(state.tab);
       // Clear the state so subsequent back/forward doesn't keep snapping to it.
       navigate(location.pathname, { replace: true });
@@ -186,11 +189,28 @@ export function BuyerDashboard() {
           {session?.isSeller && (
             <NavGroup label="Selling">
               <SidebarMenuItem>
-                <a
-                  href="/seller-dashboard"
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-gray-700 hover:bg-white/70 transition-all"
+                <SidebarMenuButton
+                  isActive={activeTab === 'seller-dashboard'}
+                  onClick={() => {
+                    setActiveTab('seller-dashboard');
+                    setMobileOpen(false);
+                  }}
+                  className={`relative rounded-xl px-3 py-2.5 text-sm transition-all ${
+                    activeTab === 'seller-dashboard'
+                      ? 'bg-white shadow-md shadow-emerald-500/10 ring-1 ring-emerald-100 text-emerald-800'
+                      : 'text-gray-700 hover:bg-white/70'
+                  }`}
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
+                  {activeTab === 'seller-dashboard' && (
+                    <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-emerald-500" />
+                  )}
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+                      activeTab === 'seller-dashboard'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
                     <LayoutDashboard className="h-4 w-4" />
                   </span>
                   <span className="flex-1 min-w-0">
@@ -199,8 +219,7 @@ export function BuyerDashboard() {
                       Manage your products
                     </span>
                   </span>
-                  <ChevronRight className="h-4 w-4 text-gray-400" />
-                </a>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             </NavGroup>
           )}
@@ -250,25 +269,39 @@ export function BuyerDashboard() {
               {label}
             </SidebarMenuButton>
           ))}
+          {session?.isSeller && (
+            <SidebarMenuButton
+              isActive={activeTab === 'seller-dashboard'}
+              onClick={() => {
+                setActiveTab('seller-dashboard');
+                setMobileOpen(false);
+              }}
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Seller Dashboard
+            </SidebarMenuButton>
+          )}
         </div>
       </Sheet>
 
       <main className="md:ml-64 p-4 sm:p-8">
         <div className="mx-auto max-w-5xl">
-          {/* Page header */}
-          <div className="mb-8 flex flex-col gap-2">
-            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-700">
-              {TAB_LABELS[activeTab]}
-            </p>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-              {greeting()}, {buyer.first_name}!
-            </h1>
-            <p className="text-sm text-gray-600">
-              {activeTab === 'orders' && 'Here are your recent purchases and their statuses.'}
-              {activeTab === 'profile' && 'Manage your personal and contact details.'}
-              {activeTab === 'sell' && (session?.isSeller ? 'Manage your seller account and products.' : 'Set up a seller account using your login.')}
-            </p>
-          </div>
+          {/* Page header — hidden when seller-dashboard is active since the panel has its own header */}
+          {activeTab !== 'seller-dashboard' && (
+            <div className="mb-8 flex flex-col gap-2">
+              <p className="text-xs font-semibold uppercase tracking-widest text-emerald-700">
+                {TAB_LABELS[activeTab]}
+              </p>
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                {greeting()}, {buyer.first_name}!
+              </h1>
+              <p className="text-sm text-gray-600">
+                {activeTab === 'orders' && 'Here are your recent purchases and their statuses.'}
+                {activeTab === 'profile' && 'Manage your personal and contact details.'}
+                {activeTab === 'sell' && (session?.isSeller ? 'Manage your seller account and products.' : 'Set up a seller account using your login.')}
+              </p>
+            </div>
+          )}
 
           {activeTab === 'orders' && (
             <OrdersTab
@@ -290,6 +323,9 @@ export function BuyerDashboard() {
               isSeller={!!session?.isSeller}
               onBecameSeller={async () => { await refreshSession(); }}
             />
+          )}
+          {activeTab === 'seller-dashboard' && (
+            <SellerProductsPanel />
           )}
         </div>
       </main>
@@ -362,15 +398,14 @@ function OrdersTab({
                       🥥
                     </span>
                   )}
-                  <div className="min-w-0">
-                    <div className="mb-1 flex flex-wrap items-center gap-2">
+                  <div className="min-w-0 pt-1">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
                       <h3 className="truncate text-lg font-bold text-gray-900">
                         {order.product_name || 'Product'}
                       </h3>
                       <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
                     </div>
-                    <p className="font-mono text-[11px] text-gray-500">#{order.id.substring(0, 8)}</p>
-                    <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
                       <CalendarDays className="h-3 w-3" />
                       {new Date(order.created_at).toLocaleDateString(undefined, {
                         year: 'numeric', month: 'short', day: 'numeric'
@@ -558,20 +593,19 @@ function ProfileTab({
 
     return (
       <div className="space-y-6">
-        {/* Header card */}
+        {/* Header card — compact, no big green band overlapping the avatar/name */}
         <Card className="overflow-hidden border-gray-200/70 shadow-sm">
-          <div className="h-24 bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700" />
-          <CardContent className="-mt-10 px-6 pb-6">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div className="flex items-end gap-4">
-                <span className="flex h-20 w-20 items-center justify-center rounded-2xl border-4 border-white bg-gradient-to-br from-emerald-500 to-emerald-700 text-2xl font-bold text-white shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-xl font-bold text-white shadow-md">
                   {(buyer.first_name?.[0] || 'B').toUpperCase()}{(buyer.last_name?.[0] || '').toUpperCase()}
                 </span>
-                <div className="pb-1">
-                  <h3 className="text-xl font-bold text-gray-900">
+                <div className="min-w-0">
+                  <h3 className="truncate text-xl font-bold text-gray-900">
                     {buyer.first_name} {buyer.last_name}
                   </h3>
-                  <p className="text-sm text-gray-600">{buyer.email}</p>
+                  <p className="truncate text-sm text-gray-600">{buyer.email}</p>
                 </div>
               </div>
               <Button onClick={() => setIsEditing(true)}>
@@ -759,7 +793,6 @@ function BecomeSellerTab({
   if (isSeller) {
     return (
       <Card className="overflow-hidden border-emerald-200 shadow-sm">
-        <div className="h-2 bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600" />
         <CardContent className="py-8">
           <div className="mb-6 flex items-start gap-4">
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
