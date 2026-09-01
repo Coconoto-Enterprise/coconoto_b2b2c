@@ -136,7 +136,7 @@ export function BuyerDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50/40 via-white to-gray-50/60">
       {/* Desktop sidebar */}
       <Sidebar className="bg-gradient-to-b from-white via-emerald-50/40 to-white">
-        <SidebarHeader className="border-b border-gray-200/60 px-5">
+        <SidebarHeader className="border-b border-gray-200/60 px-5 py-5">
           <div className="flex items-center gap-3">
             <span className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white font-bold shadow-md shadow-emerald-500/20">
               {initials}
@@ -398,7 +398,7 @@ function OrdersTab({
                       🥥
                     </span>
                   )}
-                  <div className="min-w-0 pt-3">
+                  <div className="min-w-0 pt-5 sm:pt-6">
                     <div className="mb-2 flex flex-wrap items-center gap-2">
                       <h3 className="truncate text-lg font-bold text-gray-900">
                         {order.product_name || 'Product'}
@@ -595,7 +595,7 @@ function ProfileTab({
       <div className="space-y-6">
         {/* Header card — compact, no big green band overlapping the avatar/name */}
         <Card className="overflow-hidden border-gray-200/70 shadow-sm">
-          <CardContent className="p-8">
+          <CardContent className="px-8 pt-12 pb-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-xl font-bold text-white shadow-md">
@@ -793,7 +793,7 @@ function BecomeSellerTab({
   if (isSeller) {
     return (
       <Card className="overflow-hidden border-emerald-200 shadow-sm">
-        <CardContent className="py-10">
+        <CardContent className="px-6 pt-12 pb-8">
           <div className="mb-6 flex items-start gap-4">
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
               <CheckCircle2 className="h-6 w-6" />
