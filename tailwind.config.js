@@ -9,8 +9,17 @@ export default {
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
         gelasio: ['Gelasio', 'serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
+        lora: ['Lora', 'serif'],
       },
       colors: {
+        /* Coconoto About-page design tokens (Figma: Coconoto Project / Desktop - 4) */
+        coconut: "#8B5E3C",
+        forest: "#033A34",
+        brand: "#1AC212",
+        cocoTeal: "#05897C",
+        ink: "#101010",
+        mist: "#EFEFEF",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
