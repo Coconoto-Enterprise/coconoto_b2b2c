@@ -10,8 +10,6 @@ import { Features } from './components/Features';
 import { CTA } from './components/CTA';
 import Footer from './components/Footer';
 import { About } from './components/About';
-import AboutNavbar from './components/about/AboutNavbar';
-import AboutFooter from './components/about/AboutFooter';
 import FloatingChatIcon from './components/FloatingChatIcon';
 import {
   ServicesLayout,
@@ -78,9 +76,9 @@ function App() {
           <Route path="/blog-editor/:blogId" element={<BlogEditor />} />
           <Route path="/about" element={
             <>
-              <AboutNavbar />
+              <Navbar />
               <About />
-              <AboutFooter />
+              <Footer />
             </>
           } />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
