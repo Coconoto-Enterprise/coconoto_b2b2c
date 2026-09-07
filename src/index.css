@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Gelasio:wght@400;700&family=Inter:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gelasio:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -128,22 +128,16 @@
   margin-bottom: 1.5rem;
 }
 
+/* EditorJS positions .ce-toolbar absolutely and sets an inline `top` to align
+   the + / settings buttons with the current block. Do NOT override position
+   here — doing so breaks the vertical placement (toolbar lands at page bottom). */
 #editorjs .ce-toolbar {
-  background-color: #fafafa;
-  border: 1px solid #e5e7eb;
-  border-bottom: 1px solid #d1d5db;
-  padding: 0.75rem;
-  position: relative;
   z-index: 100;
 }
 
 #editorjs .ce-toolbar__content {
   max-width: 100%;
   margin: 0;
-}
-
-#editorjs .ce-toolbar__settings-btn {
-  display: none;
 }
 
 #editorjs .ce-block__content {
@@ -202,9 +196,9 @@
   box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.1);
 }
 
-#editorjs .cdx-settings-button {
-  display: none !important;
-}
+/* The block-settings (tunes) menu — .cdx-settings-button — must stay visible:
+   it contains the Move up / Move down / Delete actions for every block,
+   including images. */
 
 /* Hide the + button by default, show only on hover */
 #editorjs .ce-block {
@@ -220,10 +214,6 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
-}
-
-#editorjs .ce-settingsbar {
-  display: none;
 }
 
 #editorjs .ce-paragraph {
