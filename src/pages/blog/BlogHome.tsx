@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Loader } from 'lucide-react';
 import blogService from '../../services/mernBlogService';
@@ -27,6 +27,7 @@ export const BlogHome: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const searchRequest = useRef(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,15 +48,16 @@ export const BlogHome: React.FC = () => {
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
+    const requestId = ++searchRequest.current;
     if (!query.trim()) {
       const data = await blogService.getPublishedBlogs();
-      setBlogs(data || []);
+      if (requestId === searchRequest.current) setBlogs(data || []);
       return;
     }
 
     try {
       const results = await blogService.searchBlogs(query);
-      setBlogs(results || []);
+      if (requestId === searchRequest.current) setBlogs(results || []);
     } catch (err) {
       console.error('Search failed:', err);
     }

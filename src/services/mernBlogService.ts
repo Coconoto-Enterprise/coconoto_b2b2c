@@ -193,23 +193,20 @@ export async function deleteBlog(blogId: string, userId: string) {
 
 // Like/Unlike blog
 export async function toggleBlogLike(blogId: string, userId: string, liked: boolean = true) {
-  const { data: existing } = await supabase
-    .from('blog_likes')
-    .select('*')
-    .eq('blog_id', blogId)
-    .eq('user_id', userId)
-    .single();
+  await ensureAuthorProfile(userId);
 
-  if (existing) {
-    await supabase
+  if (liked) {
+    const { error } = await supabase
+      .from('blog_likes')
+      .upsert([{ blog_id: blogId, user_id: userId, liked: true }], { onConflict: 'blog_id,user_id' });
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await supabase
       .from('blog_likes')
       .delete()
       .eq('blog_id', blogId)
       .eq('user_id', userId);
-  } else {
-    await supabase
-      .from('blog_likes')
-      .insert([{ blog_id: blogId, user_id: userId, liked }]);
+    if (error) throw new Error(error.message);
   }
 
   // Update like count
@@ -218,15 +215,29 @@ export async function toggleBlogLike(blogId: string, userId: string, liked: bool
     .select('id')
     .eq('blog_id', blogId);
 
-  await supabase
+  const { error: countError } = await supabase
     .from('mern_blogs')
     .update({ total_likes: likes?.length || 0 })
     .eq('blog_id', blogId);
+  if (countError) throw new Error(countError.message);
+}
+
+export async function getBlogLikeStatus(blogId: string, userId: string) {
+  const { data, error } = await supabase
+    .from('blog_likes')
+    .select('id')
+    .eq('blog_id', blogId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return Boolean(data);
 }
 
 // Add comment
 export async function addComment(blogId: string, commentData: any, userId: string) {
   const commentId = Math.random().toString(36).substring(2, 15);
+  await ensureAuthorProfile(userId);
 
   const { data, error } = await supabase
     .from('blog_comments')
@@ -240,7 +251,11 @@ export async function addComment(blogId: string, commentData: any, userId: strin
         children_level: commentData.children_level || 0
       }
     ])
-    .select();
+    .select(`
+      *,
+      author:author_id(id, username, profile_img)
+    `)
+    .single();
 
   if (error) throw new Error(error.message);
 
@@ -253,15 +268,16 @@ export async function addComment(blogId: string, commentData: any, userId: strin
 
   const totalParentComments = (comments as any[] | null)?.filter((c: any) => !c.is_reply_to).length || 0;
 
-  await supabase
+  const { error: countError } = await supabase
     .from('mern_blogs')
     .update({
       total_comments: comments?.length || 0,
       total_parent_comments: totalParentComments
     })
     .eq('blog_id', blogId);
+  if (countError) throw new Error(countError.message);
 
-  return data[0];
+  return data;
 }
 
 // Get blog comments
@@ -336,6 +352,9 @@ export async function updateAuthorProfile(userId: string, profileData: any) {
 
 // Search blogs
 export async function searchBlogs(query: string) {
+  const escapedQuery = query.trim().replace(/\\/g, '\\\\').replace(/[%_(),.]/g, '\\$&');
+  if (!escapedQuery) return getPublishedBlogs();
+
   const { data, error } = await supabase
     .from('mern_blogs')
     .select(`
@@ -343,11 +362,34 @@ export async function searchBlogs(query: string) {
       blog_authors:author_id(username, fullname, profile_img)
     `)
     .eq('published', true)
-    .or(`title.ilike.%${query}%, des.ilike.%${query}%`)
+    .or(`title.ilike.%${escapedQuery}%,des.ilike.%${escapedQuery}%`)
     .order('published_at', { ascending: false });
 
   if (error) throw new Error(error.message);
   return data;
+}
+
+async function ensureAuthorProfile(userId: string) {
+  const { data: existing, error: lookupError } = await supabase
+    .from('blog_authors')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (lookupError) throw new Error(lookupError.message);
+  if (existing) return;
+
+  const { data: { user } } = await supabase.auth.getUser();
+  const { error } = await supabase
+    .from('blog_authors')
+    .insert([{
+      id: userId,
+      username: user?.user_metadata?.username || user?.email?.split('@')[0] || `user_${Date.now()}`,
+      fullname: user?.user_metadata?.fullname || user?.email?.split('@')[0] || 'Anonymous',
+      profile_img: user?.user_metadata?.profile_img || ''
+    }]);
+
+  if (error && error.code !== '23505') throw new Error(error.message);
 }
 
 // Create author profile (called when user first creates a blog)
@@ -380,6 +422,7 @@ export default {
   publishBlog,
   deleteBlog,
   toggleBlogLike,
+  getBlogLikeStatus,
   addComment,
   getBlogComments,
   deleteComment,

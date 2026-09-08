@@ -128,6 +128,14 @@ export const BlogDetail: React.FC = () => {
     fetchBlog();
   }, [blogId]);
 
+  useEffect(() => {
+    if (!blogId || !userId) return;
+
+    blogService.getBlogLikeStatus(blogId, userId)
+      .then(setLiked)
+      .catch((err) => console.error('Failed to load like status:', err));
+  }, [blogId, userId]);
+
   // Set per-post SEO/social meta tags once the blog loads. Read-only: this
   // only touches the document head, never the database. Tags are restored to
   // the site defaults on unmount so other pages aren't affected.
@@ -198,10 +206,14 @@ export const BlogDetail: React.FC = () => {
     if (!userId || !blog) return;
 
     try {
-      setLiked(!liked);
-      await blogService.toggleBlogLike(blog.blog_id, userId, !liked);
+      const nextLiked = !liked;
+      await blogService.toggleBlogLike(blog.blog_id, userId, nextLiked);
+      setLiked(nextLiked);
+      setBlog((current) => current ? {
+        ...current,
+        total_likes: Math.max(0, current.total_likes + (nextLiked ? 1 : -1))
+      } : current);
     } catch (err) {
-      setLiked(liked);
       console.error('Failed to toggle like:', err);
     }
   };
@@ -218,7 +230,11 @@ export const BlogDetail: React.FC = () => {
       );
 
       if (comment) {
-        setComments([...comments, comment]);
+        setComments((current) => [...current, comment]);
+        setBlog((current) => current ? {
+          ...current,
+          total_comments: current.total_comments + 1
+        } : current);
         setNewComment('');
       }
     } catch (err) {
