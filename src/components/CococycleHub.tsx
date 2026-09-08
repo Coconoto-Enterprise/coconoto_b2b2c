@@ -7,12 +7,12 @@ import cocpeat1 from '../assets/cocpeat1.jpeg';
 import fiber from '../assets/fiber.jpeg';
 import cocopot from '../assets/cocopot.jpg';
 import cocopot4 from '../assets/cocopot4.jpg';
-import cocofider3 from '../assets/cocofider3.jpg';
+import cocofiber3 from '../assets/cocofiber3.jpg';
 import cocopot2 from '../assets/cocopot2.jpg';
 
 export function CococycleHub() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const images = [cocoplant, cocofiber, cocopeat, fiber2, cocpeat1, fiber, cocopot, cocopot4, cocofider3, cocopot2];
+  const images = [cocoplant, cocofiber, cocopeat, fiber2, cocpeat1, fiber, cocopot, cocopot4, cocofiber3, cocopot2];
 
   useEffect(() => {
     const interval = setInterval(() => {

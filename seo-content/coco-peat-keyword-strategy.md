@@ -8,7 +8,7 @@
 ## 1. Current state of the page
 - Title: *Coco Peat: The "Soil That's Not Soil" Every Gardener Should Know*
 - Body: ~250 words, 5 short benefit points, no FAQ, no local/Nigeria depth, no comparison, no how-to.
-- Tags: `coconoto, coconut, africa, Nigeria, Cocopeat, Cocofide`
+- Tags: `coconoto, coconut, africa, Nigeria, Cocopeat, cocofiber`
 - Reads: 9 (essentially no organic traffic).
 - Verdict: The page is **too thin** to rank against established coir blogs. It needs to become a comprehensive, locally-anchored guide (1,300–1,600 words) that covers the full search cluster below.
 
