@@ -126,6 +126,12 @@ export const BlogDetail: React.FC = () => {
         // Fetch comments
         const commentsData = await blogService.getBlogComments(data.blog_id);
         setComments(commentsData || []);
+        const guestCounts = await blogService.getGuestBlogCounts(data.blog_id);
+        setBlog((current) => current ? {
+          ...current,
+          total_likes: Math.max(current.total_likes || 0, guestCounts.likes),
+          total_comments: (current.total_comments || 0) + guestCounts.comments,
+        } : current);
       } catch (err) {
         setError('Failed to load blog');
         console.error(err);
@@ -248,7 +254,10 @@ export const BlogDetail: React.FC = () => {
           ...guestSession,
           liked: nextLiked,
         });
-        setBlog((current) => current ? { ...current, total_likes: result.likes, total_comments: result.comments } : current);
+        setBlog((current) => current ? {
+          ...current,
+          total_likes: current.total_likes + (nextLiked === guestSession.liked ? 0 : nextLiked ? 1 : -1),
+        } : current);
         const nextSession = { ...guestSession, liked: nextLiked };
         setGuestSession(nextSession);
         localStorage.setItem(`coconoto-blog-session:${blog.blog_id}`, JSON.stringify({ ...nextSession, expiresAt: Date.now() + 15 * 60 * 1000 }));
@@ -279,7 +288,11 @@ export const BlogDetail: React.FC = () => {
       setGuestSession(nextSession);
       setLiked(nextSession.liked);
       localStorage.setItem(`coconoto-blog-session:${blog.blog_id}`, JSON.stringify({ ...nextSession, expiresAt: Date.now() + 15 * 60 * 1000 }));
-      setBlog((current) => current ? { ...current, total_likes: result.likes, total_comments: result.comments } : current);
+      setBlog((current) => current ? {
+        ...current,
+        total_likes: current.total_likes + (interactionMode === 'like' ? 1 : 0),
+        total_comments: current.total_comments + (interactionMode === 'comment' ? 1 : 0),
+      } : current);
       if (interactionMode === 'comment' && result.interaction.comment) {
         setComments((current) => [...current, {
           comment_id: `guest-${result.interaction.id}`,

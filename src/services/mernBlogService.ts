@@ -134,6 +134,24 @@ export async function getBlogByUrlParam(blogParam: string) {
     // Legacy ID fallback for older URLs.
   }
 
+  try {
+    const { data: blogs, error } = await supabase
+      .from('mern_blogs')
+      .select(`
+        *,
+        blog_authors:author_id(id, username, fullname, profile_img, bio, youtube, instagram, facebook, twitter)
+      `)
+      .eq('published', true)
+      .order('published_at', { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    const matchingBlog = (blogs || []).find((blog: any) => buildBlogUrlSlug(blog) === value);
+    if (matchingBlog) return getBlogById(matchingBlog.blog_id);
+  } catch {
+    // Keep the not-found result below if neither lookup is available.
+  }
+
   return null;
 }
 
@@ -334,16 +352,20 @@ export async function saveGuestBlogInteraction(
 
   if (error) throw new Error(error.message);
 
-  const [{ count: likes }, { count: comments }] = await Promise.all([
-    supabase.from('blog_guest_interactions').select('id', { count: 'exact', head: true }).eq('blog_id', blogId).eq('liked', true),
-    supabase.from('blog_guest_interactions').select('id', { count: 'exact', head: true }).eq('blog_id', blogId).neq('comment', ''),
-  ]);
+  const { data: counts, error: countError } = await supabase.rpc('get_guest_blog_counts', { p_blog_id: blogId });
+  if (countError) throw new Error(countError.message);
 
   return {
     interaction: { ...payload, id: `${blogId}-${payload.email}`, created_at: new Date().toISOString() },
-    likes: likes || 0,
-    comments: comments || 0,
+    likes: counts?.[0]?.total_likes || 0,
+    comments: counts?.[0]?.total_comments || 0,
   };
+}
+
+export async function getGuestBlogCounts(blogId: string) {
+  const { data, error } = await supabase.rpc('get_guest_blog_counts', { p_blog_id: blogId });
+  if (error) throw new Error(error.message);
+  return { likes: data?.[0]?.total_likes || 0, comments: data?.[0]?.total_comments || 0 };
 }
 
 // Add comment

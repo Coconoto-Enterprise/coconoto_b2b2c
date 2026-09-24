@@ -33,3 +33,19 @@ USING (true)
 WITH CHECK (char_length(trim(name)) BETWEEN 1 AND 120
   AND char_length(trim(email)) BETWEEN 3 AND 320
   AND char_length(comment) <= 5000);
+
+CREATE OR REPLACE FUNCTION get_guest_blog_counts(p_blog_id TEXT)
+RETURNS TABLE(total_likes BIGINT, total_comments BIGINT)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    count(*) FILTER (WHERE liked = true),
+    count(*) FILTER (WHERE comment <> '')
+  FROM blog_guest_interactions
+  WHERE blog_id = p_blog_id;
+$$;
+
+REVOKE ALL ON FUNCTION get_guest_blog_counts(TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION get_guest_blog_counts(TEXT) TO anon, authenticated;
