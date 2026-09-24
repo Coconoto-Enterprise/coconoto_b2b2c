@@ -663,40 +663,42 @@ export const BlogDetail: React.FC = () => {
         </div>
 
         {interactionMode && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4 py-6" role="dialog" aria-modal="true" aria-labelledby="blog-interaction-title">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="blog-interaction-title">
             <button type="button" onClick={() => setInteractionMode(null)} className="absolute inset-0 cursor-default" aria-label="Close form" />
-            <form onSubmit={saveGuestInteraction} className="relative w-full max-w-lg max-h-[calc(100vh-3rem)] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
-              <button type="button" onClick={() => setInteractionMode(null)} className="absolute right-5 top-5 rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Close form">
-                <X className="h-5 w-5" />
-              </button>
-              <div className="mb-6 pr-8">
-                <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-amber-700">Coconoto community</p>
-                <h2 id="blog-interaction-title" className="text-2xl font-bold text-gray-900">{interactionMode === 'like' ? 'Like this post' : 'Share your thoughts'}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-gray-500">Tell us who you are first. Your details will be remembered for 15 minutes on this post.</p>
+            <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white bg-opacity-50 shadow-2xl">
+              <div className="sticky top-0 z-10 rounded-t-2xl border-b border-gray-100 bg-white bg-opacity-90 p-6">
+                <div className="flex items-center justify-between">
+                  <h2 id="blog-interaction-title" className="text-2xl font-bold text-gray-900">{interactionMode === 'like' ? 'Like this post' : 'Share your thoughts'}</h2>
+                  <button type="button" onClick={() => setInteractionMode(null)} className="rounded-full p-2 transition-colors hover:bg-gray-100" aria-label="Close form">
+                    <X className="h-5 w-5 text-gray-500" />
+                  </button>
+                </div>
               </div>
-              <div className="space-y-4">
+              <form onSubmit={saveGuestInteraction} className="space-y-6 p-6">
+                <div className="space-y-4">
                 <div>
                   <label htmlFor="blog-guest-name" className="mb-2 block text-sm font-medium text-gray-700">Name</label>
-                  <input id="blog-guest-name" autoFocus required value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Your name" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-600 focus:ring-2 focus:ring-amber-100" />
+                  <input id="blog-guest-name" autoFocus required value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Your name" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition-all focus:border-transparent focus:ring-2 focus:ring-green-500" />
                 </div>
                 <div>
                   <label htmlFor="blog-guest-email" className="mb-2 block text-sm font-medium text-gray-700">Email address</label>
-                  <input id="blog-guest-email" required type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} placeholder="you@example.com" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-600 focus:ring-2 focus:ring-amber-100" />
+                  <input id="blog-guest-email" required type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} placeholder="you@example.com" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition-all focus:border-transparent focus:ring-2 focus:ring-green-500" />
                 </div>
                 {interactionMode === 'comment' && (
                   <div>
                     <label htmlFor="blog-guest-comment" className="mb-2 block text-sm font-medium text-gray-700">Comment</label>
-                    <textarea id="blog-guest-comment" required value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Share your thoughts..." rows={4} className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-600 focus:ring-2 focus:ring-amber-100" />
+                    <textarea id="blog-guest-comment" required value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Share your thoughts..." rows={4} className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm transition-all focus:border-transparent focus:ring-2 focus:ring-green-500" />
                   </div>
                 )}
+                </div>
                 <label className="flex items-start gap-3 text-sm text-gray-600">
                   <input type="checkbox" checked={wantsNewsletter} onChange={(e) => setWantsNewsletter(e.target.checked)} className="mt-0.5 h-4 w-4 accent-amber-700" />
                   <span>Keep me updated with the Coconoto newsletter</span>
                 </label>
                 {interactionError && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{interactionError}</p>}
-                <button type="submit" disabled={addingComment} className="w-full rounded-lg bg-green-700 px-6 py-3 font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50">{addingComment ? 'Saving...' : interactionMode === 'like' ? 'Like post' : 'Post comment'}</button>
-              </div>
-            </form>
+                <button type="submit" disabled={addingComment} className="w-full rounded-lg bg-green-600 px-6 py-3 font-semibold text-white transition-all hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">{addingComment ? 'Saving...' : interactionMode === 'like' ? 'Like post' : 'Post comment'}</button>
+              </form>
+            </div>
           </div>
         )}
       </div>
