@@ -371,6 +371,7 @@ export const BlogDetail: React.FC = () => {
             <p className="text-gray-700">{error || 'Blog not found'}</p>
           </div>
         </div>
+
       </div>
       </>
     );
@@ -538,7 +539,14 @@ export const BlogDetail: React.FC = () => {
                 <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
                 {blog.total_likes} Likes
               </button>
-              <button onClick={() => document.getElementById('blog-comments')?.scrollIntoView({ behavior: 'smooth' })} className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition text-sm font-medium">
+              <button onClick={() => {
+                if (userId) {
+                  document.getElementById('blog-comments')?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  setInteractionMode('comment');
+                  setInteractionError('');
+                }
+              }} className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition text-sm font-medium">
                 <MessageCircle className="w-4 h-4" />
                 {blog.total_comments} Comments
               </button>
@@ -589,28 +597,6 @@ export const BlogDetail: React.FC = () => {
                     {addingComment ? 'Posting...' : 'Post Comment'}
                   </button>
                 </div>
-              )}
-              {!userId && !guestSession && interactionMode === null && (
-                <p className="mb-4 text-sm text-gray-500">Add your name and email once to like or comment on this post.</p>
-              )}
-              {interactionMode && (
-                <form onSubmit={saveGuestInteraction} className="mb-6 rounded-2xl border border-amber-100 bg-amber-50/60 p-4">
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div>
-                      <p className="font-semibold text-gray-900">{interactionMode === 'like' ? 'Like this post' : 'Join the conversation'}</p>
-                      <p className="text-xs text-gray-600 mt-1">Your details stay attached to this post for 15 minutes.</p>
-                    </div>
-                    <button type="button" onClick={() => setInteractionMode(null)} aria-label="Close form"><X className="w-4 h-4 text-gray-500" /></button>
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    <input required value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Your name" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white" />
-                    <input required type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} placeholder="Email address" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white" />
-                  </div>
-                  {interactionMode === 'comment' && <textarea required value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Share your thoughts..." rows={3} className="mt-3 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white resize-none" />}
-                  <label className="mt-3 flex items-center gap-2 text-xs text-gray-600"><input type="checkbox" checked={wantsNewsletter} onChange={(e) => setWantsNewsletter(e.target.checked)} className="accent-amber-700" /> Add me to the Coconoto newsletter</label>
-                  {interactionError && <p className="mt-3 text-sm text-red-700">{interactionError}</p>}
-                  <button type="submit" disabled={addingComment} className="mt-4 px-5 py-2 rounded-lg bg-amber-700 text-white text-sm font-semibold disabled:opacity-50">{addingComment ? 'Saving...' : interactionMode === 'like' ? 'Like post' : 'Post comment'}</button>
-                </form>
               )}
               {comments.length === 0 ? (
                 <p className="text-gray-500 text-sm">No comments yet. Be the first!</p>
@@ -675,6 +661,44 @@ export const BlogDetail: React.FC = () => {
           </aside>
 
         </div>
+
+        {interactionMode && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4 py-6" role="dialog" aria-modal="true" aria-labelledby="blog-interaction-title">
+            <button type="button" onClick={() => setInteractionMode(null)} className="absolute inset-0 cursor-default" aria-label="Close form" />
+            <form onSubmit={saveGuestInteraction} className="relative w-full max-w-lg max-h-[calc(100vh-3rem)] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
+              <button type="button" onClick={() => setInteractionMode(null)} className="absolute right-5 top-5 rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Close form">
+                <X className="h-5 w-5" />
+              </button>
+              <div className="mb-6 pr-8">
+                <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-amber-700">Coconoto community</p>
+                <h2 id="blog-interaction-title" className="text-2xl font-bold text-gray-900">{interactionMode === 'like' ? 'Like this post' : 'Share your thoughts'}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-gray-500">Tell us who you are first. Your details will be remembered for 15 minutes on this post.</p>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="blog-guest-name" className="mb-2 block text-sm font-medium text-gray-700">Name</label>
+                  <input id="blog-guest-name" autoFocus required value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Your name" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-600 focus:ring-2 focus:ring-amber-100" />
+                </div>
+                <div>
+                  <label htmlFor="blog-guest-email" className="mb-2 block text-sm font-medium text-gray-700">Email address</label>
+                  <input id="blog-guest-email" required type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} placeholder="you@example.com" className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-600 focus:ring-2 focus:ring-amber-100" />
+                </div>
+                {interactionMode === 'comment' && (
+                  <div>
+                    <label htmlFor="blog-guest-comment" className="mb-2 block text-sm font-medium text-gray-700">Comment</label>
+                    <textarea id="blog-guest-comment" required value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Share your thoughts..." rows={4} className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-600 focus:ring-2 focus:ring-amber-100" />
+                  </div>
+                )}
+                <label className="flex items-start gap-3 text-sm text-gray-600">
+                  <input type="checkbox" checked={wantsNewsletter} onChange={(e) => setWantsNewsletter(e.target.checked)} className="mt-0.5 h-4 w-4 accent-amber-700" />
+                  <span>Keep me updated with the Coconoto newsletter</span>
+                </label>
+                {interactionError && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{interactionError}</p>}
+                <button type="submit" disabled={addingComment} className="w-full rounded-lg bg-green-700 px-6 py-3 font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50">{addingComment ? 'Saving...' : interactionMode === 'like' ? 'Like post' : 'Post comment'}</button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
     </>
   );

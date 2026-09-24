@@ -107,6 +107,14 @@ app.post('/api/admin-login', (req, res) => {
 app.post('/api/auth', (req, res) => {
   const { action, password } = req.body;
 
+  if (action === 'marketplace-session') {
+    return res.json({ success: true, session: null });
+  }
+
+  if (action === 'marketplace-logout') {
+    return res.json({ success: true });
+  }
+
   if (action === 'admin-login') {
     if (!requireAdminPassword(res)) return;
     if (typeof password !== 'string' || password.length !== ADMIN_PASSWORD.length) {
