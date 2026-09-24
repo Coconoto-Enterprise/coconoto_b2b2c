@@ -28,6 +28,7 @@ export const ServerError = lazy(() => import('./pages/errors/ServerError'));
 export const BlogHome = lazy(() => import('./pages/blog/BlogHome'));
 export const BlogDetail = lazy(() => import('./pages/blog/BlogDetail'));
 export const BlogEditor = lazy(() => import('./components/blog/BlogEditor'));
+export const FigmaAbout = lazy(() => import('./pages/FigmaAbout'));
 
 // --- Named-export pages (remap to default for React.lazy) ---
 export const ServicesLayout = lazy(() =>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Loader } from 'lucide-react';
 import blogService from '../../services/mernBlogService';
+import { buildBlogUrlSlug } from '../../services/blogUrlUtils.js';
 import blogLogo from '../../assets/blog-logo.png';
 import Navbar from '../../components/Navbar';
 
@@ -146,7 +147,7 @@ export const BlogHome: React.FC = () => {
             {filteredBlogs.map(blog => (
               <article
                 key={blog.blog_id}
-                onClick={() => navigate(`/blog/${blog.blog_id}`)}
+                onClick={() => navigate(`/blog/${buildBlogUrlSlug(blog)}`)}
                 className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition cursor-pointer"
               >
                 {blog.banner && (

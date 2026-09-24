@@ -1,4 +1,31 @@
 import { supabase } from '../lib/supabase';
+import { buildBlogUrlSlug, buildUniqueBlogSlug, slugifyBlogTitle } from './blogUrlUtils.js';
+
+async function generateUniqueSlug(title: string, currentSlug?: string, blogIdToIgnore?: string) {
+  const base = slugifyBlogTitle(title) || 'blog-post';
+  const slugToKeep = currentSlug && currentSlug.trim() ? currentSlug.trim() : null;
+
+  const { data: existingRows, error } = await supabase
+    .from('mern_blogs')
+    .select('slug, blog_id')
+    .neq('blog_id', blogIdToIgnore || '');
+
+  if (error) throw new Error(error.message);
+
+  const usedSlugs = new Set((existingRows || [])
+    .map((row: any) => String(row?.slug || '').trim())
+    .filter(Boolean));
+
+  if (slugToKeep && slugToKeep === base) {
+    return slugToKeep;
+  }
+
+  if (slugToKeep && !usedSlugs.has(slugToKeep)) {
+    return slugToKeep;
+  }
+
+  return buildUniqueBlogSlug(base, [...usedSlugs], slugToKeep || '');
+}
 
 // Get all published blogs
 export async function getPublishedBlogs() {
@@ -74,9 +101,46 @@ export async function getBlogById(blogId: string) {
   };
 }
 
+export async function getBlogByUrlParam(blogParam: string) {
+  const value = String(blogParam || '').trim();
+  if (!value) return null;
+
+  try {
+    const { data, error } = await supabase
+      .from('mern_blogs')
+      .select(`
+        *,
+        blog_authors:author_id(id, username, fullname, profile_img, bio, youtube, instagram, facebook, twitter)
+      `)
+      .eq('slug', value)
+      .eq('published', true)
+      .maybeSingle();
+
+    if (error && error.code !== 'PGRST116') throw new Error(error.message);
+    if (data) {
+      return {
+        ...data,
+        blog_comments: []
+      };
+    }
+  } catch {
+    // Ignore slug lookup failures while the table is still being migrated.
+  }
+
+  try {
+    const byId = await getBlogById(value);
+    if (byId) return byId;
+  } catch {
+    // Legacy ID fallback for older URLs.
+  }
+
+  return null;
+}
+
 // Create new blog
 export async function createBlog(blogData: any, userId: string) {
   const blogId = Math.random().toString(36).substring(2, 15);
+  const slug = await generateUniqueSlug(blogData.title || 'blog-post');
 
   const { data, error } = await supabase
     .from('mern_blogs')
@@ -84,6 +148,7 @@ export async function createBlog(blogData: any, userId: string) {
       {
         blog_id: blogId,
         title: blogData.title,
+        slug,
         banner: blogData.banner || '',
         des: blogData.des || '',
         content: blogData.content || [],
@@ -105,7 +170,7 @@ export async function updateBlog(blogId: string, blogData: any, userId: string) 
   // Verify ownership
   const { data: blog } = await supabase
     .from('mern_blogs')
-    .select('author_id')
+    .select('author_id, title, slug')
     .eq('blog_id', blogId)
     .single();
 
@@ -113,8 +178,12 @@ export async function updateBlog(blogId: string, blogData: any, userId: string) 
     throw new Error('Unauthorized');
   }
 
+  const nextTitle = blogData.title ?? blog.title;
+  const nextSlug = await generateUniqueSlug(nextTitle, blog.slug || buildBlogUrlSlug(blog), blogId);
+
   const updates: Record<string, any> = {
-    title: blogData.title,
+    title: nextTitle,
+    slug: nextSlug,
     banner: blogData.banner,
     des: blogData.des,
     content: blogData.content,
@@ -234,6 +303,49 @@ export async function getBlogLikeStatus(blogId: string, userId: string) {
   return Boolean(data);
 }
 
+export async function getGuestBlogInteraction(blogId: string, email: string) {
+  const { data, error } = await supabase
+    .from('blog_guest_interactions')
+    .select('id, name, email, liked, wants_newsletter')
+    .eq('blog_id', blogId)
+    .eq('email', email.trim().toLowerCase())
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function saveGuestBlogInteraction(
+  blogId: string,
+  interaction: { name: string; email: string; liked?: boolean; comment?: string; wants_newsletter?: boolean }
+) {
+  const payload = {
+    blog_id: blogId,
+    name: interaction.name.trim(),
+    email: interaction.email.trim().toLowerCase(),
+    liked: Boolean(interaction.liked),
+    comment: interaction.comment?.trim() || '',
+    wants_newsletter: Boolean(interaction.wants_newsletter),
+  };
+
+  const { error } = await supabase
+    .from('blog_guest_interactions')
+    .upsert(payload, { onConflict: 'blog_id,email' });
+
+  if (error) throw new Error(error.message);
+
+  const [{ count: likes }, { count: comments }] = await Promise.all([
+    supabase.from('blog_guest_interactions').select('id', { count: 'exact', head: true }).eq('blog_id', blogId).eq('liked', true),
+    supabase.from('blog_guest_interactions').select('id', { count: 'exact', head: true }).eq('blog_id', blogId).neq('comment', ''),
+  ]);
+
+  return {
+    interaction: { ...payload, id: `${blogId}-${payload.email}`, created_at: new Date().toISOString() },
+    likes: likes || 0,
+    comments: comments || 0,
+  };
+}
+
 // Add comment
 export async function addComment(blogId: string, commentData: any, userId: string) {
   const commentId = Math.random().toString(36).substring(2, 15);
@@ -282,7 +394,8 @@ export async function addComment(blogId: string, commentData: any, userId: strin
 
 // Get blog comments
 export async function getBlogComments(blogId: string) {
-  const { data, error } = await supabase
+  const [{ data, error }, { data: guestComments, error: guestError }] = await Promise.all([
+    supabase
     .from('blog_comments')
     .select(`
       *,
@@ -290,10 +403,26 @@ export async function getBlogComments(blogId: string) {
     `)
     .eq('blog_id', blogId)
     .eq('is_deleted', false)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true }),
+    supabase
+      .from('blog_guest_interactions')
+      .select('id, name, comment, created_at')
+      .eq('blog_id', blogId)
+      .neq('comment', '')
+      .order('created_at', { ascending: true }),
+  ]);
 
   if (error) throw new Error(error.message);
-  return data;
+  if (guestError) throw new Error(guestError.message);
+  return [
+    ...(data || []),
+    ...(guestComments || []).map((comment: any) => ({
+      comment_id: `guest-${comment.id}`,
+      content: comment.comment,
+      created_at: comment.created_at,
+      author: { username: comment.name, profile_img: '' },
+    })),
+  ].sort((left, right) => new Date(left.created_at).getTime() - new Date(right.created_at).getTime());
 }
 
 // Delete comment

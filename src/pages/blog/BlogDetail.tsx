@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { ArrowLeft, Loader, Heart, MessageCircle, Share2, AlertCircle, Calendar, Eye } from 'lucide-react';
+import { ArrowLeft, Loader, Heart, MessageCircle, Share2, AlertCircle, Calendar, Eye, Copy, Check, X } from 'lucide-react';
 import blogService from '../../services/mernBlogService';
+import { buildBlogUrlSlug, matchesBlogUrlParam } from '../../services/blogUrlUtils.js';
 import { supabase } from '../../lib/supabase';
 import blogLogo from '../../assets/blog-logo.png';
 import Navbar from '../../components/Navbar';
@@ -74,7 +75,7 @@ interface Blog {
 }
 
 export const BlogDetail: React.FC = () => {
-  const { blogId } = useParams();
+  const { blogParam } = useParams();
   const navigate = useNavigate();
   const [blog, setBlog] = useState<Blog | null>(null);
   const [otherPosts, setOtherPosts] = useState<Blog[]>([]);
@@ -85,6 +86,14 @@ export const BlogDetail: React.FC = () => {
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
   const [addingComment, setAddingComment] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [wantsNewsletter, setWantsNewsletter] = useState(false);
+  const [guestSession, setGuestSession] = useState<{ name: string; email: string; liked: boolean } | null>(null);
+  const [interactionMode, setInteractionMode] = useState<'like' | 'comment' | null>(null);
+  const [interactionError, setInteractionError] = useState('');
+  const [shareOpen, setShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Get current user
   useEffect(() => {
@@ -97,12 +106,12 @@ export const BlogDetail: React.FC = () => {
 
   // Fetch blog and comments
   useEffect(() => {
-    if (!blogId) return;
+    if (!blogParam) return;
 
     const fetchBlog = async () => {
       try {
         setLoading(true);
-        const data = await blogService.getBlogById(blogId);
+        const data = await blogService.getBlogByUrlParam(blogParam);
         if (!data) {
           setError('Blog not found');
           return;
@@ -112,10 +121,10 @@ export const BlogDetail: React.FC = () => {
 
         // Fetch other published posts for the sidebar (read-only, no DB writes)
         const allPosts = await blogService.getPublishedBlogs();
-        setOtherPosts((allPosts || []).filter((p: any) => p.blog_id !== blogId).slice(0, 6));
+        setOtherPosts((allPosts || []).filter((p: any) => !matchesBlogUrlParam(p, blogParam)).slice(0, 6));
 
         // Fetch comments
-        const commentsData = await blogService.getBlogComments(blogId);
+        const commentsData = await blogService.getBlogComments(data.blog_id);
         setComments(commentsData || []);
       } catch (err) {
         setError('Failed to load blog');
@@ -126,15 +135,34 @@ export const BlogDetail: React.FC = () => {
     };
 
     fetchBlog();
-  }, [blogId]);
+  }, [blogParam]);
 
   useEffect(() => {
-    if (!blogId || !userId) return;
+    if (!blog) return;
 
-    blogService.getBlogLikeStatus(blogId, userId)
+    const key = `coconoto-blog-session:${blog.blog_id}`;
+    try {
+      const saved = JSON.parse(localStorage.getItem(key) || 'null');
+      if (saved && saved.expiresAt > Date.now()) {
+        setGuestSession(saved);
+        setGuestName(saved.name);
+        setGuestEmail(saved.email);
+        setLiked(Boolean(saved.liked));
+      } else {
+        localStorage.removeItem(key);
+      }
+    } catch {
+      localStorage.removeItem(key);
+    }
+  }, [blog]);
+
+  useEffect(() => {
+    if (!blog || !userId) return;
+
+    blogService.getBlogLikeStatus(blog.blog_id, userId)
       .then(setLiked)
       .catch((err) => console.error('Failed to load like status:', err));
-  }, [blogId, userId]);
+  }, [blog, userId]);
 
   // Set per-post SEO/social meta tags once the blog loads. Read-only: this
   // only touches the document head, never the database. Tags are restored to
@@ -143,7 +171,7 @@ export const BlogDetail: React.FC = () => {
     if (!blog) return;
 
     const SITE_URL = 'https://www.coconoto.africa';
-    const pageUrl = `${SITE_URL}/blog/${blog.blog_id}`;
+    const pageUrl = `${SITE_URL}/blog/${buildBlogUrlSlug(blog)}`;
     const description = (blog.des || blog.title || '').slice(0, 160);
     const image = blog.banner || `${SITE_URL}/Icon_green.png`;
 
@@ -203,23 +231,80 @@ export const BlogDetail: React.FC = () => {
   }, [blog]);
 
   const handleLike = async () => {
-    if (!userId || !blog) return;
+    if (!blog) return;
+
+    if (!userId && !guestSession) {
+      setInteractionMode('like');
+      setInteractionError('');
+      return;
+    }
 
     try {
       const nextLiked = !liked;
-      await blogService.toggleBlogLike(blog.blog_id, userId, nextLiked);
+      if (userId) {
+        await blogService.toggleBlogLike(blog.blog_id, userId, nextLiked);
+      } else if (guestSession) {
+        const result = await blogService.saveGuestBlogInteraction(blog.blog_id, {
+          ...guestSession,
+          liked: nextLiked,
+        });
+        setBlog((current) => current ? { ...current, total_likes: result.likes, total_comments: result.comments } : current);
+        const nextSession = { ...guestSession, liked: nextLiked };
+        setGuestSession(nextSession);
+        localStorage.setItem(`coconoto-blog-session:${blog.blog_id}`, JSON.stringify({ ...nextSession, expiresAt: Date.now() + 15 * 60 * 1000 }));
+      }
       setLiked(nextLiked);
-      setBlog((current) => current ? {
-        ...current,
-        total_likes: Math.max(0, current.total_likes + (nextLiked ? 1 : -1))
-      } : current);
+      if (userId) setBlog((current) => current ? { ...current, total_likes: Math.max(0, current.total_likes + (nextLiked ? 1 : -1)) } : current);
     } catch (err) {
       console.error('Failed to toggle like:', err);
+      setInteractionError('We could not save your like. Please try again.');
+    }
+  };
+
+  const saveGuestInteraction = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!blog || !guestName.trim() || !guestEmail.trim() || (interactionMode === 'comment' && !newComment.trim())) return;
+
+    try {
+      setAddingComment(true);
+      setInteractionError('');
+      const result = await blogService.saveGuestBlogInteraction(blog.blog_id, {
+        name: guestName,
+        email: guestEmail,
+        liked: interactionMode === 'like',
+        comment: interactionMode === 'comment' ? newComment : '',
+        wants_newsletter: wantsNewsletter,
+      });
+      const nextSession = { name: result.interaction.name, email: result.interaction.email, liked: result.interaction.liked };
+      setGuestSession(nextSession);
+      setLiked(nextSession.liked);
+      localStorage.setItem(`coconoto-blog-session:${blog.blog_id}`, JSON.stringify({ ...nextSession, expiresAt: Date.now() + 15 * 60 * 1000 }));
+      setBlog((current) => current ? { ...current, total_likes: result.likes, total_comments: result.comments } : current);
+      if (interactionMode === 'comment' && result.interaction.comment) {
+        setComments((current) => [...current, {
+          comment_id: `guest-${result.interaction.id}`,
+          content: result.interaction.comment,
+          created_at: result.interaction.created_at,
+          author: { username: result.interaction.name, profile_img: '' },
+        }]);
+        setNewComment('');
+      }
+      setInteractionMode(null);
+    } catch (err) {
+      console.error('Failed to save guest interaction:', err);
+      setInteractionError('We could not save this yet. Please check your details and try again.');
+    } finally {
+      setAddingComment(false);
     }
   };
 
   const handleAddComment = async () => {
-    if (!newComment.trim() || !userId || !blog) return;
+    if (!newComment.trim() || !blog) return;
+    if (!userId) {
+      setInteractionMode('comment');
+      setInteractionError('');
+      return;
+    }
 
     try {
       setAddingComment(true);
@@ -440,12 +525,12 @@ export const BlogDetail: React.FC = () => {
                 <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
                 {blog.total_likes} Likes
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition text-sm font-medium">
+              <button onClick={() => document.getElementById('blog-comments')?.scrollIntoView({ behavior: 'smooth' })} className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition text-sm font-medium">
                 <MessageCircle className="w-4 h-4" />
                 {blog.total_comments} Comments
               </button>
               <button
-                onClick={() => navigator.clipboard?.writeText(window.location.href)}
+                onClick={() => setShareOpen((open) => !open)}
                 className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition text-sm font-medium"
               >
                 <Share2 className="w-4 h-4" />
@@ -453,10 +538,28 @@ export const BlogDetail: React.FC = () => {
               </button>
             </div>
 
+            {shareOpen && (
+              <div className="relative -mt-2 mb-5 rounded-2xl border border-gray-100 bg-gray-50 p-4">
+                <button onClick={() => setShareOpen(false)} className="absolute right-3 top-3 text-gray-400 hover:text-gray-700" aria-label="Close share options">
+                  <X className="w-4 h-4" />
+                </button>
+                <p className="font-semibold text-gray-900 text-sm mb-3">Share this post</p>
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank', 'noopener,noreferrer')} className="px-3 py-2 rounded-lg bg-[#1877f2] text-white text-xs font-semibold">Facebook</button>
+                  <button onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(blog.title)}`, '_blank', 'noopener,noreferrer')} className="px-3 py-2 rounded-lg bg-black text-white text-xs font-semibold">X / Twitter</button>
+                  <button onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank', 'noopener,noreferrer')} className="px-3 py-2 rounded-lg bg-[#0a66c2] text-white text-xs font-semibold">LinkedIn</button>
+                  <button onClick={async () => { await navigator.clipboard?.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 1800); }} className="flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 text-xs font-semibold">
+                    {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied ? 'Copied' : 'Copy link'}
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Comments */}
-            <div className="mt-8">
+            <div id="blog-comments" className="mt-8">
               <h2 className="text-xl font-bold text-gray-900 mb-5">Comments ({comments.length})</h2>
-              {userId && (
+              {(userId || guestSession) && (
                 <div className="mb-6">
                   <textarea
                     value={newComment}
@@ -473,6 +576,28 @@ export const BlogDetail: React.FC = () => {
                     {addingComment ? 'Posting...' : 'Post Comment'}
                   </button>
                 </div>
+              )}
+              {!userId && !guestSession && interactionMode === null && (
+                <p className="mb-4 text-sm text-gray-500">Add your name and email once to like or comment on this post.</p>
+              )}
+              {interactionMode && (
+                <form onSubmit={saveGuestInteraction} className="mb-6 rounded-2xl border border-amber-100 bg-amber-50/60 p-4">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                      <p className="font-semibold text-gray-900">{interactionMode === 'like' ? 'Like this post' : 'Join the conversation'}</p>
+                      <p className="text-xs text-gray-600 mt-1">Your details stay attached to this post for 15 minutes.</p>
+                    </div>
+                    <button type="button" onClick={() => setInteractionMode(null)} aria-label="Close form"><X className="w-4 h-4 text-gray-500" /></button>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <input required value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Your name" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white" />
+                    <input required type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} placeholder="Email address" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white" />
+                  </div>
+                  {interactionMode === 'comment' && <textarea required value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Share your thoughts..." rows={3} className="mt-3 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white resize-none" />}
+                  <label className="mt-3 flex items-center gap-2 text-xs text-gray-600"><input type="checkbox" checked={wantsNewsletter} onChange={(e) => setWantsNewsletter(e.target.checked)} className="accent-amber-700" /> Add me to the Coconoto newsletter</label>
+                  {interactionError && <p className="mt-3 text-sm text-red-700">{interactionError}</p>}
+                  <button type="submit" disabled={addingComment} className="mt-4 px-5 py-2 rounded-lg bg-amber-700 text-white text-sm font-semibold disabled:opacity-50">{addingComment ? 'Saving...' : interactionMode === 'like' ? 'Like post' : 'Post comment'}</button>
+                </form>
               )}
               {comments.length === 0 ? (
                 <p className="text-gray-500 text-sm">No comments yet. Be the first!</p>
@@ -502,7 +627,7 @@ export const BlogDetail: React.FC = () => {
               ) : otherPosts.map((post: any) => (
                 <button
                   key={post.blog_id}
-                  onClick={() => navigate(`/blog/${post.blog_id}`)}
+                  onClick={() => navigate(`/blog/${buildBlogUrlSlug(post)}`)}
                   className="w-full text-left bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
                 >
                   {post.banner && (

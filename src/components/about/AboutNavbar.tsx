@@ -26,15 +26,15 @@ function navClass({ isActive }: { isActive: boolean }) {
   ].join(' ');
 }
 
-export default function AboutNavbar() {
+export default function AboutNavbar({ designHeight = false }: { designHeight?: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
     <nav
       aria-label="Primary"
-      className="bg-white fixed w-full top-0 z-50 shadow-sm"
+      className={`bg-white fixed w-full top-0 z-50 shadow-sm ${designHeight ? 'h-[108px]' : ''}`}
     >
-      <div className="container mx-auto px-4 sm:px-6 py-3">
+      <div className={`container mx-auto px-4 sm:px-6 ${designHeight ? 'flex h-full items-center py-0' : 'py-3'}`}>
         <div className="flex items-center justify-between gap-4">
           <Link
             to="/"

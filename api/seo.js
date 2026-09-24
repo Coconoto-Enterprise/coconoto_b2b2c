@@ -16,6 +16,36 @@ const escapeHtml = (v = '') =>
   String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
+const slugifyBlogTitle = (title = '') => String(title || '')
+  .trim()
+  .toLowerCase()
+  .normalize('NFKD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '')
+  .slice(0, 80)
+  .replace(/-+$/g, '');
+
+const buildBlogUrlSlug = (blog = {}) => {
+  const storedSlug = String(blog.slug || '').trim();
+  if (storedSlug) return storedSlug;
+  const baseTitle = slugifyBlogTitle(blog.title || 'blog-post');
+  const blogId = String(blog.blog_id || blog.id || '').trim();
+
+  if (!baseTitle) return blogId ? blogId.slice(0, 12) : 'blog-post';
+  if (!blogId) return baseTitle;
+
+  const shortId = blogId.replace(/[^a-z0-9]/gi, '').toLowerCase().slice(0, 6);
+  return shortId ? `${baseTitle}-${shortId}` : baseTitle;
+};
+
+const matchBlogUrlParam = (blog = {}, param = '') => {
+  const value = String(param || '').trim();
+  if (!value) return false;
+  const blogId = String(blog.blog_id || blog.id || '').trim();
+  return value === buildBlogUrlSlug(blog) || value === blogId;
+};
+
 // ─── Sitemap ──────────────────────────────────────────────────────────────────
 
 const STATIC_ROUTES = [
@@ -43,7 +73,7 @@ async function handleSitemap(req, res) {
   if (supabase) {
     const { data: blogs, error } = await supabase
       .from('mern_blogs')
-      .select('blog_id, updated_at, published_at')
+      .select('blog_id, title, slug, updated_at, published_at')
       .eq('published', true)
       .order('published_at', { ascending: false });
 
@@ -51,7 +81,7 @@ async function handleSitemap(req, res) {
       for (const blog of blogs) {
         const lastmod = blog.updated_at || blog.published_at;
         urls.push(urlEntry({
-          loc: `${SITE_URL}/blog/${blog.blog_id}`,
+          loc: `${SITE_URL}/blog/${buildBlogUrlSlug(blog)}`,
           lastmod: lastmod ? new Date(lastmod).toISOString() : undefined,
           changefreq: 'weekly',
           priority: '0.9',
@@ -92,16 +122,31 @@ async function handleBlogMeta(req, res) {
   if (!supabase || !blogId) return serveShell(null);
 
   try {
-    const { data: blog, error } = await supabase
+    const { data: allBlogs, error: listError } = await supabase
       .from('mern_blogs')
-      .select('blog_id, title, des, banner, published')
-      .eq('blog_id', blogId)
+      .select('blog_id, title, slug, des, banner, published')
       .eq('published', true)
-      .single();
+      .order('published_at', { ascending: false });
 
-    if (error || !blog) return serveShell(null);
+    let blog = null;
+    if (!listError && allBlogs) {
+      blog = allBlogs.find((item) => matchBlogUrlParam(item, blogId)) || null;
+    }
 
-    const pageUrl     = `${origin}/blog/${blog.blog_id}`;
+    if (!blog) {
+      const { data: legacyBlog, error } = await supabase
+        .from('mern_blogs')
+        .select('blog_id, title, slug, des, banner, published')
+        .eq('blog_id', blogId)
+        .eq('published', true)
+        .single();
+      blog = legacyBlog || null;
+      if (error && error.code !== 'PGRST116') console.error('blog-meta lookup error:', error);
+    }
+
+    if (!blog) return serveShell(null);
+
+    const pageUrl     = `${origin}/blog/${buildBlogUrlSlug(blog)}`;
     const title       = escapeHtml(`${blog.title} | Coconoto Africa`);
     const rawTitle    = escapeHtml(blog.title);
     const description = escapeHtml((blog.des || blog.title || '').slice(0, 160));

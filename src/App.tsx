@@ -40,6 +40,7 @@ import {
   NotFound,
   ServerError,
   RouteFallback,
+  FigmaAbout,
 } from './lazyComponents';
 import { MarketplaceAuthProvider } from './context/MarketplaceAuthContext';
 import { MarketplaceProtectedRoute } from './components/auth/MarketplaceProtectedRoute';
@@ -72,7 +73,7 @@ function App() {
           <Route path="/services/*" element={<ServicesLayout />} />
           <Route path="/product/*" element={<ProductLayout />} />
           <Route path="/blog" element={<BlogHome />} />
-          <Route path="/blog/:blogId" element={<BlogDetail />} />
+          <Route path="/blog/:blogParam" element={<BlogDetail />} />
           <Route path="/blog-editor/:blogId" element={<BlogEditor />} />
           <Route path="/about" element={
             <>
@@ -81,6 +82,7 @@ function App() {
               <Footer />
             </>
           } />
+          <Route path="/figma/about" element={<FigmaAbout />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />

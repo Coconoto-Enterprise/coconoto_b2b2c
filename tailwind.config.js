@@ -9,6 +9,8 @@ export default {
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
         gelasio: ['Gelasio', 'serif'],
+        lora: ['Lora', 'serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
