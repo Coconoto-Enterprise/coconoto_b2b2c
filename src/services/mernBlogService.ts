@@ -568,6 +568,7 @@ export default {
   getPublishedBlogs,
   getUserBlogs,
   getBlogById,
+  getBlogByUrlParam,
   createBlog,
   updateBlog,
   publishBlog,
