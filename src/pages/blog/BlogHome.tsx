@@ -99,7 +99,7 @@ export const BlogHome: React.FC = () => {
 
         {/* Tags Filter */}
         {allTags.length > 0 && (
-          <div className="mb-8 flex flex-wrap gap-2">
+          <div className="hidden md:flex mb-8 flex-wrap gap-2">
             <button
               onClick={() => setSelectedTag(null)}
               className={`px-4 py-2 rounded-full transition ${
