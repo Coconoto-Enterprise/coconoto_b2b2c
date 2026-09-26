@@ -92,7 +92,7 @@ export const BlogHome: React.FC = () => {
               placeholder="Search blogs..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700"
+              className="w-full bg-white text-black placeholder:text-gray-500 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700"
             />
           </div>
         </div>
