@@ -49,6 +49,20 @@ const sanitizeEmbedUrl = (raw: any) => {
   return parsed.toString();
 };
 
+const avatarColors = ['bg-amber-600', 'bg-emerald-600', 'bg-sky-600', 'bg-rose-600', 'bg-violet-600', 'bg-orange-600', 'bg-teal-600'];
+
+const getCommentAvatar = (name: string) => {
+  const safeName = name?.trim() || 'C';
+  let hash = 0;
+  for (let index = 0; index < safeName.length; index += 1) {
+    hash = (hash * 31 + safeName.charCodeAt(index)) >>> 0;
+  }
+  return {
+    initial: safeName.charAt(0).toUpperCase(),
+    color: avatarColors[hash % avatarColors.length],
+  };
+};
+
 interface Blog {
   blog_id: string;
   title: string;
@@ -604,7 +618,14 @@ export const BlogDetail: React.FC = () => {
                 <div className="space-y-4">
                   {comments.map(comment => (
                     <div key={comment.comment_id} className="flex gap-3 pb-4 border-b border-gray-100 last:border-0">
-                      <img src={comment.author?.profile_img || blogLogo} alt={comment.author?.username} className="w-9 h-9 rounded-full object-cover bg-gray-200 flex-shrink-0" />
+                      {comment.author?.profile_img ? (
+                        <img src={comment.author.profile_img} alt={comment.author?.username} className="w-9 h-9 rounded-full object-cover bg-gray-200 flex-shrink-0" />
+                      ) : (
+                        (() => {
+                          const avatar = getCommentAvatar(comment.author?.username || 'Commenter');
+                          return <div aria-hidden="true" className={`w-9 h-9 rounded-full ${avatar.color} text-white flex items-center justify-center flex-shrink-0 font-semibold text-sm`}>{avatar.initial}</div>;
+                        })()
+                      )}
                       <div>
                         <p className="font-semibold text-gray-900 text-sm">{comment.author?.username}</p>
                         <p className="text-gray-700 mt-0.5 text-sm">{comment.content}</p>

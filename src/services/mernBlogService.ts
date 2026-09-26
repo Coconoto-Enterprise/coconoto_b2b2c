@@ -346,19 +346,29 @@ export async function saveGuestBlogInteraction(
     wants_newsletter: Boolean(interaction.wants_newsletter),
   };
 
-  const { error } = await supabase
-    .from('blog_guest_interactions')
-    .upsert(payload, { onConflict: 'blog_id,email' });
+  const { data, error } = await supabase.rpc('save_guest_blog_interaction', {
+    p_blog_id: payload.blog_id,
+    p_name: payload.name,
+    p_email: payload.email,
+    p_liked: payload.liked,
+    p_comment: payload.comment,
+    p_wants_newsletter: payload.wants_newsletter,
+  }).single();
 
   if (error) throw new Error(error.message);
 
-  const { data: counts, error: countError } = await supabase.rpc('get_guest_blog_counts', { p_blog_id: blogId });
-  if (countError) throw new Error(countError.message);
-
   return {
-    interaction: { ...payload, id: `${blogId}-${payload.email}`, created_at: new Date().toISOString() },
-    likes: counts?.[0]?.total_likes || 0,
-    comments: counts?.[0]?.total_comments || 0,
+    interaction: {
+      id: data.interaction_id,
+      name: data.interaction_name,
+      email: data.interaction_email,
+      comment: data.interaction_comment,
+      liked: data.interaction_liked,
+      wants_newsletter: data.interaction_wants_newsletter,
+      created_at: data.interaction_created_at,
+    },
+    likes: data.total_likes || 0,
+    comments: data.total_comments || 0,
   };
 }
 
