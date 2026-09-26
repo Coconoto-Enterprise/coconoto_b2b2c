@@ -110,7 +110,7 @@ export const BlogHome: React.FC = () => {
           <div className="mb-8 flex flex-nowrap gap-2 overflow-x-auto pb-1">
             <button
               onClick={() => setSelectedTag(null)}
-              className={`px-4 py-2 rounded-full transition ${
+              className={`basis-[calc((100%-1.5rem)/4)] shrink-0 px-4 py-2 rounded-full text-center transition ${
                 !selectedTag
                   ? 'bg-amber-700 text-white'
                   : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
@@ -122,7 +122,7 @@ export const BlogHome: React.FC = () => {
               <button
                 key={tag}
                 onClick={() => setSelectedTag(tag)}
-                className={`px-4 py-2 rounded-full transition ${
+                className={`basis-[calc((100%-1.5rem)/4)] shrink-0 px-4 py-2 rounded-full text-center transition ${
                   selectedTag === tag
                     ? 'bg-amber-700 text-white'
                     : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
