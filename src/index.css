@@ -17,6 +17,18 @@
     @apply font-inter text-gray-900 bg-white;
   }
 
+  input,
+  select,
+  textarea {
+    @apply bg-white text-gray-900;
+    color-scheme: light;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    @apply text-gray-500;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-gelasio font-bold;
   }
