@@ -27,6 +27,21 @@ async function generateUniqueSlug(title: string, currentSlug?: string, blogIdToI
   return buildUniqueBlogSlug(base, [...usedSlugs], slugToKeep || '');
 }
 
+async function mergeGuestCounts(blogs: any[]) {
+  return Promise.all((blogs || []).map(async (blog) => {
+    try {
+      const guestCounts = await getGuestBlogCounts(blog.blog_id);
+      return {
+        ...blog,
+        total_likes: (blog.total_likes || 0) + guestCounts.likes,
+        total_comments: (blog.total_comments || 0) + guestCounts.comments,
+      };
+    } catch {
+      return blog;
+    }
+  }));
+}
+
 // Get all published blogs
 export async function getPublishedBlogs() {
   const { data, error } = await supabase
@@ -39,7 +54,7 @@ export async function getPublishedBlogs() {
     .order('published_at', { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data;
+  return mergeGuestCounts(data || []);
 }
 
 // Get all blogs for logged-in user (including drafts)
@@ -330,7 +345,7 @@ export async function getGuestBlogInteraction(blogId: string, email: string) {
     .maybeSingle();
 
   if (error) throw new Error(error.message);
-  return data;
+  return mergeGuestCounts(data || []);
 }
 
 export async function saveGuestBlogInteraction(
@@ -527,7 +542,7 @@ export async function searchBlogs(query: string) {
     .order('published_at', { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data;
+  return mergeGuestCounts(data || []);
 }
 
 async function ensureAuthorProfile(userId: string) {
