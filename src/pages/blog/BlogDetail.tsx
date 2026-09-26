@@ -579,6 +579,25 @@ export const BlogDetail: React.FC = () => {
                   <X className="w-4 h-4" />
                 </button>
                 <p className="font-semibold text-gray-900 text-sm mb-3">Share this post</p>
+                <a
+                  href={window.location.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mb-4 flex overflow-hidden rounded-xl border border-gray-200 bg-white transition hover:border-gray-300 hover:shadow-sm"
+                >
+                  {blog.banner ? (
+                    <img src={blog.banner} alt="" className="h-24 w-28 flex-shrink-0 object-cover sm:h-28 sm:w-36" />
+                  ) : (
+                    <div className="flex h-24 w-28 flex-shrink-0 items-center justify-center bg-amber-100 text-amber-800 sm:h-28 sm:w-36">
+                      <Share2 className="h-7 w-7" />
+                    </div>
+                  )}
+                  <div className="min-w-0 p-3 sm:p-4">
+                    <p className="line-clamp-2 text-sm font-semibold leading-snug text-gray-900">{blog.title}</p>
+                    {blog.des && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-gray-500">{blog.des}</p>}
+                    <p className="mt-2 truncate text-xs text-green-700">{window.location.href}</p>
+                  </div>
+                </a>
                 <div className="flex flex-wrap gap-2">
                   <button onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank', 'noopener,noreferrer')} className="px-3 py-2 rounded-lg bg-[#1877f2] text-white text-xs font-semibold">Facebook</button>
                   <button onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(blog.title)}`, '_blank', 'noopener,noreferrer')} className="px-3 py-2 rounded-lg bg-black text-white text-xs font-semibold">X / Twitter</button>
