@@ -68,7 +68,7 @@ export const BlogHome: React.FC = () => {
     ? blogs.filter(blog => blog.tags.includes(selectedTag))
     : blogs;
 
-  const allTags = Array.from(new Set(blogs.flatMap(b => b.tags))).slice(0, 10);
+  const allTags = Array.from(new Set(blogs.flatMap(b => b.tags))).slice(0, 4);
 
   return (
     <>
