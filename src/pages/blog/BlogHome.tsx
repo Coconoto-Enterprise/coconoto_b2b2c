@@ -68,7 +68,15 @@ export const BlogHome: React.FC = () => {
     ? blogs.filter(blog => blog.tags.includes(selectedTag))
     : blogs;
 
-  const allTags = Array.from(new Set(blogs.flatMap(b => b.tags))).slice(0, 10);
+  const allTags = Array.from(
+    blogs.reduce((tagCounts, blog) => {
+      blog.tags.forEach(tag => tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1));
+      return tagCounts;
+    }, new Map<string, number>())
+  )
+    .sort(([, firstCount], [, secondCount]) => secondCount - firstCount)
+  .map(([tag]) => tag)
+  .slice(0, 10);
 
   return (
     <>
@@ -92,14 +100,14 @@ export const BlogHome: React.FC = () => {
               placeholder="Search blogs..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700"
+              className="w-full bg-white text-gray-900 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700"
             />
           </div>
         </div>
 
         {/* Tags Filter */}
         {allTags.length > 0 && (
-          <div className="mb-8 flex flex-wrap gap-2">
+          <div className="mb-8 flex flex-nowrap gap-2 overflow-x-auto pb-1">
             <button
               onClick={() => setSelectedTag(null)}
               className={`px-4 py-2 rounded-full transition ${
