@@ -35,6 +35,16 @@
 }
 
 @layer components {
+  .figma-about .font-montserrat {
+    @apply font-inter;
+  }
+
+  .figma-about h1.font-montserrat,
+  .figma-about h2.font-montserrat,
+  .figma-about h3.font-montserrat {
+    @apply font-gelasio;
+  }
+
   .btn-dark {
     @apply whitespace-nowrap bg-black text-white rounded-full py-3 px-6 text-base font-medium capitalize hover:bg-gray-900 transition;
   }
