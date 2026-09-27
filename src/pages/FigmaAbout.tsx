@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Linkedin } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import AboutFooter from '../components/about/AboutFooter';
+import { profiles } from '../data/profiles';
 import heroBg from '../assets/aboutbackground1.png';
-import missionImage from '../assets/about/mission-hand.jpg';
-import visionImage from '../assets/about/vision-cocoa.jpg';
-import teamOne from '../assets/about/team-row.jpg';
-import teamTwo from '../assets/team/enoch.jpeg';
-import teamThree from '../assets/team/Jacob.jpg';
-import teamFour from '../assets/team/Kehinde Elizabeth OMITOYIN.jpg';
+import coconutDecoration from '../assets/coconut_google_search-2.png';
+import cocodot from '../assets/cocodot.png';
+import missonDot from '../assets/misson.png';
+import missionImage from '../assets/plant.png';
+import visionImage from '../assets/visionimage.png';
 
 const missionPoints = [
   'Empower farmers with technology, markets, fair pricing, and new income opportunities from coconuts and their by-products.',
@@ -29,12 +30,11 @@ const services = [
   { number: '04', title: 'Coco DrinkEat', body: 'We bring the ultimate coconut experience to your events with fresh pre-cut coconuts ready to drink and eat on the spot.', items: ['Fresh-cut coconuts at your venue', 'Drink coconut water on the spot', 'Custom branded serving stations'] },
 ];
 
-const team = [
-  { name: 'Shafiu Yushawu', role: 'Chief Executive Officer', image: teamOne },
-  { name: 'ENOCH Bamigboye', role: 'Software Engineer', image: teamTwo },
-  { name: 'Jacob O. Abiodun', role: 'Founder/CEO', image: teamThree, featured: true },
-  { name: 'Kehinde Omitoyin', role: 'Finance Manager', image: teamFour },
-];
+const team = profiles.map(({ firstName, middleName, lastName, role, profileImage }) => ({
+  name: `${firstName}${middleName ? ` ${middleName}` : ''} ${lastName}`,
+  role,
+  image: profileImage,
+}));
 
 const impact = [
   { code: 'SDG 5', title: 'Gender Equality', items: ['Employ more women', 'Integrate women into value chain', 'Improve performance of men in the industry'] },
@@ -47,6 +47,33 @@ function ImageCard({ src, alt, className = '' }: { src: string; alt: string; cla
 }
 
 function FigmaAbout() {
+  const teamScrollerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const scroller = teamScrollerRef.current;
+    if (!scroller) return;
+
+    const recenterTeamScroller = () => {
+      const copyWidth = scroller.scrollWidth / 3;
+      if (scroller.scrollLeft < copyWidth * 0.5) {
+        scroller.scrollLeft += copyWidth;
+      } else if (scroller.scrollLeft > copyWidth * 1.5) {
+        scroller.scrollLeft -= copyWidth;
+      }
+    };
+
+    scroller.scrollLeft = scroller.scrollWidth / 3;
+    scroller.addEventListener('scroll', recenterTeamScroller, { passive: true });
+    const slideshow = window.setInterval(() => {
+      scroller.scrollBy({ left: 284, behavior: 'smooth' });
+    }, 3000);
+
+    return () => {
+      window.clearInterval(slideshow);
+      scroller.removeEventListener('scroll', recenterTeamScroller);
+    };
+  }, []);
+
   return (
     <div className="figma-about bg-white font-inter text-[#101010]">
       <Navbar />
@@ -57,28 +84,28 @@ function FigmaAbout() {
           <div className="relative z-10 max-w-[848px] space-y-7"><h1 className="font-gelasio text-4xl font-bold sm:text-5xl">About Us</h1><p className="text-base leading-[30px] text-white/95">Coconoto is a Smart Agritech company focused on creating technology, accessibility, and sustainability across the coconut value chain. We leverage innovative digital solutions to address challenges in coconut production, processing, distribution, and market access, while empowering farmers with better information, tools, and opportunities.</p><Link to="/buyer-signup" className="inline-flex items-center gap-2 rounded-[10px] bg-[#1ac212] px-10 py-3 font-semibold transition hover:bg-[#16a90f]">Register now <ArrowRight size={16} aria-hidden="true" /></Link></div>
         </section>
 
-        <section className="relative px-6 py-16 pb-32 sm:px-10 lg:px-0 lg:py-20 lg:pb-40">
+        <section className="relative px-6 py-8 pb-16 sm:px-10 lg:px-0 lg:py-10 lg:pb-20">
           <div className="mx-auto grid max-w-[1340px] items-center gap-10 lg:grid-cols-[768px_540px] lg:gap-8">
-            <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-[10px] border border-[#d7ccc5] bg-[#eee6e1] shadow-sm lg:aspect-auto lg:h-[500px]">
-              <span className="absolute top-0 h-10 w-full bg-[#8b5e3c]" aria-hidden="true" />
+            <div className="relative flex w-full max-w-[700px] self-center justify-self-center aspect-video items-center justify-center overflow-hidden rounded-[10px] border border-[#d7ccc5] bg-[#eee6e1] shadow-sm lg:aspect-auto lg:h-[500px]">
               <button type="button" aria-label="Play Coconoto story video" className="relative flex h-[88px] w-[88px] items-center justify-center rounded-full bg-white text-[#8b5e3c] shadow-lg transition hover:scale-105">
                 <span className="ml-1 text-3xl" aria-hidden="true">▶</span>
               </button>
             </div>
-            <div className="space-y-6 lg:pt-20">
+            <div className="space-y-6 lg:pt-36">
+              <img src={coconutDecoration} alt="" aria-hidden="true" className="mx-auto -mt-8 w-[240px] lg:-mt-16 lg:w-[300px]" />
               <h2 className="font-sans text-4xl font-bold">Our STORY</h2>
               <p className="text-base leading-8">Born out of the need to tackle waste and inefficiency in the coconut industry, Coconoto began as a vision to merge sustainability with technology. What started as a simple observation seeing tons of coconut waste ending up in landfills and releasing harmful carbon became a mission to transform the entire coconut value chain.</p>
             </div>
           </div>
         </section>
 
-        <section className="relative overflow-hidden bg-[#efefef] px-6 py-16 sm:px-10 lg:px-[100px] lg:py-[107px]"><div className="mx-auto grid max-w-[1242px] gap-16 lg:grid-cols-2 lg:items-start"><div className="space-y-8 lg:pt-[42px]"><div className="space-y-6"><h2 className="font-montserrat text-4xl font-bold">Our Mission</h2><p className="max-w-xl text-base leading-8">We are committed to building a technology-enabled coconut economy that improves livelihoods, environmental sustainability &amp; creates opportunities. Through innovation and inclusive solutions, we aim to:</p></div><ul className="space-y-7">{missionPoints.map((point) => <li key={point} className="flex gap-3 text-sm leading-[30px]"><span className="mt-1 text-2xl text-[#05897c]">✦</span><span>{point}</span></li>)}</ul></div><div className="h-[360px] lg:h-[518px]"><ImageCard src={missionImage} alt="Hands planting young coconut trees" /></div></div><div className="mx-auto mt-16 grid max-w-[1242px] gap-16 lg:mt-[80px] lg:grid-cols-2 lg:items-start"><div className="order-2 h-[360px] lg:order-1 lg:h-[518px]"><ImageCard src={visionImage} alt="Cocoa beans held in hands" /></div><div className="order-1 space-y-8 lg:order-2 lg:pt-[45px]"><div className="space-y-6"><h2 className="font-montserrat text-4xl font-bold">Our Vision</h2><p className="text-base leading-8">Our vision is to create a sustainable, profitable, and inclusive coconut ecosystem that drives economic growth and environmental impact across Africa. We envision a future where:</p></div><ul className="space-y-7">{visionPoints.map((point) => <li key={point} className="flex gap-3 text-sm leading-[30px]"><span className="mt-1 text-2xl text-[#8b5e3c]">◉</span><span>{point}</span></li>)}</ul></div></div></section>
+        <section className="relative overflow-hidden bg-[#efefef] px-6 py-16 sm:px-10 lg:px-[100px] lg:py-[107px]"><div className="mx-auto grid max-w-[1242px] gap-16 lg:grid-cols-2 lg:items-start"><div className="space-y-8 lg:pt-[42px]"><div className="space-y-6"><h2 className="font-montserrat text-4xl font-bold">Our Mission</h2><p className="max-w-xl text-base leading-8">We are committed to building a technology-enabled coconut economy that improves livelihoods, environmental sustainability &amp; creates opportunities. Through innovation and inclusive solutions, we aim to:</p></div><ul className="space-y-7">{missionPoints.map((point) => <li key={point} className="flex gap-3 text-sm leading-[30px]"><span className="mt-1 h-8 w-8 shrink-0 bg-contain bg-center bg-no-repeat text-transparent" style={{ backgroundImage: `url(${missonDot})` }}>✦</span><span>{point}</span></li>)}</ul></div><div className="h-[360px] lg:h-[518px]"><ImageCard src={missionImage} alt="Hands planting young coconut trees" /></div></div><div className="mx-auto mt-28 grid max-w-[1242px] gap-16 lg:mt-[112px] lg:grid-cols-2 lg:items-start"><div className="order-2 h-[360px] lg:order-1 lg:h-[518px]"><ImageCard src={visionImage} alt="Cocoa beans held in hands" /></div><div className="order-1 space-y-8 lg:order-2 lg:pt-[45px]"><div className="space-y-6"><h2 className="font-montserrat text-4xl font-bold">Our Vision</h2><p className="text-base leading-8">Our vision is to create a sustainable, profitable, and inclusive coconut ecosystem that drives economic growth and environmental impact across Africa. We envision a future where:</p></div><ul className="space-y-7">{visionPoints.map((point) => <li key={point} className="flex gap-3 text-sm leading-[30px]"><span className="mt-1 h-8 w-8 shrink-0 bg-contain bg-center bg-no-repeat text-transparent" style={{ backgroundImage: `url(${cocodot})` }}>◉</span><span>{point}</span></li>)}</ul></div></div></section>
 
-        <section className="px-6 py-20 sm:px-10 lg:px-24 lg:py-28"><div className="mx-auto max-w-[845px] text-center"><h2 className="font-montserrat text-4xl font-bold">What we do</h2><p className="mt-6 text-base leading-8">We leverage technology and sustainable practices to transform the coconut value chain from production and processing to distribution and market access.</p></div><div className="mx-auto mt-14 grid max-w-[1240px] gap-7 lg:grid-cols-2">{services.map((service) => <article key={service.number} className="rounded-[20px] bg-[#8b5e3c] p-8 text-white sm:p-10"><div className="flex gap-6"><span className="flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full bg-white font-montserrat text-2xl font-bold text-black">{service.number}</span><div><h3 className="text-xl font-bold">{service.title}</h3><p className="mt-2 text-base leading-7">{service.body}</p><ul className="mt-3 space-y-1 text-base leading-7">{service.items.map((item) => <li key={item}>✓ {item}</li>)}</ul></div></div></article>)}</div></section>
+          <section className="px-6 py-10 sm:px-10 lg:px-24 lg:py-14"><div className="mx-auto max-w-[845px] text-center"><h2 className="font-montserrat text-4xl font-bold">What we do</h2><p className="mt-4 text-base leading-7">We leverage technology and sustainable practices to transform the coconut value chain from production and processing to distribution and market access.</p></div><div className="relative mx-auto mt-10 grid max-w-[1240px] gap-5 lg:grid-cols-2">{services.map((service) => <article key={service.number} className="rounded-[10px] bg-[#8b5e3c] p-5 text-white sm:p-6"><div className="flex gap-4"><span className="flex h-[58px] w-[58px] shrink-0 items-center justify-center rounded-full bg-white font-montserrat text-xl font-bold text-black">{service.number}</span><div><h3 className="text-lg font-bold">{service.title}</h3><p className="mt-1 text-base leading-6">{service.body}</p><ul className="mt-3 space-y-1 text-sm leading-6">{service.items.map((item) => <li key={item}>✓ {item}</li>)}</ul></div></div></article>)}<div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white lg:block" aria-hidden="true" /></div></section>
 
-        <section className="overflow-hidden px-6 pb-20 pt-4 sm:px-10 lg:px-24"><div className="mx-auto max-w-[1240px] text-center"><h2 className="font-montserrat text-4xl font-bold">Meet the Team</h2><p className="mt-5 text-base">Meet our team of dedicated members who are committed to driving the development of Coconoto.</p></div><div className="mx-auto mt-12 grid max-w-[1180px] gap-8 sm:grid-cols-2 lg:grid-cols-4">{team.map((member) => <article key={member.name} className={`overflow-hidden rounded-[10px] ${member.featured ? 'border border-[#c9c9c9] pb-6' : ''}`}><div className={`h-[300px] ${member.featured ? 'h-[360px]' : ''}`}><ImageCard src={member.image} alt={member.name} /></div><div className="px-3 pt-5 text-center"><h3 className="font-montserrat text-lg font-bold">{member.name}</h3><p className="mt-1 text-sm">{member.role}</p>{member.featured && <><a href="mailto:LBhconnect@gmail.com" className="mt-4 block text-sm text-[#05897c] underline">LBhconnect@gmail.com</a><p className="mt-2 text-sm">+233 45 678 0972</p><a href="#linkedin" aria-label={`${member.name} on LinkedIn`} className="mt-4 inline-flex text-[#05897c]"><Linkedin size={22} /></a></>}</div></article>)}</div></section>
+          <section className="overflow-hidden px-6 pb-20 pt-4 sm:px-10 lg:px-24"><div className="mx-auto max-w-[1240px] text-center"><h2 className="font-montserrat text-4xl font-bold">Meet the Team</h2><p className="mt-5 text-base">Meet our team of dedicated members who are committed to driving the development of Coconoto.</p></div><div ref={teamScrollerRef} className="mx-auto mt-12 flex max-w-[1240px] gap-6 overflow-x-auto px-2 pb-6 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{[...team, ...team, ...team].map((member, index) => <article key={`${member.name}-${index}`} className="w-[260px] shrink-0 snap-center overflow-hidden rounded-[10px]"><div className="h-[300px]"><ImageCard src={member.image} alt={member.name} /></div><div className="px-3 pt-5 text-center"><h3 className="font-montserrat text-lg font-bold">{member.name}</h3><p className="mt-1 text-sm">{member.role}</p></div></article>)}</div></section>
 
-        <section className="bg-[#fafafa] px-6 py-20 sm:px-10 lg:px-24 lg:py-28"><div className="mx-auto max-w-[700px] text-center"><h2 className="font-montserrat text-4xl font-bold">Our Social Impact</h2><p className="mt-5 text-base leading-7">Coconoto aligns with the UN Sustainable Development Goals (SDGs 5, 8 &amp; 12), promoting gender equality, decent work, and responsible production.</p></div><div className="mx-auto mt-14 grid max-w-[1158px] gap-8 lg:grid-cols-3">{impact.map((goal) => <article key={goal.code} className="rounded-[10px] border border-[#d8d8d8] bg-white p-8"><h3 className="font-montserrat text-3xl font-bold">{goal.code}</h3><h4 className="mt-8 text-xl font-semibold">{goal.title}</h4><ul className="mt-5 space-y-2 font-montserrat text-sm leading-6">{goal.items.map((item) => <li key={item}>• {item}</li>)}</ul></article>)}</div></section>
+        <section className="bg-[#a77552] px-6 py-20 sm:px-10 lg:px-24 lg:py-28"><div className="mx-auto max-w-[700px] text-center"><h2 className="font-montserrat text-4xl font-bold text-[#f3efe8]">Our Social Impact</h2><p className="mt-5 text-base leading-7 text-[#f3efe8]">Meet our team of dedicated members who are committed to driving the development of Coconoto.</p></div><div className="mx-auto mt-14 flex max-w-[1180px] items-stretch justify-center gap-8"><div className="flex w-full max-w-[350px] items-stretch gap-5"><article className="h-full w-full rounded-[18px] border border-[#d9cfc6] bg-[#f5f2f0] p-7 shadow-sm lg:min-h-[360px]"><h3 className="font-montserrat text-3xl font-bold text-[#2d2018]">{impact[0].code}</h3><h4 className="mt-8 text-xl font-semibold text-[#2d2018]">{impact[0].title}</h4><ul className="mt-5 space-y-2 font-montserrat text-sm leading-6 text-[#2d2018]">{impact[0].items.map((item) => <li key={item}>• {item}</li>)}</ul></article><div className="flex w-[58px] shrink-0 items-center justify-center"><div className="flex h-[58px] w-[58px] items-center justify-center rounded-full bg-[#f1ece8] shadow-sm ring-1 ring-[#c2a58d]"><img src={cocodot} alt="" className="h-10 w-10 object-contain" /></div></div></div><div className="flex w-full max-w-[350px] items-stretch gap-5"><article className="h-full w-full rounded-[18px] border border-[#d9cfc6] bg-[#f5f2f0] p-7 shadow-sm lg:min-h-[360px]"><h3 className="font-montserrat text-3xl font-bold text-[#2d2018]">{impact[1].code}</h3><h4 className="mt-8 text-xl font-semibold text-[#2d2018]">{impact[1].title}</h4><ul className="mt-5 space-y-2 font-montserrat text-sm leading-6 text-[#2d2018]">{impact[1].items.map((item) => <li key={item}>• {item}</li>)}</ul></article><div className="flex w-[58px] shrink-0 items-center justify-center"><div className="flex h-[58px] w-[58px] items-center justify-center rounded-full bg-[#f1ece8] shadow-sm ring-1 ring-[#c2a58d]"><img src={cocodot} alt="" className="h-10 w-10 object-contain" /></div></div></div><div className="flex w-full max-w-[350px] items-stretch"><article className="h-full w-full rounded-[18px] border border-[#d9cfc6] bg-[#f5f2f0] p-7 shadow-sm lg:min-h-[360px]"><h3 className="font-montserrat text-3xl font-bold text-[#2d2018]">{impact[2].code}</h3><h4 className="mt-8 text-xl font-semibold text-[#2d2018]">{impact[2].title}</h4><ul className="mt-5 space-y-2 font-montserrat text-sm leading-6 text-[#2d2018]">{impact[2].items.map((item) => <li key={item}>• {item}</li>)}</ul></article></div></div></section>
       </main>
       <AboutFooter />
     </div>
