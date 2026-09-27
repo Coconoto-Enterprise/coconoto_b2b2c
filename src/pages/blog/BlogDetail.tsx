@@ -7,6 +7,7 @@ import { buildBlogUrlSlug, matchesBlogUrlParam } from '../../services/blogUrlUti
 import { supabase } from '../../lib/supabase';
 import blogLogo from '../../assets/blog-logo.png';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
 // EditorJS-authored blocks get rendered verbatim via dangerouslySetInnerHTML.
 // Without sanitization, an XSS payload in any block (`<img src=x onerror=…>`)
@@ -742,6 +743,7 @@ export const BlogDetail: React.FC = () => {
           </div>
         )}
       </div>
+      <Footer />
     </>
   );
 };

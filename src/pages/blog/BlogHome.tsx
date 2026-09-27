@@ -5,6 +5,7 @@ import blogService from '../../services/mernBlogService';
 import { buildBlogUrlSlug } from '../../services/blogUrlUtils.js';
 import blogLogo from '../../assets/blog-logo.png';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
 interface Blog {
   blog_id: string;
@@ -214,6 +215,7 @@ export const BlogHome: React.FC = () => {
         )}
       </div>
       </div>
+      <Footer />
     </>
   );
 };

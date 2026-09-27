@@ -4,6 +4,7 @@ import { Palmtree } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaEnvelope } from 'react-icons/fa';
 import { WaitlistModal } from '../../components/WaitlistModal';
 import { BookEventModal } from '../../components/BookEventModal';
+import footerImage from '../../assets/fotterimage.png';
 
 export function ServicesFooter() {
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
@@ -11,8 +12,9 @@ export function ServicesFooter() {
 
   return (
     <>
-    <footer className="bg-gray-900 text-white py-12">
-      <div className="container mx-auto px-6">
+    <footer className="relative overflow-hidden bg-gray-900 py-12 text-white">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-25" style={{ backgroundImage: `url(${footerImage})` }} />
+      <div className="relative container mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">

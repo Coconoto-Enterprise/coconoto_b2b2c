@@ -15,8 +15,9 @@ import { BookEventModal } from './BookEventModal';
 import GoogleSearch1 from '../assets/coconut_google_search.png';
 import GoogleSearch2 from '../assets/coconut_google_search-2.png';
 import Threads from './Threads';
+import FigmaAbout from '../pages/FigmaAbout';
 
-export function About() {
+function LegacyAbout() {
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
   const [isBookEventModalOpen, setIsBookEventModalOpen] = useState(false);
 
@@ -1359,6 +1360,45 @@ export function About() {
         isOpen={isBookEventModalOpen}
         onClose={() => setIsBookEventModalOpen(false)}
       />
+    </div>
+  );
+}
+
+export function About() {
+  return (
+    <div className="bg-gray-50">
+      <div className="relative overflow-hidden bg-white text-center text-gray-900">
+        <div className="absolute inset-0 h-full w-full opacity-30">
+          <Threads
+            color={[0.133, 0.545, 0.133]}
+            amplitude={2}
+            distance={1}
+            enableMouseInteraction={false}
+          />
+        </div>
+        <div className="relative z-10 container mx-auto mt-[28vh] px-6 md:mt-[30vh] lg:mt-[37vh]">
+          <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl lg:text-6xl">
+            About <span className="text-green-700">Coconoto</span>
+          </h1>
+          <p className="mx-auto mb-12 max-w-4xl px-4 text-lg font-medium leading-relaxed text-gray-600 md:px-0 md:text-3xl lg:text-3xl">
+            <span className="md:hidden">The Smart Agri-Tech company transforming the coconut value chain through innovation, accessibility, and sustainability.</span>
+            <span className="hidden md:inline">The Smart Agritech company focused on creating technology, <br />Accessibility and Sustainability for the coconut value chain.</span>
+          </p>
+          <div className="mb-0 mt-[32vh] md:mt-[22vh] lg:mt-[17vh]">
+            <div className="absolute left-0 right-0 flex flex-row">
+              <div className="h-auto w-[150px] overflow-hidden rounded-lg md:h-[25vh] md:w-[340px]">
+                <img src={GoogleSearch1} alt="Coconut Search 1" className="w-full" />
+              </div>
+              <div className="flex-grow" />
+              <div className="h-auto w-[150px] overflow-hidden rounded-lg md:h-[25vh] md:w-[340px]">
+                <img src={GoogleSearch2} alt="Coconut Search 2" className="w-full" />
+              </div>
+            </div>
+            <div className="h-[15vh] md:h-[25vh]" />
+          </div>
+        </div>
+      </div>
+      <FigmaAbout contentOnly />
     </div>
   );
 }

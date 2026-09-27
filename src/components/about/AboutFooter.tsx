@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaInstagram, FaTwitter, FaFacebook } from 'react-icons/fa';
 import Logo from '../../assets/Logo_1.png';
-import footerBg from '../../assets/about/footer-bg.jpg';
+import footerBg from '../../assets/fotterimage.png';
 
 export default function AboutFooter() {
   return (

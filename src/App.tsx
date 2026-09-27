@@ -79,7 +79,6 @@ function App() {
             <>
               <Navbar />
               <About />
-              <Footer />
             </>
           } />
           <Route path="/figma/about" element={<FigmaAbout />} />
