@@ -3,7 +3,6 @@ import { ArrowRight, Linkedin } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import AboutFooter from '../components/about/AboutFooter';
 import heroBg from '../assets/aboutbackground1.png';
-import storyImage from '../assets/about/story-video.jpg';
 import missionImage from '../assets/about/mission-hand.jpg';
 import visionImage from '../assets/about/vision-cocoa.jpg';
 import teamOne from '../assets/about/team-row.jpg';
@@ -58,16 +57,15 @@ function FigmaAbout() {
           <div className="relative z-10 max-w-[848px] space-y-7"><h1 className="font-gelasio text-4xl font-bold sm:text-5xl">About Us</h1><p className="text-base leading-[30px] text-white/95">Coconoto is a Smart Agritech company focused on creating technology, accessibility, and sustainability across the coconut value chain. We leverage innovative digital solutions to address challenges in coconut production, processing, distribution, and market access, while empowering farmers with better information, tools, and opportunities.</p><Link to="/buyer-signup" className="inline-flex items-center gap-2 rounded-[10px] bg-[#1ac212] px-10 py-3 font-semibold transition hover:bg-[#16a90f]">Register now <ArrowRight size={16} aria-hidden="true" /></Link></div>
         </section>
 
-        <section className="relative px-6 py-16 sm:px-10 lg:h-[616px] lg:px-0 lg:py-0">
-          <div className="mx-auto grid max-w-[1340px] gap-10 lg:absolute lg:inset-y-0 lg:left-0 lg:right-0 lg:grid-cols-[768px_540px] lg:items-end lg:gap-8">
-            <div className="relative h-[360px] overflow-hidden rounded-[10px] lg:h-[616px]">
-              <img src={storyImage} alt="Coconoto team member working on a laptop" className="h-full w-full object-cover" />
-              <div className="absolute inset-0 bg-[#8b5e3c]/20" />
-              <button type="button" aria-label="Play Coconoto story video" className="absolute left-1/2 top-1/2 flex h-[98px] w-[98px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#8b5e3c] shadow-lg transition hover:scale-105">
-                <span className="ml-1 text-3xl">▶</span>
+        <section className="relative px-6 py-16 pb-32 sm:px-10 lg:px-0 lg:py-20 lg:pb-40">
+          <div className="mx-auto grid max-w-[1340px] items-center gap-10 lg:grid-cols-[768px_540px] lg:gap-8">
+            <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-[10px] border border-[#d7ccc5] bg-[#eee6e1] shadow-sm lg:aspect-auto lg:h-[500px]">
+              <span className="absolute top-0 h-10 w-full bg-[#8b5e3c]" aria-hidden="true" />
+              <button type="button" aria-label="Play Coconoto story video" className="relative flex h-[88px] w-[88px] items-center justify-center rounded-full bg-white text-[#8b5e3c] shadow-lg transition hover:scale-105">
+                <span className="ml-1 text-3xl" aria-hidden="true">▶</span>
               </button>
             </div>
-            <div className="space-y-6 pb-0 lg:pb-12">
+            <div className="space-y-6 lg:pt-20">
               <h2 className="font-sans text-4xl font-bold">Our STORY</h2>
               <p className="text-base leading-8">Born out of the need to tackle waste and inefficiency in the coconut industry, Coconoto began as a vision to merge sustainability with technology. What started as a simple observation seeing tons of coconut waste ending up in landfills and releasing harmful carbon became a mission to transform the entire coconut value chain.</p>
             </div>
