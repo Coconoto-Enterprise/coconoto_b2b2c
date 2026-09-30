@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import { Hero } from './components/Hero';
 import { CocotechRD } from './components/CocotechRD';
@@ -9,7 +9,6 @@ import { CocoDrinkEat } from './components/CocoDrinkEat';
 import { Features } from './components/Features';
 import { CTA } from './components/CTA';
 import Footer from './components/Footer';
-import { About } from './components/About';
 import FloatingChatIcon from './components/FloatingChatIcon';
 import {
   ServicesLayout,
@@ -75,13 +74,10 @@ function App() {
           <Route path="/blog" element={<BlogHome />} />
           <Route path="/blog/:blogParam" element={<BlogDetail />} />
           <Route path="/blog-editor/:blogId" element={<BlogEditor />} />
-          <Route path="/about" element={
-            <>
-              <Navbar />
-              <About />
-            </>
-          } />
-          <Route path="/figma/about" element={<FigmaAbout />} />
+          {/* Main About page — the Figma design (FigmaAbout renders its own Navbar + AboutFooter). */}
+          <Route path="/about" element={<FigmaAbout />} />
+          {/* Legacy preview URL kept alive as a redirect so old links still work. */}
+          <Route path="/figma/about" element={<Navigate to="/about" replace />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />

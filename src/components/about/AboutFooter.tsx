@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaInstagram, FaTwitter, FaFacebook } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaEnvelope } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 import Logo from '../../assets/Logo_1.png';
 import footerBg from '../../assets/fotterimage.png';
 
@@ -39,6 +40,7 @@ export default function AboutFooter() {
             <ul className="space-y-2 text-gray-400 text-sm">
               <li><Link to="/about" onClick={() => window.scrollTo(0, 0)} className="hover:text-white">About Coconoto</Link></li>
               <li><Link to="/blog" onClick={() => window.scrollTo(0, 0)} className="hover:text-white">Blog</Link></li>
+              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)} className="hover:text-white">Contact Us</Link></li>
             </ul>
           </div>
 
@@ -55,18 +57,16 @@ export default function AboutFooter() {
             <h3 className="font-bold mb-4">Contact us</h3>
             <ul className="space-y-2 text-gray-400 text-sm">
               <li>
-                <a href="mailto:info@bdotofarm.com" className="hover:text-white break-all">
-                  info@bdotofarm.com
+                <a href="mailto:info@coconoto.africa" className="hover:text-white break-all">
+                  info@coconoto.africa
                 </a>
               </li>
               <li>
-                <a href="mailto:LBhconnects@gmail.com" className="hover:text-white break-all">
-                  LBhconnects@gmail.com
-                </a>
+                No 67, Cele estate, Mowo kekere, Ikorodu, Lagos, Nigeria
               </li>
               <li>
-                <a href="tel:+23456788997666" className="hover:text-white">
-                  +234 567 8899 7666
+                <a href="tel:+2348137775689" className="hover:text-white">
+                  +234 813 777 5689
                 </a>
               </li>
             </ul>
@@ -82,7 +82,16 @@ export default function AboutFooter() {
           <p className="text-center">2026 - Coconoto. All rights reserved.</p>
           <div className="flex gap-4">
             <a
-              href="https://www.instagram.com/_coconoto"
+              href="https://m.facebook.com/p/Coconoto-100092422418297/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              className="hover:text-white"
+            >
+              <FaFacebook className="h-5 w-5" />
+            </a>
+            <a
+              href="https://www.instagram.com/_coconoto?igsh=MTNuZXh1dGF1dTd0dw=="
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
@@ -91,22 +100,22 @@ export default function AboutFooter() {
               <FaInstagram className="h-5 w-5" />
             </a>
             <a
-              href="https://twitter.com/coconoto"
+              href="https://www.linkedin.com/company/coconoto/"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Twitter"
+              aria-label="LinkedIn"
               className="hover:text-white"
             >
-              <FaTwitter className="h-5 w-5" />
+              <FaLinkedin className="h-5 w-5" />
             </a>
-            <a
-              href="https://m.facebook.com/p/Coconoto-100092422418297/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-              className="hover:text-white"
-            >
-              <FaFacebook className="h-5 w-5" />
+            <a href="https://wa.me/qr/CTOTUF7JCEUFE1" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="hover:text-white">
+              <FaWhatsapp className="h-5 w-5" />
+            </a>
+            <a href="https://x.com/CoconotoAfrica" target="_blank" rel="noopener noreferrer" aria-label="X" className="hover:text-white">
+              <FaXTwitter className="h-5 w-5" />
+            </a>
+            <a href="mailto:info@coconoto.africa" aria-label="Email" className="hover:text-white">
+              <FaEnvelope className="h-5 w-5" />
             </a>
           </div>
         </div>

@@ -5,8 +5,11 @@ import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaEnvelope } from 'rea
 import { WaitlistModal } from './WaitlistModal';
 import { BookEventModal } from './BookEventModal';
 import footerImage from '../assets/fotterimage.png';
+import AboutFooter from './about/AboutFooter';
 
 export default function Footer() {
+  return <AboutFooter />;
+
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
   const [isBookEventModalOpen, setIsBookEventModalOpen] = useState(false);
 
