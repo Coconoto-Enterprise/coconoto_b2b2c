@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Book, MessageCircle, FileText } from 'lucide-react';
-import Navbar from '@/components/Navbar';
+import FigmaNav from '@/components/figma/FigmaNav';
 import Footer from '@/components/Footer';
 
 export function HelpCenter() {
@@ -40,7 +40,7 @@ export function HelpCenter() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <FigmaNav />
       
       <div className="bg-green-700 text-white py-16 flex flex-col items-center text-center">
         <div className="container mx-auto px-6">

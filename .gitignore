@@ -30,3 +30,10 @@ dist-ssr
 
 # WorkBuddy AI internal data (local agent memory, skills, diagnostics)
 .workbuddy-ai/
+
+# WorkBuddy app config (`applications.yaml`) and the `.genie` file it writes.
+# Both record an absolute localDir (C:\Users\...), so they are machine-specific
+# and should never be committed. Note this does NOT cover `.workbuddy-ai/`,
+# which is listed separately above.
+.workbuddy/
+*.genie

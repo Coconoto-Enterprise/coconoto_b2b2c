@@ -131,7 +131,7 @@ export default function AnalyticsPanel() {
       {
         label: 'Requests',
         data: requests,
-        borderColor: '#16a34a',
+        borderColor: '#1AC212',
         backgroundColor: 'rgba(16,163,127,0.05)',
         tension: 0.2,
         pointRadius: 3,

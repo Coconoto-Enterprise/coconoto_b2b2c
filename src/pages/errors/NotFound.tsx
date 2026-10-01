@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, ArrowLeft } from 'lucide-react';
-import Navbar from '../../components/Navbar';
+import FigmaNav from '../../components/figma/FigmaNav';
 import Footer from '../../components/Footer';
 
 export const NotFound = () => {
@@ -9,7 +9,7 @@ export const NotFound = () => {
 
   return (
     <>
-      <Navbar />
+      <FigmaNav />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-20">
         <div className="max-w-md w-full text-center">
           {/* Error Code */}

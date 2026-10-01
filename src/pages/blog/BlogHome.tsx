@@ -4,7 +4,7 @@ import { Search, Loader } from 'lucide-react';
 import blogService from '../../services/mernBlogService';
 import { buildBlogUrlSlug } from '../../services/blogUrlUtils.js';
 import blogLogo from '../../assets/blog-logo.png';
-import Navbar from '../../components/Navbar';
+import FigmaNav from '../../components/figma/FigmaNav';
 import Footer from '../../components/Footer';
 
 interface Blog {
@@ -73,8 +73,10 @@ export const BlogHome: React.FC = () => {
 
   return (
     <>
-      <Navbar />
-      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white pt-16">
+      <FigmaNav />
+      {/* No top spacer: FigmaNav is sticky (in flow), so it already occupies the
+          top of the document. The old fixed navbar needed `pt-16` to clear it. */}
+      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-700 to-amber-900 text-white py-12">
         <div className="max-w-6xl mx-auto px-4">

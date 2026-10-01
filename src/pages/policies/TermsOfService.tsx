@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '@/components/Navbar';
+import FigmaNav from '@/components/figma/FigmaNav';
 import Footer from '@/components/Footer';
 
 export default function TermsOfService() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <Navbar />
+      <FigmaNav />
       <main className="flex-grow py-12">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8">

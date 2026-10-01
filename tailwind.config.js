@@ -1,3 +1,32 @@
+/*
+ * Brand green ramp — the single source of truth for every green on the site.
+ *
+ * The site reached for two different Tailwind families: `green` (buttons, blog,
+ * product, ~728 usages) and `emerald` (marketplace, buyer/vendor dashboards,
+ * profile, blog editor, ~243 usages). Both are pointed at this one ramp so the
+ * whole site renders the same green and the light→dark ordering is preserved.
+ *
+ * Anchors:
+ *   600 = #1AC212  — the Figma brand green; primary fills
+ *   700 = #17AD10  — hover fills, matching the Figma navbar
+ *
+ * To revert: delete the `green` and `emerald` keys below and Tailwind's
+ * defaults come back.
+ */
+const brandGreen = {
+  50: "#F1FEF1",
+  100: "#DFFCDE",
+  200: "#BEF7BB",
+  300: "#8CED87",
+  400: "#4EE147",
+  500: "#27D71D",
+  600: "#1AC212",
+  700: "#17AD10",
+  800: "#167911",
+  900: "#145B10",
+  950: "#083206",
+};
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -11,6 +40,8 @@ export default {
         gelasio: ['Gelasio', 'serif'],
         lora: ['Lora', 'serif'],
         montserrat: ['Montserrat', 'sans-serif'],
+        'open-sans': ['"Open Sans"', 'sans-serif'],
+        quicksand: ['Quicksand', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -64,6 +95,11 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+
+        // Both families resolve to the one brand ramp defined above, so
+        // `green-*` and `emerald-*` render identically everywhere.
+        green: brandGreen,
+        emerald: brandGreen,
       },
       borderRadius: {
         lg: "var(--radius)",

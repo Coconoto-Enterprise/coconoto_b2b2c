@@ -58,7 +58,7 @@
 
 /* Quote */
 .ce-quote {
-  border-left: 4px solid #22c55e;
+  border-left: 4px solid #27D71D;
   padding-left: 1rem;
   margin: 1rem 0;
   color: #6b7280;
@@ -130,7 +130,7 @@
 .blog-content blockquote {
   margin: 1.5rem 0;
   padding-left: 1rem;
-  border-left: 4px solid #22c55e;
+  border-left: 4px solid #27D71D;
   font-style: italic;
   color: #6b7280;
 }
@@ -209,7 +209,7 @@
 }
 
 .editor-content .cdx-quote {
-  border-left: 4px solid #22c55e;
+  border-left: 4px solid #27D71D;
   padding: 0.25rem 0 0.25rem 1rem;
   margin: 0.5rem 0;
   font-style: italic;

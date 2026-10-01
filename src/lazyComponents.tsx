@@ -30,6 +30,16 @@ export const BlogDetail = lazy(() => import('./pages/blog/BlogDetail'));
 export const BlogEditor = lazy(() => import('./components/blog/BlogEditor'));
 export const FigmaAbout = lazy(() => import('./pages/FigmaAbout'));
 
+// --- Figma frame builds (Coconoto Project) — one page per frame ---
+export const FigmaIndex = lazy(() => import('./pages/figma/FigmaIndex'));
+export const FigmaHome = lazy(() => import('./pages/figma/FigmaHome'));
+export const FigmaEquipment = lazy(() => import('./pages/figma/FigmaEquipment'));
+export const FigmaCococycleHub = lazy(() => import('./pages/figma/FigmaCococycleHub'));
+export const FigmaLogin = lazy(() => import('./pages/figma/FigmaLogin'));
+export const FigmaSignup = lazy(() => import('./pages/figma/FigmaSignup'));
+export const FigmaContact = lazy(() => import('./pages/figma/FigmaContact'));
+export const FigmaBanner = lazy(() => import('./pages/figma/FigmaBanner'));
+
 // --- Named-export pages (remap to default for React.lazy) ---
 export const ServicesLayout = lazy(() =>
   import('./pages/services/ServicesLayout').then((m) => ({ default: m.ServicesLayout })),

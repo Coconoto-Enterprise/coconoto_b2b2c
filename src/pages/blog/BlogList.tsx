@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { BookOpen, Search, TrendingUp } from 'lucide-react';
 import { getPublishedPosts, BlogPost } from '../../services/blogService';
 import { BlogCard } from '../../components/blog/BlogCard';
-import Navbar from '../../components/Navbar';
+import FigmaNav from '../../components/figma/FigmaNav';
 import Footer from '../../components/Footer';
 
 export const BlogList: React.FC = () => {
@@ -47,7 +47,7 @@ export const BlogList: React.FC = () => {
 
   return (
     <>
-      <Navbar />
+      <FigmaNav />
       <div className="min-h-screen bg-gray-50">
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-green-600 to-green-700 text-white py-20">

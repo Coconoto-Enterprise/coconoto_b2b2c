@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import MarketplaceNavbar from '../../components/MarketplaceNavbar';
-import BuyerNavbar from '../../components/BuyerNavbar';
+import FigmaNav from '../../components/figma/FigmaNav';
+import { AccountMenu, AccountLinks, LoginLink } from '../../components/figma/AccountMenu';
 import Footer from '../../components/Footer';
 import {
   SlidersHorizontal, X, Search, BadgeCheck, PackageOpen, Check, Info,
@@ -119,11 +119,25 @@ export function Marketplace() {
       <div className="pointer-events-none absolute -top-28 -right-20 h-72 w-72 rounded-full bg-green-200/40 blur-3xl hidden lg:block" />
       <div className="pointer-events-none absolute top-80 -left-24 h-72 w-72 rounded-full bg-emerald-100/60 blur-3xl hidden lg:block" />
 
-      {/* Navbar */}
-      {isBuyerLoggedIn ? <BuyerNavbar /> : <MarketplaceNavbar />}
+      {/* Navbar — the shared site navbar, with the marketplace account menu in
+          its right-hand cluster instead of the Join Waitlist CTA. */}
+      <FigmaNav
+        account={isBuyerLoggedIn ? <AccountMenu /> : <LoginLink />}
+        mobileAccount={
+          isBuyerLoggedIn ? (
+            <AccountLinks />
+          ) : (
+            <div className="mt-4">
+              <LoginLink />
+            </div>
+          )
+        }
+      />
 
       {/* Hero Section */}
-      <div className="hidden lg:block mt-20 px-4 sm:px-6 lg:px-8 pt-8">
+      {/* FigmaNav is sticky/in-flow, so this only needs breathing room — it used
+          to be `mt-20` to clear the old fixed navbar. */}
+      <div className="hidden lg:block mt-6 px-4 sm:px-6 lg:px-8 pt-8">
         <div className="max-w-7xl mx-auto rounded-3xl border border-white/40 bg-white/65 backdrop-blur-xl shadow-[0_10px_50px_rgba(12,64,39,0.12)] p-6 sm:p-8 lg:p-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">

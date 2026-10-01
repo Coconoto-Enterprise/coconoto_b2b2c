@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Copy, Linkedin, Mail, Phone } from 'lucide-react';
-import Navbar from '../components/Navbar';
+import FigmaNav from '../components/figma/FigmaNav';
 import { profiles } from '../data/profiles';
 
 export default function ProfileDetailPage() {
@@ -12,7 +12,7 @@ export default function ProfileDetailPage() {
   if (!profile) {
     return (
       <div className="min-h-screen bg-slate-50 text-slate-900">
-        <Navbar />
+        <FigmaNav />
         <main className="container mx-auto px-6 py-20 text-center">
           <p className="text-sm uppercase tracking-[0.3em] text-emerald-700 font-semibold">Team profile</p>
           <h1 className="mt-4 text-4xl font-semibold text-slate-950">Profile not found</h1>
@@ -37,7 +37,7 @@ export default function ProfileDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <Navbar />
+      <FigmaNav />
 
       <main className="container mx-auto px-6 py-16 sm:py-24">
         <section className="mx-auto max-w-5xl xl:max-w-6xl">

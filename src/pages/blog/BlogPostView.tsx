@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Calendar, User, ArrowLeft, Clock } from 'lucide-react';
 import { getPostBySlug, BlogPost } from '../../services/blogService';
 import { EditorRenderer } from '../../components/blog/EditorRenderer';
-import Navbar from '../../components/Navbar';
+import FigmaNav from '../../components/figma/FigmaNav';
 import Footer from '../../components/Footer';
 
 export const BlogPostView: React.FC = () => {
@@ -75,7 +75,7 @@ export const BlogPostView: React.FC = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
+        <FigmaNav />
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
@@ -90,7 +90,7 @@ export const BlogPostView: React.FC = () => {
   if (error || !post) {
     return (
       <>
-        <Navbar />
+        <FigmaNav />
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -112,7 +112,7 @@ export const BlogPostView: React.FC = () => {
 
   return (
     <>
-      <Navbar />
+      <FigmaNav />
       <div className="min-h-screen bg-gray-50">
         {/* Hero Section with Cover Image */}
         <div className="relative">

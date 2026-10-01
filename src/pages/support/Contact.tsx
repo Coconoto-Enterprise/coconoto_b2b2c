@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
-import Navbar from '../../components/Navbar';
+import FigmaNav from '../../components/figma/FigmaNav';
 import Footer from '../../components/Footer';
 import { sendContactEmails } from '../../utils/vercelEmailService';
 
@@ -57,9 +57,9 @@ export function Contact() {
   };
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar />
+      <FigmaNav />
 
-      <main className="flex-grow pt-16">
+      <main className="flex-grow">
         <div className="bg-green-700 text-white py-12 w-full text-center">
           <div className="container mx-auto px-6 pt-10 pb-10">
             <h1 className="text-3xl font-bold mb-4">Contact Us</h1>

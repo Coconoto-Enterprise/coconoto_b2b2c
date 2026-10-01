@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '@/components/Navbar';
+import FigmaNav from '@/components/figma/FigmaNav';
 import Footer from '@/components/Footer';
 
 export default function PrivacyPolicy() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
-      <Navbar />
+      <FigmaNav />
 
       {/* Main Content */}
       <div className="flex-grow bg-gray-50 py-12">

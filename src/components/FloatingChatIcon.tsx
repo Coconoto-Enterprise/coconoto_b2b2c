@@ -71,10 +71,11 @@ const FloatingChatIcon: React.FC = () => {
         .floating-chat-wrapper {
           display: flex;
           align-items: center;
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          /* Brand green — was the emerald pair #10b981 → #059669. */
+          background: linear-gradient(135deg, #27D71D 0%, #1AC212 100%);
           border-radius: 50px;
           padding: 12px;
-          box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+          box-shadow: 0 10px 25px rgba(26, 194, 18, 0.3);
           cursor: pointer;
           transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
           overflow: hidden;
@@ -83,7 +84,7 @@ const FloatingChatIcon: React.FC = () => {
 
         .floating-chat-wrapper:hover {
           transform: scale(1.05);
-          box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
+          box-shadow: 0 15px 35px rgba(26, 194, 18, 0.4);
         }
 
         .floating-chat-icon {

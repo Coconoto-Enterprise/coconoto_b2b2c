@@ -59,6 +59,9 @@ export default function VendorNavbar({ vendorBusinessName, onLogout }: VendorNav
             <Link to="/product" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
               Cococycle Hub
             </Link>
+            <Link to="/blog" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
+              Blog
+            </Link>
             <Link to="/about" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
               About
             </Link>
@@ -111,6 +114,13 @@ export default function VendorNavbar({ vendorBusinessName, onLogout }: VendorNav
             onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
           >
             Cococycle Hub
+          </Link>
+          <Link 
+            to="/blog" 
+            className="block py-2 text-gray-600 hover:text-green-700"
+            onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
+          >
+            Blog
           </Link>
           <Link 
             to="/about" 

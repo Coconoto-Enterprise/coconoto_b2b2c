@@ -6,7 +6,7 @@ import blogService from '../../services/mernBlogService';
 import { buildBlogUrlSlug, matchesBlogUrlParam } from '../../services/blogUrlUtils.js';
 import { supabase } from '../../lib/supabase';
 import blogLogo from '../../assets/blog-logo.png';
-import Navbar from '../../components/Navbar';
+import FigmaNav from '../../components/figma/FigmaNav';
 import Footer from '../../components/Footer';
 
 // EditorJS-authored blocks get rendered verbatim via dangerouslySetInnerHTML.
@@ -360,8 +360,8 @@ export const BlogDetail: React.FC = () => {
   if (loading) {
     return (
       <>
-        <Navbar />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-16">
+        <FigmaNav />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader className="w-8 h-8 text-amber-700 animate-spin" />
       </div>
       </>
@@ -371,8 +371,8 @@ export const BlogDetail: React.FC = () => {
   if (error || !blog) {
     return (
       <>
-        <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-16">
+        <FigmaNav />
+        <div className="min-h-screen bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 py-8">
           <button
             onClick={() => navigate('/blog')}
@@ -394,7 +394,7 @@ export const BlogDetail: React.FC = () => {
 
   return (
     <>
-      <Navbar />
+      <FigmaNav />
       <div className="min-h-screen bg-gray-50 pt-16">
         {/* Back nav */}
         <div className="max-w-7xl mx-auto px-4 py-6">

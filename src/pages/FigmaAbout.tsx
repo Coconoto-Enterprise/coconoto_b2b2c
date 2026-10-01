@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import Navbar from '../components/Navbar';
+import FigmaNav from '../components/figma/FigmaNav';
 import AboutFooter from '../components/about/AboutFooter';
 import { profiles } from '../data/profiles';
 import heroBg from '../assets/aboutbackground1.png';
@@ -245,12 +245,12 @@ function FigmaAbout({ contentOnly = false }: { contentOnly?: boolean }) {
 
   return (
     <div className="figma-about bg-white font-inter text-[#101010]">
-      {!contentOnly && <Navbar />}
+      {!contentOnly && <FigmaNav />}
       <main>
         {!contentOnly && <section className="relative flex min-h-[792px] items-center justify-center overflow-hidden bg-[#142218] px-6 pb-20 pt-20 text-center text-white">
           <img src={heroBg} alt="Coconut trees and soil" className="absolute inset-0 h-full w-full object-cover opacity-60" />
           <div className="absolute inset-0 bg-black/70" />
-          <div className="relative z-10 max-w-[848px] space-y-7"><h1 className="font-gelasio text-4xl font-bold sm:text-5xl">About Us</h1><p className="text-base leading-[30px] text-white/95">Coconoto is a Smart Agritech company focused on creating technology, accessibility, and sustainability across the coconut value chain. We leverage innovative digital solutions to address challenges in coconut production, processing, distribution, and market access, while empowering farmers with better information, tools, and opportunities.</p><Link to="/buyer-signup" className="inline-flex items-center gap-2 rounded-[10px] bg-[#1ac212] px-10 py-3 font-semibold transition hover:bg-[#16a90f]">Register now <ArrowRight size={16} aria-hidden="true" /></Link></div>
+          <div className="relative z-10 max-w-[848px] space-y-7"><h1 className="font-gelasio text-4xl font-bold sm:text-5xl">About Us</h1><p className="text-base leading-[30px] text-white/95">Coconoto is a Smart Agritech company focused on creating technology, accessibility, and sustainability across the coconut value chain. We leverage innovative digital solutions to address challenges in coconut production, processing, distribution, and market access, while empowering farmers with better information, tools, and opportunities.</p><Link to="/buyer-signup" className="inline-flex items-center gap-2 rounded-[10px] bg-[#1ac212] px-10 py-3 font-semibold transition hover:bg-[#17AD10]">Register now <ArrowRight size={16} aria-hidden="true" /></Link></div>
         </section>}
 
         <section className="relative px-6 py-8 pb-16 sm:px-10 lg:px-0 lg:py-10 lg:pb-20">

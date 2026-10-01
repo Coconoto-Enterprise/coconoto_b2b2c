@@ -9,7 +9,7 @@ import Threads from './Threads';
 export function Hero() {
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
   return (
-    <section className="pt-44 md:pt-[359px] lg:pt-[26vh] bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
+    <section className="pt-36 md:pt-[300px] lg:pt-[20vh] bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
       {/* Threads Background */}
       <div className="absolute inset-0 w-full h-full opacity-30">
         <Threads

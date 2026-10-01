@@ -1,16 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Linkedin, Mail, Phone } from 'lucide-react';
-import Navbar from '../components/Navbar';
+import FigmaNav from '../components/figma/FigmaNav';
 import Footer from '../components/Footer';
 import { profiles } from '../data/profiles';
 
 export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <Navbar />
+      <FigmaNav />
 
-      <main className="pt-20">
+      {/* FigmaNav is sticky/in-flow — no top spacer needed. */}
+      <main>
         <section className="bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_40%),linear-gradient(180deg,#0f766e_0%,#ffffff_100%)] py-16">
           <div className="container mx-auto px-6 text-center">
             <p className="text-sm uppercase tracking-[0.3em] text-emerald-700 font-semibold">Team profiles</p>

@@ -1,0 +1,77 @@
+── ROUTES ──────────────────────────────────────────────────────────────
+/                          nav 1 h 72 active=Home         gap=   0 imgs 40/40
+/services                  nav 1 h 72 active=Services     gap=   0 imgs 13/13
+/product                   nav 1 h 72 active=Services     gap=   0 imgs 20/20
+/contact                   nav 1 h 72 active=Contact us   gap=   0 imgs 4/4
+/login                     nav 0 hnull active=null         gap=null imgs 1/1
+/signup                    nav 0 hnull active=null         gap=null imgs 1/1
+/about                     nav 1 h 72 active=About Us     gap=   0 imgs 43/43
+/blog                      nav 1 h 72 active=Blog         gap=   0 imgs 14/14
+/marketplace               nav 1 h 72 active=Marketplace  gap=  24 imgs 2/2   <-- 2 err
+    errors: Error fetching marketplace products: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
+  | Error fetching marketplace products: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input
+ 
+/privacy-policy            nav 1 h 72 active=null         gap=   0 imgs 2/2
+/terms-of-service          nav 1 h 72 active=null         gap=   0 imgs 2/2
+/cookie-policy             nav 1 h 72 active=null         gap=   0 imgs 2/2   <-- 1 err
+    errors: Failed to load resource: net::ERR_NETWORK_IO_SUSPENDED
+/help-center               nav 1 h 72 active=Contact us   gap=   0 imgs 2/2   <-- headerTop=17, 1 err
+    errors: Failed to load resource: net::ERR_NETWORK_CHANGED
+/profile                   nav 1 h 72 active=null         gap=   0 imgs 14/14   <-- 1 err
+    errors: Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+/figma                     nav 1 h 72 active=Home         gap=   0 imgs 2/2   <-- 1 err
+    errors: Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+/figma/banner              nav 1 h 72 active=null         gap=   0 imgs 2/2   <-- 1 err
+    errors: Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+/500                       nav 1 h 72 active=null         gap=   0 imgs 2/2   <-- 1 err
+    errors: Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+/definitely-not-a-route    nav 1 h 72 active=null         gap=   0 imgs 2/2   <-- 1 err
+    errors: Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+/buyer-login               nav 0 hnull active=null         gap=null imgs 1/1   <-- 1 err
+    errors: Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+/vendor-login              nav 0 hnull active=null         gap=null imgs 1/1   <-- 1 err
+    errors: Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+/buyer-signup              nav 0 hnull active=null         gap=null imgs 0/0   <-- 1 err
+    errors: Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+/vendor-signup             nav 0 hnull active=null         gap=null imgs 1/1   <-- 1 err
+    errors: Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+
+── REDIRECTS ───────────────────────────────────────────────────────────
+/figma/home              -> /                        OK
+/figma/equipment         -> /services                OK
+/figma/cococycle-hub     -> /product                 OK
+/figma/contact           -> /contact                 OK
+/figma/login             -> /login                   OK
+/figma/signup            -> /signup                  OK
+/figma/about             -> /about                   OK
+
+── NAV WIDTH (no overflow at any breakpoint) ───────────────────────────
+/              1440px  navItems=6
+/              1280px  navItems=6
+/              1024px  navItems=6
+/               900px  navItems=6
+/               768px  navItems=6
+/               390px  navItems=6
+/marketplace   1440px  navItems=6
+/marketplace   1280px  navItems=6
+/marketplace   1024px  navItems=6
+/marketplace    900px  navItems=6
+/marketplace    768px  navItems=6
+/marketplace    390px  navItems=6
+/services      1440px  navItems=6
+/services      1280px  navItems=6
+/services      1024px  navItems=6
+/services       900px  navItems=6
+/services       768px  navItems=6
+/services       390px  navItems=6
+
+── MOBILE (390px) ──────────────────────────────────────────────────────
+/                          drawerLinks=11
+/services                  drawerLinks=11
+/product                   drawerLinks=11
+/contact                   drawerLinks=11
+/blog                      drawerLinks=11
+/marketplace               drawerLinks=13
+/about                     drawerLinks=11
+
+12 PROBLEM(S)

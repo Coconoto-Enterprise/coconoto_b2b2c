@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { to: '/marketplace', label: 'Marketplace' },
   { to: '/services', label: 'Coco-Tech' },
   { to: '/product', label: 'Cococycle Hub' },
+  { to: '/blog', label: 'Blog' },
   { to: '/about', label: 'About' },
 ];
 
