@@ -53,7 +53,20 @@ export default function NumberedRow({
   id,
 }: NumberedRowProps) {
   return (
-    <div id={id} className="mx-auto grid max-w-[1266px] grid-cols-1 items-stretch gap-8 px-5 sm:px-8 lg:grid-cols-2 lg:gap-6">
+    // Side padding is deliberately tighter than the rest of the site (px-4/sm:px-6,
+    // not px-5/sm:px-8) and the column gap is deliberately much wider than the
+    // Figma default (24px): the image and the copy should each hug their own edge
+    // with a wide empty channel between them, rather than sitting bunched in the
+    // middle with big margins outside. The max-width grew by the same amount the
+    // gap did, so the columns keep their ~600px width instead of shrinking to pay
+    // for the wider gutter.
+    //
+    // The gap steps up at `xl`: a flat 140px from 1024px upward leaves the columns
+    // only 418px wide, which is too narrow for the 520px copy to read well.
+    <div
+      id={id}
+      className="mx-auto grid max-w-[1400px] grid-cols-1 items-stretch gap-8 px-4 sm:px-6 lg:grid-cols-2 lg:gap-[72px] xl:gap-[140px]"
+    >
       {/* Image */}
       <ImageSlot
         slot={imageSlot}
