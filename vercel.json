@@ -1,6 +1,10 @@
 {
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/seo?action=sitemap" },
+    { "source": "/Sitemap.xml", "destination": "/api/seo?action=sitemap" },
+    { "source": "/sitemap.XML", "destination": "/api/seo?action=sitemap" },
+    { "source": "/SITEMAP.XML", "destination": "/api/seo?action=sitemap" },
+    { "source": "/sitemap.xml/", "destination": "/api/seo?action=sitemap" },
 
     { "source": "/blog/:id", "destination": "/api/seo?action=blog-meta&id=:id" },
 
