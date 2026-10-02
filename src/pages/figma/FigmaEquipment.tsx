@@ -1,14 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Settings, TrendingUp, Presentation, ShieldCheck } from 'lucide-react';
 import FigmaNav from '../../components/figma/FigmaNav';
 import FigmaFooter from '../../components/figma/FigmaFooter';
 import ImageSlot from '../../components/figma/ImageSlot';
 import NumberedRow from '../../components/figma/NumberedRow';
 import Certifications from '../../components/figma/Certifications';
+import { OrderDeshellerModal } from '../services/machines/OrderDeshellerModal';
+import { OrderDehuskerModal } from '../services/machines/OrderDehuskerModal';
+import { OrderCoconutMilkExtractorModal } from '../services/machines/OrderCoconutMilkExtractorModal';
 
 /* ── Desktop 8 · data ───────────────────────────────────────────────────── */
 
-const MACHINES = [
+/**
+ * Which order form a row's "order" control opens. Every machine in this list has
+ * one; the value doubles as the modal key in `openForm` below.
+ */
+type OrderFormId = 'desheller' | 'dehusker' | 'milk-auto' | 'milk-manual';
+
+interface EquipmentRow {
+  number: string;
+  title: string;
+  description: string;
+  bullets: string[];
+  slot: string;
+  label: string;
+  hint: string;
+  height: string;
+  reverse?: boolean;
+  /**
+   * When set, this row's "order" control opens the matching order form instead of
+   * navigating to the contact page. All four machines have one; the two milk
+   * extractors share a single modal that takes an `Automatic`/`Manual` variant.
+   */
+  orderForm?: OrderFormId;
+}
+
+const MACHINES: EquipmentRow[] = [
   {
     number: '01',
     title: 'Coconut Desheller',
@@ -26,6 +53,7 @@ const MACHINES = [
     label: 'Coconut Desheller machine',
     hint: '634 × 651',
     height: 'lg:h-[651px]',
+    orderForm: 'desheller',
   },
   {
     number: '02',
@@ -44,6 +72,7 @@ const MACHINES = [
     hint: '634 × 610',
     height: 'lg:h-[610px]',
     reverse: true,
+    orderForm: 'dehusker',
   },
   {
     number: '03',
@@ -63,6 +92,7 @@ const MACHINES = [
     label: 'Coconut Milk Extractor (Auto)',
     hint: '634 × 651',
     height: 'lg:h-[651px]',
+    orderForm: 'milk-auto',
   },
   {
     number: '04',
@@ -82,6 +112,7 @@ const MACHINES = [
     hint: '634 × 610',
     height: 'lg:h-[610px]',
     reverse: true,
+    orderForm: 'milk-manual',
   },
 ];
 
@@ -109,6 +140,11 @@ const PRODUCTION_CARDS = [
 ];
 
 export default function FigmaEquipment() {
+  // Which row's order form is open, if any. One piece of state rather than four
+  // booleans — only one modal can be open at a time, and the row's `orderForm`
+  // value is already the key.
+  const [openForm, setOpenForm] = useState<OrderFormId | null>(null);
+  const closeForm = () => setOpenForm(null);
   return (
     <div className="min-h-screen bg-white">
       <FigmaNav active="Services" />
@@ -128,20 +164,27 @@ export default function FigmaEquipment() {
 
       {/* ── Numbered machine list ────────────────────────────────────────── */}
       <div className="space-y-24 pb-24">
-        {MACHINES.map((m) => (
-          <NumberedRow
-            key={m.number}
-            number={m.number}
-            title={m.title}
-            description={m.description}
-            bullets={m.bullets}
-            imageSlot={m.slot}
-            imageLabel={m.label}
-            imageHint={m.hint}
-            imageHeight={m.height}
-            reverse={m.reverse}
-          />
-        ))}
+        {MACHINES.map((m) => {
+          // Pull the id into a local so TypeScript keeps the narrowing inside the
+          // onClick closure — `m.orderForm` on its own widens back to undefined
+          // across the callback boundary.
+          const form = m.orderForm;
+          return (
+            <NumberedRow
+              key={m.number}
+              number={m.number}
+              title={m.title}
+              description={m.description}
+              bullets={m.bullets}
+              imageSlot={m.slot}
+              imageLabel={m.label}
+              imageHint={m.hint}
+              imageHeight={m.height}
+              reverse={m.reverse}
+              onOrder={form ? () => setOpenForm(form) : undefined}
+            />
+          );
+        })}
       </div>
 
       {/* ── Production management ────────────────────────────────────────── */}
@@ -195,6 +238,18 @@ export default function FigmaEquipment() {
       </div>
 
       <FigmaFooter />
+
+      {/* Order forms — one per machine, opened by the "order" control on its row.
+          All four are quote-based: none of these machines carries a price. */}
+      <OrderDeshellerModal isOpen={openForm === 'desheller'} onClose={closeForm} />
+      <OrderDehuskerModal isOpen={openForm === 'dehusker'} onClose={closeForm} />
+      <OrderCoconutMilkExtractorModal
+        isOpen={openForm === 'milk-auto' || openForm === 'milk-manual'}
+        onClose={closeForm}
+        // `isOpen` gates rendering, so while closed the variant is irrelevant;
+        // 'Automatic' is just the harmless default.
+        type={openForm === 'milk-manual' ? 'Manual' : 'Automatic'}
+      />
     </div>
   );
 }

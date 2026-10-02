@@ -32,6 +32,18 @@ export interface NumberedRowProps {
   /** When true the image sits on the right and the text on the left. */
   reverse?: boolean;
   orderTo?: string;
+  /**
+   * When set, the "order" control opens a form instead of navigating. The
+   * machine rows use this so their order forms are reachable from the page.
+   */
+  onOrder?: () => void;
+  /** Overrides the control's label. Defaults to "order". */
+  orderLabel?: string;
+  /**
+   * Renders the control as inert grey text instead of a link/button — for
+   * products that are not on sale yet. Takes precedence over `onOrder`.
+   */
+  orderDisabled?: boolean;
   id?: string;
 }
 
@@ -50,8 +62,21 @@ export default function NumberedRow({
   imageHeight = 'h-[651px]',
   reverse = false,
   orderTo = '/contact',
+  onOrder,
+  orderLabel = 'order',
+  orderDisabled = false,
   id,
 }: NumberedRowProps) {
+  // Shared so the <Link> and the modal-opening <button> render identically.
+  // `cursor-pointer` is needed on the button — Tailwind preflight does not add it.
+  const orderClass =
+    'group inline-flex cursor-pointer items-center gap-2 font-lora text-[16px] font-semibold text-[#1AC212] transition-opacity hover:opacity-80';
+
+  // Not-yet-available products: same position and type as the real control, but
+  // muted and with no arrow, so it reads as a status rather than an action.
+  const disabledClass =
+    'inline-flex items-center gap-2 font-lora text-[16px] font-semibold text-[#9CA3AF] select-none';
+
   return (
     // Side padding is deliberately tighter than the rest of the site (px-4/sm:px-6,
     // not px-5/sm:px-8) and the column gap is deliberately much wider than the
@@ -105,13 +130,19 @@ export default function NumberedRow({
           </ul>
 
           <div className="mt-9 flex justify-end">
-            <Link
-              to={orderTo}
-              className="group inline-flex items-center gap-2 font-lora text-[16px] font-semibold text-[#1AC212] transition-opacity hover:opacity-80"
-            >
-              order
-              <LongArrow className="w-[34px] transition-transform group-hover:translate-x-1" />
-            </Link>
+            {orderDisabled ? (
+              <span className={disabledClass}>{orderLabel}</span>
+            ) : onOrder ? (
+              <button type="button" onClick={onOrder} className={orderClass}>
+                {orderLabel}
+                <LongArrow className="w-[34px] transition-transform group-hover:translate-x-1" />
+              </button>
+            ) : (
+              <Link to={orderTo} className={orderClass}>
+                {orderLabel}
+                <LongArrow className="w-[34px] transition-transform group-hover:translate-x-1" />
+              </Link>
+            )}
           </div>
         </div>
       </div>

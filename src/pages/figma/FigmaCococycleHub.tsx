@@ -6,11 +6,42 @@ import ImageSlot from '../../components/figma/ImageSlot';
 import NumberedRow from '../../components/figma/NumberedRow';
 import Certifications from '../../components/figma/Certifications';
 import { BookEventModal } from '../../components/BookEventModal';
+import { ProductCartProvider, useProductCart } from '../../components/ProductCartContext';
+import { FloatingCartButton } from '../../components/FloatingCartButton';
+import { ProductCheckoutModal } from '../../components/ProductCheckoutModal';
 import markIcon from '../../assets/mark.svg';
+// Cart thumbnails. The page itself renders Figma image slots, but the cart and
+// checkout need a real image URL, so these reuse the product photos the old
+// ProductsList used.
+import cocopeatImg from '../../assets/cocpeat1.jpeg';
+import fiberImg from '../../assets/fiber.jpeg';
+import cocopotImg from '../../assets/cocopot2.jpg';
+import biocharImg from '../../assets/biochar.jpeg';
 
 /* ── Desktop 11 · data ──────────────────────────────────────────────────── */
 
-const PRODUCTS = [
+/**
+ * A product row. `price`/`available`/`cartId`/`cartImage` drive the cart flow —
+ * they come from the old `products/ProductsList.tsx`, which is where the prices
+ * lived. Rows without `available: true` render a muted "coming soon" instead of
+ * an order control, exactly as the old page's disabled buttons did.
+ */
+interface ProductRow {
+  number: string;
+  title: string;
+  description: string;
+  bullets: string[];
+  slot: string;
+  label: string;
+  hint: string;
+  reverse?: boolean;
+  price?: string;
+  available?: boolean;
+  cartId?: string;
+  cartImage?: string;
+}
+
+const PRODUCTS: ProductRow[] = [
   {
     number: '01',
     title: 'Cocopeat',
@@ -25,6 +56,10 @@ const PRODUCTS = [
     slot: 'cocycle-p1',
     label: 'Cocopeat photo',
     hint: '634 × 608',
+    price: '₦10,000',
+    available: true,
+    cartId: 'cocopeat',
+    cartImage: cocopeatImg,
   },
   {
     number: '02',
@@ -41,6 +76,10 @@ const PRODUCTS = [
     label: 'Coconut fiber photo',
     hint: '634 × 608',
     reverse: true,
+    price: '₦15,000',
+    available: true,
+    cartId: 'fiber',
+    cartImage: fiberImg,
   },
   {
     number: '03',
@@ -56,6 +95,9 @@ const PRODUCTS = [
     slot: 'cocycle-p3',
     label: 'Cocopot photo',
     hint: '634 × 608',
+    available: false,
+    cartId: 'cocopot',
+    cartImage: cocopotImg,
   },
   {
     number: '04',
@@ -72,6 +114,9 @@ const PRODUCTS = [
     label: 'Biochar photo',
     hint: '634 × 608',
     reverse: true,
+    available: false,
+    cartId: 'biochar',
+    cartImage: biocharImg,
   },
 ];
 
@@ -89,9 +134,33 @@ const EVENT_SERVICES = [
 ];
 
 export default function FigmaCococycleHub() {
+  // The cart lives in context, so the provider has to wrap the page that both
+  // adds to it and renders the checkout.
+  return (
+    <ProductCartProvider>
+      <CococycleHubPage />
+    </ProductCartProvider>
+  );
+}
+
+function CococycleHubPage() {
   // "Place an order now" opens Coco DrinkEat's own booking form rather than
   // sending people to the generic contact page.
   const [bookEventOpen, setBookEventOpen] = useState(false);
+
+  // Product orders go through the cart + checkout flow that already existed for
+  // this page (`ProductCartContext` → `ProductCheckoutModal`). Clicking a row's
+  // "order" control drops that one product in the cart and opens the checkout,
+  // so the buyer sees the price immediately without a separate basket step.
+  const { addToCart } = useProductCart();
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+
+  const orderProduct = (p: ProductRow) => {
+    if (!p.cartId || !p.cartImage || !p.price) return;
+    addToCart({ id: p.cartId, name: p.title, price: p.price, image: p.cartImage });
+    setCheckoutOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <FigmaNav active="Services" />
@@ -144,6 +213,11 @@ export default function FigmaCococycleHub() {
             imageHint={p.hint}
             imageHeight="lg:h-[608px]"
             reverse={p.reverse}
+            // Cocopeat and Fiber are on sale; Cocopot and Biochar are not yet,
+            // so they show a muted "coming soon" where the order control sits.
+            onOrder={p.available ? () => orderProduct(p) : undefined}
+            orderDisabled={!p.available}
+            orderLabel={p.available ? 'order' : 'coming soon'}
           />
         ))}
       </div>
@@ -245,6 +319,11 @@ export default function FigmaCococycleHub() {
 
       {/* The Coco DrinkEat booking form, opened by "Place an order now". */}
       <BookEventModal isOpen={bookEventOpen} onClose={() => setBookEventOpen(false)} />
+
+      {/* Product ordering. The floating button only appears once something is in
+          the cart, so it stays out of the way on a first visit. */}
+      <FloatingCartButton onClick={() => setCheckoutOpen(true)} />
+      <ProductCheckoutModal isOpen={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
     </div>
   );
 }

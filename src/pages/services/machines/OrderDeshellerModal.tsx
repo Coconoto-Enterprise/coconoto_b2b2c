@@ -8,6 +8,18 @@ interface WaitlistModalProps {
   onClose: () => void;
 }
 
+/**
+ * Unit price in naira, and the price this form shows the buyer.
+ *
+ * Commit fbfc3fa (2026-03-18) replaced `1000000` with `0` and a "quote-based"
+ * comment, so the form stopped carrying a price and `total_price` was written to
+ * the database as 0. The form is reachable again from `/services`, and the
+ * buyer should see what the machine costs, so the price is restored here.
+ */
+const UNIT_PRICE = 1000000;
+
+const formatNaira = (amount: number) => `₦${amount.toLocaleString('en-NG')}`;
+
 export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
   const [formData, setFormData] = useState({
     name: '',
@@ -23,6 +35,11 @@ export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   if (!isOpen) return null;
+
+  // Live order total — shown to the buyer, and the same figure written to the
+  // database as `total_price`.
+  const orderQuantity = Math.max(1, parseInt(formData.quantity, 10) || 1);
+  const orderTotal = UNIT_PRICE * orderQuantity;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -61,7 +78,7 @@ export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
     try {
       // Calculate total price for Desheller
       const quantity = parseInt(formData.quantity) || 1;
-      const unitPrice = 0; // Price currently quote-based
+      const unitPrice = UNIT_PRICE;
       const calculatedTotal = unitPrice * quantity;
 
       const { error } = await supabase.from('machine_orders').insert([
@@ -240,6 +257,25 @@ export function OrderDeshellerModal({ isOpen, onClose }: WaitlistModalProps) {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none"
                 placeholder="Any specific requirements or customizations..."
               />
+            </div>
+          </div>
+
+          {/* Price — the buyer should see what they are ordering before they submit. */}
+          <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+            <div className="flex items-center justify-between text-sm text-gray-700">
+              <span>Desheller Machine — unit price</span>
+              <span className="font-semibold text-gray-900">{formatNaira(UNIT_PRICE)}</span>
+            </div>
+            <div className="mt-3 flex items-center justify-between border-t border-green-200 pt-3">
+              <span className="font-semibold text-gray-900">
+                Total
+                {orderQuantity > 1 && (
+                  <span className="ml-1 font-normal text-gray-600">
+                    ({orderQuantity} × {formatNaira(UNIT_PRICE)})
+                  </span>
+                )}
+              </span>
+              <span className="text-lg font-bold text-green-700">{formatNaira(orderTotal)}</span>
             </div>
           </div>
 
