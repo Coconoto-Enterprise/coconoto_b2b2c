@@ -241,17 +241,21 @@ const TweetitDashboard: React.FC = () => {
               >
                 <Menu className="h-5 w-5" />
               </button>
+              {/* Logo_1.png is a 760×121 wordmark (6.28:1). Forcing it into a
+                  square box (`h-12 w-12` + object-contain) letterboxed it down
+                  to ~48×8px. Give it height only and let the width follow. */}
               <img
                 src={Logo}
                 alt="Coconoto"
-                className="hidden md:block h-12 w-12 lg:h-14 lg:w-14 object-contain flex-shrink-0"
+                className="hidden md:block h-7 lg:h-9 xl:h-10 w-auto object-contain flex-shrink-0"
               />
-              <div className="min-w-0">
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
+              {/* Badge + title sit side by side, on one line. */}
+              <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
+                <span className="hidden sm:inline-flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-emerald-700 lg:px-2.5">
                   <Sparkles className="h-3 w-3" />
                   Tweetit
-                </div>
-                <h2 className="font-bold text-base sm:text-lg text-gray-900 leading-tight tracking-tight truncate">
+                </span>
+                <h2 className="min-w-0 truncate text-base font-bold leading-tight tracking-tight text-gray-900 lg:text-lg xl:text-xl">
                   Email Center
                 </h2>
               </div>
@@ -261,7 +265,7 @@ const TweetitDashboard: React.FC = () => {
               {currentUser.role === 'admin' && (
                 <button
                   onClick={() => setShowUserManager(true)}
-                  className="hidden sm:inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-full text-sm font-medium transition shadow-sm hover:shadow-md"
+                  className="hidden lg:inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-full text-sm font-medium transition shadow-sm hover:shadow-md"
                 >
                   <Users className="h-4 w-4" />
                   Manage Users
@@ -270,7 +274,7 @@ const TweetitDashboard: React.FC = () => {
               {currentUser.role === 'admin' && (
                 <button
                   onClick={() => setShowUserManager(true)}
-                  className="sm:hidden inline-flex items-center justify-center h-10 w-10 rounded-full bg-indigo-600 text-white shadow-sm"
+                  className="lg:hidden inline-flex items-center justify-center h-10 w-10 rounded-full bg-indigo-600 text-white shadow-sm"
                   title="Manage Users"
                 >
                   <Users className="h-4 w-4" />

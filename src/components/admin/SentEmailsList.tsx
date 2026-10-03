@@ -196,7 +196,8 @@ export const SentEmailsList: React.FC<SentEmailsListProps> = ({ isLoading: initi
           <div className="absolute left-0 top-0 bottom-0 w-[80vw] max-w-xs bg-white border-r border-gray-200 flex flex-col min-h-full shadow-xl" style={{ borderRightColor: '#d4a574' }}>
             <div className="flex items-center justify-between p-3 border-b border-gray-200">
               <div className="flex items-center">
-                <img src={Logo} alt="Coconoto" className="h-14 w-14 object-contain" />
+                {/* Wordmark (760×121) — height only, width follows. */}
+                <img src={Logo} alt="Coconoto" className="h-8 w-auto object-contain" />
               </div>
               <div className="flex-1" />
               <button
