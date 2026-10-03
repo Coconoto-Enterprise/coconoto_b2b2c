@@ -78,34 +78,41 @@ export const BlogHome: React.FC = () => {
           top of the document. The old fixed navbar needed `pt-16` to clear it. */}
       <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-700 to-amber-900 text-white py-12">
+      <div className="bg-gradient-to-r from-amber-700 to-amber-900 text-white py-8 sm:py-12">
         <div className="max-w-6xl mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-2">Coconoto Blog</h1>
+          <h1 className="text-3xl font-bold mb-2 sm:text-4xl">Coconoto Blog</h1>
           <p className="text-amber-100">Insights and stories from our community</p>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-12">
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
         {/* Search Bar */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="relative">
-            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+            {/* `top-1/2 -translate-y-1/2` rather than a fixed `top-3`: the input
+                grows to 48px on mobile for a comfortable tap target, and a fixed
+                offset left the magnifier sitting above centre. */}
+            <Search className="absolute left-3 top-1/2 w-5 h-5 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Search blogs..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full bg-white text-black placeholder:text-gray-500 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700"
+              className="w-full bg-white text-black placeholder:text-gray-500 pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700 sm:py-2"
             />
           </div>
         </div>
 
-        {/* Tags Filter */}
+        {/* Tags Filter — shown at every width. It used to be `hidden md:flex`,
+            which left phone visitors with no way to filter at all.
+            On phones it is a single scrollable row that bleeds to the screen
+            edges (the `-mx-4 px-4` pair cancels the container padding); wrapping
+            five pills instead cost ~250px of vertical space. */}
         {allTags.length > 0 && (
-          <div className="hidden md:flex mb-8 flex-wrap gap-2">
+          <div className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mb-8 sm:flex-wrap sm:overflow-visible sm:px-0">
             <button
               onClick={() => setSelectedTag(null)}
-              className={`px-4 py-2 rounded-full transition ${
+              className={`shrink-0 px-4 py-2 rounded-full transition ${
                 !selectedTag
                   ? 'bg-amber-700 text-white'
                   : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
@@ -117,7 +124,7 @@ export const BlogHome: React.FC = () => {
               <button
                 key={tag}
                 onClick={() => setSelectedTag(tag)}
-                className={`px-4 py-2 rounded-full transition ${
+                className={`shrink-0 px-4 py-2 rounded-full transition ${
                   selectedTag === tag
                     ? 'bg-amber-700 text-white'
                     : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
@@ -146,7 +153,7 @@ export const BlogHome: React.FC = () => {
 
         {/* Blogs Grid */}
         {!loading && filteredBlogs.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             {filteredBlogs.map(blog => (
               <article
                 key={blog.blog_id}

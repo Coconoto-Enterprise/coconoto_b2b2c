@@ -195,7 +195,9 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-      <div className="bg-white bg-opacity-50 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto scrollbar-hide">
+      {/* Solid white: this was `bg-white bg-opacity-50`, so the page behind the
+          modal showed straight through the form. */}
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto scrollbar-hide">
         <style>
           {`
             .scrollbar-hide {
@@ -208,16 +210,16 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
           `}
         </style>
         {/* Header */}
-        <div className="sticky top-0 bg-white bg-opacity-90 border-b border-gray-100 p-6 rounded-t-2xl">
-          <div className="flex items-center justify-between">
+        <div className="sticky top-0 bg-white border-b border-gray-100 p-5 sm:p-6 rounded-t-2xl">
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Join Our Waitlist</h2>
-              <p className="text-gray-600 mt-1">Be first to access our coconut marketplace</p>
+              <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">Join Our Waitlist</h2>
+              <p className="text-gray-600 mt-1 text-sm sm:text-base">Be first to access our coconut marketplace</p>
             </div>
             <button
               onClick={onClose}
               aria-label="Close modal"
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="shrink-0 p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
               <X className="h-5 w-5 text-gray-500" />
             </button>
@@ -225,7 +227,7 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-5 space-y-6 sm:p-6">
           {/* Personal Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
@@ -456,16 +458,19 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Products of Interest *
                   </label>
-                  <div className="grid grid-cols-2 gap-3">
+                  {/* `items-start` + a nudged checkbox: with `items-center` a
+                      two-line label ("Coconut Shell Products") floated the box
+                      into the middle of the text block. */}
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
                     {products.map((product) => (
-                      <label key={product} className="flex items-center space-x-2 cursor-pointer">
+                      <label key={product} className="flex items-start gap-2 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={formData.products_interested.includes(product)}
                           onChange={() => handleProductChange(product)}
-                          className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                          className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-green-600 focus:ring-green-500"
                         />
-                        <span className="text-sm text-gray-700">{product}</span>
+                        <span className="text-sm leading-snug text-gray-700">{product}</span>
                       </label>
                     ))}
                   </div>

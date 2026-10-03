@@ -55,7 +55,10 @@ const FloatingChatIcon: React.FC = () => {
           position: fixed;
           bottom: 80px;
           right: 30px;
-          z-index: 1000;
+          /* Below the sticky navbar (z-50) and every modal (z-[60]+). At 1000 it
+             sat on top of the waitlist and order modals, floating over their
+             form fields and submit button. */
+          z-index: 40;
           animation: float 3s ease-in-out infinite;
         }
 
@@ -122,20 +125,22 @@ const FloatingChatIcon: React.FC = () => {
 
         @media (max-width: 768px) {
           .floating-chat-container {
-            bottom: 60px;
-            right: 20px;
+            bottom: 24px;
+            right: 16px;
           }
 
+          /* Icon-only on phones. The expanded pill is ~230px wide, so on a
+             390px screen it sat across whatever it floated over (machine
+             photos, product cards). The label is a nice-to-have; not covering
+             the page is not. */
           .floating-chat-text {
-            font-size: 12px;
+            display: none;
           }
 
-          .floating-chat-wrapper {
-            padding: 10px;
-          }
-
+          .floating-chat-wrapper,
           .floating-chat-wrapper.expanded {
-            padding: 10px 16px 10px 10px;
+            padding: 12px;
+            border-radius: 50px;
           }
         }
       `}</style>

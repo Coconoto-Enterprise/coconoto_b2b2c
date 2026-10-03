@@ -7,7 +7,7 @@ import footerBg from '../../assets/fotterimage.png';
 
 export default function AboutFooter() {
   return (
-    <footer className="relative bg-[#1f1611] text-white pt-14 pb-8 overflow-hidden">
+    <footer className="relative bg-[#1f1611] text-white pt-12 pb-8 sm:pt-14 overflow-hidden">
       {/* Subtle soil background image */}
       <div
         aria-hidden="true"
@@ -15,8 +15,11 @@ export default function AboutFooter() {
         style={{ backgroundImage: `url(${footerBg})` }}
       />
       <div className="relative container mx-auto px-4 sm:px-6">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
-          <div>
+        {/* Two columns on phones: the brand block spans the full width and the
+            four link groups pair up. As a single column this stacked five
+            blocks with 32px between each and ran to well over a screen. */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="col-span-2 lg:col-span-1">
             <Link to="/" onClick={() => window.scrollTo(0, 0)} className="inline-flex items-center mb-4">
               <img src={Logo} alt="Coconoto" className="h-8" />
             </Link>

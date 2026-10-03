@@ -31,7 +31,6 @@ export const BlogEditor = lazy(() => import('./components/blog/BlogEditor'));
 export const FigmaAbout = lazy(() => import('./pages/FigmaAbout'));
 
 // --- Figma frame builds (Coconoto Project) — one page per frame ---
-export const FigmaIndex = lazy(() => import('./pages/figma/FigmaIndex'));
 export const FigmaHome = lazy(() => import('./pages/figma/FigmaHome'));
 export const FigmaEquipment = lazy(() => import('./pages/figma/FigmaEquipment'));
 export const FigmaCococycleHub = lazy(() => import('./pages/figma/FigmaCococycleHub'));

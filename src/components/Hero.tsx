@@ -8,8 +8,10 @@ import Threads from './Threads';
 
 export function Hero() {
   const [isWaitlistModalOpen, setIsWaitlistModalOpen] = useState(false);
+  // `pt-36` (144px) left a fifth of a phone screen blank between the sticky
+  // navbar and the headline. The md/lg values are the original design.
   return (
-    <section className="pt-36 md:pt-[300px] lg:pt-[20vh] bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
+    <section className="pt-20 sm:pt-28 md:pt-[300px] lg:pt-[20vh] bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
       {/* Threads Background */}
       <div className="absolute inset-0 w-full h-full opacity-30">
         <Threads

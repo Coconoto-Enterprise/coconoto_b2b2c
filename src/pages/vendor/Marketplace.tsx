@@ -182,7 +182,10 @@ export function Marketplace() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 lg:pt-10 pb-10 lg:pb-10">
+      {/* `pt-20` was left over from the old fixed navbar: FigmaNav is sticky and
+          in flow now, so on mobile it was just an 80px dead band under the
+          header. 20px reads as deliberate breathing room. */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 lg:pt-10 pb-10">
         <div className="lg:hidden mb-4">
           <div className="flex items-center gap-2">
             <button
@@ -256,7 +259,7 @@ export function Marketplace() {
                 ))}
               </div>
             ) : filteredProducts.length === 0 ? (
-              <div className="rounded-2xl border border-white/60 bg-white/75 backdrop-blur-xl shadow p-12 text-center">
+              <div className="rounded-2xl border border-white/60 bg-white/75 backdrop-blur-xl shadow p-8 text-center sm:p-12">
                 <PackageOpen className="h-12 w-12 text-green-700/40 mx-auto mb-4" />
                 <h3 className="text-lg font-bold text-gray-900 mb-1">No products found</h3>
                 <p className="text-gray-600 mb-4">

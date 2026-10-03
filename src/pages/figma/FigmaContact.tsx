@@ -98,7 +98,7 @@ export default function FigmaContact() {
           overlay="bg-black/55"
         />
 
-        <div className="relative mx-auto max-w-[1440px] px-5 py-16 sm:px-8 lg:px-[147px] lg:py-[100px]">
+        <div className="relative mx-auto max-w-[1440px] px-5 py-10 sm:px-8 sm:py-16 lg:px-[147px] lg:py-[100px]">
           <div className="relative rounded-[16px] bg-white p-8 sm:p-12 lg:p-[66px]">
             {/* Coconut illustration, flush with the card corner */}
             <ImageSlot
@@ -109,7 +109,7 @@ export default function FigmaContact() {
               imgClassName="object-contain"
             />
 
-            <div className="grid gap-12 lg:grid-cols-[1fr_485px] lg:gap-14">
+            <div className="grid gap-8 sm:gap-12 lg:grid-cols-[1fr_485px] lg:gap-14">
               {/* Left: contact information */}
               <div className="lg:pt-[120px]">
                 <h1 className="font-montserrat text-[26px] font-bold text-[#151515] sm:text-[32px]">
@@ -120,7 +120,7 @@ export default function FigmaContact() {
                   our team today.
                 </p>
 
-                <dl className="mt-12 space-y-7">
+                <dl className="mt-8 space-y-6 sm:mt-12 sm:space-y-7">
                   {DETAILS.map(({ icon: Icon, label, value, href }) => (
                     <div key={label}>
                       <dt className="flex items-center gap-2 font-quicksand text-[14px] text-[#5B5B5B]">

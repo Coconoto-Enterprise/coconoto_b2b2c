@@ -38,7 +38,6 @@ import {
   ServerError,
   RouteFallback,
   FigmaAbout,
-  FigmaIndex,
   FigmaEquipment,
   FigmaCococycleHub,
   FigmaLogin,
@@ -141,11 +140,10 @@ function App() {
           <Route path="/figma/login" element={<Navigate to="/login" replace />} />
           <Route path="/figma/signup" element={<Navigate to="/signup" replace />} />
 
-          {/* ── The Figma build index + the decorative banner strip ─────────
-              `/figma` is the frame index (a build artefact, not a site page) and
-              `/figma/banner` is the flat-lay artwork frame, which is not a page
-              in its own right. Both stay where they are. */}
-          <Route path="/figma" element={<FigmaIndex />} />
+          {/* ── The decorative banner strip ────────────────────────────────
+              The `/figma` frame index was a build artefact, not a site page, and
+              has been removed — it now falls through to the 404 page. The
+              flat-lay artwork frame below is still reachable directly. */}
           <Route path="/figma/banner" element={<FigmaBanner />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />

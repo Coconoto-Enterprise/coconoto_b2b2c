@@ -163,7 +163,7 @@ export default function FigmaEquipment() {
       </section>
 
       {/* ── Numbered machine list ────────────────────────────────────────── */}
-      <div className="space-y-24 pb-24">
+      <div className="space-y-16 pb-16 lg:space-y-24 lg:pb-24">
         {MACHINES.map((m) => {
           // Pull the id into a local so TypeScript keeps the narrowing inside the
           // onClick closure — `m.orderForm` on its own widens back to undefined

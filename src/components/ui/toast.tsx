@@ -36,7 +36,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-[100] flex w-full max-w-sm flex-col gap-2">
+      {/* `w-full` + `right-4` (no `left-*`) makes this viewport-wide, then
+          `max-w-sm` caps it at 384px — which at a 390px viewport hangs 10px off
+          the left edge. Constrain both edges on mobile, right-align from sm up. */}
+      <div className="fixed bottom-4 left-4 right-4 z-[100] flex flex-col gap-2 sm:left-auto sm:right-4 sm:w-full sm:max-w-sm">
         {toasts.map((t) => (
           <div
             key={t.id}

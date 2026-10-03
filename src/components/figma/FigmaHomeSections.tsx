@@ -100,9 +100,9 @@ const MARKET_PRODUCTS = [
 
 const MARKET_FEATURES = [
   'Wide range of products',
-  'Safe & secure transcations',
+  'Safe & secure transactions',
   'Verified suppliers & buyers',
-  'Support for farmers & business',
+  'Support for farmers & businesses',
 ];
 
 /**
@@ -287,7 +287,7 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
     <>
       {/* ── Ecosystem ────────────────────────────────────────────────────── */}
       <section className="bg-white">
-        <div className="mx-auto max-w-[1440px] px-5 pb-16 sm:px-8 lg:px-[100px] lg:pb-[150px] lg:pt-[80px]">
+        <div className="mx-auto max-w-[1440px] px-5 pt-14 pb-14 sm:px-8 lg:px-[100px] lg:pb-[150px] lg:pt-[80px]">
           <div className="text-center">
             <p className="font-montserrat text-[20px] font-semibold uppercase leading-[24px] text-[#5A3015]">
               Explore the Coconoto Ecosystem
@@ -308,7 +308,7 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
                 // longer behaves like one giant click target.
                 <div
                   key={card.title}
-                  className={`group flex h-[409px] flex-col overflow-hidden rounded-[24px] ${card.bg} px-[32px] py-[20px]`}
+                  className={`group flex h-auto flex-col overflow-hidden rounded-[24px] ${card.bg} px-6 py-5 sm:px-[32px] lg:h-[409px] lg:py-[20px]`}
                 >
                   <span className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full bg-white">
                     <img
@@ -362,8 +362,9 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
       <section className="bg-white">
         <div className="mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-[100px]">
           <div className="grid items-start gap-[20px] lg:grid-cols-[521fr_699fr]">
-            {/* Left: pitch */}
-            <div className="flex h-[382px] flex-col rounded-[10px] bg-[#F9F8F8] p-[20px]">
+            {/* Left: pitch. Fixed height only at lg, where the two cards are
+                side by side and must match; on mobile the content decides. */}
+            <div className="flex h-auto flex-col rounded-[10px] bg-[#F9F8F8] p-[20px] lg:h-[382px]">
               <p className="font-montserrat text-[16px] font-semibold text-[#17AD10]">
                 Coco-Connect Marketplace
               </p>
@@ -372,10 +373,10 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
               </h3>
               <p className="mt-[16px] font-lora text-[16px] leading-[24px] text-black">
                 Access quality coconut products, materials and equipment from verified suppliers.
-                Connect with the right people, close deals faster, and grow your bussiness
+                Connect with the right people, close deals faster, and grow your business
               </p>
 
-              <ul className="mt-[35px] grid grid-cols-1 gap-x-[19px] gap-y-[20px] sm:grid-cols-2">
+              <ul className="mt-6 grid grid-cols-1 gap-x-[19px] gap-y-3 sm:grid-cols-2 sm:gap-y-[20px] lg:mt-[35px]">
                 {MARKET_FEATURES.map((f) => (
                   <li key={f} className="flex items-center gap-[8px]">
                     <CheckCircle2 className="h-[24px] w-[24px] shrink-0 text-[#17AD10]" aria-hidden="true" />
@@ -395,21 +396,27 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
 
             {/* Right: popular products */}
             <div>
-              <div className="h-[382px] rounded-[10px] bg-[#F8F8F8] p-[20px]">
+              <div className="h-auto rounded-[10px] bg-[#F8F8F8] p-[20px] lg:h-[382px]">
                 <h3 className="font-montserrat text-[16px] font-semibold text-black">
                   Popular on the marketplace
                 </h3>
 
-                <div className="mt-[18px] grid grid-cols-2 gap-[13px] sm:grid-cols-4">
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:mt-[18px] sm:grid-cols-4 sm:gap-[13px]">
                   {MARKET_PRODUCTS.map((p) => (
                     <div key={p.name}>
+                      {/* The artwork is 155x169 (portrait). A flat `h-[120px]` in
+                          the 2-column mobile grid forced a 149x120 box, so
+                          `object-cover` cropped ~26% off the top and bottom. Keep
+                          the design aspect on mobile and go back to the fixed
+                          169px height from sm up, where 4 columns give the tile
+                          its intended width. */}
                       <ImageSlot
                         slot={p.slot}
                         label={`${p.name} photo`}
                         hint="155 × 169"
-                        className="h-[169px] w-full"
+                        className="aspect-[155/169] w-full sm:aspect-auto sm:h-[169px]"
                       />
-                      <p className="mt-[33px] font-lora text-[16px] font-medium leading-[20px] text-black">
+                      <p className="mt-4 font-lora text-[16px] font-medium leading-[20px] text-black sm:mt-[33px]">
                         {p.name}
                       </p>
                       <p className="mt-[9px] font-lora text-[14px] leading-[18px] text-black">
@@ -444,7 +451,9 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
         return (
           <section
             key={p.label}
-            className={`${i === 1 ? 'mt-[150px] bg-[#EFEFEF]' : 'pt-[150px] bg-white'}`}
+            className={`${
+              i === 1 ? 'mt-16 bg-[#EFEFEF] lg:mt-[150px]' : 'pt-16 bg-white lg:pt-[150px]'
+            }`}
           >
             <div className="mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-[100px]">
               <div
@@ -474,20 +483,28 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
                       row (20px icon, 16 gap, 24 apart) · stack (35px icon above
                       the label, 50 apart) · col (16px dot, 15 gap, 20 apart). */}
                   {p.featureLayout === 'stack' ? (
-                    <ul className="mt-[40px] flex flex-wrap items-start gap-x-[50px] gap-y-[20px]">
+                    // Three pillars. On mobile they stay three-across as a grid
+                    // with a smaller glyph — as a flex-wrap row the third one
+                    // dropped to its own left-aligned line and looked broken.
+                    <ul className="mt-8 grid grid-cols-3 gap-x-3 gap-y-5 sm:mt-[40px] sm:flex sm:flex-wrap sm:items-start sm:gap-x-[50px] sm:gap-y-[20px]">
                       {p.features.map((f) => (
-                        <li key={f.label} className="flex flex-col items-center gap-[20px] text-center">
+                        <li
+                          key={f.label}
+                          className="flex flex-col items-center gap-3 text-center sm:gap-[20px]"
+                        >
                           <FeatureGlyph
                             feature={f}
-                            className="h-[35px] w-[35px] shrink-0 text-[#17AD10]"
+                            className="h-7 w-7 shrink-0 text-[#17AD10] sm:h-[35px] sm:w-[35px]"
                             strokeWidth={1.3}
                           />
-                          <span className="font-lora text-[16px] leading-[20px] text-[#101010]">{f.label}</span>
+                          <span className="font-lora text-[14px] leading-[18px] text-[#101010] sm:text-[16px] sm:leading-[20px]">
+                            {f.label}
+                          </span>
                         </li>
                       ))}
                     </ul>
                   ) : p.featureLayout === 'col' ? (
-                    <ul className="mt-[40px] flex flex-col gap-[20px]">
+                    <ul className="mt-8 flex flex-col gap-4 sm:mt-[40px] sm:gap-[20px]">
                       {p.features.map((f) => (
                         <li key={f.label} className="flex items-center gap-[15px]">
                           <span className="flex h-[16px] w-[16px] shrink-0 items-center justify-center" aria-hidden="true">
@@ -498,7 +515,9 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
                       ))}
                     </ul>
                   ) : (
-                    <ul className="mt-[40px] flex flex-wrap items-center gap-x-[24px] gap-y-[12px]">
+                    // One per line on mobile: wrapping the three into 2 + 1 left
+                    // the odd item's icon floating out of line with the rest.
+                    <ul className="mt-8 flex flex-col gap-y-3 sm:mt-[40px] sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-[24px] sm:gap-y-[12px]">
                       {p.features.map((f) => (
                         <li key={f.label} className="flex items-center gap-[16px]">
                           <FeatureGlyph
@@ -514,7 +533,7 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
 
                   <Link
                     to={p.to}
-                    className="group mt-[32px] inline-flex items-center gap-[10px] font-lora text-[16px] font-medium leading-[20px] text-[#17AD10] transition-opacity hover:opacity-80"
+                    className="group mt-6 inline-flex items-center gap-[10px] font-lora text-[16px] font-medium leading-[20px] text-[#17AD10] transition-opacity hover:opacity-80 sm:mt-[32px]"
                   >
                     Learn more
                     <LongArrow className="w-[24px] transition-transform group-hover:translate-x-1" />
@@ -527,13 +546,13 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
       })}
 
       {/* ── Why choose ───────────────────────────────────────────────────── */}
-      <section className="bg-white pt-[199px]">
+      <section className="bg-white pt-16 lg:pt-[199px]">
         <div className="mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-[100px]">
           <h2 className="text-center font-montserrat text-[20px] font-bold leading-[24px] text-black">
             Why Choose Coconoto?
           </h2>
 
-          <div className="mt-[48px] grid gap-[33px] sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-8 sm:mt-[48px] sm:grid-cols-2 sm:gap-[33px] lg:grid-cols-4">
             {WHY.map((item) => {
               const Icon = item.icon;
               return (
@@ -557,7 +576,7 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
       </section>
 
       {/* ── CTA band ─────────────────────────────────────────────────────── */}
-      <section className="bg-white pb-[81px] pt-[66px]">
+      <section className="bg-white pb-14 pt-12 lg:pb-[81px] lg:pt-[66px]">
         <div className="mx-auto max-w-[1440px] px-5 sm:px-8 lg:px-[90px]">
           <div className="flex min-h-[198px] flex-col items-start justify-between gap-8 rounded-[15px] bg-[#6F4A32] px-6 py-8 lg:flex-row lg:items-center lg:px-[60px] lg:pb-[53px] lg:pt-[60px]">
             <div>

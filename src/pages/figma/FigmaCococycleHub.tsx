@@ -200,7 +200,7 @@ function CococycleHubPage() {
         </div>
       </section>
 
-      <div className="space-y-24 pb-24">
+      <div className="space-y-16 pb-16 lg:space-y-24 lg:pb-24">
         {PRODUCTS.map((p) => (
           <NumberedRow
             key={p.number}
@@ -223,7 +223,7 @@ function CococycleHubPage() {
       </div>
 
       {/* ── Coco DrinkEat event experience ───────────────────────────────── */}
-      <section id="drink-eat" className="bg-white pb-24">
+      <section id="drink-eat" className="bg-white pb-16 lg:pb-24">
         <div className="mx-auto max-w-[1240px] px-5 sm:px-8">
           <p className="font-lora text-[16px] font-semibold text-[#5A3015]">
             Bring the Fresh Coconut Experience to Your Events

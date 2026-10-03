@@ -59,7 +59,7 @@ export default function NumberedRow({
   imageSlot,
   imageLabel,
   imageHint,
-  imageHeight = 'h-[651px]',
+  imageHeight = 'lg:h-[651px]',
   reverse = false,
   orderTo = '/contact',
   onOrder,
@@ -90,14 +90,21 @@ export default function NumberedRow({
     // only 418px wide, which is too narrow for the 520px copy to read well.
     <div
       id={id}
-      className="mx-auto grid max-w-[1400px] grid-cols-1 items-stretch gap-8 px-4 sm:px-6 lg:grid-cols-2 lg:gap-[72px] xl:gap-[140px]"
+      className="mx-auto grid max-w-[1400px] grid-cols-1 items-stretch gap-6 px-4 sm:px-6 lg:grid-cols-2 lg:gap-[72px] xl:gap-[140px]"
     >
-      {/* Image */}
+      {/* Image.
+          `imageHeight` is an `lg:`-prefixed class (the Figma frame's pixel
+          height), which left the wrapper with no height at all below lg: every
+          child of ImageSlot is `absolute`, so the box collapsed to 0px and the
+          machine photos were invisible on phones. The explicit mobile heights
+          below are the base that the caller's `lg:` value overrides. */}
       <ImageSlot
         slot={imageSlot}
         label={imageLabel}
         hint={imageHint}
-        className={`w-full rounded-[6px] ${imageHeight} ${reverse ? 'lg:order-2' : 'lg:order-1'}`}
+        className={`h-[240px] w-full rounded-[6px] sm:h-[360px] ${imageHeight} ${
+          reverse ? 'lg:order-2' : 'lg:order-1'
+        }`}
       />
 
       {/* Copy */}
@@ -106,10 +113,11 @@ export default function NumberedRow({
           reverse ? 'lg:order-1' : 'lg:order-2'
         }`}
       >
-        {/* Watermark numeral */}
+        {/* Watermark numeral. 220px on a 390px screen swamped the copy it sits
+            behind, so it steps up with the breakpoint. */}
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -top-6 right-2 select-none font-open-sans text-[220px] font-bold leading-none text-[#F7F7F7] lg:-top-4 lg:right-6 lg:text-[300px]"
+          className="pointer-events-none absolute -top-3 right-1 select-none font-open-sans text-[110px] font-bold leading-none text-[#F7F7F7] sm:text-[160px] lg:-top-4 lg:right-6 lg:text-[300px]"
         >
           {number}
         </span>

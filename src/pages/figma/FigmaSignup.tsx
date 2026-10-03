@@ -78,7 +78,7 @@ export default function FigmaSignup() {
       <div className="relative flex flex-1 items-center justify-center px-6 py-14 sm:px-10 lg:px-[100px] lg:py-[50px]">
         <div className="relative w-full max-w-[618px]">
           <Link
-            to="/figma"
+            to="/"
             aria-label="Close"
             className="absolute right-0 top-[7px] flex h-[35px] w-[35px] items-center justify-center text-[#101010] transition-opacity hover:opacity-60"
           >
@@ -95,7 +95,9 @@ export default function FigmaSignup() {
             </svg>
           </Link>
 
-          <h1 className="font-montserrat text-[32px] font-semibold leading-[1.22] text-black sm:text-[40px] sm:leading-[48.76px]">
+          {/* `pr-12` keeps the headline clear of the absolutely-positioned close
+              button: at 430px the 40px-tall title would otherwise run under it. */}
+          <h1 className="pr-12 font-montserrat text-[32px] font-semibold leading-[1.22] text-black sm:text-[40px] sm:leading-[48.76px]">
             Create Your Account
           </h1>
           <p className="mt-[20px] font-lora text-[20px] leading-[1.28] text-black sm:text-[24px] sm:leading-[30.72px]">
