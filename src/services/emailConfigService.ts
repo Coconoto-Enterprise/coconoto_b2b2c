@@ -1,7 +1,21 @@
 // Email Configuration Service
-// Handles fetching and managing email sender configurations
+// Handles fetching and managing email sender configurations.
+//
+// IMPORTANT — why this file talks to /api/email-data instead of Supabase directly
+// -----------------------------------------------------------------------------
+// `20260818000003_lock_pii_tables_and_policies_v3.sql` (and the
+// `20260818000006` follow-up) revoked every privilege on `email_logs` and
+// `email_sender_config` from `anon` / `authenticated`. The browser only ever
+// holds the anon key, so the previous `supabase.from('email_logs')...` calls all
+// failed with 401 + Postgres 42501 "permission denied for table email_logs".
+//
+// Every read/write of those two tables now goes through `/api/email-data`,
+// which holds the service-role key server-side and re-implements the row-level
+// rules: admins see everything, staff only see their own sends.
 
 import { supabase } from '../lib/supabase';
+
+const EMAIL_DATA_API = '/api/email-data';
 
 export interface EmailSenderConfig {
   id: string;
@@ -49,28 +63,121 @@ export interface MailUser {
   updated_at?: string;
 }
 
+/** The signed-in mail user, used to authenticate /api/email-data requests. */
+export interface EmailRequester {
+  id?: string;
+  email?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Requester helpers
+// ---------------------------------------------------------------------------
+
 /**
- * Get sender configuration for a specific email type
- * @param emailType e.g., "waitlist_signup", "contact_inquiry", etc.
- * @returns Sender config with email and name, or null if not found
+ * The portal keeps its session in localStorage (set by TweetitLogin /
+ * VintageLogin). `/api/email-data` verifies these two values against
+ * `mail_users` before returning any row.
+ */
+const readStoredMailUser = (): Record<string, any> | null => {
+  if (typeof window === 'undefined') return null;
+
+  for (const key of ['tweetitUser', 'currentMailUser']) {
+    try {
+      const raw = window.localStorage.getItem(key);
+      if (!raw) continue;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') return parsed;
+    } catch {
+      // Ignore malformed entries and fall through to the next key.
+    }
+  }
+  return null;
+};
+
+const resolveRequester = (override?: EmailRequester): Required<EmailRequester> => {
+  const stored = readStoredMailUser();
+  const id = override?.id || stored?.id || '';
+  const email = override?.email
+    || stored?.sender_email
+    || stored?.login_email
+    || stored?.email
+    || '';
+  return { id: String(id || ''), email: String(email || '') };
+};
+
+const buildUrl = (params: Record<string, string | number | undefined | null>): string => {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null || value === '') continue;
+    query.set(key, String(value));
+  }
+  return `${EMAIL_DATA_API}?${query.toString()}`;
+};
+
+const requestEmailData = async <T>(
+  params: Record<string, string | number | undefined | null>,
+  init?: RequestInit
+): Promise<T | null> => {
+  try {
+    const response = await fetch(buildUrl(params), {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      ...init,
+    });
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok || !payload?.success) {
+      console.error(
+        `❌ email-data ${params.resource} failed (${response.status}):`,
+        payload?.error || response.statusText
+      );
+      return null;
+    }
+
+    return payload as T;
+  } catch (err) {
+    console.error('❌ email-data request error:', err);
+    return null;
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Sender configuration
+// ---------------------------------------------------------------------------
+
+/**
+ * Get sender configuration for a specific email type.
+ *
+ * Uses the SECURITY DEFINER RPC `get_sender_config_for_type`, which is the
+ * one anon-granted door into `email_sender_config` left open by the lockdown
+ * migration (it returns a single active row and cannot leak the table).
  */
 export const getSenderForEmailType = async (
   emailType: string
 ): Promise<EmailSenderConfig | null> => {
   try {
-    const { data, error } = await supabase
-      .from('email_sender_config')
-      .select('*')
-      .eq('email_type', emailType)
-      .eq('is_active', true)
-      .single();
+    const { data, error } = await supabase.rpc('get_sender_config_for_type', {
+      p_email_type: emailType,
+    });
 
     if (error) {
       console.error(`❌ Error fetching sender config for ${emailType}:`, error);
       return null;
     }
 
-    return data as EmailSenderConfig;
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row) return null;
+
+    const now = new Date().toISOString();
+    return {
+      id: `rpc-${emailType}`,
+      email_type: emailType,
+      sender_email: row.sender_email,
+      sender_name: row.sender_name,
+      is_active: true,
+      created_at: now,
+      updated_at: now,
+    };
   } catch (err) {
     console.error('❌ Error in getSenderForEmailType:', err);
     return null;
@@ -78,92 +185,189 @@ export const getSenderForEmailType = async (
 };
 
 /**
- * Get all email sender configurations
- * @returns Array of all email sender configs
+ * Get all email sender configurations (admin only).
  */
-export const getAllSenderConfigs = async (): Promise<EmailSenderConfig[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('email_sender_config')
-      .select('*')
-      .order('created_at', { ascending: true });
+export const getAllSenderConfigs = async (
+  requester?: EmailRequester
+): Promise<EmailSenderConfig[]> => {
+  const { id, email } = resolveRequester(requester);
 
-    if (error) {
-      console.error('❌ Error fetching all sender configs:', error);
-      return [];
-    }
+  const payload = await requestEmailData<{ configs: EmailSenderConfig[] }>({
+    resource: 'sender-configs',
+    requesterId: id,
+    requesterEmail: email,
+  });
 
-    return (data || []) as EmailSenderConfig[];
-  } catch (err) {
-    console.error('❌ Error in getAllSenderConfigs:', err);
-    return [];
-  }
+  return payload?.configs || [];
 };
 
 /**
- * Update a sender configuration
- * @param emailType Email type to update
- * @param updates Fields to update (sender_email, sender_name, is_active)
+ * Update a sender configuration (admin only).
  */
 export const updateSenderConfig = async (
   emailType: string,
-  updates: Partial<Omit<EmailSenderConfig, 'id' | 'created_at' | 'updated_at'>>
+  updates: Partial<Omit<EmailSenderConfig, 'id' | 'created_at' | 'updated_at'>>,
+  requester?: EmailRequester
 ): Promise<EmailSenderConfig | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('email_sender_config')
-      .update(updates)
-      .eq('email_type', emailType)
-      .select()
-      .single();
+  const { id, email } = resolveRequester(requester);
 
-    if (error) {
-      console.error(`❌ Error updating sender config for ${emailType}:`, error);
-      return null;
-    }
+  const payload = await requestEmailData<{ config: EmailSenderConfig }>(
+    { resource: 'sender-configs', requesterId: id, requesterEmail: email },
+    { method: 'POST', body: JSON.stringify({ email_type: emailType, ...updates }) }
+  );
 
-    return data as EmailSenderConfig;
-  } catch (err) {
-    console.error('❌ Error in updateSenderConfig:', err);
-    return null;
-  }
+  return payload?.config || null;
+};
+
+// ---------------------------------------------------------------------------
+// Sent emails (email_logs)
+// ---------------------------------------------------------------------------
+
+/**
+ * Log a sent email to the email_logs table.
+ *
+ * Server-side senders (api/send-email.js, api/send-custom-email.js) write their
+ * own rows with the service-role key; this client-side variant exists for
+ * callers that only have a mail-user session.
+ */
+export const logEmailSent = async (
+  emailData: {
+    from_address: string;
+    to_addresses: string[];
+    subject: string;
+    preview?: string;
+    full_html?: string;
+    email_type?: string;
+    status: string;
+    resend_id?: string;
+    resend_created_at?: string;
+    sent_by_id?: string;
+    sent_by_email?: string;
+  },
+  requester?: EmailRequester
+): Promise<EmailLog | null> => {
+  const { id, email } = resolveRequester(requester);
+
+  const payload = await requestEmailData<{ email: EmailLog }>(
+    { resource: 'sent-emails', requesterId: id, requesterEmail: email },
+    { method: 'POST', body: JSON.stringify(emailData) }
+  );
+
+  return payload?.email || null;
 };
 
 /**
- * Log a sent email to the email_logs table
- * @param emailData The email details to log
+ * Get all sent emails (for the sent folder view).
+ * Admins see every row; staff are scoped to their own sends server-side.
  */
-export const logEmailSent = async (emailData: {
-  from_address: string;
-  to_addresses: string[];
-  subject: string;
-  preview?: string;
-  full_html?: string;
-  email_type?: string;
-  status: string;
-  resend_id?: string;
-  resend_created_at?: string;
-  sent_by_id?: string;
-  sent_by_email?: string;
-}): Promise<EmailLog | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('email_logs')
-      .insert([emailData])
-      .select()
-      .single();
+export const getSentEmails = async (
+  limit: number = 50,
+  offset: number = 0,
+  sentByEmail?: string,
+  requester?: EmailRequester
+): Promise<{ emails: EmailLog[]; total: number }> => {
+  const { id, email } = resolveRequester(requester);
 
-    if (error) {
-      console.error('❌ Error logging email:', error);
-      return null;
-    }
+  const payload = await requestEmailData<{ emails: EmailLog[]; total: number }>({
+    resource: 'sent-emails',
+    requesterId: id,
+    requesterEmail: email,
+    limit,
+    offset,
+    sender: sentByEmail,
+  });
 
-    return data as EmailLog;
-  } catch (err) {
-    console.error('❌ Error in logEmailSent:', err);
-    return null;
-  }
+  return { emails: payload?.emails || [], total: payload?.total || 0 };
 };
+
+/**
+ * Get sent emails filtered by email type.
+ */
+export const getSentEmailsByType = async (
+  emailType: string,
+  limit: number = 50,
+  requester?: EmailRequester
+): Promise<EmailLog[]> => {
+  const { id, email } = resolveRequester(requester);
+
+  const payload = await requestEmailData<{ emails: EmailLog[] }>({
+    resource: 'sent-emails',
+    requesterId: id,
+    requesterEmail: email,
+    emailType,
+    limit,
+  });
+
+  return payload?.emails || [];
+};
+
+/**
+ * Get sent emails filtered by sender address (the mailbox sidebar).
+ */
+export const getSentEmailsBySender = async (
+  senderEmail: string,
+  limit: number = 50,
+  offset: number = 0,
+  requester?: EmailRequester
+): Promise<{ emails: EmailLog[]; total: number }> => {
+  const { id, email } = resolveRequester(requester);
+
+  const payload = await requestEmailData<{ emails: EmailLog[]; total: number }>({
+    resource: 'sent-emails',
+    requesterId: id,
+    requesterEmail: email,
+    sender: senderEmail,
+    limit,
+    offset,
+  });
+
+  return { emails: payload?.emails || [], total: payload?.total || 0 };
+};
+
+/**
+ * Search sent emails by subject, recipient, or sender.
+ */
+export const searchSentEmails = async (
+  query: string,
+  limit: number = 50,
+  sentByEmail?: string,
+  requester?: EmailRequester
+): Promise<EmailLog[]> => {
+  const { id, email } = resolveRequester(requester);
+
+  const payload = await requestEmailData<{ emails: EmailLog[] }>({
+    resource: 'sent-emails',
+    requesterId: id,
+    requesterEmail: email,
+    search: query,
+    sender: sentByEmail,
+    limit,
+  });
+
+  return payload?.emails || [];
+};
+
+/**
+ * Update email status (e.g. when the Resend webhook confirms delivery).
+ */
+export const updateEmailStatus = async (
+  emailId: string,
+  status: string,
+  requester?: EmailRequester
+): Promise<EmailLog | null> => {
+  const { id, email } = resolveRequester(requester);
+
+  const payload = await requestEmailData<{ email: EmailLog }>(
+    { resource: 'sent-emails', requesterId: id, requesterEmail: email },
+    { method: 'PATCH', body: JSON.stringify({ id: emailId, status }) }
+  );
+
+  return payload?.email || null;
+};
+
+// ---------------------------------------------------------------------------
+// Users (served by /api/auth, which already runs with the service-role key)
+// ---------------------------------------------------------------------------
 
 export const getEmailUsers = async (
   requesterId: string,
@@ -261,182 +465,6 @@ export const updateEmailUserPassword = async (
   } catch (err) {
     console.error('❌ Error updating email user password:', err);
     return null;
-  }
-};
-
-/**
- * Get all sent emails (for the sent folder view)
- * @param limit Number of emails to fetch
- * @param offset Pagination offset
- * @returns Array of email logs
- */
-export const getSentEmails = async (
-  limit: number = 50,
-  offset: number = 0,
-  sentByEmail?: string
-): Promise<{ emails: EmailLog[]; total: number }> => {
-  try {
-    // Get total count
-    let query = supabase.from('email_logs').select('*', { count: 'exact', head: true });
-    if (sentByEmail) {
-      query = query.ilike('from_address', `%${sentByEmail}%`);
-    }
-    const { count } = await query;
-
-    // Fetch emails
-    let fetchQuery = supabase.from('email_logs').select('*');
-    if (sentByEmail) {
-      fetchQuery = fetchQuery.ilike('from_address', `%${sentByEmail}%`);
-    }
-
-    const { data, error } = await fetchQuery
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (error) {
-      console.error('❌ Error fetching sent emails:', error);
-      return { emails: [], total: 0 };
-    }
-
-    return {
-      emails: (data || []) as EmailLog[],
-      total: count || 0
-    };
-  } catch (err) {
-    console.error('❌ Error in getSentEmails:', err);
-    return { emails: [], total: 0 };
-  }
-};
-
-/**
- * Get sent emails filtered by type
- * @param emailType Email type to filter by
- * @param limit Number of emails to fetch
- * @returns Array of email logs
- */
-export const getSentEmailsByType = async (
-  emailType: string,
-  limit: number = 50
-): Promise<EmailLog[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('email_logs')
-      .select('*')
-      .eq('email_type', emailType)
-      .order('created_at', { ascending: false })
-      .limit(limit);
-
-    if (error) {
-      console.error(`❌ Error fetching sent emails for type ${emailType}:`, error);
-      return [];
-    }
-
-    return (data || []) as EmailLog[];
-  } catch (err) {
-    console.error('❌ Error in getSentEmailsByType:', err);
-    return [];
-  }
-};
-
-/**
- * Update email status (e.g., when Resend webhook confirms delivery)
- * @param emailId Email log ID
- * @param status New status (delivered, failed, bounced, etc.)
- */
-export const updateEmailStatus = async (
-  emailId: string,
-  status: string
-): Promise<EmailLog | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('email_logs')
-      .update({ status })
-      .eq('id', emailId)
-      .select()
-      .single();
-
-    if (error) {
-      console.error(`❌ Error updating email status for ${emailId}:`, error);
-      return null;
-    }
-
-    return data as EmailLog;
-  } catch (err) {
-    console.error('❌ Error in updateEmailStatus:', err);
-    return null;
-  }
-};
-
-/**
- * Search sent emails by subject, recipient, or sender
- * @param query Search query
- * @param limit Results limit
- */
-export const searchSentEmails = async (
-  query: string,
-  limit: number = 50,
-  sentByEmail?: string
-): Promise<EmailLog[]> => {
-  try {
-    let searchQuery = supabase
-      .from('email_logs')
-      .select('*')
-      .or(
-        `subject.ilike.%${query}%,from_address.ilike.%${query}%,to_addresses.cs.${JSON.stringify([query])}`
-      );
-
-    if (sentByEmail) {
-      searchQuery = searchQuery.eq('sent_by_email', sentByEmail);
-    }
-
-    const { data, error } = await searchQuery
-      .order('created_at', { ascending: false })
-      .limit(limit);
-
-    if (error) {
-      console.error('❌ Error searching sent emails:', error);
-      return [];
-    }
-
-    return (data || []) as EmailLog[];
-  } catch (err) {
-    console.error('❌ Error in searchSentEmails:', err);
-    return [];
-  }
-};
-
-export const getSentEmailsBySender = async (
-  senderEmail: string,
-  limit: number = 50,
-  offset: number = 0
-): Promise<{ emails: EmailLog[]; total: number }> => {
-  try {
-    const likeFilter = `%${senderEmail}%`;
-
-    const { count } = await supabase
-      .from('email_logs')
-      .select('*', { count: 'exact', head: true })
-      .ilike('from_address', likeFilter);
-
-    const { data, error } = await supabase
-      .from('email_logs')
-      .select('*')
-      .ilike('from_address', likeFilter)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (error) {
-      console.error('❌ Error fetching sent emails by sender:', error);
-      return { emails: [], total: 0 };
-    }
-
-    return {
-      emails: (data || []) as EmailLog[],
-      total: count || 0
-    };
-  } catch (err) {
-    console.error('❌ Error in getSentEmailsBySender:', err);
-    return { emails: [], total: 0 };
   }
 };
 

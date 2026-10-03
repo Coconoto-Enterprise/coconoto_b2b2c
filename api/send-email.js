@@ -10,9 +10,16 @@ import {
 // Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Initialize Supabase for email config & logging
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+// Initialize Supabase for email config & logging.
+// The sender-config lookup still uses the anon-granted SECURITY DEFINER RPC,
+// but the `email_logs` insert needs the service-role key: anon lost every
+// privilege on that table in 20260818000003_lock_pii_tables_and_policies_v3.sql,
+// which made logging fail with 42501 (sends were recorded nowhere).
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
+  || process.env.SUPABASE_ANON_KEY
+  || process.env.VITE_SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 // Recipients are now sourced from environment variables; the open relay

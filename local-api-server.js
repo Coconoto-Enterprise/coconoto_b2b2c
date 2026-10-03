@@ -7,13 +7,21 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import { createClient } from '@supabase/supabase-js';
+import emailDataHandler from './api/email-data.js';
 
-// Load environment variables
-dotenv.config();
+// Load environment variables. `.env.local` first (that is the file Vite reads
+// for the frontend, and where the Supabase keys actually live), then `.env`.
+dotenv.config({ path: ['.env.local', '.env'] });
 
-// Initialize Supabase client
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+// Initialize Supabase client. Prefer the service-role key: several tables
+// (`email_logs`, `email_sender_config`, `mail_users`, `vendors`) have had all
+// privileges revoked from `anon` by the PII lockdown migrations, so anon-only
+// clients get 42501 on them.
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
+  || process.env.SUPABASE_ANON_KEY
+  || process.env.VITE_SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 const app = express();
@@ -330,10 +338,14 @@ app.post('/api/vendor-login', async (req, res) => {
   }
 });
 
+// Service-role gateway for the email dashboard tables. Mounted so local dev
+// behaves exactly like Vercel — same handler, same authorization rules.
+app.all('/api/email-data', (req, res) => emailDataHandler(req, res));
+
 if (ADMIN_PASSWORD) {
   app.listen(PORT, HOST, () => {
     console.log(`[local-api-server] listening on http://${HOST}:${PORT}`);
-    console.log('[local-api-server] endpoints: /api/admin-login, /api/auth, /api/data, /api/send-custom-email, /api/vendor-signup, /api/vendor-login');
+    console.log('[local-api-server] endpoints: /api/admin-login, /api/auth, /api/data, /api/email-data, /api/send-custom-email, /api/vendor-signup, /api/vendor-login');
   });
 } else {
   console.warn('[local-api-server] not starting because ADMIN_PASSWORD is not configured.');

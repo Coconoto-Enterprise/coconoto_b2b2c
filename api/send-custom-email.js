@@ -20,7 +20,15 @@ function determineEmailStatus(result) {
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+// `email_logs` had every privilege revoked from `anon` by
+// 20260818000003_lock_pii_tables_and_policies_v3.sql, so logging with the anon
+// key fails with 42501 and the send is silently never recorded. Use the
+// service-role key (server-only) and keep the anon key purely as a local-dev
+// fallback.
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
+  || process.env.SUPABASE_ANON_KEY
+  || process.env.VITE_SUPABASE_ANON_KEY;
 const supabase = supabaseUrl && supabaseKey
   ? createClient(supabaseUrl, supabaseKey)
   : null;
@@ -124,7 +132,7 @@ export default async function handler(req, res) {
 
   try {
     const contentType = req.headers['content-type'] || '';
-    let to, subject, message, heading, templateType;
+    let to, subject, message, heading, templateType, senderEmail, senderId;
     let attachments = [];
 
     if (contentType.includes('multipart/form-data')) {
@@ -146,6 +154,8 @@ export default async function handler(req, res) {
       message = Array.isArray(fields.message) ? fields.message[0] : fields.message;
       heading = Array.isArray(fields.heading) ? fields.heading[0] : fields.heading;
       templateType = Array.isArray(fields.templateType) ? fields.templateType[0] : fields.templateType;
+      senderEmail = Array.isArray(fields.senderEmail) ? fields.senderEmail[0] : fields.senderEmail;
+      senderId = Array.isArray(fields.senderId) ? fields.senderId[0] : fields.senderId;
 
       if (files.attachments) {
         const fileArray = Array.isArray(files.attachments) ? files.attachments : [files.attachments];
@@ -178,6 +188,8 @@ export default async function handler(req, res) {
       message = body.message;
       heading = body.heading;
       templateType = body.templateType;
+      senderEmail = body.senderEmail;
+      senderId = body.senderId;
     }
 
     if (!to || !subject || !message) {
@@ -233,6 +245,16 @@ export default async function handler(req, res) {
 
     let logResult = null;
     if (supabase) {
+      // The envelope `from` stays on our own verified domain — a client-supplied
+      // sender address is never trusted (phishing). We do record WHO sent it so
+      // the dashboard's per-mailbox views work. `sent_by_id` is deliberately not
+      // written: the local migration points that FK at `public.email_users`,
+      // which does not exist in this project (the live table is `mail_users`),
+      // so a stale constraint there would reject the whole row.
+      const attributedSender = /@coconoto\.africa$/i.test(String(senderEmail || '').trim())
+        ? String(senderEmail).trim().toLowerCase()
+        : null;
+
       const logRow = {
         from_address: safeFromDomain,
         to_addresses: recipients,
@@ -243,6 +265,7 @@ export default async function handler(req, res) {
         status: emailStatus,
         resend_id: result?.id || null,
         resend_created_at: result?.created_at || null,
+        sent_by_email: attributedSender,
       };
       try {
         const { data: logData, error: logError } = await supabase.from('email_logs').insert([logRow]);
