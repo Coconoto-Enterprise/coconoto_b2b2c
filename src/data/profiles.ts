@@ -192,7 +192,7 @@ export const profiles: Profile[] = [
     firstName: 'Oluwatoke',
     middleName: 'Evelyn',
     lastName: 'Faeji',
-    role: 'Project Manager / Website Management & Coco Fiber Sales',
+    role: 'Head of Partnership and Communication',
     email: 'oluwatoke.evelyn@coconoto.africa',
     personalEmail: 'faejioluwatoke@gmail.com',
     phone: '+2349075775276',
