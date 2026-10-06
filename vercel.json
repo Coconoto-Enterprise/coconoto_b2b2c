@@ -9,9 +9,9 @@
     { "source": "/blog/:id", "destination": "/api/seo?action=blog-meta&id=:id" },
 
     { "source": "/about", "destination": "/api/seo?action=page-meta&path=/about" },
-    { "source": "/services", "destination": "/api/seo?action=page-meta&path=/services" },
-    { "source": "/product", "destination": "/api/seo?action=page-meta&path=/product" },
-    { "source": "/marketplace", "destination": "/api/seo?action=page-meta&path=/marketplace" },
+    { "source": "/cocotech", "destination": "/api/seo?action=page-meta&path=/cocotech" },
+    { "source": "/cococycle-hub", "destination": "/api/seo?action=page-meta&path=/cococycle-hub" },
+    { "source": "/cococonnect", "destination": "/api/seo?action=page-meta&path=/cococonnect" },
     { "source": "/blog", "destination": "/api/seo?action=page-meta&path=/blog" },
     { "source": "/contact", "destination": "/api/seo?action=page-meta&path=/contact" },
     { "source": "/help-center", "destination": "/api/seo?action=page-meta&path=/help-center" },

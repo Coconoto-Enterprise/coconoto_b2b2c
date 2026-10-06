@@ -79,7 +79,7 @@ export function CocotechRD() {
             </div>
             <div className="flex justify-center lg:justify-start">
               <a
-                href="/services"
+                href="/cocotech"
                 className="bg-green-700 text-white px-6 md:px-8 py-3 rounded-full text-sm font-semibold hover:bg-green-800 transition"
               >
                 Learn More
@@ -135,7 +135,7 @@ export function CocotechRD() {
             </div>
             <div className="flex justify-center">
               <a
-                href="/services"
+                href="/cocotech"
                 className="bg-green-700 text-white px-6 md:px-10 py-3 md:py-4 rounded-full text-sm md:text-lg font-semibold hover:bg-green-800 transition mb-0 mt-0 md:mt-1 md:mb-1"
               >
                 Learn More

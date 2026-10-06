@@ -46,17 +46,17 @@ export default function VendorNavbar({ vendorBusinessName, onLogout }: VendorNav
               Home
             </Link>
             <Link 
-              to="/marketplace" 
+              to="/cococonnect" 
               onClick={() => window.scrollTo(0, 0)} 
               className="flex items-center text-gray-600 hover:text-green-700"
             >
               <Store className="h-5 w-5 mr-1" />
               Marketplace
             </Link>
-            <Link to="/services" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
+            <Link to="/cocotech" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
               Coco-Tech
             </Link>
-            <Link to="/product" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
+            <Link to="/cococycle-hub" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
               Cococycle Hub
             </Link>
             <Link to="/blog" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
@@ -94,7 +94,7 @@ export default function VendorNavbar({ vendorBusinessName, onLogout }: VendorNav
             Home
           </Link>
           <Link 
-            to="/marketplace" 
+            to="/cococonnect" 
             className="flex items-center py-2 text-gray-600 hover:text-green-700"
             onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
           >
@@ -102,14 +102,14 @@ export default function VendorNavbar({ vendorBusinessName, onLogout }: VendorNav
             Marketplace
           </Link>
           <Link 
-            to="/services" 
+            to="/cocotech" 
             className="block py-2 text-gray-600 hover:text-green-700"
             onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
           >
             Coco Tech
           </Link>
           <Link 
-            to="/product" 
+            to="/cococycle-hub" 
             className="block py-2 text-gray-600 hover:text-green-700"
             onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
           >

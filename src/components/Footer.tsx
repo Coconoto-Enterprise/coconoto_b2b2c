@@ -49,8 +49,8 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4">Solutions</h3>
             <ul className="space-y-2">
-              <li><Link to="/product" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Cococycle Hub</Link></li>
-              <li><Link to="/services" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Coco-Tech</Link></li>
+              <li><Link to="/cococycle-hub" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Cococycle Hub</Link></li>
+              <li><Link to="/cocotech" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Coco-Tech</Link></li>
               <li><button onClick={() => setIsWaitlistModalOpen(true)} className="text-gray-400 hover:text-white text-left">Coco-Connect</button></li>
               <li><button onClick={() => setIsBookEventModalOpen(true)} className="text-gray-400 hover:text-white text-left">Coco DrinkEat</button></li>
             </ul>
@@ -62,7 +62,7 @@ export default function Footer() {
               <li><Link to="/about" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">About Coconoto</Link></li>
               <li><Link to="/blog" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Blog</Link></li>
               <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Contact Us</Link></li>
-              <li><Link to="/marketplace" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Browse Marketplace</Link></li>
+              <li><Link to="/cococonnect" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Browse Marketplace</Link></li>
             </ul>
           </div>
           
@@ -71,8 +71,8 @@ export default function Footer() {
             <ul className="space-y-2">
               <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Contact Us</Link></li>
               <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Book Service</Link></li>
-              <li><Link to="/services" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Order Machine</Link></li>
-              <li><Link to="/product" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Order Product</Link></li>
+              <li><Link to="/cocotech" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Order Machine</Link></li>
+              <li><Link to="/cococycle-hub" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Order Product</Link></li>
               <li><Link to="/about" onClick={() => window.scrollTo(0, 0)} className="text-gray-400 hover:text-white">Learn More</Link></li>
             </ul>
           </div>

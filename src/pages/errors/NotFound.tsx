@@ -56,14 +56,14 @@ export const NotFound = () => {
             <p className="text-gray-600 text-sm mb-4">Or visit one of these pages:</p>
             <div className="flex flex-wrap justify-center gap-4">
               <button
-                onClick={() => navigate('/services')}
+                onClick={() => navigate('/cocotech')}
                 className="text-[#8CC63F] hover:text-[#7ab32f] underline text-sm font-medium transition-colors"
               >
                 Services
               </button>
               <span className="text-gray-400">•</span>
               <button
-                onClick={() => navigate('/marketplace')}
+                onClick={() => navigate('/cococonnect')}
                 className="text-[#8CC63F] hover:text-[#7ab32f] underline text-sm font-medium transition-colors"
               >
                 Marketplace

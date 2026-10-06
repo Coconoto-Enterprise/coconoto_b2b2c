@@ -69,13 +69,19 @@ export default function NumberedRow({
 }: NumberedRowProps) {
   // Shared so the <Link> and the modal-opening <button> render identically.
   // `cursor-pointer` is needed on the button — Tailwind preflight does not add it.
+  //
+  // Mobile gets a full-width green pill, the same treatment the home page's
+  // "Learn more" carries. Every `sm:` override is there to hand the control back
+  // to the design's bare text link on wider screens; `sm:` variants are emitted
+  // inside a media query, so they reliably beat the unprefixed classes above
+  // them regardless of the order they appear in this string.
   const orderClass =
-    'group inline-flex cursor-pointer items-center gap-2 font-lora text-[16px] font-semibold text-[#1AC212] transition-opacity hover:opacity-80';
+    'group flex w-full cursor-pointer items-center justify-center gap-2 rounded-[15px] bg-[#1AC212] px-[30px] py-[14px] font-lora text-[16px] font-semibold text-white transition-colors hover:bg-[#17ad10] sm:w-auto sm:bg-transparent sm:px-0 sm:py-0 sm:text-[#1AC212] sm:hover:bg-transparent sm:hover:opacity-80';
 
   // Not-yet-available products: same position and type as the real control, but
   // muted and with no arrow, so it reads as a status rather than an action.
   const disabledClass =
-    'inline-flex items-center gap-2 font-lora text-[16px] font-semibold text-[#9CA3AF] select-none';
+    'flex w-full items-center justify-center gap-2 rounded-[15px] bg-[#E5E7EB] px-[30px] py-[14px] font-lora text-[16px] font-semibold text-[#9CA3AF] select-none sm:w-auto sm:bg-transparent sm:px-0 sm:py-0';
 
   return (
     // Side padding is deliberately tighter than the rest of the site (px-4/sm:px-6,
@@ -137,7 +143,10 @@ export default function NumberedRow({
             ))}
           </ul>
 
-          <div className="mt-9 flex justify-end">
+          {/* Centred on mobile (where the control is a full-width pill, so the
+              justification is moot) and right-aligned from `sm` up, matching the
+              design. */}
+          <div className="mt-9 flex justify-center sm:justify-end">
             {orderDisabled ? (
               <span className={disabledClass}>{orderLabel}</span>
             ) : onOrder ? (

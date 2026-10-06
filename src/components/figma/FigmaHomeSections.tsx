@@ -59,7 +59,7 @@ const ECOSYSTEM: EcosystemCard[] = [
     label: 'Coco-Tech machine photo',
     hint: '231 × 154',
     bg: 'bg-[#F5F7F2]',
-    to: '/services',
+    to: '/cocotech',
     // 750 × 1000 portrait inside a 362 × 165 landscape box, so `cover` has to
     // crop ~2/3 of the frame away. Anchor to the TOP: the machine body and its
     // control panel live in the top third, the bottom is just bare frame legs.
@@ -72,7 +72,7 @@ const ECOSYSTEM: EcosystemCard[] = [
     label: 'Cocopeat photo',
     hint: '371 × 248',
     bg: 'bg-[#F9F8F7]',
-    to: '/product',
+    to: '/cococycle-hub',
     // 371 × 248 landscape — the 1.5:1 ratio the design slots all share, so
     // `cover` only trims ~20% vertically and bottom-anchoring keeps the ground
     // line the subject sits on.
@@ -85,7 +85,7 @@ const ECOSYSTEM: EcosystemCard[] = [
     label: 'Coconut drink photo',
     hint: '289 × 193',
     bg: 'bg-[#FCF8F3]',
-    to: '/product#drink-eat',
+    to: '/cococycle-hub#drink-eat',
     action: 'book-event',
     imgClass: 'object-cover object-bottom',
   },
@@ -139,7 +139,7 @@ const PILLARS: Pillar[] = [
     featureLayout: 'row',
     slot: 'home-cocotech-img',
     label2: 'Machine close-up',
-    to: '/services',
+    to: '/cocotech',
   },
   {
     label: 'Cococycle Hub',
@@ -153,7 +153,7 @@ const PILLARS: Pillar[] = [
     featureLayout: 'stack',
     slot: 'home-cococycle-img',
     label2: 'Waste-to-value flat lay',
-    to: '/product',
+    to: '/cococycle-hub',
   },
   {
     label: 'Coco DrinkEat',
@@ -167,7 +167,7 @@ const PILLARS: Pillar[] = [
     featureLayout: 'col',
     slot: 'home-cocodrinkeat-img',
     label2: 'Coconut event setup',
-    to: '/product#drink-eat',
+    to: '/cococycle-hub#drink-eat',
   },
 ];
 
@@ -287,7 +287,10 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
     <>
       {/* ── Ecosystem ────────────────────────────────────────────────────── */}
       <section className="bg-white">
-        <div className="mx-auto max-w-[1440px] px-5 pt-14 pb-14 sm:px-8 lg:px-[100px] lg:pb-[150px] lg:pt-[80px]">
+        {/* The hero's coconut artwork sits directly above this heading on a
+            phone, so the mobile top padding is deliberately larger than the
+            desktop one (96px vs 80px) to keep the two from touching. */}
+        <div className="mx-auto max-w-[1440px] px-5 pt-24 pb-14 sm:px-8 sm:pt-20 lg:px-[100px] lg:pb-[150px] lg:pt-[80px]">
           <div className="text-center">
             <p className="font-montserrat text-[20px] font-semibold uppercase leading-[24px] text-[#5A3015]">
               Explore the Coconoto Ecosystem
@@ -385,9 +388,15 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
                 ))}
               </ul>
 
+              {/* On mobile the card's height is decided by its content, so
+                  `mt-auto` has nothing to soak up and resolves to 0 — the button
+                  ended up flush against "Support for farmers & businesses".
+                  Give it a real gap below `lg`, and keep `mt-auto` above that
+                  where the card is a fixed 382px and the button belongs on the
+                  bottom edge. */}
               <Link
-                to="/marketplace"
-                className="group mt-auto inline-flex h-[44px] w-fit items-center gap-[10px] rounded-[15px] bg-[#17AD10] px-[30px] font-lora text-[16px] font-medium text-white transition-colors hover:bg-[#167911]"
+                to="/cococonnect"
+                className="group mt-8 inline-flex h-[44px] w-fit items-center gap-[10px] rounded-[15px] bg-[#17AD10] px-[30px] font-lora text-[16px] font-medium text-white transition-colors hover:bg-[#167911] lg:mt-auto"
               >
                 Explore Marketplace
                 <LongArrow className="w-[24px]" />
@@ -531,9 +540,21 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
                     </ul>
                   )}
 
+                  {/* Two elements rather than one restyled element: the mobile
+                      treatment and the desktop one share no properties (pill vs
+                      bare text link), and mixing them into a single class list
+                      makes every override depend on Tailwind's output order.
+                      `hidden` / `sm:hidden` keeps exactly one in the flow. */}
                   <Link
                     to={p.to}
-                    className="group mt-6 inline-flex items-center gap-[10px] font-lora text-[16px] font-medium leading-[20px] text-[#17AD10] transition-opacity hover:opacity-80 sm:mt-[32px]"
+                    className="group mt-8 flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[15px] bg-[#17AD10] font-lora text-[16px] font-medium leading-[20px] text-white transition-colors hover:bg-[#167911] sm:hidden"
+                  >
+                    Learn more
+                    <LongArrow className="w-[24px]" />
+                  </Link>
+                  <Link
+                    to={p.to}
+                    className="group mt-6 hidden items-center gap-[10px] font-lora text-[16px] font-medium leading-[20px] text-[#17AD10] transition-opacity hover:opacity-80 sm:mt-[32px] sm:inline-flex"
                   >
                     Learn more
                     <LongArrow className="w-[24px] transition-transform group-hover:translate-x-1" />
@@ -589,16 +610,21 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-[12px]">
+            {/* A stacked pair of buttons is a phone-only problem to solve: below
+                `sm` "Learn About Us" is dropped and "Explore Marketplace"
+                centres, so the band reads as one clear call to action. From 640px
+                up the design's pair is back — left-aligned inside the stacked
+                column, and centred once the band goes side-by-side at `lg`. */}
+            <div className="flex w-full flex-wrap items-center justify-center gap-[12px] sm:w-auto sm:justify-start">
               <Link
-                to="/marketplace"
+                to="/cococonnect"
                 className="flex h-[40px] items-center justify-center rounded-[15px] bg-white px-[30px] font-lora text-[16px] font-medium text-[#101010] transition-colors hover:bg-neutral-100"
               >
                 Explore Marketplace
               </Link>
               <Link
                 to="/about"
-                className="flex h-[42px] items-center justify-center rounded-[15px] border border-white px-[10px] font-lora text-[16px] font-medium text-white transition-colors hover:bg-white hover:text-[#6F4A32] lg:px-[22px]"
+                className="hidden h-[42px] items-center justify-center rounded-[15px] border border-white px-[10px] font-lora text-[16px] font-medium text-white transition-colors hover:bg-white hover:text-[#6F4A32] sm:flex lg:px-[22px]"
               >
                 Learn About Us
               </Link>

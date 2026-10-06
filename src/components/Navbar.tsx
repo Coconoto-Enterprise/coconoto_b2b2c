@@ -42,17 +42,17 @@ export default function Navbar() {
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
-              {/* <Link to="/marketplace" className="flex items-center text-gray-600 hover:text-green-700">
+              {/* <Link to="/cococonnect" className="flex items-center text-gray-600 hover:text-green-700">
                 <ShoppingBag className="h-5 w-5 mr-1" />
                 Marketplace
               </Link> */}
               <Link to="/" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
                 Home
               </Link>
-              <Link to="/services" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
+              <Link to="/cocotech" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
                 Coco-Tech
               </Link>
-              <Link to="/product" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
+              <Link to="/cococycle-hub" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
                 Cococycle Hub
               </Link>
               <Link to="/blog" onClick={() => window.scrollTo(0, 0)} className="text-gray-600 hover:text-green-700">
@@ -77,7 +77,7 @@ export default function Navbar() {
         {isMobileMenuOpen && (
           <div className="lg:hidden bg-white shadow-md py-4 px-6">
             {/* <Link 
-              to="/marketplace" 
+              to="/cococonnect" 
               className="block py-2 text-gray-600 hover:text-green-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
@@ -91,14 +91,14 @@ export default function Navbar() {
               Home
             </Link>
             <Link 
-              to="/services" 
+              to="/cocotech" 
               className="block py-2 text-gray-600 hover:text-green-700"
               onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
             >
               Coco Tech
             </Link>
             <Link 
-              to="/product" 
+              to="/cococycle-hub" 
               className="block py-2 text-gray-600 hover:text-green-700"
               onClick={() => { window.scrollTo(0, 0); setIsMobileMenuOpen(false); }}
             >

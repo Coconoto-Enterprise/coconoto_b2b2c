@@ -231,7 +231,7 @@ export function BuyerDashboard() {
             Sign Out
           </Button>
           <Button asChild variant="ghost" size="sm" className="w-full justify-center text-emerald-700 hover:text-emerald-800">
-            <Link to="/marketplace">Browse Marketplace</Link>
+            <Link to="/cococonnect">Browse Marketplace</Link>
           </Button>
         </SidebarFooter>
       </Sidebar>
@@ -475,7 +475,7 @@ function EmptyOrders() {
           </p>
         </div>
         <Button asChild>
-          <Link to="/marketplace">
+          <Link to="/cococonnect">
             Browse Products
             <ArrowRight className="h-4 w-4" />
           </Link>
@@ -813,7 +813,7 @@ function BecomeSellerTab({
               </Link>
             </Button>
             <Button asChild variant="outline">
-              <Link to="/marketplace">
+              <Link to="/cococonnect">
                 Browse Marketplace
                 <ArrowRight className="h-4 w-4" />
               </Link>

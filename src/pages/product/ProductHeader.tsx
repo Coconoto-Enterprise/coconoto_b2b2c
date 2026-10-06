@@ -31,7 +31,7 @@ export function ProductHeader() {
 
   const pageNavItems = [
     { to: '/', label: 'Home' },
-    { to: '/services', label: 'Coco-Tech' },
+    { to: '/cocotech', label: 'Coco-Tech' },
     { to: '/blog', label: 'Blog' }
   ];
 

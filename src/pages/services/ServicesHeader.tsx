@@ -30,7 +30,7 @@ export function ServicesHeader() {
 
   const pageNavItems = [
     { to: '/', label: 'Home' },
-    { to: '/product', label: 'Cococycle Hub' },
+    { to: '/cococycle-hub', label: 'Cococycle Hub' },
     { to: '/blog', label: 'Blog' }
   ];
 

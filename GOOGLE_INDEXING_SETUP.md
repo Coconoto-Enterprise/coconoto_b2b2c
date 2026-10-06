@@ -30,7 +30,7 @@ The same function also rewrites the `<head>` of the SPA shell per route, via two
 | Rewrite | Action | What it injects |
 | --- | --- | --- |
 | `/blog/:id` | `blog-meta` | Per-post `<title>`, description, canonical, OG/Twitter |
-| `/about`, `/services`, … | `page-meta` | Per-page `<title>`, description, canonical, OG/Twitter |
+| `/about`, `/cocotech`, … | `page-meta` | Per-page `<title>`, description, canonical, OG/Twitter |
 
 Both read from a single `PUBLIC_PAGES` table in `api/seo.js`, so a page can never be in
 the sitemap but missing its meta tags, or vice versa.
@@ -112,13 +112,36 @@ the homepage as its canonical.
 
 Before: every non-blog route served `index.html` unchanged, including its
 `<link rel="canonical" href="https://www.coconoto.africa/" />`. That told Google
-`/about`, `/services`, `/product`, `/blog` and `/contact` were **duplicates of the
+`/about`, `/cocotech`, `/cococycle-hub`, `/blog` and `/contact` were **duplicates of the
 homepage**, so it would index `/` and drop the rest. All routes also shared one `<title>`.
 
 After: each route declares its own canonical, title and description.
 
 Also added to the sitemap: `/contact`, `/help-center`, `/privacy-policy`,
 `/terms-of-service`, `/cookie-policy` — all real public routes that were missing.
+
+### The three business-unit pages were renamed
+
+`/services`, `/product` and `/marketplace` are now `/cocotech`, `/cococycle-hub` and
+`/cococonnect` — the name of the business unit is what people actually search for, and
+it is a far better URL than the generic noun the page happens to be. The old URLs still
+resolve: the SPA forwards them (`LegacyRedirect` in `src/App.tsx`), preserving any tail
+path and `#hash`, so bookmarks, Google results and already-delivered emails do not 404.
+
+What had to move with them:
+
+| File | Change |
+| --- | --- |
+| `src/App.tsx` | New routes; `/services/*`, `/product/*`, `/marketplace/*` kept as forwarders |
+| `vercel.json` | The three `page-meta` rewrites now name the new paths |
+| `api/seo.js` | `PUBLIC_PAGES` keys renamed — **the old slugs are deliberately absent**, so the sitemap advertises one canonical URL per page instead of making Google crawl a redirect |
+| everything else | Nav, footers, cards, modals, email templates and blog links all point at the new paths |
+
+Because the redirect happens **client-side**, the first response for `/services` is still
+the plain SPA shell with no `page-meta` rewrite behind it. That is intentional — a crawler
+that follows it lands on `/cocotech` and reads the canonical there — but if the old slugs
+need to redirect at the edge (a 301 before any HTML is served) that has to be added in
+`vercel.json`, not here.
 
 ### Verifying after deploy
 
@@ -127,7 +150,7 @@ Also added to the sitemap: `/contact`, `/help-center`, `/privacy-policy`,
 curl -s https://www.coconoto.africa/sitemap.xml | grep -c "<loc>"
 
 # each page must declare ITS OWN canonical, not the homepage
-for p in services about product blog contact; do
+for p in cocotech about cococycle-hub blog contact; do
   echo "/$p:"; curl -s "https://www.coconoto.africa/$p" | grep -o '<link rel="canonical"[^>]*>'
 done
 ```
@@ -142,6 +165,8 @@ done
 - [ ] Add and verify the `coconoto.africa` domain property in Google Search Console.
 - [ ] Submit `sitemap.xml` under Sitemaps.
 - [ ] Use URL Inspection → Request Indexing on the most important pages first
-      (`/`, `/services`, `/product`, `/marketplace`, `/blog`).
+      (`/`, `/cocotech`, `/cococycle-hub`, `/cococonnect`, `/blog`).
+- [ ] Confirm the old slugs (`/services`, `/product`, `/marketplace`) still forward and are
+      **not** listed in the sitemap.
 - [ ] After each new post: Publish → copy URL → Request Indexing.
 - [ ] Recheck the Pages report weekly until the important URLs show as *Indexed*.

@@ -59,7 +59,7 @@ export function BannerStrip({ className = '' }: { className?: string }) {
 
         <div className="mt-[36px] flex flex-wrap items-center gap-[20px] lg:mt-[48px]">
           <Link
-            to="/marketplace"
+            to="/cococonnect"
             className="flex h-[44px] items-center justify-center gap-[10px] whitespace-nowrap rounded-[15px] border border-black bg-[#17AD10] px-[26px] font-lora text-[16px] font-medium leading-[20.48px] text-white transition-colors hover:bg-[#167911] lg:w-[250px]"
           >
             Explore Marketplace

@@ -91,7 +91,7 @@ export function BuyerLogin() {
     // Sync the seller flag (if any) from the authoritative session cookie, then land on the marketplace.
     await refreshSession();
     const returnTo = searchParams.get('returnTo');
-    navigate(returnTo?.startsWith('/') ? returnTo : '/marketplace');
+    navigate(returnTo?.startsWith('/') ? returnTo : '/cococonnect');
 
     setIsLoading(false);
   };
@@ -320,7 +320,7 @@ export function BuyerLogin() {
 
                 {/* Continue as guest */}
                 <Link
-                  to="/marketplace"
+                  to="/cococonnect"
                   className="block w-full text-center rounded-xl border border-gray-200 text-gray-700 py-2.5 text-sm font-semibold hover:bg-gray-50 transition-colors"
                 >
                   Continue as Guest →

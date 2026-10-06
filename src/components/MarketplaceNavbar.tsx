@@ -5,9 +5,9 @@ import Logo from '../assets/Logo_1.png';
 
 const NAV_LINKS = [
   { to: '/', label: 'Home' },
-  { to: '/marketplace', label: 'Marketplace' },
-  { to: '/services', label: 'Coco-Tech' },
-  { to: '/product', label: 'Cococycle Hub' },
+  { to: '/cococonnect', label: 'Marketplace' },
+  { to: '/cocotech', label: 'Coco-Tech' },
+  { to: '/cococycle-hub', label: 'Cococycle Hub' },
   { to: '/blog', label: 'Blog' },
   { to: '/about', label: 'About' },
 ];

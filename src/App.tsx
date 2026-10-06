@@ -52,7 +52,7 @@ import { ToastProvider } from './components/ui/toast';
 /**
  * React Router does not scroll to `#hash` targets. Several links point at a
  * section on *another* page — the nav's "Coco Drink & Eat" goes to
- * `/product#drink-eat` — so without this you land at the top of the page.
+ * `/cococycle-hub#drink-eat` — so without this you land at the top of the page.
  *
  * The offset clears the 72px sticky header, and the retry loop covers the
  * target arriving with its lazily-loaded page. Instant, not smooth: on a fresh
@@ -88,6 +88,24 @@ function HashScroller() {
   return null;
 }
 
+/**
+ * Forwards an old URL onto its new home, keeping any tail path, query string and
+ * hash. The pages were renamed from the generic noun they used to sit under to
+ * the business unit they actually are — `/services` → `/cocotech`,
+ * `/product` → `/cococycle-hub`, `/marketplace` → `/cococonnect` — so anything
+ * still holding the old address (a bookmark, a Google result, an email already
+ * delivered) has to land somewhere sensible instead of the 404 page.
+ *
+ * `replace` matters: without it the browser's Back button would bounce the
+ * visitor straight back into the redirect and they could never leave.
+ */
+function LegacyRedirect({ to }: { to: string }) {
+  const { pathname, search, hash } = useLocation();
+  // Strip the leading segment (`/services`) and re-hang whatever followed it.
+  const tail = pathname.replace(/^\/[^/]+/, '');
+  return <Navigate to={`${to}${tail}${search}${hash}`} replace />;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -113,13 +131,20 @@ function App() {
           } />
           {/* ── Figma designs, promoted to the real URLs ─────────────────────
               The Figma frames are no longer a preview harness living under
-              /figma/* — they ARE the site. /services, /product, /contact,
-              /login and /signup render them directly, and the old /figma/* URLs
-              redirect here so existing links keep working. The legacy
-              hand-built pages (ServicesLayout, ProductLayout, support/Contact)
-              are kept on disk but no longer routed. */}
-          <Route path="/services/*" element={<FigmaEquipment />} />
-          <Route path="/product/*" element={<FigmaCococycleHub />} />
+              /figma/* — they ARE the site. /cocotech, /cococycle-hub,
+              /cococonnect, /contact, /login and /signup render them directly,
+              and the old /figma/* URLs redirect here so existing links keep
+              working. The legacy hand-built pages (ServicesLayout,
+              ProductLayout, support/Contact) are kept on disk but no longer
+              routed.
+
+              Each page sits under the name of the business unit it belongs to
+              rather than the generic noun it happens to be — `/cocotech`, not
+              `/services` — because the name is what people actually search for,
+              and it is what the sitemap should advertise. */}
+          <Route path="/cocotech/*" element={<FigmaEquipment />} />
+          <Route path="/cococycle-hub/*" element={<FigmaCococycleHub />} />
+          <Route path="/cococonnect" element={<Marketplace />} />
           <Route path="/contact" element={<FigmaContact />} />
           <Route path="/login" element={<FigmaLogin />} />
           <Route path="/signup" element={<FigmaSignup />} />
@@ -134,11 +159,21 @@ function App() {
           {/* ── Redirects from the old Figma preview URLs ─────────────────── */}
           <Route path="/figma/about" element={<Navigate to="/about" replace />} />
           <Route path="/figma/home" element={<Navigate to="/" replace />} />
-          <Route path="/figma/equipment" element={<Navigate to="/services" replace />} />
-          <Route path="/figma/cococycle-hub" element={<Navigate to="/product" replace />} />
+          <Route path="/figma/equipment" element={<Navigate to="/cocotech" replace />} />
+          <Route path="/figma/cococycle-hub" element={<Navigate to="/cococycle-hub" replace />} />
           <Route path="/figma/contact" element={<Navigate to="/contact" replace />} />
           <Route path="/figma/login" element={<Navigate to="/login" replace />} />
           <Route path="/figma/signup" element={<Navigate to="/signup" replace />} />
+
+          {/* ── Legacy slugs ────────────────────────────────────────────────
+              The generic URLs the three business units used to live under.
+              Kept as permanent forwarders rather than deleted: the old addresses
+              are indexed by Google and printed in emails that have already gone
+              out, so a 404 would cost real traffic. Listed after the real routes
+              because React Router ranks by specificity, not source order. */}
+          <Route path="/services/*" element={<LegacyRedirect to="/cocotech" />} />
+          <Route path="/product/*" element={<LegacyRedirect to="/cococycle-hub" />} />
+          <Route path="/marketplace/*" element={<LegacyRedirect to="/cococonnect" />} />
 
           {/* ── The decorative banner strip ────────────────────────────────
               The `/figma` frame index was a build artefact, not a site page, and
@@ -156,7 +191,6 @@ function App() {
           <Route path="/vintage-dashboard" element={<VintageDashboard />} />
           <Route path="/tweetit" element={<TweetitLogin />} />
           <Route path="/tweetit-dashboard" element={<TweetitDashboard />} />
-          <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/vendor-login" element={<VendorLogin />} />
           <Route path="/vendor-signup" element={<VendorSignup />} />
           <Route path="/vendor-dashboard" element={<MarketplaceProtectedRoute role="vendor"><VendorDashboard /></MarketplaceProtectedRoute>} />

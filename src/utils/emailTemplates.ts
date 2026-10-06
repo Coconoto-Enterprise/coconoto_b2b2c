@@ -81,7 +81,7 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
                                                 <span style="color: #8CC63F; font-size: 18px; font-weight: bold;">₦5,000.</span>
                                                 <span style="color: #999; font-size: 12px;">/5KG</span>
                                             </div>
-                                            <a href="https://www.coconoto.africa/product" style="background-color: #8CC63F; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;">Order Now</a>
+                                            <a href="https://www.coconoto.africa/cococycle-hub" style="background-color: #8CC63F; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;">Order Now</a>
                                         </div>
                                     </td>
 
@@ -95,7 +95,7 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
                                                 <span style="color: #8CC63F; font-size: 18px; font-weight: bold;">₦5,500.</span>
                                                 <span style="color: #999; font-size: 12px;">/1 POT</span>
                                             </div>
-                                            <a href="https://www.coconoto.africa/product" style="background-color: #8CC63F; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;">Order Now</a>
+                                            <a href="https://www.coconoto.africa/cococycle-hub" style="background-color: #8CC63F; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;">Order Now</a>
                                         </div>
                                     </td>
 
@@ -109,7 +109,7 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
                                                 <span style="color: #8CC63F; font-size: 18px; font-weight: bold;">₦15,500</span>
                                                 <span style="color: #999; font-size: 12px;">/1 Sack</span>
                                             </div>
-                                            <a href="https://www.coconoto.africa/product" style="background-color: #8CC63F; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;">Order Now</a>
+                                            <a href="https://www.coconoto.africa/cococycle-hub" style="background-color: #8CC63F; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold; display: inline-block; margin-top: 5px;">Order Now</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -117,7 +117,7 @@ export function getCustomerEmailTemplate(customerName: string, orderDetails: str
 
                             <!-- View All Products Link -->
                             <div style="text-align: center; margin: 20px 0;">
-                                <a href="https://www.coconoto.africa/product" style="color: #8CC63F; text-decoration: none; font-weight: bold; font-size: 14px; border-bottom: 2px solid #8CC63F;">View All Products →</a>
+                                <a href="https://www.coconoto.africa/cococycle-hub" style="color: #8CC63F; text-decoration: none; font-weight: bold; font-size: 14px; border-bottom: 2px solid #8CC63F;">View All Products →</a>
                             </div>
                         </div>
 

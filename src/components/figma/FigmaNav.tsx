@@ -27,16 +27,16 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Home', to: '/', match: ['/'] },
   {
     label: 'Services',
-    to: '/services',
-    match: ['/services', '/product'],
+    to: '/cocotech',
+    match: ['/cocotech', '/cococycle-hub'],
     dropdown: [
-      { label: 'Coco-Tech', to: '/services' },
-      { label: 'CocoCycle Hub', to: '/product' },
-      { label: 'Coco-Connect', to: '/marketplace' },
-      { label: 'Coco Drink & Eat', to: '/product#drink-eat', scrollTo: 'drink-eat' },
+      { label: 'Coco-Tech', to: '/cocotech' },
+      { label: 'CocoCycle Hub', to: '/cococycle-hub' },
+      { label: 'Coco-Connect', to: '/cococonnect' },
+      { label: 'Coco Drink & Eat', to: '/cococycle-hub#drink-eat', scrollTo: 'drink-eat' },
     ],
   },
-  { label: 'Marketplace', to: '/marketplace', match: ['/marketplace'] },
+  { label: 'Marketplace', to: '/cococonnect', match: ['/cococonnect'] },
   { label: 'Blog', to: '/blog', match: ['/blog'] },
   { label: 'About Us', to: '/about', match: ['/about'] },
   { label: 'Contact us', to: '/contact', match: ['/contact', '/help-center'] },
@@ -254,18 +254,43 @@ export default function FigmaNav({
         {mobileOpen && (
           <div className="border-t border-neutral-100 bg-white px-6 pb-6 lg:hidden">
             {NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.label}
-                to={item.to}
-                onClick={() => setMobileOpen(false)}
-                className={() =>
-                  `block border-b border-neutral-100 py-3 font-lora text-[16px] ${
-                    activeKey === item.label ? 'text-[#17AD10]' : 'text-[#1C1C1C]'
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
+              <div key={item.label}>
+                <NavLink
+                  to={item.to}
+                  onClick={() => setMobileOpen(false)}
+                  className={() =>
+                    // The rule under an item that opens a sub-list moves onto the
+                    // sub-list itself, so the four unit names read as children of
+                    // "Services" instead of as siblings of the other top-level
+                    // links.
+                    `block py-3 font-lora text-[16px] ${
+                      activeKey === item.label ? 'text-[#17AD10]' : 'text-[#1C1C1C]'
+                    } ${item.dropdown ? '' : 'border-b border-neutral-100'}`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+
+                {/* The desktop nav hides these behind a hover dropdown, which a
+                    phone cannot open — without them there is no way to reach
+                    Coco-Tech, CocoCycle Hub, Coco-Connect or Coco Drink & Eat on
+                    mobile at all. */}
+                {item.dropdown && (
+                  <ul className="border-b border-neutral-100 pb-2">
+                    {item.dropdown.map((sub) => (
+                      <li key={sub.label}>
+                        <Link
+                          to={sub.to}
+                          onClick={() => setMobileOpen(false)}
+                          className="block py-2 pl-5 font-lora text-[15px] text-[#6F4A32] transition-colors hover:text-[#17AD10]"
+                        >
+                          {sub.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             ))}
             {mobileAccount}
             {/* The account variant brings its own mobile block, so the CTA only

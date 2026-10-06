@@ -146,7 +146,7 @@ export function VendorDashboard() {
             Sign Out
           </Button>
           <Button asChild variant="ghost" size="sm" className="mt-2 w-full">
-            <Link to="/marketplace">View Marketplace</Link>
+            <Link to="/cococonnect">View Marketplace</Link>
           </Button>
         </SidebarFooter>
       </Sidebar>

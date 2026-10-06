@@ -79,7 +79,7 @@ ok(xml.includes('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'),
 ok((xml.match(/<url>/g) || []).length === (xml.match(/<\/url>/g) || []).length, '<url> tags are balanced');
 
 // Every route the sitemap claims must be a real public route.
-for (const p of ['/', '/about', '/services', '/product', '/marketplace', '/blog', '/contact', '/help-center', '/privacy-policy', '/terms-of-service', '/cookie-policy']) {
+for (const p of ['/', '/about', '/cocotech', '/cococycle-hub', '/cococonnect', '/blog', '/contact', '/help-center', '/privacy-policy', '/terms-of-service', '/cookie-policy']) {
   const want = p === '/' ? HOME_CANONICAL : `https://www.coconoto.africa${p}`;
   ok(locs.includes(want), `sitemap includes ${want}`);
 }
@@ -87,6 +87,13 @@ for (const p of ['/', '/about', '/services', '/product', '/marketplace', '/blog'
 // Things that must NOT be crawlable.
 for (const bad of ['/login', '/signup', '/buyer-dashboard', '/vendor-dashboard', '/blog-editor', '/profile', '/figma', '/500', '/vintage-dashboard']) {
   ok(!locs.some((l) => l.endsWith(bad)), `sitemap excludes ${bad}`);
+}
+
+// The pre-rename slugs still resolve (the SPA forwards them), but a sitemap must
+// name one canonical URL per page — listing a redirect makes Google crawl the
+// same content twice and splits its ranking signals.
+for (const legacy of ['/services', '/product', '/marketplace']) {
+  ok(!locs.some((l) => l.endsWith(legacy)), `sitemap excludes the legacy slug ${legacy}`);
 }
 
 // No unescaped ampersands in element text.
@@ -100,7 +107,7 @@ ok(
 );
 
 // ── page-meta: every public route gets its OWN canonical ─────────────────────
-const PUBLIC = ['/', '/about', '/services', '/product', '/marketplace', '/blog', '/contact', '/help-center', '/privacy-policy', '/terms-of-service', '/cookie-policy'];
+const PUBLIC = ['/', '/about', '/cocotech', '/cococycle-hub', '/cococonnect', '/blog', '/contact', '/help-center', '/privacy-policy', '/terms-of-service', '/cookie-policy'];
 const seenTitles = new Map();
 
 for (const path of PUBLIC) {
@@ -145,10 +152,10 @@ const noAction = await call({});
 ok(noAction.statusCode === 400, `missing action returns 400 (got ${noAction.statusCode})`);
 
 // Path normalisation: trailing slash and query string must resolve the same page.
-const trailing = await call({ action: 'page-meta', path: '/services/' });
+const trailing = await call({ action: 'page-meta', path: '/cocotech/' });
 ok(
-  trailing.body.includes('href="https://www.coconoto.africa/services"'),
-  '/services/ (trailing slash) normalises to the /services canonical'
+  trailing.body.includes('href="https://www.coconoto.africa/cocotech"'),
+  '/cocotech/ (trailing slash) normalises to the /cocotech canonical'
 );
 
 // ── Report ───────────────────────────────────────────────────────────────────

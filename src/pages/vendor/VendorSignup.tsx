@@ -263,7 +263,7 @@ export function VendorSignup() {
 
           {/* Back to Marketplace */}
           <div className="mt-4 text-center">
-            <Link to="/marketplace" className="text-sm text-gray-500 hover:text-gray-700">
+            <Link to="/cococonnect" className="text-sm text-gray-500 hover:text-gray-700">
               ← Back to Marketplace
             </Link>
           </div>

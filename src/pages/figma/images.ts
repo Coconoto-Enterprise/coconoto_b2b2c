@@ -81,9 +81,10 @@ export const FIGMA_IMAGES: Record<string, string> = {
   'nav-logo': navLogo, //  188 × 30   – Coconoto wordmark on the navbar
 
   //  ⚠️ NOT SUPPLIED, and not used. The live pages render the *real* site footer
-  //  (`components/about/AboutFooter.tsx`), which pulls in its own `Logo_1.png` /
-  //  `fotterimage.png`. These two slots only matter if the Figma footer is ever
-  //  restored — drop in `footer-logo.png` / `footer-bg.png` if that happens.
+  //  (`components/about/AboutFooter.tsx`), which pulls in its own
+  //  `CoconotoGreenLogoMark.png` / `fotterimage.png`. These two slots only matter
+  //  if the Figma footer is ever restored — drop in `footer-logo.png` /
+  //  `footer-bg.png` if that happens.
   'footer-logo': '', //  154 × 25   – green Coconoto mark
   'footer-bg': '', // 1440 × 505  – soil photo behind the footer
 

@@ -11,8 +11,8 @@ import AboutFooter from '../about/AboutFooter';
  * so the footer can never drift out of sync again.
  *
  * Note: this retires the `footer-bg` and `footer-logo` image slots. The real
- * footer uses the committed `fotterimage.png` and `Logo_1.png` assets directly,
- * so those two slots are no longer referenced by any page.
+ * footer uses the committed `fotterimage.png` and `CoconotoGreenLogoMark.png`
+ * assets directly, so those two slots are no longer referenced by any page.
  */
 export default function FigmaFooter() {
   return <AboutFooter />;

@@ -59,6 +59,13 @@ const matchBlogUrlParam = (blog = {}, param = '') => {
 // deliberately excluded — they are disallowed in public/robots.txt and carry no
 // SEO value.
 //
+// The three business-unit pages are listed under the name of the unit, not the
+// generic noun they used to sit under: /cocotech, /cococycle-hub and
+// /cococonnect. The old /services, /product and /marketplace URLs still resolve
+// (they 301 forward in the SPA), but they are deliberately NOT listed here — a
+// sitemap should advertise one canonical URL per page, and listing a redirect
+// makes Google crawl the same content twice.
+//
 // `title` and `description` are what Google shows in results. Edit them here and
 // both the sitemap and the rendered <head> follow.
 const PUBLIC_PAGES = {
@@ -76,21 +83,21 @@ const PUBLIC_PAGES = {
     changefreq: 'monthly',
     priority: '0.7',
   },
-  '/services': {
+  '/cocotech': {
     title: 'Coconut Processing Equipment & Services | Coconoto Africa',
     description:
       'Coconut deshellers, dehuskers and milk extractors engineered for commercial processing, plus production management, efficiency improvement and staff training.',
     changefreq: 'monthly',
     priority: '0.8',
   },
-  '/product': {
+  '/cococycle-hub': {
     title: 'Eco-Friendly Coconut Products | CocoCycle Hub',
     description:
       'Cocopeat, coconut fibre, cocopot and biochar made from every part of the coconut — sustainable products from a circular coconut economy.',
     changefreq: 'monthly',
     priority: '0.8',
   },
-  '/marketplace': {
+  '/cococonnect': {
     title: 'Coconut Marketplace | Buy and Sell | Coconoto Africa',
     description:
       'Buy and sell coconuts, coconut products and processing equipment across Africa on the Coconoto marketplace.',

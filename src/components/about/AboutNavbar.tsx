@@ -11,8 +11,8 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Home', to: '/' },
-  { label: 'Services', to: '/services', hasDropdown: true },
-  { label: 'Marketplace', to: '/marketplace' },
+  { label: 'Services', to: '/cocotech', hasDropdown: true },
+  { label: 'Marketplace', to: '/cococonnect' },
   { label: 'About Us', to: '/about' },
   { label: 'Contact us', to: '/contact' },
 ];

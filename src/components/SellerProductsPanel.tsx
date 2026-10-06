@@ -103,7 +103,7 @@ export function SellerProductsPanel() {
 
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">
-            <Link to="/marketplace">View Marketplace</Link>
+            <Link to="/cococonnect">View Marketplace</Link>
           </Button>
           <Button
             size="sm"

@@ -82,8 +82,8 @@ export default function BuyerNavbar() {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-2">
             <Link
-              to="/marketplace"
-              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${linkClass('/marketplace')}`}
+              to="/cococonnect"
+              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${linkClass('/cococonnect')}`}
             >
               <Store className="h-4 w-4" />
               Marketplace
@@ -182,10 +182,10 @@ export default function BuyerNavbar() {
 
           <nav className="mt-3 space-y-1">
             <MobileLink
-              to="/marketplace"
+              to="/cococonnect"
               icon={Store}
               label="Marketplace"
-              active={location.pathname === '/marketplace'}
+              active={location.pathname === '/cococonnect'}
               onClick={() => setIsMobileMenuOpen(false)}
             />
             <MobileLink
