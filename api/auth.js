@@ -69,17 +69,17 @@ export default async function handler(req, res) {
       case 'email-user-login':
         return await handleEmailUserLogin(req, data, res);
       case 'email-user-create':
-        return await handleEmailUserCreate(data, res);
+        return await handleEmailUserCreate(req, data, res);
       case 'email-user-update-password':
-        return await handleEmailUserUpdatePassword(data, res);
+        return await handleEmailUserUpdatePassword(req, data, res);
       case 'email-user-list':
-        return await handleEmailUserList(data, res);
+        return await handleEmailUserList(req, data, res);
       case 'list-mail-users':
         return await handleListMailUsers(res);
       case 'create-mail-user':
         return await handleCreateMailUser(data, res);
       case 'delete-email':
-        return await handleDeleteEmail(data, res);
+        return await handleDeleteEmail(req, data, res);
       default:
         return res.status(400).json({ success: false, error: 'Invalid action' });
     }
@@ -698,7 +698,7 @@ async function handleEmailUserLogin(req, data, res) {
   }
 }
 
-async function handleEmailUserCreate(data, res) {
+async function handleEmailUserCreate(req, data, res) {
   const { email, password, role = 'staff', requesterId, requesterEmail } = data;
 
   if (!email || !password) {
@@ -759,7 +759,7 @@ async function handleEmailUserCreate(data, res) {
   }
 }
 
-async function handleEmailUserUpdatePassword(data, res) {
+async function handleEmailUserUpdatePassword(req, data, res) {
   const { userId, password, requesterId, requesterEmail } = data;
 
   if (!userId || !password) {
@@ -815,7 +815,7 @@ async function handleEmailUserUpdatePassword(data, res) {
   }
 }
 
-async function handleEmailUserList(data, res) {
+async function handleEmailUserList(req, data, res) {
   const { requesterId, requesterEmail } = data;
 
   if (!(await authorizeAdmin(req, requesterId, requesterEmail))) {
@@ -860,7 +860,7 @@ async function handleEmailUserList(data, res) {
   }
 }
 
-async function handleDeleteEmail(data, res) {
+async function handleDeleteEmail(req, data, res) {
   const { emailId, requesterId, requesterEmail } = data;
 
   if (!emailId) {
