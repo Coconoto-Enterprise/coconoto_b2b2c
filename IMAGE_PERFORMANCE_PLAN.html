@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Coconoto — Image Performance Plan (free fixes)</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel-2:#1c2230; --line:#2a3240;
+    --ink:#e6edf3; --dim:#9aa7b8; --faint:#6e7c8f;
+    --green:#8CC63F; --green-dim:#618A42; --amber:#e3b341; --red:#f27a72;
+    --blue:#6cb6ff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:940px; margin:0 auto; padding:56px 28px 96px}
+  header{border-bottom:1px solid var(--line); padding-bottom:28px; margin-bottom:36px}
+  .eyebrow{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--green); font-weight:700}
+  h1{font-size:34px; line-height:1.2; margin:12px 0 10px; letter-spacing:-.02em}
+  h1 span{color:var(--dim); font-weight:400}
+  .lede{color:var(--dim); margin:0; max-width:64ch}
+  h2{font-size:20px; margin:52px 0 6px; letter-spacing:-.01em}
+  h2 .n{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; margin-right:10px; border-radius:7px;
+    background:var(--green); color:#0e1116; font-size:13px; font-weight:800;
+    vertical-align:2px;
+  }
+  h3{font-size:15px; margin:26px 0 8px; color:var(--ink)}
+  p{color:var(--dim); margin:10px 0}
+  strong{color:var(--ink); font-weight:600}
+  code{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:.88em; background:var(--panel-2); border:1px solid var(--line);
+    padding:1px 5px; border-radius:5px; color:#cfe3b8;
+  }
+  pre{
+    background:#0a0d12; border:1px solid var(--line); border-left:3px solid var(--green-dim);
+    border-radius:9px; padding:14px 16px; overflow-x:auto; margin:12px 0;
+  }
+  pre code{background:none; border:none; padding:0; color:#c9d5e3; font-size:12.5px; line-height:1.6}
+  .cmt{color:#5f6d80}
+  .kw{color:#ff9d8a}
+  .str{color:#a8d98a}
+
+  /* hero stat block */
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:28px 0 8px}
+  .stat{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px}
+  .stat .big{font-size:30px; font-weight:800; letter-spacing:-.03em; color:var(--green); line-height:1.1}
+  .stat .lbl{font-size:12px; color:var(--faint); margin-top:6px; text-transform:uppercase; letter-spacing:.08em}
+  .stat .sub{font-size:12.5px; color:var(--dim); margin-top:8px}
+
+  /* technique cards */
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px 24px; margin:18px 0}
+  .card-head{display:flex; flex-wrap:wrap; align-items:baseline; gap:10px; margin-bottom:4px}
+  .tag{
+    font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+    padding:3px 8px; border-radius:999px; border:1px solid;
+  }
+  .t-now{color:#0e1116; background:var(--green); border-color:var(--green)}
+  .t-easy{color:var(--amber); border-color:#5a4a1e; background:#2a2413}
+  .t-later{color:var(--blue); border-color:#26405e; background:#141f2e}
+  .t-skip{color:var(--red); border-color:#5c2b28; background:#2a1614}
+  .impact{margin-left:auto; font-size:12.5px; color:var(--faint); white-space:nowrap}
+  .impact b{color:var(--ink); font-weight:600}
+
+  /* table */
+  table{width:100%; border-collapse:collapse; margin:14px 0; font-size:13px}
+  th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line)}
+  th{color:var(--faint); font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:600}
+  td.num{text-align:right; font-variant-numeric:tabular-nums; font-family:ui-monospace,monospace; font-size:12.5px}
+  tr:last-child td{border-bottom:none}
+  .save{color:var(--green); font-weight:600}
+  .file{color:var(--dim); font-family:ui-monospace,monospace; font-size:12px}
+
+  .callout{
+    background:var(--panel-2); border:1px solid var(--line); border-left:3px solid var(--amber);
+    border-radius:9px; padding:14px 18px; margin:18px 0;
+  }
+  .callout.bad{border-left-color:var(--red)}
+  .callout.good{border-left-color:var(--green-dim)}
+  .callout p:first-child{margin-top:0}
+  .callout p:last-child{margin-bottom:0}
+  .callout .h{color:var(--ink); font-weight:700; font-size:13.5px; margin-bottom:4px; display:block}
+
+  ol.steps{padding-left:22px; color:var(--dim)}
+  ol.steps li{margin:9px 0}
+  ol.steps li::marker{color:var(--green); font-weight:700}
+
+  footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--line); color:var(--faint); font-size:12.5px}
+  a{color:var(--blue)}
+  .chk{list-style:none; padding-left:0}
+  .chk li{padding-left:26px; position:relative; margin:9px 0; color:var(--dim)}
+  .chk li::before{
+    content:"☐"; position:absolute; left:0; top:-1px; color:var(--green); font-size:15px;
+  }
+  @media (max-width:640px){
+    .stats{grid-template-columns:1fr}
+    h1{font-size:26px}
+    .wrap{padding:32px 18px 64px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Coconoto Africa &nbsp;·&nbsp; Front-end performance</div>
+  <h1>Make the images load faster <span>— without paying for anything</span></h1>
+  <p class="lede">
+    Every fix below is free and runs either on your machine or on infrastructure you already
+    have. No CDN subscription, no paid image service. The numbers are measured from this
+    repo, not estimated.
+  </p>
+</header>
+
+<div class="stats">
+  <div class="stat">
+    <div class="big">49.0 → 7.5 MB</div>
+    <div class="lbl">Image payload</div>
+    <div class="sub">Across all 103 images in <code>src/assets</code>. An 85% cut, 41.5 MB removed.</div>
+  </div>
+  <div class="stat">
+    <div class="big">7.54 → 0.02 MB</div>
+    <div class="big" style="font-size:15px; color:var(--dim); margin-top:4px; font-weight:600">single worst file</div>
+    <div class="lbl">One headshot</div>
+    <div class="sub"><code>team/Kehinde…jpg</code> is 4480×6720 (30 megapixels) displayed in a small avatar card.</div>
+  </div>
+  <div class="stat">
+    <div class="big">92 of 101</div>
+    <div class="lbl">&lt;img&gt; tags</div>
+    <div class="sub">have no <code>loading</code> attribute. None have <code>decoding</code> or <code>fetchpriority</code>.</div>
+  </div>
+</div>
+
+<h2><span class="n">1</span>Resize and re-encode the source images</h2>
+<p>
+  This is the whole ballgame. <strong>85% of your image weight is pure waste</strong> — pixels
+  nobody ever sees. Vite copies whatever you <code>import</code> straight into
+  <code>dist/</code> untouched, so the browser downloads the camera-original file.
+</p>
+<p>
+  Two problems compound. The images are <strong>far larger than they're displayed</strong>
+  (a 30-megapixel photo in a 200px avatar), and they're in <strong>PNG/JPEG</strong> when
+  <strong>WebP</strong> does the same job in a fraction of the bytes. WebP is supported by every
+  browser that matters now and costs nothing to use.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Image</th><th class="num">Now</th><th class="num">After</th><th class="num">Saved</th><th>Dimensions → target</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="file">team/Kehinde Elizabeth OMITOYIN.jpg</td><td class="num">7.54 MB</td><td class="num">21 KB</td><td class="num save">100%</td><td class="file">4480×6720 → 640px</td></tr>
+    <tr><td class="file">team/Daniel.jpg</td><td class="num">4.69 MB</td><td class="num">115 KB</td><td class="num save">98%</td><td class="file">4000×3000 → 640px</td></tr>
+    <tr><td class="file">aboutbackground1.png</td><td class="num">2.36 MB</td><td class="num">192 KB</td><td class="num save">92%</td><td class="file">1438×684 → 1438px</td></tr>
+    <tr><td class="file">cocycle-offer-3.png</td><td class="num">1.61 MB</td><td class="num">131 KB</td><td class="num save">92%</td><td class="file">1343×1171 → 1200px</td></tr>
+    <tr><td class="file">team/Precious (Charles).jpg</td><td class="num">1.48 MB</td><td class="num">66 KB</td><td class="num save">96%</td><td class="file">2081×2306 → 640px</td></tr>
+    <tr><td class="file">contact-bg.png</td><td class="num">1.38 MB</td><td class="num">95 KB</td><td class="num save">93%</td><td class="file">1440×916 → 1440px</td></tr>
+    <tr><td class="file">cocycle-hero.png</td><td class="num">932 KB</td><td class="num">29 KB</td><td class="num save">97%</td><td class="file">1440×684 → 1440px</td></tr>
+    <tr><td class="file">team/Oluwatoke Faeji.jpeg</td><td class="num">800 KB</td><td class="num">21 KB</td><td class="num save">97%</td><td class="file">3120×2080 → 640px</td></tr>
+  </tbody>
+</table>
+
+<h3>The script is already written and in your repo</h3>
+<p>
+  <code>scripts/optimize-images.mjs</code> walks <code>src/assets</code>, resizes each image to
+  the width it's actually rendered at, re-encodes to WebP, and rewrites the import statements
+  to point at the new files. It never upscales, and it skips any file that would get bigger.
+</p>
+<pre><code><span class="cmt"># see what it would do — writes nothing</span>
+node scripts/optimize-images.mjs
+
+<span class="cmt"># apply it: adds .webp files, repoints imports</span>
+node scripts/optimize-images.mjs --write
+npm run build
+
+<span class="cmt"># undo everything if you don't like it</span>
+git checkout -- src</code></pre>
+<p>
+  Originals are left on disk, so nothing is destroyed and <code>git</code> is your safety net.
+  Review the diff before committing.
+</p>
+
+<div class="callout good">
+  <span class="h">Why this is the highest-value change</span>
+  <p>
+    41.5 MB removed from a marketing site is the difference between a first visit that feels
+    instant and one that doesn't — especially on mobile data, which is most of your African
+    audience. It also directly reduces your Vercel bandwidth usage, which matters because the
+    Hobby plan caps at 100 GB/month.
+  </p>
+</div>
+
+<h2><span class="n">2</span>Stop lazy-loading the images above the fold</h2>
+<p>
+  There's a real bug here, and it's the opposite of the usual advice.
+  <code>src/components/figma/ImageSlot.tsx</code> hardcodes <code>loading="lazy"</code> on
+  <em>every</em> image it renders (line 98):
+</p>
+<pre><code>&lt;img
+  src={src}
+  alt={label}
+  loading=<span class="str">"lazy"</span>          <span class="cmt">// ← applied to the nav logo too</span>
+  className={...}
+/&gt;</code></pre>
+<p>
+  But <code>FigmaNav</code> renders the logo through that same component
+  (<code>slot="nav-logo"</code>), and the <code>/cococycle-hub</code> hero background goes
+  through it too. So your <strong>header logo and that hero are being deliberately
+  deferred</strong> — the browser holds them back until layout settles. That's why the logo
+  pops in late, and why a 932 KB hero gets queued behind everything else.
+</p>
+<p>The fix is to make it a prop instead of a constant, and let callers opt in:</p>
+<pre><code><span class="cmt">// ImageSlot.tsx — add to the props interface</span>
+<span class="kw">interface</span> ImageSlotProps {
+  <span class="cmt">/** Above-the-fold artwork: load immediately instead of deferring. */</span>
+  priority?: <span class="kw">boolean</span>;
+  <span class="cmt">// …existing props</span>
+}
+
+<span class="cmt">// and in the &lt;img&gt;</span>
+&lt;img
+  src={src}
+  alt={label}
+  loading={priority ? <span class="str">'eager'</span> : <span class="str">'lazy'</span>}
+  decoding={priority ? <span class="str">'sync'</span> : <span class="str">'async'</span>}
+  fetchPriority={priority ? <span class="str">'high'</span> : <span class="str">'auto'</span>}
+  className={...}
+/&gt;</code></pre>
+<p>
+  Then pass <code>priority</code> on the handful of images that are visible before any
+  scrolling — the nav logo, the home hero, and each page's banner. Leave everything else lazy.
+</p>
+<div class="callout bad">
+  <span class="h">Don't just blanket-lazy everything</span>
+  <p>
+    A common mistake is adding <code>loading="lazy"</code> to all 101 tags. On above-the-fold
+    images that <em>hurts</em>: it delays the largest visible element and pushes back your LCP
+    score. Only below-the-fold images should be lazy.
+  </p>
+</div>
+
+<h2><span class="n">3</span>Give the hero a head start</h2>
+<p>
+  Two attributes plus one line of HTML tell the browser what to fetch first. Free, no
+  dependency, and it's the difference between "hero appears" and "hero fades in".
+</p>
+<p>
+  The heavy one is <code>cocycle-hero.png</code> — the 1440×684 background behind the
+  <code>/cococycle-hub</code> hero, at <strong>932 KB today and 29 KB once converted</strong>.
+  That's your largest above-the-fold image, so it's the one worth prioritising.
+</p>
+<pre><code><span class="cmt">&lt;!-- preload the hero background, before React even boots --&gt;</span>
+&lt;link rel=<span class="str">"preload"</span> as=<span class="str">"image"</span>
+      href=<span class="str">"/assets/cocycle-hero.webp"</span>
+      type=<span class="str">"image/webp"</span> fetchpriority=<span class="str">"high"</span> /&gt;
+
+<span class="cmt">&lt;!-- and on the nav logo: fetch it in the first round trip --&gt;</span>
+&lt;img src={logo} alt=<span class="str">"Coconoto"</span> fetchPriority=<span class="str">"high"</span> decoding=<span class="str">"sync"</span> /&gt;</code></pre>
+<p>
+  Note that the three <code>home-hero-*</code> slots are still empty strings in
+  <code>src/pages/figma/images.ts</code>, so there's nothing to preload on the home page yet.
+  When you do supply that artwork, give it the same treatment.
+</p>
+<p>
+  Also add <code>decoding="async"</code> to the below-fold images. It moves image decoding off
+  the main thread so scrolling stays smooth instead of stuttering.
+</p>
+
+<h2><span class="n">4</span>Turn on long-lived caching for hashed assets</h2>
+<p>
+  Vite fingerprints every asset filename with a content hash
+  (<code>cocycle-hero-<strong>a3f9c2</strong>.webp</code>), which means the content at a given
+  URL never changes — so it can be cached forever. <strong>Vercel does not set that header
+  automatically for a Vite app</strong> (it only does for Next.js). It falls back to
+  <code>max-age=0, must-revalidate</code>, so returning visitors re-download images they
+  already have.
+</p>
+<p>Add a <code>headers</code> block to <code>vercel.json</code> — it sits alongside your existing <code>rewrites</code>:</p>
+<pre><code>{
+  <span class="str">"headers"</span>: [
+    {
+      <span class="str">"source"</span>: <span class="str">"/assets/(.*)"</span>,
+      <span class="str">"headers"</span>: [
+        { <span class="str">"key"</span>: <span class="str">"Cache-Control"</span>,
+          <span class="str">"value"</span>: <span class="str">"public, max-age=31536000, immutable"</span> }
+      ]
+    }
+  ],
+  <span class="str">"rewrites"</span>: [ <span class="cmt">/* …your existing rules, unchanged… */</span> ]
+}</code></pre>
+<div class="callout">
+  <span class="h">This is safe because of the hash</span>
+  <p>
+    <code>immutable</code> is only correct for fingerprinted filenames — which is exactly what
+    Vite produces. Never apply it to <code>index.html</code>, or users will be stuck on a stale
+    build. The rule above is scoped to <code>/assets/</code> only, so it's fine.
+  </p>
+</div>
+
+<h2><span class="n">5</span>Serve the right size to each screen</h2>
+<p>
+  Once you have WebP versions, you can offer the browser a choice and let it pick. This is what
+  saves the most on phones, where a 1200px image is a waste on a 390px screen.
+</p>
+<pre><code>&lt;img
+  src=<span class="str">"hero-1200.webp"</span>
+  srcSet=<span class="str">"hero-640.webp 640w,
+          hero-1200.webp 1200w,
+          hero-1920.webp 1920w"</span>
+  sizes=<span class="str">"(max-width: 640px) 100vw, 1200px"</span>
+  alt=<span class="str">"…"</span>
+/&gt;</code></pre>
+<p>
+  You don't need a CDN or a paid service for this — <code>sharp</code> (already installed as a
+  dev dependency) can emit all three widths in the same script. It's only worth doing for the
+  handful of large hero and background images; leave the small ones alone.
+</p>
+
+<h2><span class="n">6</span>Make the build do this automatically, forever</h2>
+<p>
+  Once the existing images are fixed, the next 7 MB photo someone drops into
+  <code>src/assets</code> reintroduces the problem. Two free ways to prevent that:
+</p>
+<ul class="chk">
+  <li>
+    <strong>Re-run the script</strong> whenever new images are added —
+    <code>node scripts/optimize-images.mjs --write</code>. Simplest, no new dependencies.
+  </li>
+  <li>
+    <strong>Automate it in the build</strong> — add
+    <code>vite-plugin-image-optimizer</code> (free, MIT, uses the sharp you already have) to
+    <code>vite.config.ts</code> so every <code>npm run build</code> compresses images on the way
+    out. Costs build time, saves you remembering.
+  </li>
+</ul>
+<p>
+  There's also <strong>AVIF</strong>, which beats WebP by another 20–30%. It's free to generate
+  but slower to encode and has patchier support, so treat it as a later optimisation rather
+  than a first move. WebP is where the 85% is.
+</p>
+
+<h2><span class="n">7</span>Delete what you don't use</h2>
+<p>
+  <code>dist/</code> has accumulated stale build generations because
+  <code>emptyOutDir: false</code> is set in <code>vite.config.ts</code>. That's harmless for
+  visitors — the live <code>index.html</code> only points at the newest hashed files — but it
+  does mean your repo and any full-directory upload carry dead weight. Separately, it's worth
+  checking whether all 103 source images are actually referenced anywhere. Unused images that
+  are never <code>import</code>ed don't ship, but they do bloat the repo and confuse the next
+  person.
+</p>
+
+<h2><span class="n">8</span>What <em>not</em> to bother with</h2>
+<div class="callout bad">
+  <span class="h">Vercel's built-in Image Optimization is not the free win it looks like</span>
+  <p>
+    The Hobby plan does include 5,000 image transformations/month — but its Fair Usage Policy
+    restricts Hobby to <strong>non-commercial personal use only</strong>. Coconoto is a
+    commercial business, so leaning on it is against the terms and could get the project
+    flagged. It's also built around Next.js's <code>&lt;Image&gt;</code> component, which you
+    aren't using. Skip it.
+  </p>
+</div>
+<div class="callout bad">
+  <span class="h">Free-tier image CDNs (Cloudinary, ImageKit) solve a problem you don't have</span>
+  <p>
+    They're genuinely free to start, but they add a third-party dependency, an upload step, and
+    a new way for images to break — in exchange for optimisation you can get locally from
+    <code>sharp</code> in about ten seconds. Reach for one only if you later need on-the-fly
+    transforms driven by user uploads.
+  </p>
+</div>
+
+<h2><span class="n">9</span>Do it in this order</h2>
+<ol class="steps">
+  <li>Run the report: <code>node scripts/optimize-images.mjs</code> — confirm the numbers yourself.</li>
+  <li>Apply: <code>--write</code>, then <code>npm run build</code>, then check DevTools → Network.</li>
+  <li>Fix the <code>ImageSlot</code> lazy-loading so the nav logo and hero load eagerly.</li>
+  <li>Add <code>decoding="async"</code> to below-fold images, <code>fetchpriority="high"</code> to the hero.</li>
+  <li>Add the <code>headers</code> block to <code>vercel.json</code> and redeploy.</li>
+  <li>Re-measure on a throttled mobile connection, not on your laptop.</li>
+</ol>
+
+<footer>
+  <p>
+    Measured against this repo on 6 October 2026 · 103 raster images in <code>src/assets</code> ·
+    conversion via <code>sharp</code> 0.35.5 at WebP quality 80.
+    Script: <code>scripts/optimize-images.mjs</code>.
+  </p>
+</footer>
+
+</div>
+</body>
+</html>

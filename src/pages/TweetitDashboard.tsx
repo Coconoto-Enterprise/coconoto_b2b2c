@@ -24,6 +24,8 @@ interface TweetitUser {
   email: string;
   role: 'admin' | 'staff';
   is_active?: boolean;
+  /** Present on sessions written by the mail-user login. */
+  sender_email?: string;
 }
 
 const TweetitDashboard: React.FC = () => {
@@ -197,7 +199,12 @@ const TweetitDashboard: React.FC = () => {
       const senderToUse = currentUser.role === 'staff'
         ? currentUser.email
         : selectedSender || currentUser.email;
-      formData.append('senderEmail', senderToUse);
+      // Must be an address this mail user actually owns — /api/send-custom-email
+      // verifies senderId + senderEmail against `mail_users` before sending.
+      const claimedSender = currentUser.role === 'staff'
+        ? (currentUser.sender_email || currentUser.email)
+        : senderToUse;
+      formData.append('senderEmail', claimedSender);
       formData.append('senderId', currentUser.id);
       composer.attachments.forEach((file) => formData.append('attachments', file));
 

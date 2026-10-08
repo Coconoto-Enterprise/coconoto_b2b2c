@@ -101,17 +101,53 @@ function buildTeamTemplate(heading, message) {
     </body></html>`;
 }
 
-const ALLOWED_RECIPIENT_DOMAINS = (process.env.CUSTOM_EMAIL_ALLOWED_DOMAINS || 'coconoto.africa')
-  .split(',')
-  .map((s) => s.trim().toLowerCase())
-  .filter(Boolean);
+/**
+ * Recipient addresses are no longer restricted to a sender-domain allowlist:
+ * the composer is used to mail customers, vendors and partners on their own
+ * domains, so any syntactically valid address is accepted.
+ *
+ * The remaining abuse controls are the composer login gate (`mail_users`, via
+ * `authorizeComposer`) and the attachment MIME/size allowlist below.
+ */
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const isRecipientAllowed = (email) => {
-  const e = String(email || '').trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return false;
-  const domain = e.split('@')[1];
-  return ALLOWED_RECIPIENT_DOMAINS.includes(domain);
-};
+const isRecipientAllowed = (email) => EMAIL_RE.test(String(email || '').trim().toLowerCase());
+
+/**
+ * Verify the caller is a real, active `mail_users` row.
+ *
+ * The dashboards keep their session in localStorage (`tweetitUser` /
+ * `currentMailUser`) and send `senderId` + `senderEmail` with every send, so
+ * this re-checks both against the database — the client-supplied values are
+ * never trusted. Mirrors `resolveRequester` in api/email-data.js.
+ *
+ * Returns the matched user record, or null.
+ */
+async function authorizeComposer(senderId, senderEmail) {
+  const id = String(senderId || '').trim();
+  const claimed = String(senderEmail || '').trim().toLowerCase();
+  if (!supabase || !id || !EMAIL_RE.test(claimed)) return null;
+
+  try {
+    const { data, error } = await supabase
+      .from('mail_users')
+      .select('id, login_email, sender_email, role, is_active')
+      .eq('id', id)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (error || !data) return null;
+
+    // The claimed address must be one of the addresses this user owns.
+    const known = [data.login_email, data.sender_email]
+      .map((v) => String(v || '').trim().toLowerCase())
+      .filter(Boolean);
+    return known.includes(claimed) ? data : null;
+  } catch (err) {
+    console.error('[send-custom-email] composer auth check failed:', err?.message);
+    return null;
+  }
+}
 
 export default async function handler(req, res) {
   applyCorsAllowlist(req, res);
@@ -124,11 +160,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
-  // Admin mail composer. No shared-secret gate (browser callers cannot hold
-  // a secret; the old API_MUTATIONS_KEY gate returned 503 to every request).
-  // Abuse is bounded by the CUSTOM_EMAIL_ALLOWED_DOMAINS recipient allowlist
-  // and the attachment MIME allowlist below. Real dashboard auth is tracked
-  // as a follow-up in docs/security-audit-2026-08-17.fixes.md.
+  // Admin mail composer. Callers must be a real, active row in `mail_users`
+  // (the same hand-rolled session the dashboards already keep in
+  // localStorage) — without it this endpoint is an open relay, since the
+  // recipient allowlist was removed. Abuse is further bounded by the
+  // attachment MIME/size allowlist.
+  // Auth runs below, once `senderId` / `senderEmail` have been parsed.
 
   try {
     const contentType = req.headers['content-type'] || '';
@@ -199,14 +236,24 @@ export default async function handler(req, res) {
       });
     }
 
+    // Auth gate, after parsing: the caller must prove they hold a live
+    // `mail_users` session before we relay anything on our domain's behalf.
+    const composerUser = await authorizeComposer(senderId, senderEmail);
+    if (!composerUser) {
+      return res.status(401).json({
+        success: false,
+        error: 'Your session is no longer valid. Please sign in again.',
+      });
+    }
+
     const recipients = Array.isArray(to) ? to : String(to).split(',').map((e) => e.trim());
-    for (const email of recipients) {
-      if (!isRecipientAllowed(email)) {
-        return res.status(400).json({
-          success: false,
-          error: `Recipient not on allowlist: ${email}. Configure CUSTOM_EMAIL_ALLOWED_DOMAINS.`,
-        });
-      }
+    // Now only a syntax check — the address may be on any domain.
+    const invalidRecipient = recipients.find((email) => !isRecipientAllowed(email));
+    if (invalidRecipient) {
+      return res.status(400).json({
+        success: false,
+        error: `Invalid recipient address: ${invalidRecipient}`,
+      });
     }
 
     const cleanSubject = sanitizeHeaderValue(subject);

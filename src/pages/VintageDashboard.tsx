@@ -258,6 +258,11 @@ const VintageDashboard: React.FC = () => {
         if (parsedUser?.sender_email) {
           formData.append('senderEmail', parsedUser.sender_email);
         }
+        // Required by /api/send-custom-email to prove the caller is a real
+        // mail_users session — without it the send is refused (401).
+        if (parsedUser?.id) {
+          formData.append('senderId', String(parsedUser.id));
+        }
       }
       
       // Append all attachments
