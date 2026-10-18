@@ -1,8 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, Menu, X } from 'lucide-react';
 import ImageSlot from './ImageSlot';
-import { WaitlistModal } from '../WaitlistModal';
+/**
+ * Same treatment as Hero's copy: the nav is in the entry chunk, so a static
+ * import here drags Supabase onto every page. Modal is null while closed.
+ */
+const WaitlistModal = lazy(() =>
+  import('../WaitlistModal').then((m) => ({ default: m.WaitlistModal })),
+);
 
 export type FigmaNavKey = 'Home' | 'Services' | 'Marketplace' | 'Blog' | 'About Us' | 'Contact us';
 
@@ -313,7 +319,11 @@ export default function FigmaNav({
         )}
       </header>
 
-      <WaitlistModal isOpen={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
+      {waitlistOpen && (
+        <Suspense fallback={null}>
+          <WaitlistModal isOpen={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
+        </Suspense>
+      )}
     </>
   );
 }

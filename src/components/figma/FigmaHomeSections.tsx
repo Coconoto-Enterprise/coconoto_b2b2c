@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Recycle,
@@ -13,7 +13,15 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import ImageSlot from './ImageSlot';
 import { LongArrow } from './NumberedRow';
-import { BookEventModal } from '../BookEventModal';
+/**
+ * Lazy + mount-on-demand, for the same reason as HuskSaleModal in
+ * FloatingChatIcon: this was a static import, which dragged `@supabase/supabase-js`
+ * (~45 kB gzipped) onto the homepage's critical path. The modal renders null
+ * while closed, so gating on `bookEventOpen` is visually identical.
+ */
+const BookEventModal = lazy(() =>
+  import('../BookEventModal').then((m) => ({ default: m.BookEventModal })),
+);
 import {
   PILLAR_SLIDESHOWS,
   ECOSYSTEM_IMAGES,
@@ -634,7 +642,11 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
       </section>
 
       {/* The Coco DrinkEat card's destination: its own booking form. */}
-      <BookEventModal isOpen={bookEventOpen} onClose={() => setBookEventOpen(false)} />
+      {bookEventOpen && (
+        <Suspense fallback={null}>
+          <BookEventModal isOpen={bookEventOpen} onClose={() => setBookEventOpen(false)} />
+        </Suspense>
+      )}
     </>
   );
 }

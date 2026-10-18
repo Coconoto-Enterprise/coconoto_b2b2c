@@ -1,6 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { MessageCircle } from 'lucide-react';
-import { HuskSaleModal } from './HuskSaleModal';
+
+/**
+ * Lazy + mount-on-demand. The modal returns null when closed, so rendering it
+ * only while open changes nothing visually — but it keeps `@supabase/supabase-js`
+ * out of the homepage's critical path. A static import here was pulling ~45 kB
+ * (gzipped) of Supabase into first paint for a modal most visitors never open.
+ */
+const HuskSaleModal = lazy(() =>
+  import('./HuskSaleModal').then((m) => ({ default: m.HuskSaleModal })),
+);
 
 const FloatingChatIcon: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -146,7 +155,11 @@ const FloatingChatIcon: React.FC = () => {
       `}</style>
       </div>
 
-      <HuskSaleModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      {isModalOpen && (
+        <Suspense fallback={null}>
+          <HuskSaleModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        </Suspense>
+      )}
     </>
   );
 };

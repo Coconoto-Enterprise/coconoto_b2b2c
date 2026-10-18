@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../assets/Logo_1.png';
 import GoogleSearch1 from '../assets/coconut_google_search.png';
 import GoogleSearch2 from '../assets/coconut_google_search-2.png';
-import { WaitlistModal } from './WaitlistModal';
+/**
+ * Lazy + mount-on-demand. WaitlistModal returns null while closed, so gating on
+ * the open flag is visually identical — but the static import pulled
+ * `services/waitlist` → `@supabase/supabase-js` (~45 kB gzipped) into the
+ * homepage's critical path, because Hero sits in the entry chunk.
+ */
+const WaitlistModal = lazy(() =>
+  import('./WaitlistModal').then((m) => ({ default: m.WaitlistModal })),
+);
 import Threads from './Threads';
 
 export function Hero() {
@@ -59,10 +67,14 @@ export function Hero() {
         </div>
       </div>
 
-      <WaitlistModal
-        isOpen={isWaitlistModalOpen}
-        onClose={() => setIsWaitlistModalOpen(false)}
-      />
+      {isWaitlistModalOpen && (
+        <Suspense fallback={null}>
+          <WaitlistModal
+            isOpen={isWaitlistModalOpen}
+            onClose={() => setIsWaitlistModalOpen(false)}
+          />
+        </Suspense>
+      )}
     </section>
     
   );
