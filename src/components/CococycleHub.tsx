@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import cocoplant from '../assets/cocoplant.jpg';
-import cocofiber from '../assets/cocofiber.png';
-import cocopeat from '../assets/cocopeat.jpg';
-import fiber2 from '../assets/fiber2.jpg';
+import cocoplant from '../assets/cocoplant.webp';
+import cocofiber from '../assets/cocofiber.webp';
+import cocopeat from '../assets/cocopeat.webp';
+import fiber2 from '../assets/fiber2.webp';
 import cocpeat1 from '../assets/cocpeat1.jpeg';
 import fiber from '../assets/fiber.jpeg';
-import cocopot from '../assets/cocopot.jpg';
-import cocopot4 from '../assets/cocopot4.jpg';
+import cocopot from '../assets/cocopot.webp';
+import cocopot4 from '../assets/cocopot4.webp';
 import cocofiber3 from '../assets/cocofiber3.jpg';
 import cocopot2 from '../assets/cocopot2.jpg';
 

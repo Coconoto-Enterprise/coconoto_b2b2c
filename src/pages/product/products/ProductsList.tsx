@@ -5,7 +5,7 @@ import { ProductCheckoutModal } from '../../../components/ProductCheckoutModal';
 import cocopeat from '../../../assets/cocpeat1.jpeg';
 import cocofiber from '../../../assets/fiber.jpeg';
 import cocopot from '../../../assets/cocopot2.jpg';
-import briquette from '../../../assets/Briquette.jpeg';
+import briquette from '../../../assets/Briquette.webp';
 import biochar from '../../../assets/biochar.jpeg';
 
 

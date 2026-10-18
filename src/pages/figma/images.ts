@@ -32,49 +32,49 @@
 import navLogo from '../../assets/nav-logo.png';
 
 // ── Home ───────────────────────────────────────────────────────────────────
-import homeEcoCocotech from '../../assets/home-eco-cocotech.jpeg';
-import homeEcoCococycle from '../../assets/home-eco-cococycle.png';
-import homeEcoCocodrinkeat from '../../assets/home-eco-cocodrinkeat.png';
-import homeMarketCocopeat from '../../assets/home-market-cocopeat.png';
-import homeMarketFibre from '../../assets/home-market-fibre.png';
-import homeMarketOil from '../../assets/home-market-oil.png';
-import homeMarketShell from '../../assets/home-market-shell.png';
-import homeCocotechImg from '../../assets/home-cocotech-img.jpeg';
-import homeCococycleImg from '../../assets/home-cococycle-img.png';
-import homeCocodrinkeatImg from '../../assets/home-cocodrinkeat-img.png';
+import homeEcoCocotech from '../../assets/home-eco-cocotech.webp';
+import homeEcoCococycle from '../../assets/home-eco-cococycle.webp';
+import homeEcoCocodrinkeat from '../../assets/home-eco-cocodrinkeat.webp';
+import homeMarketCocopeat from '../../assets/home-market-cocopeat.webp';
+import homeMarketFibre from '../../assets/home-market-fibre.webp';
+import homeMarketOil from '../../assets/home-market-oil.webp';
+import homeMarketShell from '../../assets/home-market-shell.webp';
+import homeCocotechImg from '../../assets/home-cocotech-img.webp';
+import homeCococycleImg from '../../assets/home-cococycle-img.webp';
+import homeCocodrinkeatImg from '../../assets/home-cocodrinkeat-img.webp';
 
 // ── Desktop 8 · Our Processing Equipment ───────────────────────────────────
-import equip1 from '../../assets/equip-1.jpeg';
-import equip2 from '../../assets/equip-2.png';
-import equip3 from '../../assets/equip-3.png';
-import equip4 from '../../assets/equip-4.png';
-import equipProductionBg from '../../assets/equip-production-bg.png';
+import equip1 from '../../assets/equip-1.webp';
+import equip2 from '../../assets/equip-2.webp';
+import equip3 from '../../assets/equip-3.webp';
+import equip4 from '../../assets/equip-4.webp';
+import equipProductionBg from '../../assets/equip-production-bg.webp';
 
 // ── Desktop 11 · CocoCycle Hub ─────────────────────────────────────────────
-import cocycleHero from '../../assets/cocycle-hero.png';
-import cocycleP1 from '../../assets/cocycle-p1.png';
-import cocycleP2 from '../../assets/cocycle-p2.png';
-import cocycleP3 from '../../assets/cocycle-p3.png';
-import cocycleP4 from '../../assets/cocycle-p4.png';
-import cocycleOffer1 from '../../assets/cocycle-offer-1.png';
-import cocycleOffer2 from '../../assets/cocycle-offer-2.png';
-import cocycleOffer3 from '../../assets/cocycle-offer-3.png';
+import cocycleHero from '../../assets/cocycle-hero.webp';
+import cocycleP1 from '../../assets/cocycle-p1.webp';
+import cocycleP2 from '../../assets/cocycle-p2.webp';
+import cocycleP3 from '../../assets/cocycle-p3.webp';
+import cocycleP4 from '../../assets/cocycle-p4.webp';
+import cocycleOffer1 from '../../assets/cocycle-offer-1.webp';
+import cocycleOffer2 from '../../assets/cocycle-offer-2.webp';
+import cocycleOffer3 from '../../assets/cocycle-offer-3.webp';
 
 // ── Certificates (used by Desktop 8 and Desktop 11) ────────────────────────
 import cert1 from '../../assets/cert-1-photo.jpg';
 import cert2 from '../../assets/cert-2-photo.jpg';
-import cert3 from '../../assets/cert-3-photo.jpg';
-import certificateBg from '../../assets/CERTIFICATEBG.png';
+import cert3 from '../../assets/cert-3-photo.webp';
+import certificateBg from '../../assets/CERTIFICATEBG.webp';
 
 // ── Desktop 20 · Login ─────────────────────────────────────────────────────
-import loginPanel from '../../assets/login-panel.png';
+import loginPanel from '../../assets/login-panel.webp';
 
 // ── S 19 · Sign up ─────────────────────────────────────────────────────────
-import signupPanel from '../../assets/signup-panel.png';
+import signupPanel from '../../assets/signup-panel.webp';
 
 // ── Desktop 43 · Contact us ────────────────────────────────────────────────
-import contactBg from '../../assets/contact-bg.png';
-import contactCoconutIcon from '../../assets/contact-coconut-icon.png';
+import contactBg from '../../assets/contact-bg.webp';
+import contactCoconutIcon from '../../assets/contact-coconut-icon.webp';
 
 export const FIGMA_IMAGES: Record<string, string> = {
   // ── Shared chrome ────────────────────────────────────────────────────────

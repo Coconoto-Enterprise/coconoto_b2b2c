@@ -1,15 +1,15 @@
-import JacobPhoto from '../assets/team/Jacob.jpg';
-import JamiuPhoto from '../assets/team/Jamiu.png';
-import DanielPhoto from '../assets/team/Daniel.jpg';
-import MojolaoluwaPhoto from '../assets/team/Mojolaoluwa Abiodun Jolaoluwa.jpg';
-import PreciousCharlesPhoto from '../assets/team/Precious (Charles).jpg';
-import AbiolaPreciousPhoto from '../assets/team/Abiola Precious.jpg';
-import EnochPhoto from '../assets/team/enoch.jpeg';
-import OluwatokeFaejiPhoto from '../assets/team/Oluwatoke Faeji.jpeg';
-import TimilehinOluwayemiPhoto from '../assets/team/Oluwayemi.jpeg';
-import KehindePhoto from '../assets/team/Kehinde Elizabeth OMITOYIN.jpg';
-import TaiwoPhoto from '../assets/team/taiwo omitoyin .jpeg';
-import TunmisePhoto from '../assets/team/Oyeyode Tunmise.jpeg';
+import JacobPhoto from '../assets/team/Jacob.webp';
+import JamiuPhoto from '../assets/team/Jamiu.webp';
+import DanielPhoto from '../assets/team/Daniel.webp';
+import MojolaoluwaPhoto from '../assets/team/Mojolaoluwa Abiodun Jolaoluwa.webp';
+import PreciousCharlesPhoto from '../assets/team/Precious (Charles).webp';
+import AbiolaPreciousPhoto from '../assets/team/Abiola Precious.webp';
+import EnochPhoto from '../assets/team/enoch.webp';
+import OluwatokeFaejiPhoto from '../assets/team/Oluwatoke Faeji.webp';
+import TimilehinOluwayemiPhoto from '../assets/team/Oluwayemi.webp';
+import KehindePhoto from '../assets/team/Kehinde Elizabeth OMITOYIN.webp';
+import TaiwoPhoto from '../assets/team/taiwo omitoyin .webp';
+import TunmisePhoto from '../assets/team/Oyeyode Tunmise.webp';
 
 export interface Profile {
   id: string;

@@ -1,8 +1,8 @@
 import React, { Suspense, lazy, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../assets/Logo_1.png';
-import GoogleSearch1 from '../assets/coconut_google_search.png';
-import GoogleSearch2 from '../assets/coconut_google_search-2.png';
+import GoogleSearch1 from '../assets/coconut_google_search.webp';
+import GoogleSearch2 from '../assets/coconut_google_search-2.webp';
 /**
  * Lazy + mount-on-demand. WaitlistModal returns null while closed, so gating on
  * the open flag is visually identical — but the static import pulled

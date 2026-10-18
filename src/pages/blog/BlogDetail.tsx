@@ -5,7 +5,7 @@ import { ArrowLeft, Loader, Heart, MessageCircle, Share2, AlertCircle, Calendar,
 import blogService from '../../services/mernBlogService';
 import { buildBlogUrlSlug, matchesBlogUrlParam } from '../../services/blogUrlUtils.js';
 import { supabase } from '../../lib/supabase';
-import blogLogo from '../../assets/blog-logo.png';
+import blogLogo from '../../assets/blog-logo.webp';
 import FigmaNav from '../../components/figma/FigmaNav';
 import Footer from '../../components/Footer';
 

@@ -1,8 +1,8 @@
 import { Machine } from './types';
-import deshellerImage from '../../../assets/IMG_20250311_180248.jpg';
-import dehuskerImage from '../../../assets/dehusking.jpg';
-import cocomilkImageAuto from '../../../assets/coconut-milk.jpg';
-import cocomilkImageManual from '../../../assets/coconut-milk-manual.jpg';
+import deshellerImage from '../../../assets/IMG_20250311_180248.webp';
+import dehuskerImage from '../../../assets/dehusking.webp';
+import cocomilkImageAuto from '../../../assets/coconut-milk.webp';
+import cocomilkImageManual from '../../../assets/coconut-milk-manual.webp';
 
 export const machines: Machine[] = [
   {

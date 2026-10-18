@@ -4,11 +4,11 @@ import { useEffect, useRef } from 'react';
 import FigmaNav from '../components/figma/FigmaNav';
 import AboutFooter from '../components/about/AboutFooter';
 import { profiles } from '../data/profiles';
-import heroBg from '../assets/aboutbackground1.png';
-import cocodot from '../assets/cocodot.png';
-import missonDot from '../assets/misson.png';
-import missionImage from '../assets/plant.png';
-import visionImage from '../assets/visionimage.png';
+import heroBg from '../assets/aboutbackground1.webp';
+import cocodot from '../assets/cocodot.webp';
+import missonDot from '../assets/misson.webp';
+import missionImage from '../assets/plant.webp';
+import visionImage from '../assets/visionimage.webp';
 
 const missionPoints = [
   'Empower farmers with technology, markets, fair pricing, and new income opportunities from coconuts and their by-products.',

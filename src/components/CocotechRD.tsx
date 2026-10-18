@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import IMG_0036 from '../assets/IMG_0036.jpg';
-import IMG_0024 from '../assets/IMG_0024.jpg';
-import IMG_0023 from '../assets/IMG_0023.jpg';
-import IMG_20250311_180248 from '../assets/IMG_20250311_180248.jpg';
-import dehusking from '../assets/dehusking.jpg';
-import dehusking2 from '../assets/dehusking2.jpg';
-import IMG_0369 from '../assets/IMG_0369.jpg';
+import IMG_0036 from '../assets/IMG_0036.webp';
+import IMG_0024 from '../assets/IMG_0024.webp';
+import IMG_0023 from '../assets/IMG_0023.webp';
+import IMG_20250311_180248 from '../assets/IMG_20250311_180248.webp';
+import dehusking from '../assets/dehusking.webp';
+import dehusking2 from '../assets/dehusking2.webp';
+import IMG_0369 from '../assets/IMG_0369.webp';
 
 export function CocotechRD() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);

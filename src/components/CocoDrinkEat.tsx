@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BookEventModal } from './BookEventModal';
-import IMG_0036 from '../assets/IMG_0036.jpg';
-import IMG_0024 from '../assets/IMG_0024.jpg';
-import IMG_0023 from '../assets/IMG_0023.jpg';
-import IMG_WHATSAPP from '../assets/IMG_20250718_104052.jpg';
-import IMG_STRAW from '../assets/coccdrinkit.jpg';
+import IMG_0036 from '../assets/IMG_0036.webp';
+import IMG_0024 from '../assets/IMG_0024.webp';
+import IMG_0023 from '../assets/IMG_0023.webp';
+import IMG_WHATSAPP from '../assets/IMG_20250718_104052.webp';
+import IMG_STRAW from '../assets/coccdrinkit.webp';
 
 export function CocoDrinkEat() {
   const [showModal, setShowModal] = useState(false);

@@ -1,6 +1,6 @@
 import React from 'react';
-import dehuskingImg from '../../../assets/dehusking.jpg';
-import deshellingImg from '../../../assets/IMG_20250311_180248.jpg';
+import dehuskingImg from '../../../assets/dehusking.webp';
+import deshellingImg from '../../../assets/IMG_20250311_180248.webp';
 
 export function BuildingSection() {
   return (

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Award, CheckCircle, FileCheck } from 'lucide-react';
 import patent1 from '../../../assets/patent docs _page-0001.jpg';
 import patent2 from '../../../assets/patent docs _page-0002.jpg';
-import companyCert from '../../../assets/CompanyCertificate.jpg';
+import companyCert from '../../../assets/CompanyCertificate.webp';
 
 interface Certificate {
   type: string;

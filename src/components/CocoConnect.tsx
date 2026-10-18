@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WaitlistModal } from './WaitlistModal';
-import coconutwater11 from '../assets/coconutwater11.jpg';
+import coconutwater11 from '../assets/coconutwater11.webp';
 import coconutstillinshell from '../assets/coconutstillinshell.avif';
 import browncoconut from '../assets/browncoconut.avif';
-import coconutoil from '../assets/coconutoil.jpg';
+import coconutoil from '../assets/coconutoil.webp';
 
 export function CocoConnect() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);

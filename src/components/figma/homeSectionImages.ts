@@ -13,37 +13,37 @@
  */
 
 // ── Coco-Tech ──────────────────────────────────────────────────────────────
-import IMG_0036 from '../../assets/IMG_0036.jpg';
-import IMG_0024 from '../../assets/IMG_0024.jpg';
-import IMG_0023 from '../../assets/IMG_0023.jpg';
-import IMG_20250311_180248 from '../../assets/IMG_20250311_180248.jpg';
-import dehusking from '../../assets/dehusking.jpg';
-import dehusking2 from '../../assets/dehusking2.jpg';
-import IMG_0369 from '../../assets/IMG_0369.jpg';
-import homeCocotechImg from '../../assets/home-cocotech-img.jpeg';
+import IMG_0036 from '../../assets/IMG_0036.webp';
+import IMG_0024 from '../../assets/IMG_0024.webp';
+import IMG_0023 from '../../assets/IMG_0023.webp';
+import IMG_20250311_180248 from '../../assets/IMG_20250311_180248.webp';
+import dehusking from '../../assets/dehusking.webp';
+import dehusking2 from '../../assets/dehusking2.webp';
+import IMG_0369 from '../../assets/IMG_0369.webp';
+import homeCocotechImg from '../../assets/home-cocotech-img.webp';
 
 // ── Cococycle Hub ──────────────────────────────────────────────────────────
-import cocoplant from '../../assets/cocoplant.jpg';
-import cocofiber from '../../assets/cocofiber.png';
-import cocopeat from '../../assets/cocopeat.jpg';
-import fiber2 from '../../assets/fiber2.jpg';
+import cocoplant from '../../assets/cocoplant.webp';
+import cocofiber from '../../assets/cocofiber.webp';
+import cocopeat from '../../assets/cocopeat.webp';
+import fiber2 from '../../assets/fiber2.webp';
 import cocpeat1 from '../../assets/cocpeat1.jpeg';
 import fiber from '../../assets/fiber.jpeg';
-import cocopot from '../../assets/cocopot.jpg';
-import cocopot4 from '../../assets/cocopot4.jpg';
+import cocopot from '../../assets/cocopot.webp';
+import cocopot4 from '../../assets/cocopot4.webp';
 import cocofiber3 from '../../assets/cocofiber3.jpg';
 import cocopot2 from '../../assets/cocopot2.jpg';
-import homeCococycleImg from '../../assets/home-cococycle-img.png';
+import homeCococycleImg from '../../assets/home-cococycle-img.webp';
 
 // ── Coco DrinkEat ──────────────────────────────────────────────────────────
-import IMG_20250718_104052 from '../../assets/IMG_20250718_104052.jpg';
-import coccdrinkit from '../../assets/coccdrinkit.jpg';
-import homeCocodrinkeatImg from '../../assets/home-cocodrinkeat-img.png';
+import IMG_20250718_104052 from '../../assets/IMG_20250718_104052.webp';
+import coccdrinkit from '../../assets/coccdrinkit.webp';
+import homeCocodrinkeatImg from '../../assets/home-cocodrinkeat-img.webp';
 
 // ── Ecosystem card thumbnails ──────────────────────────────────────────────
-import homeEcoCocotech from '../../assets/home-eco-cocotech.jpeg';
-import homeEcoCococycle from '../../assets/home-eco-cococycle.png';
-import homeEcoCocodrinkeat from '../../assets/home-eco-cocodrinkeat.png';
+import homeEcoCocotech from '../../assets/home-eco-cocotech.webp';
+import homeEcoCococycle from '../../assets/home-eco-cococycle.webp';
+import homeEcoCocodrinkeat from '../../assets/home-eco-cocodrinkeat.webp';
 import cocoTechIcon from '../../assets/cococtechicon.svg';
 import cocoCycleIcon from '../../assets/coccyclehubicon.svg';
 import cocoDrinkEatIcon from '../../assets/cocdrinkeathomeicon.svg';
@@ -67,8 +67,8 @@ export { default as navLogo } from '../../assets/nav-logo.png';
  * Re-exported from here so `FigmaHomeSections` keeps importing every home-section
  * image from one place, like `navLogo` above.
  */
-export { default as efficientMachineIcon } from '../../assets/efficentimachineicon.png';
-export { default as lowMaintenanceIcon } from '../../assets/lowmentainace icon.png';
+export { default as efficientMachineIcon } from '../../assets/efficentimachineicon.webp';
+export { default as lowMaintenanceIcon } from '../../assets/lowmentainace icon.webp';
 
 /**
  * Pillar slideshows — the old home page's photo set for that section, with the

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Loader } from 'lucide-react';
 import blogService from '../../services/mernBlogService';
 import { buildBlogUrlSlug } from '../../services/blogUrlUtils.js';
-import blogLogo from '../../assets/blog-logo.png';
+import blogLogo from '../../assets/blog-logo.webp';
 import FigmaNav from '../../components/figma/FigmaNav';
 import Footer from '../../components/Footer';
 

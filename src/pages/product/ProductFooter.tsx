@@ -4,7 +4,7 @@ import { Palmtree } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaEnvelope } from 'react-icons/fa';
 import { WaitlistModal } from '../../components/WaitlistModal';
 import { BookEventModal } from '../../components/BookEventModal';
-import footerImage from '../../assets/fotterimage.png';
+import footerImage from '../../assets/fotterimage.webp';
 import AboutFooter from '../../components/about/AboutFooter';
 
 export function ProductFooter() {

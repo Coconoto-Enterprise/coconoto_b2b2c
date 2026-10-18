@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaEnvelope } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
-import Logo from '../../assets/CoconotoGreenLogoMark.png';
-import footerBg from '../../assets/fotterimage.png';
+import Logo from '../../assets/CoconotoGreenLogoMark.webp';
+import footerBg from '../../assets/fotterimage.webp';
 
 export default function AboutFooter() {
   return (

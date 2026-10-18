@@ -102,13 +102,24 @@ async function main() {
 
     const width = targetWidth(rel, meta.width ?? 0);
     // `withoutEnlargement` keeps the aspect ratio and refuses to upscale.
+    //
+    // Alpha is PRESERVED, not flattened to white. 45 of the 49 PNGs here have a
+    // transparent channel and several are drawn on non-white surfaces — the
+    // green logo mark sits on the #1f1611 footer, and the 24px unit icons sit
+    // on coloured cards. Flattening them would put a white box behind every
+    // one. Lossy WebP stores alpha losslessly anyway, so there is nothing to
+    // gain from flattening a transparent source.
     const pipeline = sharp(file, { failOn: 'none' })
       .rotate() // honour EXIF orientation, then drop the EXIF block
-      .resize({ width, withoutEnlargement: true })
-      .flatten({ background: '#ffffff' }) // PNG transparency -> white, so WebP is lossy-safe
-      .webp({ quality: WEBP_QUALITY, effort: 6 });
+      .resize({ width, withoutEnlargement: true });
 
-    const out = await pipeline.toBuffer();
+    if (!meta.hasAlpha) {
+      pipeline.flatten({ background: '#ffffff' });
+    }
+
+    const out = await pipeline
+      .webp({ quality: WEBP_QUALITY, effort: 6 })
+      .toBuffer();
     const outPath = file.replace(/\.(png|jpe?g)$/i, '.webp');
     const smaller = out.length < before;
 
