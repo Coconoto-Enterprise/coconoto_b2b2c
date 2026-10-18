@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>CocoConnect Marketplace — Design Specification</title>
+<style>
+  @page { size: A4; margin: 13mm 12mm 14mm 12mm; }
+
+  :root{
+    --ink:#14181f;
+    --ink-2:#3d4553;
+    --ink-3:#6b7480;
+    --line:#dfe3e8;
+    --line-2:#eef1f4;
+    --bg-soft:#f7f9fa;
+    --brand:#17AD10;
+    --brand-dk:#0f7a0b;
+    --lime:#8CC63F;
+    --brown:#6F4A32;
+    --warn:#b45309;
+    --danger:#b91c1c;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  body{
+    margin:0;
+    font-family:"Segoe UI",-apple-system,"Helvetica Neue",Arial,sans-serif;
+    font-size:8.75pt;
+    line-height:1.4;
+    color:var(--ink);
+    background:#fff;
+  }
+
+  /* ---------- page shell ---------- */
+  .page{
+    page-break-after:always;
+    display:flex;
+    flex-direction:column;
+    min-height:263mm;
+  }
+  .page:last-child{ page-break-after:auto; }
+
+  /* ---------- cover ---------- */
+  .cover{
+    height:262mm;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:0;
+  }
+  .cover-top{ padding-top:6mm; }
+  .cover-rule{ height:4px; width:64px; background:var(--brand); border-radius:2px; margin-bottom:9mm; }
+  .cover h1{
+    font-size:33pt; line-height:1.08; margin:0 0 6mm 0; letter-spacing:-0.9pt; font-weight:800;
+  }
+  .cover h1 em{ font-style:normal; color:var(--brand); }
+  .cover .lede{ font-size:12pt; color:var(--ink-2); max-width:135mm; line-height:1.45; margin:0; }
+  .cover-meta{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:6mm;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding:6mm 0; margin-top:auto;
+  }
+  .cover-meta div span{ display:block; font-size:7.4pt; letter-spacing:0.9pt; text-transform:uppercase; color:var(--ink-3); margin-bottom:1.4mm; }
+  .cover-meta div strong{ font-size:10pt; font-weight:650; }
+  .cover-foot{ display:flex; justify-content:space-between; align-items:flex-end; padding-top:7mm; }
+  .cover-foot .who{ font-size:8.6pt; color:var(--ink-3); }
+  .swatches{ display:flex; gap:2mm; }
+  .swatches i{ width:11mm; height:11mm; border-radius:2mm; display:block; }
+
+  /* ---------- generic headings ---------- */
+  h2{ font-size:15.5pt; font-weight:800; letter-spacing:-0.4pt; margin:0 0 1.2mm 0; }
+  h3{
+    font-size:7.8pt; font-weight:750; text-transform:uppercase; letter-spacing:0.8pt;
+    color:var(--brand-dk); margin:3.9mm 0 1.5mm 0;
+  }
+  h3:first-child{ margin-top:0; }
+  h4{ font-size:9pt; font-weight:700; margin:3mm 0 1.2mm 0; }
+  p{ margin:0 0 1.9mm 0; }
+  ul,ol{ margin:0 0 1.9mm 0; padding-left:4.2mm; }
+  li{ margin-bottom:0.95mm; }
+  code{
+    font-family:"Cascadia Mono",Consolas,monospace; font-size:8.1pt;
+    background:var(--bg-soft); border:1px solid var(--line-2); border-radius:2px;
+    padding:0.3mm 1.1mm; color:var(--ink-2);
+  }
+  strong{ font-weight:650; }
+  a{ color:var(--brand-dk); text-decoration:none; }
+
+  /* ---------- page header ---------- */
+  .ph{ border-bottom:2.5px solid var(--ink); padding-bottom:2.1mm; margin-bottom:4mm; }
+  .ph .pid{
+    display:inline-block; font-size:7.6pt; font-weight:750; letter-spacing:0.9pt;
+    background:var(--ink); color:#fff; border-radius:2px; padding:0.7mm 2mm; margin-bottom:2.2mm;
+  }
+  .ph .pid.new{ background:var(--brand); }
+  .ph .meta{ display:flex; flex-wrap:wrap; gap:2mm; margin-top:2.4mm; align-items:center; }
+  .tag{
+    font-size:7.5pt; font-weight:650; border:1px solid var(--line);
+    border-radius:9px; padding:0.6mm 2.2mm; color:var(--ink-2); background:#fff;
+  }
+  .tag.redesign{ border-color:#f0c9a0; background:#fdf4e9; color:var(--warn); }
+  .tag.newpage{ border-color:#bfe4bb; background:#eef9ed; color:var(--brand-dk); }
+  .tag.scope{ border-color:#d5dbe3; background:#f2f5f8; color:var(--ink-2); }
+  .route{ font-family:"Cascadia Mono",Consolas,monospace; font-size:8.4pt; color:var(--ink-2); }
+
+  /* ---------- two column layout ---------- */
+  .cols{ display:grid; grid-template-columns:1fr 68mm; gap:6mm; align-items:start; }
+  .cols.wide{ grid-template-columns:1fr 78mm; }
+  .cols.full{ grid-template-columns:1fr; }
+
+  /* ---------- content block list ---------- */
+  .blocks{ list-style:none; padding:0; margin:0; counter-reset:blk; }
+  .blocks > li{
+    counter-increment:blk;
+    position:relative;
+    padding:1.15mm 0 1.15mm 7.4mm;
+    border-bottom:1px solid var(--line-2);
+  }
+  .blocks > li:last-child{ border-bottom:0; }
+  .blocks > li::before{
+    content:counter(blk,decimal-leading-zero);
+    position:absolute; left:0; top:1.2mm;
+    font-size:7pt; font-weight:750; color:var(--brand);
+    font-family:"Cascadia Mono",Consolas,monospace;
+  }
+  .blocks b{ display:block; font-weight:650; }
+  .blocks span{ color:var(--ink-2); font-size:8.1pt; }
+
+  /* ---------- states ---------- */
+  .states{ list-style:none; padding:0; margin:0; }
+  .states li{ padding-left:4.6mm; position:relative; margin-bottom:1.4mm; }
+  .states li::before{
+    content:""; position:absolute; left:0.6mm; top:1.7mm;
+    width:1.7mm; height:1.7mm; border-radius:50%; background:var(--lime);
+  }
+
+  /* ---------- callouts ---------- */
+  .note, .warn, .decide{
+    border-left:2.6px solid var(--brand);
+    background:var(--bg-soft);
+    padding:2.1mm 2.7mm;
+    margin:2.7mm 0;
+    font-size:8.3pt;
+    color:var(--ink-2);
+  }
+  .note b, .warn b, .decide b{ color:var(--ink); }
+  .warn{ border-left-color:var(--warn); background:#fdf7ee; }
+  .decide{ border-left-color:var(--brown); background:#faf6f3; }
+
+  /* ---------- tables ---------- */
+  table{ width:100%; border-collapse:collapse; font-size:8.1pt; margin:0 0 2.4mm 0; }
+  th{
+    text-align:left; font-size:7.1pt; text-transform:uppercase; letter-spacing:0.7pt;
+    color:var(--ink-3); font-weight:700; padding:1.3mm 1.8mm; border-bottom:1.4px solid var(--ink);
+  }
+  td{ padding:1.25mm 1.8mm; border-bottom:1px solid var(--line-2); vertical-align:top; color:var(--ink-2); }
+  td strong{ color:var(--ink); }
+  tr:nth-child(even) td{ background:#fbfcfd; }
+
+  /* ---------- wireframes ---------- */
+  .wf{
+    border:1px solid var(--line);
+    border-radius:2mm;
+    background:#fff;
+    padding:1.7mm;
+    font-size:6.2pt;
+    color:var(--ink-3);
+  }
+  .wf-row{
+    border:1px solid #cfd6de; border-radius:1.2mm; background:var(--bg-soft);
+    padding:1.05mm 1.4mm; margin-bottom:0.95mm; text-align:center;
+    line-height:1.22;
+  }
+  .wf-row.dark{ background:#2b323c; color:#eef2f6; border-color:#2b323c; }
+  .wf-row.green{ background:#e8f7e6; border-color:#bfe4bb; color:var(--brand-dk); }
+  .wf-row.tall{ padding:2.7mm 1.4mm; }
+  .wf-row.taller{ padding:4.6mm 1.4mm; }
+  .wf-row.ghost{ background:#fff; border-style:dashed; }
+  .wf-split{ display:grid; gap:0.95mm; margin-bottom:0.95mm; }
+  .wf-split.c2{ grid-template-columns:1fr 1fr; }
+  .wf-split.c3{ grid-template-columns:1fr 1fr 1fr; }
+  .wf-split.c4{ grid-template-columns:repeat(4,1fr); }
+  .wf-split.side{ grid-template-columns:22mm 1fr; }
+  .wf-split .wf-row{ margin-bottom:0; }
+  .wf-label{
+    font-size:6.1pt; text-transform:uppercase; letter-spacing:0.6pt;
+    color:#9aa3ad; margin:1.6mm 0 0.95mm 0; font-weight:700;
+  }
+  .wf-label:first-child{ margin-top:0; }
+  .wf-note{ font-size:6.2pt; color:#9aa3ad; font-style:italic; margin-top:1.3mm; line-height:1.3; }
+
+  /* ---------- toc ---------- */
+  .toc{ list-style:none; padding:0; margin:0; }
+  .toc li{
+    display:flex; align-items:baseline; gap:2.5mm;
+    padding:0.85mm 0; border-bottom:1px solid var(--line-2);
+  }
+  .toc .num{ font-family:"Cascadia Mono",Consolas,monospace; font-size:7.5pt; color:var(--brand); font-weight:700; width:14mm; flex:none; }
+  .toc .ttl{ font-weight:600; }
+  .toc .ttl small{ display:block; font-weight:400; color:var(--ink-3); font-size:7.6pt; line-height:1.25; }
+  .toc .pg{ margin-left:auto; font-size:7.9pt; color:var(--ink-3); font-family:"Cascadia Mono",Consolas,monospace; }
+  .toc .grp{ font-size:7.3pt; text-transform:uppercase; letter-spacing:0.9pt; color:var(--ink-3); font-weight:750; padding:2.1mm 0 0.8mm 0; border:0; display:block; }
+
+  /* ---------- misc ---------- */
+  .kpi{ display:grid; grid-template-columns:repeat(4,1fr); gap:2.5mm; margin:2.4mm 0 3mm 0; }
+  .kpi div{ border:1px solid var(--line); border-radius:2mm; padding:2.1mm 2.5mm; }
+  .kpi span{ display:block; font-size:6.8pt; text-transform:uppercase; letter-spacing:0.7pt; color:var(--ink-3); margin-bottom:0.8mm; }
+  .kpi strong{ font-size:12pt; font-weight:800; letter-spacing:-0.3pt; }
+  .pill{ display:inline-block; font-size:7pt; font-weight:650; border-radius:8px; padding:0.45mm 1.7mm; border:1px solid var(--line); background:#fff; color:var(--ink-2); margin-right:1mm; }
+  .pill.p0{ border-color:#bfe4bb; background:#eef9ed; color:var(--brand-dk); }
+  .pill.p1{ border-color:#f0c9a0; background:#fdf4e9; color:var(--warn); }
+  .pill.p2{ border-color:#d5dbe3; background:#f2f5f8; }
+  .foot{ margin-top:auto; border-top:1px solid var(--line); padding-top:1.5mm; display:flex; justify-content:space-between; font-size:7pt; color:var(--ink-3); }
+  .two{ display:grid; grid-template-columns:1fr 1fr; gap:5mm; }
+  .three{ display:grid; grid-template-columns:repeat(3,1fr); gap:3.4mm; }
+  .card{ border:1px solid var(--line); border-radius:2mm; padding:2.5mm 2.9mm; }
+  .card h4{ margin-top:0; }
+</style>
+</head>
+<body>
+
+<!-- ============================== COVER ============================== -->
+<section class="page">
+  <div class="cover">
+    <div class="cover-top">
+      <div class="cover-rule"></div>
+      <h1>CocoConnect<br/>Marketplace<br/><em>Design Specification</em></h1>
+      <p class="lede">A page-by-page brief for the marketplace redesign. Every screen, what belongs on it, and the states that have to be drawn — ready to hand to a designer.</p>
+    </div>
+
+    <div class="cover-meta">
+      <div><span>Document</span><strong>Design spec v1.0</strong></div>
+      <div><span>Product</span><strong>CocoConnect</strong></div>
+      <div><span>Screens</span><strong>13 to design</strong></div>
+      <div><span>Issued</span><strong>14 Oct 2026</strong></div>
+    </div>
+
+    <div class="cover-foot">
+      <div class="who">
+        Prepared for the Coconoto design team<br/>
+        Platform: coconoto.africa &nbsp;·&nbsp; <span class="route">/cococonnect</span>
+      </div>
+      <div class="swatches">
+        <i style="background:#17AD10"></i>
+        <i style="background:#8CC63F"></i>
+        <i style="background:#6F4A32"></i>
+        <i style="background:#14181f"></i>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== TOC ============================== -->
+<section class="page">
+  <div class="ph">
+    <h2>Contents</h2>
+  </div>
+
+  <ul class="toc">
+    <li class="grp">Part A — Context</li>
+    <li><span class="num">A1</span><span class="ttl">What this document is<small>Scope, audiences, guiding principles, priority tiers</small></span><span class="pg">3</span></li>
+    <li><span class="num">A2</span><span class="ttl">Design system reference<small>Colour, type, spacing, grid, component inventory</small></span><span class="pg">4</span></li>
+    <li><span class="num">A3</span><span class="ttl">Global elements<small>Navbar, account menu, footer, cards, badges, empty &amp; loading patterns</small></span><span class="pg">5</span></li>
+
+    <li class="grp">Part B — Buyer-facing screens</li>
+    <li><span class="num">B1</span><span class="ttl">Marketplace Browse<small>Search, categories, sort, product grid</small></span><span class="pg">6</span></li>
+    <li><span class="num">B2</span><span class="ttl">Product Detail<small>Gallery, specifications, vendor card</small></span><span class="pg">7</span></li>
+    <li><span class="num">B3</span><span class="ttl">Vendor Storefront<small>Who you are buying from</small></span><span class="pg">8</span></li>
+    <li><span class="num">B4</span><span class="ttl">Request Basket<small>Multiple products in one enquiry</small></span><span class="pg">9</span></li>
+    <li><span class="num">B5</span><span class="ttl">Place Order<small>Buyer details, delivery, summary</small></span><span class="pg">10</span></li>
+    <li><span class="num">B6</span><span class="ttl">Order Confirmation<small>Reference number and what happens next</small></span><span class="pg">11</span></li>
+    <li><span class="num">B7</span><span class="ttl">Buyer Login<small>Split-panel sign in</small></span><span class="pg">12</span></li>
+    <li><span class="num">B8</span><span class="ttl">Buyer Signup<small>Account creation</small></span><span class="pg">13</span></li>
+    <li><span class="num">B9</span><span class="ttl">Buyer Dashboard<small>Orders, profile, upgrade to seller</small></span><span class="pg">14</span></li>
+
+    <li class="grp">Part C — Seller-facing screens</li>
+    <li><span class="num">C1</span><span class="ttl">Seller Login<small>Vendor sign in</small></span><span class="pg">15</span></li>
+    <li><span class="num">C2</span><span class="ttl">Seller Signup<small>Open a storefront</small></span><span class="pg">16</span></li>
+    <li><span class="num">C3</span><span class="ttl">Seller Dashboard · 1 of 2<small>Shell, overview, products, add-product form</small></span><span class="pg">17</span></li>
+    <li><span class="num">C3</span><span class="ttl">Seller Dashboard · 2 of 2<small>Orders, storefront settings, states</small></span><span class="pg">18</span></li>
+    <li><span class="num">C4</span><span class="ttl">Become a Seller<small>Upgrade an existing buyer account</small></span><span class="pg">19</span></li>
+
+    <li class="grp">Part D — Delivery</li>
+    <li><span class="num">D1</span><span class="ttl">States &amp; responsive matrix<small>Every screen × every state</small></span><span class="pg">20</span></li>
+    <li><span class="num">D2</span><span class="ttl">Handoff checklist<small>Deliverables, naming, assets, open decisions</small></span><span class="pg">21</span></li>
+  </ul>
+
+  <div class="note">
+    <b>How to read a page spec.</b> Left column: purpose, content in reading order, required states. Right column: a structural wireframe showing <em>hierarchy and order</em>, not visual design — grey blocks are content, green blocks are actions, dashed blocks are optional or new.
+  </div>
+  <div class="foot"><span>CocoConnect Marketplace — Design Specification</span><span>v1.0 · 14 Oct 2026</span></div>
+</section>
+
+<!-- ============================== A1 ============================== -->
+<section class="page">
+  <div class="ph">
+    <h2>A1 — What this document is</h2>
+    <div class="meta">
+      <span class="tag scope">Context</span>
+      <span class="tag scope">Read first</span>
+    </div>
+  </div>
+
+  <h3>The brief in one paragraph</h3>
+  <p>CocoConnect is the trading arm of Coconoto — a marketplace where farmers, cooperatives and processors list coconut products and buyers across the value chain source them. It works today, but it was built straight from component primitives with no design pass. Pages are dense, the product detail step is a modal instead of a page, and three screens that a marketplace cannot do without — a product page, a vendor storefront and an order confirmation — do not exist. This document is the redesign brief: it fixes the information architecture and says what has to be drawn. It deliberately does <strong>not</strong> prescribe the visual language; that is the designer's job.</p>
+
+  <h3>Who the product serves</h3>
+  <div class="two">
+    <div class="card">
+      <h4>Buyers</h4>
+      <p style="margin:0">Businesses sourcing coconut inputs — food and beverage processors, cosmetic and coir manufacturers, aggregators, exporters and institutional buyers. They compare <em>price per unit</em>, available volume, quality grade and lead time. They are not impulse shoppers.</p>
+    </div>
+    <div class="card">
+      <h4>Sellers</h4>
+      <p style="margin:0">Farmers, cooperatives and processors with produce to move. Many will be on a phone, often on poor connectivity, and are not confident with dashboards. Listing a product has to feel like filling a simple form, not operating software.</p>
+    </div>
+  </div>
+
+  <h3>What exists today</h3>
+  <table>
+    <thead><tr><th style="width:34%">Screen</th><th style="width:22%">Route</th><th>Condition</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Marketplace browse</strong></td><td><code>/cococonnect</code></td><td>Works. Search, category rail, sort, grid. Visually untreated.</td></tr>
+      <tr><td><strong>Order modal</strong></td><td>— (in-page)</td><td>Carries product info, quantity and checkout in one dialog. No URL, no share.</td></tr>
+      <tr><td><strong>Buyer login / signup</strong></td><td><code>/buyer-login</code>, <code>/buyer-signup</code></td><td>Both work. Login has a designed split panel; signup is an unstyled form card.</td></tr>
+      <tr><td><strong>Buyer dashboard</strong></td><td><code>/buyer-dashboard</code></td><td>Orders, profile, upgrade-to-seller. Reasonably built; no overview landing.</td></tr>
+      <tr><td><strong>Seller dashboard</strong></td><td><code>/vendor-dashboard</code></td><td>Products / orders / profile tabs. <em>Two</em> separate implementations exist.</td></tr>
+      <tr><td><strong>Seller login / signup</strong></td><td><code>/vendor-login</code>, <code>/vendor-signup</code></td><td>Work. Login is designed, signup is not.</td></tr>
+      <tr><td><strong>Not built at all</strong></td><td>—</td><td>No product page, no vendor storefront, no basket, no order confirmation.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Guiding principles</h3>
+  <ul>
+    <li><strong>One clear next action per screen.</strong> Every page answers "what do I do here?" without the user hunting.</li>
+    <li><strong>Trust over gloss.</strong> B2B buyers want verification, minimum order, lead time and grade — not lifestyle photography. Consumer-marketplace gloss will read as unserious.</li>
+    <li><strong>Say "request", not "buy".</strong> There is no payment on the platform; a vendor confirms the order by hand. Every label, button and confirmation must reflect that so nobody expects instant checkout.</li>
+    <li><strong>Mobile is the seller's primary device.</strong> Design the seller side at 375&nbsp;px first. The buyer side can be desktop-led.</li>
+    <li><strong>Price and unit never separate.</strong> <code>₦4,500/kg</code> is one object; never let a line break split them.</li>
+    <li><strong>Nothing that deserves a URL hides in a modal.</strong> Product detail, checkout and confirmation all become pages.</li>
+  </ul>
+
+  <h3>Priority tiers</h3>
+  <p><span class="pill p0">P0 — must ship</span> the eight screens a buyer or seller cannot complete a task without. <span class="pill p1">P1 — should ship</span> needed for a credible B2B marketplace. <span class="pill p2">P2 — reserve</span> acknowledged, not designed in this round.</p>
+
+  <div class="foot"><span>A1 — What this document is</span><span>3</span></div>
+</section>
+
+<!-- ============================== A2 ============================== -->
+<section class="page">
+  <div class="ph">
+    <h2>A2 — Design system reference</h2>
+    <div class="meta">
+      <span class="tag scope">Context</span>
+      <span class="tag">Current state — designer may replace</span>
+    </div>
+  </div>
+
+  <p>These are the tokens in use across the site today. The redesign is free to revisit them, but anything kept should be kept deliberately — the marketplace shares a navbar and footer with the rest of the site, so a divergent palette will look pasted on.</p>
+
+  <h3>Colour</h3>
+  <table>
+    <thead><tr><th style="width:20%">Hex</th><th style="width:26%">Role today</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>#17AD10</strong></td><td>Primary action green</td><td>Buttons, links, active nav. The brand's loudest colour.</td></tr>
+      <tr><td><strong>#8CC63F</strong></td><td>Lime accent</td><td>Active nav underline, small highlights. Sparingly.</td></tr>
+      <tr><td><strong>#6F4A32</strong></td><td>Brown</td><td>CTA bands, headings on light surfaces.</td></tr>
+      <tr><td><strong>#1f1611</strong></td><td>Footer background</td><td>Near-black brown. Anything on it needs real contrast.</td></tr>
+      <tr><td><strong>#618A42</strong></td><td>Status green</td><td>Success text.</td></tr>
+      <tr><td><strong>#d4a574</strong></td><td>Warm border</td><td>Card and divider edges.</td></tr>
+      <tr><td><strong>Emerald / amber / rose</strong></td><td>Semantic</td><td>In-stock, low-stock, out-of-stock and order-status chips. Keep as a defined set, not ad-hoc classes.</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><b>Ask.</b> The marketplace currently runs a glassmorphism treatment — frosted white cards over a radial green gradient, with blur orbs. It is decorative and reads consumer. For a B2B trading surface, a flat light background with a denser grid and heavier price typography will communicate more.</div>
+
+  <h3>Typography &amp; spacing</h3>
+  <div class="two">
+    <div>
+      <ul>
+        <li><strong>Headings:</strong> Lora (serif) site-wide; marketplace uses a geometric sans. Pick one for the marketplace and state it.</li>
+        <li><strong>Body:</strong> system sans, 14–16&nbsp;px.</li>
+        <li><strong>Numbers:</strong> prices and quantities need a tabular figure so columns line up.</li>
+      </ul>
+    </div>
+    <div>
+      <ul>
+        <li>4&nbsp;px base unit. Card padding 16/20/24.</li>
+        <li>Radius: 8&nbsp;px controls, 12–16&nbsp;px cards.</li>
+        <li>Shadow: one soft elevation only. No multi-layer glow.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Layout &amp; breakpoints</h3>
+  <table>
+    <thead><tr><th style="width:18%">Name</th><th style="width:16%">Width</th><th>Behaviour</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Mobile</strong></td><td>375–639</td><td>Primary design target for the seller side. Single column, category rail becomes a drawer.</td></tr>
+      <tr><td><strong>Tablet</strong></td><td>640–1023</td><td>Two-column product grid, sidebar still collapsed.</td></tr>
+      <tr><td><strong>Desktop</strong></td><td>1024–1439</td><td>Left category rail (270&nbsp;px) + three-column grid. Max content width 1280&nbsp;px.</td></tr>
+      <tr><td><strong>Wide</strong></td><td>1440+</td><td>Same grid, more whitespace. Never four columns of product cards.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Component inventory</h3>
+  <div class="three">
+    <div class="card"><h4>Already built</h4><p style="margin:0;font-size:8.5pt">Button, Badge, Card, Input, Label, Textarea, Select, Table, Dialog, Sheet, Sidebar, Toast, Skeleton.</p></div>
+    <div class="card"><h4>Needs designing</h4><p style="margin:0;font-size:8.5pt">Product card, category rail item, quantity stepper, stock chip, verification badge, empty state, pagination / load-more, filter chip, breadcrumb.</p></div>
+    <div class="card"><h4>Needs deciding</h4><p style="margin:0;font-size:8.5pt">Image placeholder, avatar fallback, status pill set, star rating (P2), data-table density.</p></div>
+  </div>
+
+  <div class="foot"><span>A2 — Design system reference</span><span>4</span></div>
+</section>
+
+<!-- ============================== A3 ============================== -->
+<section class="page">
+  <div class="ph">
+    <h2>A3 — Global elements</h2>
+    <div class="meta">
+      <span class="tag scope">All screens</span>
+      <span class="tag redesign">Redesign</span>
+    </div>
+  </div>
+  <p>These appear on most or all screens. Design them once, in all states, before the individual pages — every page spec below assumes them.</p>
+
+  <div class="cols">
+    <div>
+      <h3>Navbar</h3>
+      <ul>
+        <li>Sticky, 72&nbsp;px tall, stays in document flow (no compensating page padding).</li>
+        <li>Left: Coconoto wordmark. Centre: Home · Services (dropdown: Coco-Tech, CocoCycle Hub, Coco-Connect, Coco Drink &amp; Eat) · Marketplace · Blog · About Us · Contact us.</li>
+        <li>Right: the <strong>account cluster</strong> — this is the one region that differs per screen.</li>
+        <li>Under 1024&nbsp;px: logo + hamburger; nav becomes a full-height sheet with the account links at the bottom.</li>
+        <li>Active item is derived from the route, so Marketplace lights up on every <code>/cococonnect/*</code> page.</li>
+      </ul>
+
+      <h3>Account cluster — three states</h3>
+      <table>
+        <thead><tr><th style="width:26%">State</th><th>Shows</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Signed out</strong></td><td>Single green "Login" pill.</td></tr>
+          <tr><td><strong>Signed in</strong></td><td>Initials avatar + chevron. Dropdown: Profile · My Orders · Sell on Coconoto · Sign out.</td></tr>
+          <tr><td><strong>Signed in + seller</strong></td><td>Same, plus "Seller dashboard" as the first item.</td></tr>
+        </tbody>
+      </table>
+      <div class="note"><b>Gap to fix.</b> There is no basket indicator anywhere in the navbar. Once the basket exists (B4), the cluster needs a basket icon with an item count between the search and the avatar.</div>
+
+      <h3>Footer</h3>
+      <ul>
+        <li>Shared site footer, dark brown <code>#1f1611</code> background, green logo mark, link columns.</li>
+        <li>Identical on every marketplace page — do not redesign per page.</li>
+      </ul>
+
+      <h3>Repeating patterns</h3>
+      <ul>
+        <li><strong>Empty state.</strong> Centred icon in a soft tinted square, one bold line, one explanatory line, one action button. Every list on the site uses this shape.</li>
+        <li><strong>Loading.</strong> Skeleton cards that match the real card's proportions — never a spinner on a list.</li>
+        <li><strong>Error.</strong> Inline bordered strip above the content with a retry action. Full-page error only when nothing at all loaded.</li>
+        <li><strong>Toast.</strong> Bottom-right, auto-dismiss, success/error variants.</li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Navbar — desktop</div>
+        <div class="wf-row dark">Logo &nbsp;|&nbsp; Home · Services · <b>Marketplace</b> · Blog · About · Contact &nbsp;|&nbsp; ⌕ &nbsp; ⛁2 &nbsp; ◉ JD</div>
+
+        <div class="wf-label">Account dropdown</div>
+        <div class="wf-row ghost" style="text-align:left">
+          ◉ Jane Doe<br/>jane@buyer.com<br/>
+          <hr style="border:0;border-top:1px solid #e6e9ed;margin:1.2mm 0"/>
+          Profile<br/>My Orders<br/>Sell on Coconoto<br/>Sign out
+        </div>
+
+        <div class="wf-label">Navbar — mobile</div>
+        <div class="wf-row dark">Logo &nbsp;|&nbsp; ☰</div>
+
+        <div class="wf-label">Empty state pattern</div>
+        <div class="wf-row taller ghost">
+          ▣<br/><b>No orders yet</b><br/>Start shopping to see your orders here.<br/>
+          <span style="display:inline-block;margin-top:1.2mm;padding:0.8mm 3mm;background:#e8f7e6;border:1px solid #bfe4bb;border-radius:1mm;color:#0f7a0b">Browse products →</span>
+        </div>
+
+        <div class="wf-label">Skeleton card</div>
+        <div class="wf-row ghost" style="text-align:left">
+          ▨▨▨▨▨▨▨▨▨▨<br/>▬▬▬▬▬▬<br/>▬▬▬▬<br/>▬▬▬▬▬▬▬▬
+        </div>
+
+        <div class="wf-label">Status chip set</div>
+        <div class="wf-row ghost" style="text-align:left">
+          Pending · Confirmed · Processing · Shipped · Delivered · Cancelled<br/>
+          In stock · Only 3 left · Out of stock · ✓ Verified
+        </div>
+        <div class="wf-note">Six order statuses and four product states. Define colour, icon and wording for each as one component.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>A3 — Global elements</span><span>5</span></div>
+</section>
+
+<!-- ============================== B1 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid">B1</span>
+    <h2>Marketplace Browse</h2>
+    <div class="meta">
+      <span class="route">/cococonnect</span>
+      <span class="tag redesign">Redesign</span>
+      <span class="tag">Public</span>
+      <span class="pill p0">P0</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>The shop floor. A buyer lands here from search or the nav, narrows to what they need in as few moves as possible, and opens a product.</p>
+
+      <h3>Content, top to bottom</h3>
+      <ol class="blocks">
+        <li><b>Navbar</b><span>With the account cluster and (new) basket indicator.</span></li>
+        <li><b>Hero band + search</b><span>Headline "Discover Quality Coconut Products", one-line subhead, three trust badges — Verified vendors · Nationwide delivery · Quality guaranteed — and the full-width search field. Search covers product name, description and vendor, with a clear (✕) when filled. Keep the band shallow: it is a signpost, not a billboard.</span></li>
+        <li><b>Category navigation</b><span>Desktop: a 270&nbsp;px sticky rail with "All Products" plus the 11 categories, each with a live count. Mobile: a row of the top 4–5 categories as quick-chips, plus a "Categories" button opening a right-hand drawer with the same items.</span></li>
+        <li><b>Results toolbar</b><span>"Showing N products", the active filter as a removable chip, Sort (Newest · Price low→high · Price high→low · Name A–Z), and a grid/list toggle.</span></li>
+        <li><b>Product grid</b><span>2 columns mobile, 3 desktop. Card: image, category badge, name (2-line clamp), vendor name + verified tick, price with unit, stock chip. Whole card is the link target.</span></li>
+        <li><b>Load more + how it works</b><span>New. The grid currently renders everything at once — pick a page size and one pattern. Below it, a three-step strip: Browse → Send a request → Vendor confirms, which sets the expectation that this is an enquiry marketplace.</span></li>
+        <li><b>Footer</b><span>Shared site footer.</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>Loading</strong> — six skeleton cards in the real grid proportions.</li>
+        <li><strong>No results</strong> — search term echoed back, category named if active, "Clear filters" action.</li>
+        <li><strong>Empty category</strong> — "No products in this category yet" plus a route back to All Products.</li>
+        <li><strong>Load failure</strong> — inline strip with Retry. Plus the mobile drawer open and closed.</li>
+      </ul>
+
+      <div class="note"><b>Judgement call.</b> The page is currently one frosted card floating on a green gradient with decorative blur orbs — the biggest single thing making the marketplace look like a D2C shop. A flat surface, a tighter card and a larger price will do more for credibility than any new component.</div>
+      <div class="decide"><b>Decide.</b> Show seller location and minimum order on the card itself? For B2B sourcing this is often the deciding factor, and it costs one line.</div>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Desktop</div>
+        <div class="wf-row dark">Navbar &nbsp; ⌕ &nbsp; ⛁ &nbsp; ◉</div>
+        <div class="wf-row taller">
+          <b>Discover Quality Coconut Products</b><br/>
+          Direct from verified farmers and processors<br/>
+          <span style="opacity:.75">✓ Verified &nbsp; 🚚 Delivery &nbsp; ✓ Quality</span>
+          <div class="wf-row" style="margin:1.4mm 0 0 0;text-align:left">⌕ Search products, category or vendor…</div>
+        </div>
+        <div class="wf-split side">
+          <div>
+            <div class="wf-row green" style="text-align:left">All Products <span style="float:right">128</span></div>
+            <div class="wf-row" style="text-align:left">Fresh Coconuts <span style="float:right">31</span></div>
+            <div class="wf-row" style="text-align:left">Coconut Water <span style="float:right">14</span></div>
+            <div class="wf-row" style="text-align:left">Coconut Oil <span style="float:right">22</span></div>
+            <div class="wf-row" style="text-align:left">Desiccated… <span style="float:right">9</span></div>
+            <div class="wf-row" style="text-align:left">Coir Products <span style="float:right">7</span></div>
+            <div class="wf-row ghost" style="text-align:left">+ 6 more</div>
+          </div>
+          <div>
+            <div class="wf-row" style="text-align:left">Showing 128 products &nbsp;&nbsp; Sort: Newest ▾</div>
+            <div class="wf-split c3" style="margin-top:1.2mm">
+              <div class="wf-row tall">▣<br/>Fresh Coconuts<br/><b>₦4,500/kg</b><br/>Green Farms ✓</div>
+              <div class="wf-row tall">▣<br/>Virgin Oil<br/><b>₦12,000/L</b><br/>Coco Mill ✓</div>
+              <div class="wf-row tall">▣<br/>Coir Fibre<br/><b>₦980/kg</b><br/>Ketu Co-op ✓</div>
+            </div>
+            <div class="wf-split c3">
+              <div class="wf-row tall">▣</div><div class="wf-row tall">▣</div><div class="wf-row tall">▣</div>
+            </div>
+            <div class="wf-row" style="text-align:center">Load more</div>
+          </div>
+        </div>
+        <div class="wf-split c3">
+          <div class="wf-row tall">1 · Browse</div>
+          <div class="wf-row tall">2 · Send a request</div>
+          <div class="wf-row tall">3 · Vendor confirms</div>
+        </div>
+        <div class="wf-row dark">Footer</div>
+
+        <div class="wf-label">Mobile</div>
+        <div class="wf-row dark">Logo &nbsp;|&nbsp; ⌕ &nbsp; ⛁ &nbsp; ☰</div>
+        <div class="wf-row">Hero + search</div>
+        <div class="wf-row ghost" style="text-align:left">○ All &nbsp; ○ Coconuts &nbsp; ○ Oil &nbsp; ○ Water →</div>
+        <div class="wf-row" style="text-align:left">☰ Categories &nbsp;&nbsp; 128 items &nbsp; Sort ▾</div>
+        <div class="wf-split c2">
+          <div class="wf-row tall">▣<br/>Fresh Coconuts<br/><b>₦4,500/kg</b></div>
+          <div class="wf-row tall">▣<br/>Virgin Oil<br/><b>₦12,000/L</b></div>
+        </div>
+        <div class="wf-note">Drawer slides in from the right at 85% width with the same rail items and counts. The how-it-works strip sits below the grid on mobile.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>B1 — Marketplace Browse</span><span>6</span></div>
+</section>
+
+<!-- ============================== B2 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid new">B2</span>
+    <h2>Product Detail</h2>
+    <div class="meta">
+      <span class="route">/cococonnect/product/:id</span>
+      <span class="tag newpage">New page</span>
+      <span class="tag">Public</span>
+      <span class="pill p0">P0</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>Give a product a home of its own so it can be shared, indexed and described properly. Today the only way to see a product is the order modal, which has no URL and no room for the specifications a B2B buyer needs before enquiring.</p>
+
+      <h3>Content, top to bottom</h3>
+      <ol class="blocks">
+        <li><b>Breadcrumb</b><span>Marketplace / {Category} / {Product name}. Doubles as a route back to the filtered grid.</span></li>
+        <li><b>Gallery</b><span>Main image at a fixed ratio with thumbnails beneath. Products currently carry a single image, so design for one and leave room for four. Missing image falls back to the coconut placeholder.</span></li>
+        <li><b>Buy panel</b><span>Right of the gallery. Product name, vendor line with the verified tick (links to B3), price with unit, stock status, quantity stepper with the available maximum, and the primary action.</span></li>
+        <li><b>Primary + secondary actions</b><span>Primary: <strong>"Request to order"</strong>. Secondary: "Add to basket" and "Message vendor". Out of stock replaces the primary with "Notify me when available".</span></li>
+        <li><b>Specification block</b><span>Category · Unit of measure · Available stock · <em>Minimum order</em> · <em>Packaging</em> · <em>Lead time</em> · <em>Origin</em>. The italicised four are new fields the designer should lay out now even if they ship later — they are the reason a B2B buyer trusts a listing.</span></li>
+        <li><b>Vendor card</b><span>Avatar or logo, business name, verified badge, location, member-since, and "View storefront". This is the trust anchor of the page.</span></li>
+        <li><b>Full description</b><span>Long-form text. Design for up to ~800 characters with a "read more" clamp.</span></li>
+        <li><b>Similar products</b><span>Three or four cards from the same category, reusing the grid card.</span></li>
+        <li><b>Footer</b><span>Shared site footer.</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>Loading</strong> — gallery and panel skeletons.</li>
+        <li><strong>Out of stock</strong> — CTA disabled, "Notify me" replacement, chip on the gallery.</li>
+        <li><strong>Product not found</strong> — a proper 404 within the marketplace chrome, not the global error page.</li>
+        <li><strong>No image</strong> — the coconut placeholder at both gallery and thumbnail size.</li>
+      </ul>
+
+      <div class="note"><b>Why this is P0.</b> Product pages are what search engines index and what buyers paste into WhatsApp when asking a colleague. Without it the marketplace cannot be found or shared.</div>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Desktop</div>
+        <div class="wf-row dark">Navbar &nbsp; ⌕ &nbsp; ⛁ &nbsp; ◉</div>
+        <div class="wf-row" style="text-align:left">Marketplace / Coconut Oil / Cold-pressed Virgin Coconut Oil</div>
+        <div class="wf-split c2">
+          <div>
+            <div class="wf-row taller">▣ &nbsp; main image</div>
+            <div class="wf-split c4">
+              <div class="wf-row">▫</div><div class="wf-row">▫</div><div class="wf-row ghost">▫</div><div class="wf-row ghost">▫</div>
+            </div>
+          </div>
+          <div>
+            <div class="wf-row" style="text-align:left"><b>Cold-pressed Virgin Coconut Oil</b></div>
+            <div class="wf-row" style="text-align:left">Green Coconut Farms ✓ Verified</div>
+            <div class="wf-row" style="text-align:left"><b>₦12,000 / liter</b> &nbsp; In stock</div>
+            <div class="wf-row" style="text-align:left">− &nbsp; [ 10 ] &nbsp; + &nbsp;&nbsp; Max 240</div>
+            <div class="wf-row green"><b>Request to order</b></div>
+            <div class="wf-split c2">
+              <div class="wf-row">Add to basket</div>
+              <div class="wf-row ghost">Message vendor</div>
+            </div>
+            <div class="wf-row ghost" style="text-align:left">🚚 Delivery quoted by vendor</div>
+          </div>
+        </div>
+        <div class="wf-label">Specifications</div>
+        <div class="wf-split c4">
+          <div class="wf-row" style="text-align:left">Category<br/><b>Coconut Oil</b></div>
+          <div class="wf-row" style="text-align:left">Unit<br/><b>liter</b></div>
+          <div class="wf-row" style="text-align:left">Min. order<br/><b>20 L</b></div>
+          <div class="wf-row" style="text-align:left">Lead time<br/><b>3–5 days</b></div>
+        </div>
+        <div class="wf-split c4">
+          <div class="wf-row" style="text-align:left">Packaging<br/><b>20 L jerry</b></div>
+          <div class="wf-row" style="text-align:left">Origin<br/><b>Ogun, NG</b></div>
+          <div class="wf-row" style="text-align:left">Stock<br/><b>240 L</b></div>
+          <div class="wf-row" style="text-align:left">Grade<br/><b>Food</b></div>
+        </div>
+        <div class="wf-label">Vendor card</div>
+        <div class="wf-row" style="text-align:left">◉ Green Coconut Farms ✓<br/>Abeokuta, Ogun · Member since 2024<br/><span style="color:#0f7a0b">View storefront →</span></div>
+        <div class="wf-label">Description</div>
+        <div class="wf-row tall" style="text-align:left">▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬<br/>▬▬▬▬▬▬▬▬▬▬▬▬<br/>▬▬▬▬▬▬▬▬▬▬▬▬▬▬</div>
+        <div class="wf-label">Similar products</div>
+        <div class="wf-split c3">
+          <div class="wf-row tall">▣</div><div class="wf-row tall">▣</div><div class="wf-row tall">▣</div>
+        </div>
+        <div class="wf-row dark">Footer</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>B2 — Product Detail</span><span>7</span></div>
+</section>
+
+<!-- ============================== B3 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid new">B3</span>
+    <h2>Vendor Storefront</h2>
+    <div class="meta">
+      <span class="route">/cococonnect/vendor/:id</span>
+      <span class="tag newpage">New page</span>
+      <span class="tag">Public</span>
+      <span class="pill p1">P1</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>Let a buyer see who they are dealing with, and everything that seller offers, in one place. In B2B sourcing the seller matters as much as the product — buyers consolidate with one supplier. Today a vendor is a single line of text under a product name.</p>
+
+      <h3>Content, top to bottom</h3>
+      <ol class="blocks">
+        <li><b>Breadcrumb</b><span>Marketplace / {Business name}.</span></li>
+        <li><b>Storefront header</b><span>Logo or initials avatar, business name, verified badge, location, member since. If a banner image is ever added, this is where it goes.</span></li>
+        <li><b>Description</b><span>The vendor's own words about the business, clamped to three lines with an expand.</span></li>
+        <li><b>Stat strip</b><span>Products listed · Categories covered · Orders fulfilled (if we choose to show it) · Member since. Three or four compact stat cards.</span></li>
+        <li><b>Contact block</b><span>Phone and email as tap-to-act chips. Buyer-side only; never expose more than the vendor consented to publish.</span></li>
+        <li><b>Filter + sort row</b><span>Within-store category filter and the same sort options as the main grid.</span></li>
+        <li><b>Product grid</b><span>The vendor's active products, reusing the B1 card.</span></li>
+        <li><b>Footer</b><span>Shared site footer.</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>Vendor with no active products</strong> — storefront still renders, grid shows "This seller has no active listings right now".</li>
+        <li><strong>Unverified vendor</strong> — no tick; do not draw attention to the absence, but never show a "pending" badge publicly.</li>
+        <li><strong>No logo</strong> — initials avatar fallback.</li>
+        <li><strong>Vendor not found</strong> — in-chrome 404.</li>
+      </ul>
+
+      <div class="decide"><b>Decide.</b> Should a vendor's phone number be public, or only revealed after the buyer sends a request? Public is better for conversion; gated is better for spam control. This is a business call, not a design one — but the design changes depending on the answer.</div>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Desktop</div>
+        <div class="wf-row dark">Navbar</div>
+        <div class="wf-row" style="text-align:left">Marketplace / Green Coconut Farms</div>
+        <div class="wf-split side">
+          <div class="wf-row taller">◉<br/>logo</div>
+          <div>
+            <div class="wf-row" style="text-align:left"><b>Green Coconut Farms</b> ✓ Verified</div>
+            <div class="wf-row" style="text-align:left">📍 Abeokuta, Ogun &nbsp;·&nbsp; Member since Mar 2024</div>
+            <div class="wf-row tall" style="text-align:left">▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬<br/>▬▬▬▬▬▬▬▬▬▬▬▬▬▬</div>
+            <div class="wf-split c2">
+              <div class="wf-row">✉ email@farm.com</div>
+              <div class="wf-row">☎ +234 800 000</div>
+            </div>
+          </div>
+        </div>
+        <div class="wf-split c4">
+          <div class="wf-row">Products<br/><b>18</b></div>
+          <div class="wf-row">Categories<br/><b>4</b></div>
+          <div class="wf-row">Orders<br/><b>212</b></div>
+          <div class="wf-row">Since<br/><b>2024</b></div>
+        </div>
+        <div class="wf-row" style="text-align:left">All &nbsp;·&nbsp; Fresh Coconuts &nbsp;·&nbsp; Coconut Oil &nbsp;&nbsp;&nbsp;&nbsp; Sort ▾</div>
+        <div class="wf-split c3">
+          <div class="wf-row tall">▣</div><div class="wf-row tall">▣</div><div class="wf-row tall">▣</div>
+        </div>
+        <div class="wf-split c3">
+          <div class="wf-row tall">▣</div><div class="wf-row tall">▣</div><div class="wf-row tall">▣</div>
+        </div>
+        <div class="wf-row">Load more</div>
+        <div class="wf-row dark">Footer</div>
+
+        <div class="wf-label">Mobile</div>
+        <div class="wf-row dark">Logo &nbsp;|&nbsp; ☰</div>
+        <div class="wf-row">◉ Green Coconut Farms ✓</div>
+        <div class="wf-row ghost">📍 Ogun · Since 2024</div>
+        <div class="wf-split c2">
+          <div class="wf-row">Products 18</div><div class="wf-row">Orders 212</div>
+        </div>
+        <div class="wf-split c2">
+          <div class="wf-row tall">▣</div><div class="wf-row tall">▣</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>B3 — Vendor Storefront</span><span>8</span></div>
+</section>
+
+<!-- ============================== B4 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid new">B4</span>
+    <h2>Request Basket</h2>
+    <div class="meta">
+      <span class="route">/cococonnect/basket</span>
+      <span class="tag newpage">New page</span>
+      <span class="tag">Buyer</span>
+      <span class="pill p1">P1</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>Let a buyer enquire about more than one product at a time. Today each product has to be ordered through its own form, so a buyer sourcing three items fills three forms and the vendor receives three unrelated orders.</p>
+
+      <h3>Content, top to bottom</h3>
+      <ol class="blocks">
+        <li><b>Page title + count</b><span>"Your request basket" with the number of items and distinct vendors.</span></li>
+        <li><b>Line items</b><span>Grouped by vendor. Each line: image, product name (links back to B2), unit price with unit, quantity stepper, line total, remove. Quantity changes recalculate live.</span></li>
+        <li><b>Per-vendor subtotal</b><span>Because fulfilment is per vendor, each group needs its own subtotal, not just one grand total.</span></li>
+        <li><b>Order summary</b><span>Sticky on desktop, at the bottom on mobile. Subtotal, delivery shown as "Quoted by vendor", total. One line of plain-language explanation that no payment is taken now.</span></li>
+        <li><b>Notes field</b><span>Optional free text applied to the whole request.</span></li>
+        <li><b>Primary action</b><span>"Continue to request" — deliberately not "Checkout".</span></li>
+        <li><b>Empty state</b><span>Basket icon, "Nothing here yet", "Browse the marketplace" action.</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>Empty basket</strong> — the most likely first view; make it inviting, not apologetic.</li>
+        <li><strong>Item went out of stock while in the basket</strong> — inline warning on that line, quantity capped, remove offered.</li>
+        <li><strong>Item's vendor deactivated it</strong> — line struck through with a reason.</li>
+        <li><strong>Multi-vendor basket</strong> — two or three vendor groups stacked.</li>
+        <li><strong>Quantity above available stock</strong> — stepper clamps and shows "Max N".</li>
+      </ul>
+
+      <div class="decide"><b>Decide.</b> Is a basket the right model for a quote-based marketplace? <em>Recommendation: yes</em>, because the alternative is a worse experience, not a simpler one — but rename it "request basket" everywhere and keep every label in request language so no one looks for a payment step that does not exist.</div>
+      <div class="warn"><b>Open question.</b> Multi-vendor requests currently have no backend concept — one order row points at one vendor. If the basket can hold two vendors, that has to be resolved before build. Flag this early.</div>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Desktop — filled</div>
+        <div class="wf-row dark">Navbar &nbsp; ⌕ &nbsp; ⛁3 &nbsp; ◉</div>
+        <div class="wf-row" style="text-align:left"><b>Your request basket</b> — 3 items from 2 vendors</div>
+        <div class="wf-split side">
+          <div>
+            <div class="wf-row" style="text-align:left"><b>Green Coconut Farms</b> ✓</div>
+            <div class="wf-row" style="text-align:left">▣ Fresh Coconuts<br/>₦4,500/kg &nbsp; − [20] + &nbsp; ₦90,000 &nbsp; ✕</div>
+            <div class="wf-row" style="text-align:left">▣ Virgin Coconut Oil<br/>₦12,000/L &nbsp; − [10] + &nbsp; ₦120,000 &nbsp; ✕</div>
+            <div class="wf-row ghost" style="text-align:left">Subtotal — ₦210,000</div>
+
+            <div class="wf-row" style="text-align:left"><b>Coco Mill Processors</b> ✓</div>
+            <div class="wf-row" style="text-align:left">▣ Desiccated Coconut<br/>₦3,200/kg &nbsp; − [50] + &nbsp; ₦160,000 &nbsp; ✕</div>
+            <div class="wf-row ghost" style="text-align:left">Subtotal — ₦160,000</div>
+
+            <div class="wf-row tall" style="text-align:left">Notes for the vendors…</div>
+          </div>
+          <div>
+            <div class="wf-row" style="text-align:left"><b>Summary</b></div>
+            <div class="wf-row" style="text-align:left">Subtotal &nbsp; ₦370,000</div>
+            <div class="wf-row" style="text-align:left">Delivery &nbsp; Quoted by vendor</div>
+            <div class="wf-row" style="text-align:left"><b>Total &nbsp; ₦370,000</b></div>
+            <div class="wf-row green"><b>Continue to request</b></div>
+            <div class="wf-row ghost" style="text-align:left">No payment is taken now. Vendors confirm price and delivery by email.</div>
+          </div>
+        </div>
+        <div class="wf-label">Empty state</div>
+        <div class="wf-row taller ghost">
+          ⛁<br/><b>Your basket is empty</b><br/>Browse the marketplace to add products.<br/>
+          <span style="display:inline-block;margin-top:1.2mm;padding:0.8mm 3mm;background:#e8f7e6;border:1px solid #bfe4bb;border-radius:1mm;color:#0f7a0b">Browse marketplace →</span>
+        </div>
+        <div class="wf-label">Mobile</div>
+        <div class="wf-row dark">Logo &nbsp;|&nbsp; ⛁3 &nbsp; ☰</div>
+        <div class="wf-row tall" style="text-align:left">▣ Fresh Coconuts<br/>− [20] + &nbsp; ₦90,000</div>
+        <div class="wf-row tall" style="text-align:left">▣ Virgin Oil<br/>− [10] + &nbsp; ₦120,000</div>
+        <div class="wf-row">Summary (collapsed)</div>
+        <div class="wf-row green">Continue to request</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>B4 — Request Basket</span><span>9</span></div>
+</section>
+
+<!-- ============================== B5 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid">B5</span>
+    <h2>Place Order</h2>
+    <div class="meta">
+      <span class="route">/cococonnect/checkout</span>
+      <span class="tag redesign">Redesign</span>
+      <span class="tag">Buyer + guest</span>
+      <span class="pill p0">P0</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>Capture the buyer's details and delivery information and hand the request to the vendor. Today this is a modal on top of the product grid doing three jobs at once. It becomes a page; the product information moves out to B2 and B4.</p>
+
+      <h3>Content, top to bottom</h3>
+      <ol class="blocks">
+        <li><b>Progress indicator</b><span>Two steps — Details → Confirm. Even a minimal indicator reduces abandonment on a form this long.</span></li>
+        <li><b>Buyer details</b><span>Full name, email, phone. Pre-filled and read-only-friendly when the buyer is signed in; editable when they are a guest.</span></li>
+        <li><b>Delivery</b><span>Delivery address (multi-line), city, state, country. Signed-in buyers get their saved address pre-filled from their profile.</span></li>
+        <li><b>Notes</b><span>Free text — "any special requests". Keep it, it is used.</span></li>
+        <li><b>Guest save-time panel</b><span>When signed out: a compact bordered panel offering Login / Create account, explaining that an account saves details and tracks orders. Non-blocking — a guest must still be able to submit.</span></li>
+        <li><b>Order summary</b><span>Sticky right column: line items, quantity, subtotal, "Delivery quoted by vendor", total. Every item links back to its product page.</span></li>
+        <li><b>Submit</b><span>"Send request to vendor". Disabled while submitting, with a spinner state.</span></li>
+        <li><b>Legal line</b><span>One short line: the vendor will be notified and will contact you to confirm details and payment. Already present in the modal — keep it, it is doing real work.</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>Guest</strong> — empty fields, save-time panel visible.</li>
+        <li><strong>Signed in</strong> — fields pre-filled from the profile, panel replaced by a "signed in as…" line with a change option.</li>
+        <li><strong>Validation errors</strong> — per-field, on blur and on submit.</li>
+        <li><strong>Quantity exceeds stock</strong> — inline error, submit blocked.</li>
+        <li><strong>Submitting</strong> — button busy, form locked, no double submit.</li>
+        <li><strong>Submit failed</strong> — error strip above the form, everything the buyer typed preserved.</li>
+      </ul>
+
+      <div class="note"><b>Keep.</b> The quantity stepper clamping to available stock, and the live total recalculation. Both already work and both are the kind of detail that erodes trust when missing.</div>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Desktop</div>
+        <div class="wf-row dark">Navbar</div>
+        <div class="wf-row" style="text-align:left">① Details ——— ② Confirm</div>
+        <div class="wf-split side">
+          <div>
+            <div class="wf-row" style="text-align:left"><b>Your details</b></div>
+            <div class="wf-split c2">
+              <div class="wf-row" style="text-align:left">Full name *</div>
+              <div class="wf-row" style="text-align:left">Email *</div>
+            </div>
+            <div class="wf-row" style="text-align:left">Phone</div>
+            <div class="wf-row" style="text-align:left"><b>Delivery</b></div>
+            <div class="wf-row tall" style="text-align:left">Delivery address</div>
+            <div class="wf-split c3">
+              <div class="wf-row" style="text-align:left">City</div>
+              <div class="wf-row" style="text-align:left">State</div>
+              <div class="wf-row" style="text-align:left">Country</div>
+            </div>
+            <div class="wf-row tall" style="text-align:left">Additional notes</div>
+            <div class="wf-row ghost" style="text-align:left">ⓘ Save time on future orders — <b>Login</b> · Create account</div>
+          </div>
+          <div>
+            <div class="wf-row" style="text-align:left"><b>Your request</b></div>
+            <div class="wf-row" style="text-align:left">▣ Fresh Coconuts<br/>20 × ₦4,500/kg</div>
+            <div class="wf-row" style="text-align:left">▣ Virgin Oil<br/>10 × ₦12,000/L</div>
+            <div class="wf-row" style="text-align:left">Subtotal &nbsp; ₦210,000</div>
+            <div class="wf-row" style="text-align:left">Delivery &nbsp; Quoted by vendor</div>
+            <div class="wf-row" style="text-align:left"><b>Total &nbsp; ₦210,000</b></div>
+            <div class="wf-row green"><b>Send request to vendor</b></div>
+          </div>
+        </div>
+        <div class="wf-row ghost">By sending this request the vendor will be notified and will contact you to confirm details and payment.</div>
+
+        <div class="wf-label">Mobile</div>
+        <div class="wf-row dark">Logo &nbsp;|&nbsp; ☰</div>
+        <div class="wf-row">① Details ——— ② Confirm</div>
+        <div class="wf-row tall" style="text-align:left">Full name *</div>
+        <div class="wf-row tall" style="text-align:left">Email *</div>
+        <div class="wf-row tall" style="text-align:left">Phone</div>
+        <div class="wf-row tall" style="text-align:left">Delivery address</div>
+        <div class="wf-row" style="text-align:left">▾ Your request (2 items) — ₦210,000</div>
+        <div class="wf-row green">Send request to vendor</div>
+        <div class="wf-note">Summary collapses into an accordion so the form is not buried under line items.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>B5 — Place Order</span><span>10</span></div>
+</section>
+
+<!-- ============================== B6 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid new">B6</span>
+    <h2>Order Confirmation</h2>
+    <div class="meta">
+      <span class="route">/cococonnect/order/:reference</span>
+      <span class="tag newpage">New page</span>
+      <span class="tag">Buyer + guest</span>
+      <span class="pill p1">P1</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>Close the loop. Right now success is a dialog that auto-dismisses after two seconds, leaving the buyer with no reference number, no record and nothing to screenshot. Every order needs a permanent, linkable confirmation.</p>
+
+      <h3>Content, top to bottom</h3>
+      <ol class="blocks">
+        <li><b>Success header</b><span>Large success mark, "Request sent", and the buyer's email echoed back so they know where to look.</span></li>
+        <li><b>Reference number</b><span>New. A short human-readable reference per order, displayed prominently and copyable. This is the single most requested thing after an order is placed.</span></li>
+        <li><b>What happens next</b><span>Three numbered steps — the vendor reviews your request → confirms price, quantity and delivery → you receive a confirmation email and arrange payment directly. This is where the no-payment model is explained for the last time.</span></li>
+        <li><b>Order summary</b><span>Read-only recap: items, quantities, unit prices, subtotal, delivery, total, delivery address, notes.</span></li>
+        <li><b>Vendor contact</b><span>Business name with email and phone as action chips, so the buyer can chase immediately if needed.</span></li>
+        <li><b>Next actions</b><span>"View my orders" (or "Create an account to track this" for guests), and "Continue browsing".</span></li>
+        <li><b>Footer</b><span>Shared site footer.</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>Guest confirmation</strong> — extra emphasis on creating an account so the order is trackable.</li>
+        <li><strong>Signed-in confirmation</strong> — "View my orders" leads straight to the order in B9.</li>
+        <li><strong>Multi-vendor request</strong> — one confirmation per vendor, or one page listing each vendor's section. Decide and design accordingly.</li>
+        <li><strong>Reference not found</strong> — in-chrome 404 with a route back to the marketplace.</li>
+        <li><strong>Email not delivered</strong> — a soft warning with a resend action (P2, but reserve the slot).</li>
+      </ul>
+
+      <div class="note"><b>Why it matters more than it looks.</b> A confirmation page is the artifact buyers screenshot and forward internally to get sign-off. For a B2B marketplace that is the moment a request turns into a real purchase.</div>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Desktop</div>
+        <div class="wf-row dark">Navbar &nbsp; ⌕ &nbsp; ⛁ &nbsp; ◉</div>
+        <div class="wf-row taller green">
+          ✓<br/><b>Request sent</b><br/>We've emailed a copy to jane@buyer.com
+        </div>
+        <div class="wf-row" style="text-align:left">Reference &nbsp; <b>CC-4F92-118</b> &nbsp; <span style="opacity:.6">⧉ copy</span></div>
+        <div class="wf-label">What happens next</div>
+        <div class="wf-split c3">
+          <div class="wf-row tall">1<br/>Vendor reviews your request</div>
+          <div class="wf-row tall">2<br/>Confirms price &amp; delivery</div>
+          <div class="wf-row tall">3<br/>You get an email &amp; pay directly</div>
+        </div>
+        <div class="wf-label">Your request</div>
+        <div class="wf-split side">
+          <div>
+            <div class="wf-row" style="text-align:left">▣ Fresh Coconuts<br/>20 × ₦4,500/kg &nbsp; ₦90,000</div>
+            <div class="wf-row" style="text-align:left">▣ Virgin Coconut Oil<br/>10 × ₦12,000/L &nbsp; ₦120,000</div>
+            <div class="wf-row" style="text-align:left">Deliver to: 14 Broad St, Lagos, NG</div>
+            <div class="wf-row ghost" style="text-align:left">Notes: Please confirm moisture content.</div>
+          </div>
+          <div>
+            <div class="wf-row" style="text-align:left">Subtotal &nbsp; ₦210,000</div>
+            <div class="wf-row" style="text-align:left">Delivery &nbsp; Quoted by vendor</div>
+            <div class="wf-row" style="text-align:left"><b>Total &nbsp; ₦210,000</b></div>
+          </div>
+        </div>
+        <div class="wf-label">Vendor</div>
+        <div class="wf-row" style="text-align:left">◉ Green Coconut Farms ✓<br/>✉ hello@greenfarms.ng &nbsp; ☎ +234 800 000</div>
+        <div class="wf-split c2">
+          <div class="wf-row green">View my orders</div>
+          <div class="wf-row">Continue browsing</div>
+        </div>
+        <div class="wf-row dark">Footer</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>B6 — Order Confirmation</span><span>11</span></div>
+</section>
+
+<!-- ============================== B7 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid">B7</span>
+    <h2>Buyer Login</h2>
+    <div class="meta">
+      <span class="route">/buyer-login</span>
+      <span class="tag redesign">Redesign</span>
+      <span class="tag">Public</span>
+      <span class="pill p0">P0</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>Sign an existing buyer in, quickly, with an obvious exit to the marketplace. The split-panel pattern already exists on the seller login — reuse it so the two feel like siblings.</p>
+
+      <h3>Content, top to bottom</h3>
+      <ol class="blocks">
+        <li><b>Slim brand bar</b><span>Logo left, "Home" action right. Deliberately not the full site navbar — a login page should not invite the user to wander off.</span></li>
+        <li><b>Left panel (desktop only)</b><span>Dark brand panel with a short pitch and three benefit rows: order tracking, saved delivery details, direct vendor contact. Include the panel on ≥1024&nbsp;px only; below that it collapses away.</span></li>
+        <li><b>Form card</b><span>Title "Buyer sign in", one line of supporting copy.</span></li>
+        <li><b>Email field</b><span>With icon, validation on blur, error styling and message.</span></li>
+        <li><b>Password field</b><span>With icon, show/hide toggle, "Forgot password?" aligned to the label.</span></li>
+        <li><b>Remember me</b><span>Checkbox, default on — it remembers the email, not the session. Label it honestly ("Remember my email").</span></li>
+        <li><b>Submit</b><span>Full width, primary green, busy state with spinner.</span></li>
+        <li><b>Alternate paths</b><span>"New here? Create account" and a clear "Selling instead? Seller login" link, plus "Back to marketplace".</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>Idle</strong> — empty, autofocused email.</li>
+        <li><strong>Field invalid</strong> — red border, helper text, focus ring.</li>
+        <li><strong>Wrong credentials</strong> — alert block above the form, fields preserved.</li>
+        <li><strong>Submitting</strong> — button busy, inputs locked.</li>
+        <li><strong>Account disabled</strong> — a distinct message with a support route.</li>
+        <li><strong>Post-signup arrival</strong> — a success strip confirming the account was created.</li>
+      </ul>
+
+      <div class="warn"><b>Missing today.</b> "Forgot password?" links to a query parameter that has no screen behind it. Either design a reset flow or remove the link — a dead password-reset link is worse than none.</div>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Desktop</div>
+        <div class="wf-row dark">Logo &nbsp;|&nbsp; Home</div>
+        <div class="wf-split c2">
+          <div class="wf-row taller dark" style="text-align:left">
+            <b>Track every order in one place.</b><br/><br/>
+            ✓ Order tracking<br/>
+            ✓ Saved delivery details<br/>
+            ✓ Direct vendor contact<br/><br/>
+            <span style="opacity:.6">Secured by Coconoto Buyer Portal</span>
+          </div>
+          <div>
+            <div class="wf-row" style="text-align:left"><b>Buyer sign in</b><br/>Welcome back.</div>
+            <div class="wf-row" style="text-align:left">✉ Email address</div>
+            <div class="wf-row" style="text-align:left">🔒 Password &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="opacity:.6">Forgot?</span></div>
+            <div class="wf-row" style="text-align:left">☑ Remember my email</div>
+            <div class="wf-row green"><b>Sign in</b></div>
+            <div class="wf-row ghost">or</div>
+            <div class="wf-row">Back to marketplace</div>
+            <div class="wf-row ghost">New here? <b>Create an account</b></div>
+          </div>
+        </div>
+        <div class="wf-row" style="text-align:left">Just shopping? &nbsp; Selling instead? <b>Seller login →</b></div>
+
+        <div class="wf-label">Mobile</div>
+        <div class="wf-row dark">Logo &nbsp;|&nbsp; Home</div>
+        <div class="wf-row">Buyer sign in</div>
+        <div class="wf-row tall" style="text-align:left">✉ Email</div>
+        <div class="wf-row tall" style="text-align:left">🔒 Password</div>
+        <div class="wf-row green">Sign in</div>
+        <div class="wf-row ghost">New here? Create an account</div>
+        <div class="wf-note">The dark pitch panel is hidden below 1024 px.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>B7 — Buyer Login</span><span>12</span></div>
+</section>
+
+<!-- ============================== B8 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid">B8</span>
+    <h2>Buyer Signup</h2>
+    <div class="meta">
+      <span class="route">/buyer-signup</span>
+      <span class="tag redesign">Redesign</span>
+      <span class="tag">Public</span>
+      <span class="pill p0">P0</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>Create a buyer account in under a minute. Today this is a single long white card with thirteen unstyled fields and no visual relationship to the login page next to it.</p>
+
+      <h3>Content, top to bottom</h3>
+      <ol class="blocks">
+        <li><b>Slim brand bar</b><span>Same as B7.</span></li>
+        <li><b>Left panel (desktop only)</b><span>Mirror of B7 with buyer-relevant benefits. Consistency here is worth more than novelty.</span></li>
+        <li><b>Form header</b><span>"Create your account", one supporting line.</span></li>
+        <li><b>Group 1 — Your details</b><span>First name, last name. Two columns on desktop.</span></li>
+        <li><b>Group 2 — Contact</b><span>Email, phone.</span></li>
+        <li><b>Group 3 — Address</b><span>Street address, city, state, postal code, country. Mark the whole group optional and say so once at the group heading, rather than asterisking five fields.</span></li>
+        <li><b>Group 4 — Security</b><span>Password, confirm password. Add a strength or requirement hint rather than only a minimum length.</span></li>
+        <li><b>Terms acceptance</b><span>New. A checkbox linking to the terms and privacy policy. There is currently no consent step at all, which is a compliance gap.</span></li>
+        <li><b>Submit + alternate path</b><span>"Create account" full width, then "Already have an account? Sign in".</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>Idle</strong> and <strong>partially filled</strong>.</li>
+        <li><strong>Password mismatch</strong> — inline on the confirm field, not a page-level error.</li>
+        <li><strong>Email already registered</strong> — with a "Sign in instead" action right there.</li>
+        <li><strong>Terms unchecked on submit</strong> — highlight the checkbox.</li>
+        <li><strong>Submitting</strong> — busy button.</li>
+      </ul>
+
+      <div class="decide"><b>Decide.</b> One long form, or three short steps (Details → Address → Password) with a progress bar? For a buyer-side signup a single form is usually fine, but the address group is what makes it feel long — consider collapsing it behind "Add delivery address (optional)".</div>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Desktop</div>
+        <div class="wf-row dark">Logo &nbsp;|&nbsp; Home</div>
+        <div class="wf-split c2">
+          <div class="wf-row taller dark" style="text-align:left">
+            <b>Source smarter, not harder.</b><br/><br/>
+            ✓ Compare verified vendors<br/>
+            ✓ Save your delivery details<br/>
+            ✓ Track every request<br/><br/>
+            <span style="opacity:.6">Secured by Coconoto Buyer Portal</span>
+          </div>
+          <div>
+            <div class="wf-row" style="text-align:left"><b>Create your account</b></div>
+            <div class="wf-label" style="margin-top:1.4mm">Your details</div>
+            <div class="wf-split c2">
+              <div class="wf-row" style="text-align:left">First name *</div>
+              <div class="wf-row" style="text-align:left">Last name *</div>
+            </div>
+            <div class="wf-label">Contact</div>
+            <div class="wf-split c2">
+              <div class="wf-row" style="text-align:left">Email *</div>
+              <div class="wf-row" style="text-align:left">Phone</div>
+            </div>
+            <div class="wf-label">Address <span style="text-transform:none;letter-spacing:0">(optional)</span></div>
+            <div class="wf-row" style="text-align:left">Street address</div>
+            <div class="wf-split c3">
+              <div class="wf-row" style="text-align:left">City</div>
+              <div class="wf-row" style="text-align:left">State</div>
+              <div class="wf-row" style="text-align:left">Postal</div>
+            </div>
+            <div class="wf-row" style="text-align:left">Country</div>
+            <div class="wf-label">Security</div>
+            <div class="wf-split c2">
+              <div class="wf-row" style="text-align:left">Password *</div>
+              <div class="wf-row" style="text-align:left">Confirm *</div>
+            </div>
+            <div class="wf-row" style="text-align:left">☐ I agree to the Terms &amp; Privacy Policy</div>
+            <div class="wf-row green"><b>Create account</b></div>
+            <div class="wf-row ghost">Already have an account? Sign in</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>B8 — Buyer Signup</span><span>13</span></div>
+</section>
+
+<!-- ============================== B9 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid">B9</span>
+    <h2>Buyer Dashboard</h2>
+    <div class="meta">
+      <span class="route">/buyer-dashboard</span>
+      <span class="tag redesign">Redesign</span>
+      <span class="tag">Buyer (auth)</span>
+      <span class="pill p0">P0</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>The buyer's home base: what did I order, what is its status, who do I contact, and how do I update my details. It is also the entry point to becoming a seller.</p>
+      <h3>Shell</h3>
+      <ul>
+        <li><strong>Desktop sidebar</strong> (256&nbsp;px) — initials avatar, name, "Buyer" or "Buyer · Seller" role line, grouped nav, then Sign out and Browse marketplace at the foot.</li>
+        <li><strong>Mobile</strong> — sticky top bar with avatar and name, hamburger opening a sheet with the same items.</li>
+        <li><strong>Nav groups</strong> — Account (My Orders · Profile · Sell on Coconoto) and, when the account also sells, Selling (Seller dashboard).</li>
+      </ul>
+
+      <h3>Tab — My Orders</h3>
+      <ol class="blocks">
+        <li><b>Greeting header</b><span>Time-aware greeting with the buyer's first name, plus one line of context.</span></li>
+        <li><b>Stat strip</b><span>Total orders · In progress · Delivered · Total spent. Four compact cards.</span></li>
+        <li><b>Order cards</b><span>Per order: product image, name, status badge, date, vendor, quantity, total (emphasised), delivery address, notes, and vendor contact chips.</span></li>
+        <li><b>Empty state</b><span>"No orders yet" with a Browse products action.</span></li>
+      </ol>
+
+      <h3>Tab — Profile</h3>
+      <ol class="blocks">
+        <li><b>Identity card</b><span>Avatar, full name, email, Edit profile action.</span></li>
+        <li><b>Detail grid</b><span>Email, phone, address, city, state, country, postal code — each a labelled tile with an icon. "Not provided" for blanks.</span></li>
+        <li><b>Account meta</b><span>Account created date, then Edit mode turns the same grid into inputs with Save / Cancel and success or error feedback.</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>Loading</strong> — dashboard skeleton, not a bare spinner.</li>
+        <li><strong>No orders</strong>, and a partially filled profile.</li>
+        <li><strong>Profile save success / failure.</strong></li>
+        <li><strong>Buyer who is also a seller</strong> — extra nav group and the extra tab.</li>
+        <li><strong>Load failure</strong> — currently a bare "Failed to load buyer data" line; needs a real error state with retry.</li>
+      </ul>
+
+      <div class="note"><b>Recommendation.</b> Add an <strong>Overview</strong> tab as the default landing — spend over time, open requests, reorder shortcuts. A returning buyer currently lands on a list with no summary of how their sourcing is going.</div>    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Desktop — My Orders</div>
+        <div class="wf-split side">
+          <div>
+            <div class="wf-row" style="text-align:left">◉ Jane Doe<br/><span style="opacity:.6">Buyer account</span></div>
+            <div class="wf-label">Account</div>
+            <div class="wf-row green" style="text-align:left">🛍 My Orders</div>
+            <div class="wf-row" style="text-align:left">👤 Profile</div>
+            <div class="wf-row" style="text-align:left">🏪 Sell on Coconoto</div>
+            <div class="wf-label">Selling</div>
+            <div class="wf-row" style="text-align:left">▤ Seller dashboard</div>
+            <div class="wf-row" style="margin-top:2mm">Sign out</div>
+            <div class="wf-row ghost">Browse marketplace</div>
+          </div>
+          <div>
+            <div class="wf-row" style="text-align:left">MY ORDERS<br/><b>Good morning, Jane!</b></div>
+            <div class="wf-split c4">
+              <div class="wf-row">Total<br/><b>12</b></div>
+              <div class="wf-row">In progress<br/><b>3</b></div>
+              <div class="wf-row">Delivered<br/><b>9</b></div>
+              <div class="wf-row">Spent<br/><b>₦1.2M</b></div>
+            </div>
+            <div class="wf-row tall" style="text-align:left">▣ Fresh Coconuts &nbsp; Delivered<br/>12 Jun 2026 · Green Farms · 20 × ₦4,500<br/><b>₦90,000</b> · 14 Broad St, Lagos<br/>✉ hello@greenfarms.ng &nbsp; ☎ +234…</div>
+            <div class="wf-row tall" style="text-align:left">▣ Virgin Oil &nbsp; Pending<br/>02 Jul 2026 · Coco Mill · 10 × ₦12,000<br/><b>₦120,000</b></div>
+          </div>
+        </div>
+
+        <div class="wf-label">Desktop — Profile</div>
+        <div class="wf-row" style="text-align:left">◉ Jane Doe &nbsp; jane@buyer.com &nbsp;&nbsp;&nbsp;&nbsp; [ Edit profile ]</div>
+        <div class="wf-split c2">
+          <div class="wf-row" style="text-align:left">✉ Email — jane@buyer.com</div>
+          <div class="wf-row" style="text-align:left">☎ Phone — +234 800…</div>
+          <div class="wf-row" style="text-align:left">📍 Address — 14 Broad St</div>
+          <div class="wf-row" style="text-align:left">📍 City — Lagos</div>
+          <div class="wf-row" style="text-align:left">📍 State — Lagos</div>
+          <div class="wf-row" style="text-align:left">📍 Country — Nigeria</div>
+        </div>
+        <div class="wf-row ghost" style="text-align:left">📅 Account created 12 Mar 2026</div>
+
+        <div class="wf-label">Mobile</div>
+        <div class="wf-row dark">◉ Jane Doe &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ☰</div>
+        <div class="wf-split c2">
+          <div class="wf-row">Total 12</div><div class="wf-row">In progress 3</div>
+        </div>
+        <div class="wf-row tall" style="text-align:left">▣ Fresh Coconuts · Delivered<br/>₦90,000</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>B9 — Buyer Dashboard</span><span>14</span></div>
+</section>
+
+<!-- ============================== C1 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid">C1</span>
+    <h2>Seller Login</h2>
+    <div class="meta">
+      <span class="route">/vendor-login</span>
+      <span class="tag redesign">Redesign</span>
+      <span class="tag">Public</span>
+      <span class="pill p0">P0</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>Sign an existing seller in and get them into their dashboard. This page already has the strongest layout on the marketplace — the redesign should refine it, not replace it, and then reuse it as the template for the buyer login.</p>
+
+      <h3>Content, top to bottom</h3>
+      <ol class="blocks">
+        <li><b>Slim brand bar</b><span>Logo left, Home action right.</span></li>
+        <li><b>Left panel (desktop only)</b><span>Dark green pitch panel: "Grow your coconut business", one supporting line, and three benefit rows — sales analytics, verified seller badge, direct buyer enquiries.</span></li>
+        <li><b>Form card</b><span>Title "Seller sign in", one supporting line.</span></li>
+        <li><b>Email field</b><span>Icon, validation on blur.</span></li>
+        <li><b>Password field</b><span>Icon, show/hide toggle, "Forgot password?" beside the label.</span></li>
+        <li><b>Remember me</b><span>Checkbox, default on.</span></li>
+        <li><b>Submit</b><span>"Sign in to dashboard", full width.</span></li>
+        <li><b>Alternate paths</b><span>"Don't have a storefront yet? Sign up" and "Just shopping? Buyer login", plus "Back to marketplace".</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>Idle</strong> — autofocused email.</li>
+        <li><strong>Field invalid</strong> — red border plus inline helper text.</li>
+        <li><strong>Wrong credentials</strong> — alert block above the form.</li>
+        <li><strong>Submitting</strong> — busy button.</li>
+        <li><strong>Account deactivated</strong> — distinct message, support route.</li>
+      </ul>
+
+      <div class="note"><b>Refinements worth making.</b> The current page has two competing "Sign in" headings (one for mobile, one for desktop) and the seller logo is set as live text with a favicon substituted for the letter "o" — that needs to become a proper asset so it does not break in other contexts.</div>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Desktop</div>
+        <div class="wf-row dark">Coco-connect &nbsp;|&nbsp; Home</div>
+        <div class="wf-split c2">
+          <div class="wf-row taller dark" style="text-align:left">
+            <span style="opacity:.7">VENDOR ACCESS</span><br/><br/>
+            <b>Grow your coconut business.</b><br/>
+            Manage products, fulfil orders, reach verified buyers.<br/><br/>
+            📊 Sales analytics<br/>
+            ✓ Verified seller badge<br/>
+            ✦ Direct buyer enquiries<br/><br/>
+            <span style="opacity:.6">Secured by Coconoto Vendor Portal</span>
+          </div>
+          <div>
+            <div class="wf-row" style="text-align:left"><b>Seller sign in</b><br/>Welcome back.</div>
+            <div class="wf-row" style="text-align:left">✉ your@email.com</div>
+            <div class="wf-row" style="text-align:left">🔒 Password &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="opacity:.6">Forgot?</span></div>
+            <div class="wf-row" style="text-align:left">☑ Remember me on this device</div>
+            <div class="wf-row green"><b>Sign in to dashboard</b></div>
+            <div class="wf-row ghost">or</div>
+            <div class="wf-row">Back to marketplace</div>
+            <div class="wf-row ghost">Don't have a storefront? <b>Sign up</b></div>
+          </div>
+        </div>
+        <div class="wf-row" style="text-align:left">Just shopping? <b>Buyer login →</b></div>
+        <div class="wf-label">Mobile</div>
+        <div class="wf-row dark">Coco-connect &nbsp;|&nbsp; Home</div>
+        <div class="wf-row">VENDOR ACCESS · Seller sign in</div>
+        <div class="wf-row tall" style="text-align:left">✉ Email</div>
+        <div class="wf-row tall" style="text-align:left">🔒 Password</div>
+        <div class="wf-row green">Sign in to dashboard</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>C1 — Seller Login</span><span>15</span></div>
+</section>
+
+<!-- ============================== C2 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid">C2</span>
+    <h2>Seller Signup</h2>
+    <div class="meta">
+      <span class="route">/vendor-signup</span>
+      <span class="tag redesign">Redesign</span>
+      <span class="tag">Public</span>
+      <span class="pill p0">P0</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>Open a storefront. This is the highest-intent page on the seller side and the one most likely to be abandoned, so it needs the most care — and it should share the split-panel layout of C1 so the two read as one flow.</p>
+
+      <h3>Content, top to bottom</h3>
+      <ol class="blocks">
+        <li><b>Slim brand bar</b><span>Same as C1.</span></li>
+        <li><b>Left panel (desktop only)</b><span>"Start selling to verified buyers", with three short reasons and one line of social proof if we have numbers. This panel is the only place to argue the case, so it should do real work.</span></li>
+        <li><b>Group 1 — Business</b><span>Business name, contact name, phone. These are the identity fields; ask for them first.</span></li>
+        <li><b>Group 2 — Location</b><span>Business address. Consider making city and state separate fields so buyer-side filtering by region is possible later.</span></li>
+        <li><b>Group 3 — About your business</b><span>Free-text description with a character counter. This becomes the copy on the storefront (B3), so hint at what to write: what you grow or process, capacity, and quality.</span></li>
+        <li><b>Group 4 — Security</b><span>Password and confirm, with a requirement hint.</span></li>
+        <li><b>Verification expectation</b><span>New. A short note explaining that new sellers are reviewed before the verified badge appears, so nobody is surprised by "verification pending".</span></li>
+        <li><b>Terms acceptance + submit</b><span>Checkbox linking to terms, then "Open my storefront".</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>Idle</strong> and <strong>partially filled</strong>.</li>
+        <li><strong>Email already registered</strong> — with "Sign in instead".</li>
+        <li><strong>Password mismatch</strong> — inline on confirm.</li>
+        <li><strong>Terms unchecked</strong> — highlight on submit.</li>
+        <li><strong>Submitting</strong> and <strong>signup failed</strong>.</li>
+        <li><strong>Success → dashboard</strong> — first-run state with no products (see C3).</li>
+      </ul>
+
+      <div class="decide"><b>Decide.</b> Should signup ask for a logo upload? The database already stores one and the storefront displays it, but there is currently no UI for it anywhere. Either collect it here (optional field) or in dashboard settings — but not both, and not nowhere.</div>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Desktop</div>
+        <div class="wf-row dark">Coco-connect &nbsp;|&nbsp; Home</div>
+        <div class="wf-split c2">
+          <div class="wf-row taller dark" style="text-align:left">
+            <b>Start selling to verified buyers.</b><br/><br/>
+            ✓ Reach buyers actively sourcing<br/>
+            ✓ List in minutes, no listing fee<br/>
+            ✓ Track every order in one place<br/><br/>
+            <span style="opacity:.6">Reviewed before your verified badge appears.</span>
+          </div>
+          <div>
+            <div class="wf-row" style="text-align:left"><b>Open your storefront</b></div>
+            <div class="wf-label" style="margin-top:1.4mm">Business</div>
+            <div class="wf-row" style="text-align:left">Business name *</div>
+            <div class="wf-split c2">
+              <div class="wf-row" style="text-align:left">Contact name *</div>
+              <div class="wf-row" style="text-align:left">Phone</div>
+            </div>
+            <div class="wf-label">Location</div>
+            <div class="wf-row" style="text-align:left">Business address</div>
+            <div class="wf-label">About your business</div>
+            <div class="wf-row tall" style="text-align:left">What do you grow or process? Capacity? Quality? <span style="float:right;opacity:.6">0/500</span></div>
+            <div class="wf-label">Security</div>
+            <div class="wf-split c2">
+              <div class="wf-row" style="text-align:left">Password *</div>
+              <div class="wf-row" style="text-align:left">Confirm *</div>
+            </div>
+            <div class="wf-row" style="text-align:left">☐ I agree to the Seller Terms</div>
+            <div class="wf-row green"><b>Open my storefront</b></div>
+            <div class="wf-row ghost">Already selling? Sign in</div>
+          </div>
+        </div>
+        <div class="wf-label">Mobile</div>
+        <div class="wf-row dark">Coco-connect &nbsp;|&nbsp; Home</div>
+        <div class="wf-row">Open your storefront</div>
+        <div class="wf-row tall" style="text-align:left">Business name *</div>
+        <div class="wf-row tall" style="text-align:left">Contact name *</div>
+        <div class="wf-row tall" style="text-align:left">Phone</div>
+        <div class="wf-row tall" style="text-align:left">Business address</div>
+        <div class="wf-row green">Open my storefront</div>
+        <div class="wf-note">This is the page most likely to be filled in on a phone. One field per row, large touch targets, no two-column grids.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>C2 — Seller Signup</span><span>16</span></div>
+</section>
+
+<!-- ============================== C3 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid">C3</span>
+    <h2>Seller Dashboard <span style="font-size:10.5pt;font-weight:600;color:#6b7480">· 1 of 2</span></h2>
+    <div class="meta">
+      <span class="route">/vendor-dashboard · /seller-dashboard</span>
+      <span class="tag redesign">Redesign</span>
+      <span class="tag">Seller (auth)</span>
+      <span class="pill p0">P0</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>The seller's control room: list products, price them, keep stock honest, and move incoming orders through to delivered.</p>
+
+      <div class="warn"><b>Unify first.</b> There are two seller dashboards in the code today — a standalone one with its own sidebar, and a products-only panel embedded inside the buyer dashboard. They show different things and will drift. The designer should design <strong>one</strong> dashboard, and the build should render that one dashboard in both entry points.</div>
+
+      <h3>Shell</h3>
+      <ul>
+        <li><strong>Desktop sidebar</strong> — store avatar and business name, nav, then Sign out and View marketplace.</li>
+        <li><strong>Mobile</strong> — sticky top bar and a sheet.</li>
+        <li><strong>Nav</strong> — Overview · Products · Orders · Storefront settings. Reserve a fifth slot for Payouts.</li>
+      </ul>
+
+      <h3>Tab — Overview <span style="font-weight:400;text-transform:none;letter-spacing:0">(new)</span></h3>
+      <ol class="blocks">
+        <li><b>Stat cards</b><span>Revenue this month · Open orders · Active products · Low-stock items.</span></li>
+        <li><b>Action needed list</b><span>New orders awaiting confirmation, and products at or below the low-stock threshold. This is the single most useful block on the page — a seller should be able to clear everything urgent from here.</span></li>
+        <li><b>Recent orders</b><span>The last five, linking into the Orders tab.</span></li>
+      </ol>
+
+      <h3>Tab — Products</h3>
+      <ol class="blocks">
+        <li><b>Header</b><span>Title, "Add product" primary action, and a search or filter once the catalogue is large.</span></li>
+        <li><b>Product cards</b><span>Image, Active/Inactive badge, name, category, description clamp, price with unit, stock, and Edit / Delete. Reuse the buyer-facing card shape so sellers recognise their own listings.</span></li>
+        <li><b>Empty state</b><span>"You haven't added any products yet" with a prominent Add action.</span></li>
+        <li><b>Add / edit product form</b><span>Today a modal with a nine-field form, including a drag-and-drop image uploader. <strong>Recommend a full page</strong> — a form this size does not belong in a dialog. Fields: name, category, description, price, unit, stock quantity, image, active toggle.</span></li>
+      </ol>
+
+      <h3>Tab — Orders &amp; Storefront settings</h3>
+      <p style="margin:0">These two tabs are specified on the next page, together with the full state set.</p>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Desktop — Overview</div>
+        <div class="wf-split side">
+          <div>
+            <div class="wf-row" style="text-align:left">🏪 Green Coconut Farms<br/><span style="opacity:.6">Vendor Dashboard</span></div>
+            <div class="wf-row green" style="text-align:left">▤ Overview</div>
+            <div class="wf-row" style="text-align:left">📦 Products</div>
+            <div class="wf-row" style="text-align:left">🛍 Orders</div>
+            <div class="wf-row" style="text-align:left">⚙ Storefront</div>
+            <div class="wf-row" style="text-align:left">₦ Payouts <span style="opacity:.5">P2</span></div>
+            <div class="wf-row" style="margin-top:2mm">Sign out</div>
+            <div class="wf-row ghost">View marketplace</div>
+          </div>
+          <div>
+            <div class="wf-split c4">
+              <div class="wf-row">Revenue<br/><b>₦840k</b></div>
+              <div class="wf-row">Open orders<br/><b>7</b></div>
+              <div class="wf-row">Active<br/><b>18</b></div>
+              <div class="wf-row">Low stock<br/><b>3</b></div>
+            </div>
+            <div class="wf-row" style="text-align:left"><b>Needs your attention</b></div>
+            <div class="wf-row" style="text-align:left">⚠ 3 new orders awaiting confirmation →</div>
+            <div class="wf-row" style="text-align:left">⚠ Virgin Oil — only 4 L left →</div>
+            <div class="wf-row" style="text-align:left"><b>Recent orders</b></div>
+            <div class="wf-row" style="text-align:left">Jane Doe · 20 kg · ₦90,000 · Pending</div>
+            <div class="wf-row" style="text-align:left">Ade Ltd · 10 L · ₦120,000 · Confirmed</div>
+          </div>
+        </div>
+
+        <div class="wf-label">Products tab</div>
+        <div class="wf-row" style="text-align:left"><b>My products</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ + Add product ]</div>
+        <div class="wf-split c3">
+          <div class="wf-row tall">▣ Active<br/>Fresh Coconuts<br/><b>₦4,500/kg</b> · 120<br/>Edit · Delete</div>
+          <div class="wf-row tall">▣ Active<br/>Virgin Oil<br/><b>₦12,000/L</b> · 4 ⚠<br/>Edit · Delete</div>
+          <div class="wf-row tall">▣ Inactive<br/>Coir Fibre<br/><b>₦980/kg</b> · 0<br/>Edit · Delete</div>
+        </div>
+
+        <div class="wf-label">Add product — as a page</div>
+        <div class="wf-split c2">
+          <div>
+            <div class="wf-row" style="text-align:left">Product name *</div>
+            <div class="wf-row tall" style="text-align:left">Description *</div>
+            <div class="wf-split c2">
+              <div class="wf-row" style="text-align:left">Category ▾</div>
+              <div class="wf-row" style="text-align:left">Unit ▾</div>
+            </div>
+            <div class="wf-split c2">
+              <div class="wf-row" style="text-align:left">Price (₦) *</div>
+              <div class="wf-row" style="text-align:left">Stock qty</div>
+            </div>
+          </div>
+          <div>
+            <div class="wf-row taller ghost">⬆ Drag &amp; drop image<br/>or browse files<br/>JPEG · PNG · WEBP · 5 MB max</div>
+            <div class="wf-row" style="text-align:left">☑ Active (visible in marketplace)</div>
+            <div class="wf-row green">Save product</div>
+          </div>
+        </div>
+        <div class="wf-note">The image uploader is the highest-risk control on the page. Draw drag, uploading, success, error and preview states.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>C3 — Seller Dashboard · 1 of 2</span><span>17</span></div>
+</section>
+
+<!-- ============================== C3 continued ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid">C3</span>
+    <h2>Seller Dashboard <span style="font-size:10.5pt;font-weight:600;color:#6b7480">· 2 of 2</span></h2>
+    <div class="meta">
+      <span class="tag scope">Continued — Orders, Storefront settings, states</span>
+      <span class="pill p0">P0</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Tab — Orders</h3>
+      <ol class="blocks">
+        <li><b>Filters</b><span>New. Status, date range and product, plus a search by customer.</span></li>
+        <li><b>Table</b><span>Customer (name + email), product, quantity, total, status, actions. Rows should expand to reveal phone, delivery address and notes — the vendor needs those to fulfil.</span></li>
+        <li><b>Status control</b><span>Move an order through Pending → Confirmed → Processing → Shipped → Delivered, with Cancelled as an exit. Show the status as a chip and the change as a deliberate action with confirmation.</span></li>
+        <li><b>Empty state</b><span>"No orders yet."</span></li>
+      </ol>
+
+      <h3>Tab — Storefront settings</h3>
+      <ol class="blocks">
+        <li><b>Business details</b><span>Business name, contact name, email, phone, address — editable, unlike today's read-only view.</span></li>
+        <li><b>Logo upload</b><span>New. The field exists in the database and the storefront needs it, but there is no UI at all.</span></li>
+        <li><b>Description</b><span>Editable, with a counter. Feeds the storefront.</span></li>
+        <li><b>Verification status</b><span>Verified or pending, with a short explanation of what changes it.</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>First run</strong> — new seller, zero products, zero orders. Needs to feel like a beginning, not an empty page.</li>
+        <li><strong>Loading</strong> — skeleton rows and cards.</li>
+        <li><strong>Image upload</strong> — dragging, uploading, success, failure, oversized file, wrong file type.</li>
+        <li><strong>Delete confirmation</strong> — currently a browser <code>confirm()</code>; needs a real dialog.</li>
+        <li><strong>Save failure</strong> and <strong>order status change failure</strong>.</li>
+        <li><strong>Low stock</strong> — the warning treatment at card and overview level.</li>
+      </ul>
+
+      <div class="note"><b>The one thing to get right.</b> A seller opens this dashboard to answer two questions: <em>did anything come in?</em> and <em>what do I need to do about it?</em> Everything else is secondary. If the Overview tab answers both at a glance, the rest of the dashboard can be utilitarian.</div>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Orders tab</div>
+        <div class="wf-row" style="text-align:left">Status ▾ &nbsp; Date ▾ &nbsp; Product ▾ &nbsp; ⌕ search</div>
+        <div class="wf-row" style="text-align:left">Customer | Product | Qty | Total | Status | Action</div>
+        <div class="wf-row" style="text-align:left">Jane Doe<br/>jane@… | Coconuts | 20 | ₦90,000 | Pending | ▾</div>
+        <div class="wf-row" style="text-align:left">Ade Ltd<br/>ade@… | Oil | 10 | ₦120,000 | Shipped | ▾</div>
+        <div class="wf-row ghost" style="text-align:left">▾ expanded row: phone · delivery address · notes</div>
+
+        <div class="wf-label">Storefront settings</div>
+        <div class="wf-row" style="text-align:left">Business name</div>
+        <div class="wf-split c2">
+          <div class="wf-row" style="text-align:left">Contact name</div>
+          <div class="wf-row" style="text-align:left">Phone</div>
+        </div>
+        <div class="wf-row" style="text-align:left">Email (read-only)</div>
+        <div class="wf-row" style="text-align:left">Address</div>
+        <div class="wf-row tall" style="text-align:left">Description &nbsp;<span style="float:right;opacity:.6">0/500</span></div>
+        <div class="wf-row ghost" style="text-align:left">◉ Logo — click to upload</div>
+        <div class="wf-row" style="text-align:left">Verification &nbsp; <b>Pending review</b></div>
+        <div class="wf-row green">Save changes</div>
+
+        <div class="wf-label">First run — new seller</div>
+        <div class="wf-row taller ghost">
+          📦<br/><b>No products yet</b><br/>Add your first product to start selling.<br/>
+          <span style="display:inline-block;margin-top:1.2mm;padding:0.8mm 3mm;background:#e8f7e6;border:1px solid #bfe4bb;border-radius:1mm;color:#0f7a0b">+ Add your first product</span>
+        </div>
+        <div class="wf-note">This is the first thing a seller sees after signup. It has to carry momentum, not just state a fact.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>C3 — Seller Dashboard · 2 of 2</span><span>18</span></div>
+</section>
+
+<!-- ============================== C4 ============================== -->
+<section class="page">
+  <div class="ph">
+    <span class="pid">C4</span>
+    <h2>Become a Seller</h2>
+    <div class="meta">
+      <span class="route">/buyer-dashboard → Sell on Coconoto</span>
+      <span class="tag redesign">Redesign</span>
+      <span class="tag">Buyer (auth)</span>
+      <span class="pill p1">P1</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>Purpose</h3>
+      <p>Let an existing buyer open a seller account without a second login. Today this is a tab buried in the buyer dashboard, which undersells it — a buyer who sells is the most valuable account on the platform and this is the one moment we can convert them.</p>
+
+      <h3>Content, top to bottom</h3>
+      <ol class="blocks">
+        <li><b>Value proposition header</b><span>What selling on Coconoto actually gets them: reach buyers already sourcing, the verified badge, order tools. Three points, not a paragraph.</span></li>
+        <li><b>What happens after</b><span>New. Set expectations before the form — you'll get a seller dashboard, your listings go live immediately, verification is reviewed separately. Removes the "what did I just sign up for" feeling.</span></li>
+        <li><b>Form</b><span>Confirm your login password, then business name, contact name, phone, address and description. Group the same way as C2 so the two forms are recognisably the same thing.</span></li>
+        <li><b>Submit</b><span>"Become a seller".</span></li>
+        <li><b>Success state</b><span>A distinct confirmation panel: "You're a seller on Coconoto", one line of next steps, and two actions — Go to seller dashboard, Browse marketplace.</span></li>
+      </ol>
+
+      <h3>States to design</h3>
+      <ul class="states">
+        <li><strong>Not yet a seller</strong> — the form.</li>
+        <li><strong>Already a seller</strong> — the success panel replaces the form on return visits.</li>
+        <li><strong>Wrong password</strong> — inline, on the password field.</li>
+        <li><strong>Missing required fields</strong> — inline per field.</li>
+        <li><strong>Submitting</strong> and <strong>failure</strong>.</li>
+      </ul>
+
+      <div class="decide"><b>Decide.</b> Should this be a full page of its own (<code>/sell-on-coconoto</code>) rather than a dashboard tab? A page can be linked from the account dropdown, the footer and marketing, and gives the pitch room to breathe. <em>Recommendation: yes, a page — with the dashboard tab linking to it.</em></div>
+    </div>
+
+    <div>
+      <div class="wf">
+        <div class="wf-label">Form state</div>
+        <div class="wf-row dark">Navbar &nbsp; ⌕ &nbsp; ◉ JD</div>
+        <div class="wf-row taller green" style="text-align:left">
+          <b>Sell on Coconoto</b><br/>
+          Reach buyers already sourcing coconut products.
+        </div>
+        <div class="wf-split c3">
+          <div class="wf-row tall">✓ Reach buyers</div>
+          <div class="wf-row tall">✓ Verified badge</div>
+          <div class="wf-row tall">✓ Order tools</div>
+        </div>
+        <div class="wf-row ghost" style="text-align:left">ⓘ You'll get a seller dashboard. Listings go live immediately; verification is reviewed separately.</div>
+        <div class="wf-row" style="text-align:left">🔒 Confirm your login password *</div>
+        <div class="wf-row" style="text-align:left">Business name *</div>
+        <div class="wf-split c2">
+          <div class="wf-row" style="text-align:left">Contact name *</div>
+          <div class="wf-row" style="text-align:left">Phone</div>
+        </div>
+        <div class="wf-row" style="text-align:left">Address</div>
+        <div class="wf-row tall" style="text-align:left">Tell buyers about your business</div>
+        <div class="wf-row green"><b>Become a seller</b></div>
+
+        <div class="wf-label">Success state</div>
+        <div class="wf-row taller ghost">
+          ✓<br/><b>You're a seller on Coconoto</b><br/>
+          Add your first product and start receiving requests.<br/>
+          <span style="display:inline-block;margin-top:1.4mm;padding:0.8mm 3mm;background:#e8f7e6;border:1px solid #bfe4bb;border-radius:1mm;color:#0f7a0b">Go to seller dashboard →</span>
+          &nbsp;<span style="display:inline-block;padding:0.8mm 3mm;border:1px solid #cfd6de;border-radius:1mm">Browse marketplace</span>
+        </div>
+        <div class="wf-note">The success state is the hand-off into C3. It should lead straight into the "Add your first product" empty state rather than a blank dashboard.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot"><span>C4 — Become a Seller</span><span>19</span></div>
+</section>
+
+<!-- ============================== D1 ============================== -->
+<section class="page">
+  <div class="ph">
+    <h2>D1 — States &amp; responsive matrix</h2>
+    <div class="meta">
+      <span class="tag scope">Delivery</span>
+      <span class="tag">Every screen</span>
+    </div>
+  </div>
+
+  <p>A screen is not designed until these are designed. Tick each cell before handoff; an unticked cell is a question the build team will otherwise answer by guessing.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:23%">Screen</th>
+        <th style="width:11%">Loading</th>
+        <th style="width:11%">Empty</th>
+        <th style="width:11%">Error</th>
+        <th style="width:11%">Mobile 375</th>
+        <th style="width:11%">Tablet 768</th>
+        <th>Desktop 1440</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>B1 Marketplace</strong></td><td>Skeletons</td><td>No results + empty category</td><td>Retry strip</td><td>2-col grid + drawer</td><td>2-col</td><td>Rail + 3-col</td></tr>
+      <tr><td><strong>B2 Product detail</strong></td><td>Skeleton</td><td>—</td><td>Not found</td><td>Stacked</td><td>Stacked</td><td>Gallery + panel</td></tr>
+      <tr><td><strong>B3 Vendor storefront</strong></td><td>Skeleton</td><td>No listings</td><td>Not found</td><td>Stacked</td><td>2-col</td><td>Header + 3-col</td></tr>
+      <tr><td><strong>B4 Basket</strong></td><td>Skeleton</td><td>Empty basket</td><td>Stock changed</td><td>Stacked + sticky bar</td><td>Stacked</td><td>Lines + summary</td></tr>
+      <tr><td><strong>B5 Place order</strong></td><td>—</td><td>—</td><td>Validation + submit fail</td><td>Accordion summary</td><td>Stacked</td><td>Form + sticky summary</td></tr>
+      <tr><td><strong>B6 Confirmation</strong></td><td>—</td><td>—</td><td>Ref not found</td><td>Stacked</td><td>Stacked</td><td>2-col recap</td></tr>
+      <tr><td><strong>B7 Buyer login</strong></td><td>—</td><td>—</td><td>Bad credentials</td><td>No side panel</td><td>No side panel</td><td>Split panel</td></tr>
+      <tr><td><strong>B8 Buyer signup</strong></td><td>—</td><td>—</td><td>Email taken</td><td>No side panel</td><td>No side panel</td><td>Split panel</td></tr>
+      <tr><td><strong>B9 Buyer dashboard</strong></td><td>Skeleton</td><td>No orders / no profile</td><td>Load failed</td><td>Top bar + sheet</td><td>Top bar + sheet</td><td>Sidebar + content</td></tr>
+      <tr><td><strong>C1 Seller login</strong></td><td>—</td><td>—</td><td>Bad credentials</td><td>No side panel</td><td>No side panel</td><td>Split panel</td></tr>
+      <tr><td><strong>C2 Seller signup</strong></td><td>—</td><td>—</td><td>Email taken</td><td>One field per row</td><td>One field per row</td><td>Split panel</td></tr>
+      <tr><td><strong>C3 Seller dashboard</strong></td><td>Skeleton</td><td>First run / no orders</td><td>Save failed</td><td>Top bar + sheet</td><td>Top bar + sheet</td><td>Sidebar + content</td></tr>
+      <tr><td><strong>C4 Become a seller</strong></td><td>—</td><td>—</td><td>Wrong password</td><td>Stacked</td><td>Stacked</td><td>Split panel</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Interaction states every control needs</h3>
+  <div class="three">
+    <div class="card"><h4>Buttons &amp; links</h4><p style="margin:0;font-size:8.4pt">Default · hover · active · focus-visible · disabled · busy. The focus ring must be visible — it is a keyboard-accessibility requirement, not a nicety.</p></div>
+    <div class="card"><h4>Form fields</h4><p style="margin:0;font-size:8.4pt">Default · focus · filled · invalid · disabled · read-only. Error text sits below the field and is announced to screen readers.</p></div>
+    <div class="card"><h4>Cards &amp; rows</h4><p style="margin:0;font-size:8.4pt">Default · hover (pointer only) · focus · selected · disabled. Cards that are clickable must be reachable by keyboard.</p></div>
+  </div>
+
+  <h3>Accessibility floor</h3>
+  <ul>
+    <li>Body text at 4.5:1 contrast minimum; the green on white and the muted grey both need checking.</li>
+    <li>Never convey stock or order status by colour alone — pair every chip with a word or icon.</li>
+    <li>Every image needs alt text; product images fall back to the product name.</li>
+    <li>Touch targets at least 44 × 44&nbsp;px, especially the quantity steppers and the mobile drawer close button.</li>
+    <li>All flows must be completable with the keyboard alone, including the product grid and the order status control.</li>
+  </ul>
+
+  <div class="foot"><span>D1 — States &amp; responsive matrix</span><span>20</span></div>
+</section>
+
+<!-- ============================== D2 ============================== -->
+<section class="page">
+  <div class="ph">
+    <h2>D2 — Handoff checklist</h2>
+    <div class="meta">
+      <span class="tag scope">Delivery</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h3>What to deliver, per screen</h3>
+      <ul>
+        <li><strong>Three frames minimum</strong> — desktop 1440, tablet 768, mobile 375. Seller screens: mobile is the primary, so design that one first.</li>
+        <li><strong>Every state from the D1 matrix</strong>, drawn on the artboard, not described in a comment.</li>
+        <li><strong>Interaction states</strong> for every interactive element — hover, focus, disabled, busy.</li>
+        <li><strong>Empty and error states</strong> for every list and form.</li>
+        <li><strong>Final copy</strong> in the frames. No lorem ipsum, no "TBD". If a string is not decided, raise it as an open question instead.</li>
+        <li><strong>Spacing annotations</strong> on at least one representative frame per screen.</li>
+        <li><strong>Assets exported at 2×</strong>, named as below.</li>
+      </ul>
+
+      <h3>File &amp; layer naming</h3>
+      <ul>
+        <li>Frames: <code>B1 Marketplace — Desktop 1440</code>, <code>C3 Seller Dashboard — Mobile 375</code>.</li>
+        <li>Components: <code>ProductCard</code>, <code>CategoryRailItem</code>, <code>QuantityStepper</code>, <code>StockChip</code>, <code>VerifiedBadge</code>, <code>OrderStatusChip</code>, <code>EmptyState</code>.</li>
+        <li>Icons: use one set throughout — the build uses Lucide, so staying on Lucide avoids a redraw.</li>
+        <li>Exports: <code>product-placeholder@2x.png</code>, <code>avatar-fallback@2x.svg</code>, <code>hero-illustration@2x.webp</code>.</li>
+      </ul>
+
+      <h3>Assets needed from Coconoto</h3>
+      <ul>
+        <li>Wordmark files at the correct ratios — the current assets are 760 × 121 and 2170 × 725, and the footer needs the green mark rather than the brown one.</li>
+        <li>A coconut product placeholder illustration for missing images.</li>
+        <li>Three or four real product photographs for the demo grid, including one on a white background.</li>
+        <li>A seller logo and a buyer avatar for the demo states.</li>
+      </ul>
+    </div>
+
+    <div>
+      <h3>Open decisions</h3>
+      <p style="font-size:8.6pt">Each of these changes the design. They need an answer before or during the first review, not after.</p>
+      <table>
+        <thead><tr><th style="width:16%">Ref</th><th>Question</th></tr></thead>
+        <tbody>
+          <tr><td><strong>B1</strong></td><td>Show seller location and minimum order on the product card?</td></tr>
+          <tr><td><strong>B3</strong></td><td>Is vendor phone and email public, or revealed only after a request?</td></tr>
+          <tr><td><strong>B4</strong></td><td>Can one request span multiple vendors? The backend currently has no concept for it.</td></tr>
+          <tr><td><strong>B6</strong></td><td>One confirmation per vendor, or one page with per-vendor sections?</td></tr>
+          <tr><td><strong>B7</strong></td><td>Password reset — design the flow, or remove the link?</td></tr>
+          <tr><td><strong>B8</strong></td><td>Single signup form, or three steps with a progress bar?</td></tr>
+          <tr><td><strong>C2</strong></td><td>Collect a seller logo at signup, or in dashboard settings?</td></tr>
+          <tr><td><strong>C4</strong></td><td>Promote "Become a seller" to its own page?</td></tr>
+          <tr><td><strong>A2</strong></td><td>Keep the glassmorphism treatment, or move to a flat B2B surface?</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Not in scope this round</h3>
+      <ul>
+        <li><strong>Payments</strong> — the platform takes no money; vendors settle directly. Out of scope, but the Payouts nav slot is reserved.</li>
+        <li><strong>Ratings &amp; reviews</strong> — P2. The verified badge carries trust for now.</li>
+        <li><strong>Buyer–seller messaging</strong> — P2. Today contact happens by email and phone, which is why the confirmation page surfaces both.</li>
+        <li><strong>Admin dashboard</strong> — P2. Vendor verification is handled operationally.</li>
+        <li><strong>Multi-currency</strong> — naira only.</li>
+      </ul>
+
+      <h3>Suggested order of work</h3>
+      <ol style="font-size:8.7pt">
+        <li>A3 global elements — the components every page needs.</li>
+        <li>B1 browse, B2 product detail, B5 place order, B6 confirmation — the critical buying path.</li>
+        <li>C3 seller dashboard, C2 seller signup — the supply side.</li>
+        <li>B7–B9 and C1, C4 — the account and entry screens.</li>
+        <li>B3, B4 — the P1 additions.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="foot"><span>D2 — Handoff checklist</span><span>21</span></div>
+</section>
+
+</body>
+</html>
