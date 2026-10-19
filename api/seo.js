@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { LEGAL_PAGES, LEGAL_UPDATED } from './_legal-content.js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
@@ -268,6 +269,94 @@ async function serveShell(req, res, headReplacer, fallbackPath = '/') {
   }
 }
 
+// ─── Legal body (server-rendered) ─────────────────────────────────────────────
+//
+// The three legal pages used to ship an empty <div id="root"> — every word was
+// rendered by React after hydration, so a client that does not execute
+// JavaScript saw ~32 characters of text. Google's OAuth branding review rejected
+// the privacy policy for precisely that reason, and the same emptiness makes the
+// pages invisible to search crawlers.
+//
+// Rendering the body into the shell puts the real text in the HTML response.
+// React then replaces it with the designed version on mount — no hydrateRoot, so
+// there is no markup mismatch to reconcile.
+
+const renderInline = (text = '') =>
+  escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+const renderBlock = (block = {}) => {
+  if (block.p) return `<p>${renderInline(block.p)}</p>`;
+  if (block.h3) return `<h3>${escapeHtml(block.h3)}</h3>`;
+  if (block.ul) return `<ul>${block.ul.map((i) => `<li>${renderInline(i)}</li>`).join('')}</ul>`;
+  if (block.note) return `<div class="legal-note">${renderInline(block.note)}</div>`;
+  if (block.dl) {
+    const rows = block.dl
+      .map(([term, value]) => `<div><dt>${escapeHtml(term)}</dt><dd>${renderInline(value)}</dd></div>`)
+      .join('');
+    return `<dl class="legal-dl">${rows}</dl>`;
+  }
+  return '';
+};
+
+const renderLegalBody = (page) => {
+  const sections = page.sections
+    .map((section) => {
+      const inner = section.blocks.map(renderBlock).join('\n');
+      return `<section>\n<h2>${escapeHtml(section.heading)}</h2>\n${inner}\n</section>`;
+    })
+    .join('\n');
+
+  const intro = page.intro ? `<p>${renderInline(page.intro)}</p>` : '';
+
+  return `<article class="legal-doc"><div class="legal-card">` +
+    `<h1>${escapeHtml(page.heading)}</h1>` +
+    `<p class="legal-meta">Last updated: ${escapeHtml(LEGAL_UPDATED)}</p>` +
+    intro + sections +
+    `</div></article>`;
+};
+
+/**
+ * Scoped to `#root` so these rules win against Tailwind's preflight (which
+ * strips heading sizes and list markers) but stop applying the moment React
+ * replaces the children with its own Tailwind-styled markup.
+ */
+const LEGAL_STYLES = `
+    <style>
+      #root .legal-doc{background:#f9fafb;padding:48px 24px;color:#1f2937;line-height:1.7;
+        font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+      #root .legal-card{max-width:768px;margin:0 auto;background:#fff;border-radius:12px;
+        box-shadow:0 1px 3px rgba(0,0,0,.1);padding:40px}
+      #root .legal-card h1{font-size:30px;font-weight:700;text-align:center;margin:0 0 8px;color:#111827;line-height:1.25}
+      #root .legal-meta{text-align:center;font-size:13px;color:#6b7280;margin:0 0 32px}
+      #root .legal-card h2{font-size:22px;font-weight:600;margin:32px 0 16px;color:#111827;line-height:1.35}
+      #root .legal-card h3{font-size:17px;font-weight:600;margin:20px 0 10px;color:#1f2937}
+      #root .legal-card p{margin:0 0 14px;color:#374151}
+      #root .legal-card ul{margin:0 0 14px;padding-left:24px;list-style:disc}
+      #root .legal-card li{margin:0 0 8px;color:#374151}
+      #root .legal-card strong{font-weight:600;color:#111827}
+      #root .legal-note{background:#f0f9ff;border-left:4px solid #0ea5e9;padding:16px;border-radius:8px;margin:0 0 14px}
+      #root .legal-dl{background:#f3f4f6;padding:20px;border-radius:10px;margin:0 0 14px}
+      #root .legal-dl div{display:flex;gap:8px;margin:0 0 6px;font-size:14px}
+      #root .legal-dl dt{font-weight:600;color:#111827;min-width:90px;margin:0}
+      #root .legal-dl dd{margin:0;color:#374151}
+      @media(max-width:640px){
+        #root .legal-doc{padding:24px 16px}
+        #root .legal-card{padding:24px}
+        #root .legal-card h1{font-size:24px}
+        #root .legal-card h2{font-size:19px}
+      }
+    </style>`;
+
+const injectLegalStyles = (html) => html.replace('</head>', `${LEGAL_STYLES}\n  </head>`);
+
+/** Put the rendered article inside the SPA mount point. */
+const injectBody = (html, bodyHtml) => {
+  const emptyRoot = /<div id="root">\s*<\/div>/i;
+  if (emptyRoot.test(html)) return html.replace(emptyRoot, `<div id="root">${bodyHtml}</div>`);
+  // Shell shape changed — fall back to appending, which still gives crawlers the text.
+  return html.replace('</body>', `${bodyHtml}\n  </body>`);
+};
+
 // ─── Per-route meta for the static pages ──────────────────────────────────────
 
 async function handlePageMeta(req, res) {
@@ -290,7 +379,14 @@ async function handlePageMeta(req, res) {
     type: 'website',
   });
 
-  return serveShell(req, res, (html) => injectHead(html, metaBlock), path);
+  // Legal pages additionally get their body rendered into the shell — see the
+  // "Legal body" block above for why.
+  const legal = LEGAL_PAGES[path];
+  const transform = legal
+    ? (html) => injectBody(injectLegalStyles(injectHead(html, metaBlock)), renderLegalBody(legal))
+    : (html) => injectHead(html, metaBlock);
+
+  return serveShell(req, res, transform, path);
 }
 
 // ─── Per-post meta for the blog ───────────────────────────────────────────────
