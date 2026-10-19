@@ -64,6 +64,8 @@ export default async function handler(req, res) {
       case 'marketplace-logout':
         clearSessionCookie(res);
         return res.status(200).json({ success: true });
+      case 'clerk-session':
+        return await handleClerkSession(data, res);
       case 'admin-login':
         return await handleAdminLogin(req, data, res);
       case 'email-user-login':
@@ -250,6 +252,182 @@ async function handleBuyerSignup(data, res) {
       error: 'Signup failed: ' + error.message
     });
   }
+}
+
+// ── Clerk → marketplace session bridge ──────────────────────────────────────
+//
+// Clerk owns the credential; `buyers` still owns the profile. The browser signs
+// in with Clerk, hands us the session JWT, and we mint the SAME signed cookie
+// every other endpoint already understands — so `/api/marketplace`, the
+// dashboards and the order flow need no changes at all.
+//
+// Env: CLERK_SECRET_KEY (server only, never VITE_*). Without it this action
+// 503s and the client keeps using the legacy password flow.
+//
+// Requires supabase/migrations/*_clerk_identity.sql (adds buyers.clerk_user_id
+// and makes password_hash nullable).
+async function handleClerkSession(data, res) {
+  const secretKey = process.env.CLERK_SECRET_KEY;
+
+  if (!secretKey) {
+    return res.status(503).json({
+      success: false,
+      error: 'Clerk is not configured on the server (CLERK_SECRET_KEY missing)',
+    });
+  }
+
+  const { token, first_name, last_name } = data;
+
+  if (!token) {
+    return res.status(400).json({ success: false, error: 'Missing Clerk session token' });
+  }
+
+  let verifyToken;
+  let createClerkClient;
+  try {
+    ({ verifyToken, createClerkClient } = await import('@clerk/backend'));
+  } catch (importError) {
+    console.error('❌ @clerk/backend is not installed:', importError.message);
+    return res.status(503).json({ success: false, error: 'Clerk SDK is not installed on the server' });
+  }
+
+  let claims;
+  try {
+    claims = await verifyToken(token, { secretKey });
+  } catch (error) {
+    console.warn('❌ Clerk token rejected:', error.message);
+    return res.status(401).json({
+      success: false,
+      error: 'Your session has expired. Please sign in again.',
+    });
+  }
+
+  const clerkUserId = claims.sub;
+  if (!clerkUserId) {
+    return res.status(401).json({ success: false, error: 'Clerk session has no user' });
+  }
+
+  let clerkUser;
+  try {
+    clerkUser = await createClerkClient({ secretKey }).users.getUser(clerkUserId);
+  } catch (error) {
+    console.error('❌ Clerk user lookup failed:', error.message);
+    return res.status(502).json({ success: false, error: 'Could not load your Clerk profile' });
+  }
+
+  const email = (
+    clerkUser.emailAddresses.find((entry) => entry.id === clerkUser.primaryEmailAddressId)?.emailAddress ||
+    clerkUser.emailAddresses[0]?.emailAddress ||
+    ''
+  ).trim().toLowerCase();
+
+  if (!email) {
+    return res.status(400).json({ success: false, error: 'Your account has no email address' });
+  }
+
+  const supabase = getSupabaseClient();
+
+  // `buyers.clerk_user_id` only exists after the migration. Say so plainly
+  // instead of leaking a Postgres column error.
+  const requireColumn = (error) => {
+    if (error?.code === '42703') {
+      return res.status(503).json({
+        success: false,
+        error: 'Run supabase/migrations/*_clerk_identity.sql — buyers.clerk_user_id is missing',
+      });
+    }
+    return null;
+  };
+
+  // 1. Already linked to a Clerk user.
+  let { data: buyer, error: lookupError } = await supabase
+    .from('buyers')
+    .select('*')
+    .eq('clerk_user_id', clerkUserId)
+    .maybeSingle();
+
+  if (requireColumn(lookupError)) return undefined;
+
+  // 2. Pre-Clerk account with the same email — claim it so the buyer keeps
+  //    their orders and profile.
+  if (!buyer) {
+    const { data: byEmail, error: emailError } = await supabase
+      .from('buyers')
+      .select('*')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (requireColumn(emailError)) return undefined;
+
+    if (byEmail) {
+      if (byEmail.is_active === false) {
+        return res.status(403).json({ success: false, error: 'This account has been disabled' });
+      }
+      const { data: linked } = await supabase
+        .from('buyers')
+        .update({ clerk_user_id: clerkUserId })
+        .eq('id', byEmail.id)
+        .select()
+        .single();
+      buyer = linked || { ...byEmail, clerk_user_id: clerkUserId };
+    }
+  }
+
+  // 3. No profile yet — Google (and password) sign-up both land here. Clerk is
+  //    the source of truth for the name.
+  if (!buyer) {
+    const { data: created, error: insertError } = await supabase
+      .from('buyers')
+      .insert([{
+        email,
+        clerk_user_id: clerkUserId,
+        first_name: (first_name || clerkUser.firstName || '').trim(),
+        last_name: (last_name || clerkUser.lastName || '').trim(),
+      }])
+      .select()
+      .single();
+
+    if (insertError) {
+      if (insertError.code === '23505') {
+        return res.status(409).json({
+          success: false,
+          error: 'An account with this email already exists. Try signing in instead.',
+        });
+      }
+      console.error('❌ Clerk buyer provisioning failed:', insertError);
+      return res.status(500).json({ success: false, error: 'Could not create your marketplace profile' });
+    }
+
+    buyer = created;
+    console.log('✅ Clerk buyer provisioned:', email);
+  }
+
+  if (buyer.is_active === false) {
+    return res.status(403).json({ success: false, error: 'This account has been disabled' });
+  }
+
+  // A buyer who also registered as a seller keeps one session, flagged so the
+  // marketplace can surface their seller tools.
+  const { data: linkedVendor } = await supabase
+    .from('vendors')
+    .select('id')
+    .eq('email', buyer.email)
+    .eq('is_active', true)
+    .maybeSingle();
+
+  const { password_hash, ...buyerData } = buyer;
+
+  setSessionCookie(res, {
+    id: buyer.id,
+    role: 'buyer',
+    email: buyer.email,
+    name: `${buyer.first_name || ''} ${buyer.last_name || ''}`.trim(),
+    isSeller: !!linkedVendor,
+    vendorId: linkedVendor?.id || null,
+  });
+
+  console.log('✅ Clerk session bridged:', email);
+  return res.status(200).json({ success: true, buyer: buyerData });
 }
 
 // Vendor Login

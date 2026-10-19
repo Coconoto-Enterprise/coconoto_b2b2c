@@ -38,6 +38,12 @@ export const FigmaLogin = lazy(() => import('./pages/figma/FigmaLogin'));
 export const FigmaSignup = lazy(() => import('./pages/figma/FigmaSignup'));
 export const FigmaContact = lazy(() => import('./pages/figma/FigmaContact'));
 export const FigmaBanner = lazy(() => import('./pages/figma/FigmaBanner'));
+export const SsoCallback = lazy(() =>
+  import('./pages/figma/AuthCallback').then((m) => ({ default: m.SsoCallback })),
+);
+export const AuthComplete = lazy(() =>
+  import('./pages/figma/AuthCallback').then((m) => ({ default: m.AuthComplete })),
+);
 
 // --- Named-export pages (remap to default for React.lazy) ---
 export const ServicesLayout = lazy(() =>
@@ -66,12 +72,6 @@ export const VendorDashboard = lazy(() =>
 );
 export const SellerDashboard = lazy(() =>
   import('./pages/vendor/SellerDashboard').then((m) => ({ default: m.SellerDashboard })),
-);
-export const BuyerLogin = lazy(() =>
-  import('./pages/buyer/BuyerLogin').then((m) => ({ default: m.BuyerLogin })),
-);
-export const BuyerSignup = lazy(() =>
-  import('./pages/buyer/BuyerSignup').then((m) => ({ default: m.BuyerSignup })),
 );
 export const BuyerDashboard = lazy(() =>
   import('./pages/buyer/BuyerDashboard').then((m) => ({ default: m.BuyerDashboard })),

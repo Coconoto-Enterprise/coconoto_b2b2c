@@ -31,8 +31,6 @@ import {
   VendorSignup,
   VendorDashboard,
   SellerDashboard,
-  BuyerLogin,
-  BuyerSignup,
   BuyerDashboard,
   NotFound,
   ServerError,
@@ -44,6 +42,8 @@ import {
   FigmaSignup,
   FigmaContact,
   FigmaBanner,
+  SsoCallback,
+  AuthComplete,
 } from './lazyComponents';
 import { MarketplaceAuthProvider } from './context/MarketplaceAuthContext';
 import { MarketplaceProtectedRoute } from './components/auth/MarketplaceProtectedRoute';
@@ -146,8 +146,12 @@ function App() {
           <Route path="/cococycle-hub/*" element={<FigmaCococycleHub />} />
           <Route path="/cococonnect" element={<Marketplace />} />
           <Route path="/contact" element={<FigmaContact />} />
-          <Route path="/login" element={<FigmaLogin />} />
-          <Route path="/signup" element={<FigmaSignup />} />
+          {/* /login and /signup were the old site-wide auth frames. The Figma
+              sign-in/sign-up screens ARE the CoCo-Connect auth now, so those
+              two URLs forward to the marketplace routes rather than render a
+              second copy of the same page. */}
+          <Route path="/login" element={<Navigate to="/buyer-login" replace />} />
+          <Route path="/signup" element={<Navigate to="/buyer-signup" replace />} />
 
           <Route path="/blog" element={<BlogHome />} />
           <Route path="/blog/:blogParam" element={<BlogDetail />} />
@@ -162,8 +166,8 @@ function App() {
           <Route path="/figma/equipment" element={<Navigate to="/cocotech" replace />} />
           <Route path="/figma/cococycle-hub" element={<Navigate to="/cococycle-hub" replace />} />
           <Route path="/figma/contact" element={<Navigate to="/contact" replace />} />
-          <Route path="/figma/login" element={<Navigate to="/login" replace />} />
-          <Route path="/figma/signup" element={<Navigate to="/signup" replace />} />
+          <Route path="/figma/login" element={<Navigate to="/buyer-login" replace />} />
+          <Route path="/figma/signup" element={<Navigate to="/buyer-signup" replace />} />
 
           {/* ── Legacy slugs ────────────────────────────────────────────────
               The generic URLs the three business units used to live under.
@@ -194,8 +198,15 @@ function App() {
           <Route path="/vendor-login" element={<VendorLogin />} />
           <Route path="/vendor-signup" element={<VendorSignup />} />
           <Route path="/vendor-dashboard" element={<MarketplaceProtectedRoute role="vendor"><VendorDashboard /></MarketplaceProtectedRoute>} />
-          <Route path="/buyer-login" element={<BuyerLogin />} />
-          <Route path="/buyer-signup" element={<BuyerSignup />} />
+          {/* Buyer auth is the Figma "Desktop 20" / "S 19" frames, wired to the
+              same /api/auth buyer endpoints as before. */}
+          <Route path="/buyer-login" element={<FigmaLogin />} />
+          <Route path="/buyer-signup" element={<FigmaSignup />} />
+          {/* Clerk OAuth round-trip: /sso-callback completes the handshake,
+              /auth-complete trades the Clerk session for our cookie. Both are
+              no-ops (redirect to /buyer-login) when Clerk is not configured. */}
+          <Route path="/sso-callback" element={<SsoCallback />} />
+          <Route path="/auth-complete" element={<AuthComplete />} />
           <Route path="/buyer-dashboard" element={<MarketplaceProtectedRoute role="buyer"><BuyerDashboard /></MarketplaceProtectedRoute>} />
           {/* Seller dashboard for buyers who have also opted in to sell (single unified login) */}
           <Route path="/seller-dashboard" element={<MarketplaceProtectedRoute role="buyer"><SellerDashboard /></MarketplaceProtectedRoute>} />

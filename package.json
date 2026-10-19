@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@clerk/backend": "^2.33.7",
+    "@clerk/clerk-react": "^5.61.10",
     "@editorjs/code": "^2.9.4",
     "@editorjs/editorjs": "^2.31.6",
     "@editorjs/embed": "^2.7.7",
