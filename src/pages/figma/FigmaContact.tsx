@@ -17,8 +17,13 @@ const DETAILS = [
   },
 ];
 
+/**
+ * Field metrics for the enquiry form. The card used to run 605px tall, which
+ * left the whole right column noticeably longer than the contact details
+ * beside it — hence the tighter 46px controls and the smaller gaps below.
+ */
 const fieldClass =
-  'h-[52px] w-full rounded-[6px] border border-[#DCDCDC] bg-white px-4 font-lora text-[15px] text-black outline-none transition-colors placeholder:text-[#9A9A9A] focus:border-[#17AD10] disabled:opacity-60';
+  'h-[46px] w-full rounded-[6px] border border-[#DCDCDC] bg-white px-4 font-lora text-[15px] text-black outline-none transition-colors placeholder:text-[#9A9A9A] focus:border-[#17AD10] disabled:opacity-60';
 
 const EMPTY = { name: '', email: '', message: '' };
 
@@ -142,12 +147,16 @@ export default function FigmaContact() {
               </div>
 
               {/* Right: enquiry form */}
-              <div className="rounded-[12px] bg-[#F7F5F5] p-7 sm:p-8">
+              {/* `lg:self-start` keeps the card at its content height. Grid
+                  items stretch by default, so once the form got shorter the
+                  card kept matching the taller details column and grew a block
+                  of empty grey under the button. */}
+              <div className="rounded-[12px] bg-[#F7F5F5] p-6 sm:p-7 lg:self-start">
                 <p className="font-montserrat text-[16px] leading-[1.6] text-[#101010]">
                   Fill out this form correctly and submit to Contact Our Services Team
                 </p>
 
-                <form className="mt-7" onSubmit={handleSubmit}>
+                <form className="mt-5" onSubmit={handleSubmit}>
                   <label htmlFor="contact-name" className="block font-montserrat text-[16px] text-[#101010]">
                     Your Name
                   </label>
@@ -159,12 +168,12 @@ export default function FigmaContact() {
                     value={form.name}
                     onChange={handleChange}
                     disabled={loading}
-                    className={`${fieldClass} mt-3`}
+                    className={`${fieldClass} mt-2`}
                   />
 
                   <label
                     htmlFor="contact-email"
-                    className="mt-6 block font-montserrat text-[16px] text-[#101010]"
+                    className="mt-4 block font-montserrat text-[16px] text-[#101010]"
                   >
                     Your Email
                   </label>
@@ -176,24 +185,24 @@ export default function FigmaContact() {
                     value={form.email}
                     onChange={handleChange}
                     disabled={loading}
-                    className={`${fieldClass} mt-3`}
+                    className={`${fieldClass} mt-2`}
                   />
 
                   <label
                     htmlFor="contact-message"
-                    className="mt-6 block font-montserrat text-[16px] text-[#101010]"
+                    className="mt-4 block font-montserrat text-[16px] text-[#101010]"
                   >
                     How can we help you
                   </label>
                   <textarea
                     id="contact-message"
                     name="message"
-                    rows={4}
+                    rows={3}
                     required
                     value={form.message}
                     onChange={handleChange}
                     disabled={loading}
-                    className="mt-3 w-full resize-none rounded-[6px] border border-[#DCDCDC] bg-white px-4 py-3 font-lora text-[15px] text-black outline-none transition-colors focus:border-[#17AD10] disabled:opacity-60"
+                    className="mt-2 w-full resize-none rounded-[6px] border border-[#DCDCDC] bg-white px-4 py-2.5 font-lora text-[15px] text-black outline-none transition-colors focus:border-[#17AD10] disabled:opacity-60"
                   />
 
                   {success && (
@@ -217,7 +226,7 @@ export default function FigmaContact() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="mt-7 h-[52px] w-full rounded-[6px] bg-[#1AC212] font-montserrat text-[16px] text-white transition-colors hover:bg-[#17ad10] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-5 h-[46px] w-full rounded-[6px] bg-[#1AC212] font-montserrat text-[16px] text-white transition-colors hover:bg-[#17ad10] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {loading ? 'Sending…' : 'Submit'}
                   </button>
