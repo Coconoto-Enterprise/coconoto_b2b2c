@@ -99,11 +99,39 @@ const ECOSYSTEM: EcosystemCard[] = [
   },
 ];
 
-const MARKET_PRODUCTS = [
+/**
+ * The four tiles under "Popular on the marketplace".
+ *
+ * `outOfStock` is owner-controlled and deliberately local to this component:
+ * the home page is a marketing surface, not a live stock feed, so availability
+ * here is a manual statement rather than something read from `products`.
+ * A sold-out tile shows "Out of stock" in the price line instead of the amount.
+ */
+type MarketProduct = {
+  name: string;
+  unit: string;
+  price: string;
+  slot: string;
+  outOfStock?: boolean;
+};
+
+const MARKET_PRODUCTS: MarketProduct[] = [
   { name: 'Cocopeat', unit: '5 kg', price: '10,000', slot: 'home-market-cocopeat' },
   { name: 'Coconut Fibre', unit: 'Full Sack', price: '15,000', slot: 'home-market-fibre' },
-  { name: 'Coconut Oil', unit: '1L', price: '5,000', slot: 'home-market-oil' },
-  { name: 'Coconut Shell', unit: 'Charcoal', price: '6,500', slot: 'home-market-shell' },
+  {
+    name: 'Coconut Oil',
+    unit: '1L',
+    price: '5,000',
+    slot: 'home-market-oil',
+    outOfStock: true,
+  },
+  {
+    name: 'Coconut Shell',
+    unit: 'Charcoal',
+    price: '6,500',
+    slot: 'home-market-shell',
+    outOfStock: true,
+  },
 ];
 
 const MARKET_FEATURES = [
@@ -439,8 +467,15 @@ export default function FigmaHomeSections({ withImages = false }: { withImages?:
                       <p className="mt-[9px] font-lora text-[14px] leading-[18px] text-black">
                         {p.unit}
                       </p>
-                      <p className="mt-[11px] font-lora text-[16px] font-medium leading-[20px] text-[#17AD10]">
-                        &#8358;{p.price}
+                      {/* Sold-out tiles carry the words where the price would be,
+                          so the line count never changes and the panel's fixed
+                          382px height at lg still holds. */}
+                      <p
+                        className={`mt-[11px] font-lora text-[16px] font-medium leading-[20px] ${
+                          p.outOfStock ? 'text-[#8A8A8A]' : 'text-[#17AD10]'
+                        }`}
+                      >
+                        {p.outOfStock ? 'Out of stock' : `\u20A6${p.price}`}
                       </p>
                     </div>
                   ))}
