@@ -243,7 +243,7 @@ function LoginScreen({
                 />
                 <span className="font-lora text-[16px] text-black">Remember me</span>
               </label>
-              <Link to="/buyer-login?forgot=1" className="font-lora text-[16px] text-[#17AD10] hover:underline">
+              <Link to="/buyer-reset-password" className="font-lora text-[16px] text-[#17AD10] hover:underline">
                 Forget password?
               </Link>
             </div>

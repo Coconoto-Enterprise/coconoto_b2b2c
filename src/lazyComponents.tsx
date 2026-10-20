@@ -36,6 +36,7 @@ export const FigmaEquipment = lazy(() => import('./pages/figma/FigmaEquipment'))
 export const FigmaCococycleHub = lazy(() => import('./pages/figma/FigmaCococycleHub'));
 export const FigmaLogin = lazy(() => import('./pages/figma/FigmaLogin'));
 export const FigmaSignup = lazy(() => import('./pages/figma/FigmaSignup'));
+export const FigmaResetPassword = lazy(() => import('./pages/figma/FigmaResetPassword'));
 export const FigmaContact = lazy(() => import('./pages/figma/FigmaContact'));
 export const FigmaBanner = lazy(() => import('./pages/figma/FigmaBanner'));
 export const SsoCallback = lazy(() =>

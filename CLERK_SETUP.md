@@ -134,8 +134,39 @@ The gap is the *credential*:
     `email` + `password_hash` with `password_hasher: bcrypt`. Their existing
     passwords then work unchanged. Export with
     `select email, password_hash from buyers;`.
-  - or build a "Forgot password" flow first (Clerk's reset is a few lines, but
-    the design has no screen for it yet — the link currently goes nowhere).
+  - or have them use **Forgot password** (built, see §6a) — but only once Clerk
+    knows the address. A buyer who exists only in `buyers` and never signed in
+    through Clerk has no Clerk account yet, so the reset correctly answers
+    "we could not find an account with that email". Import is the real fix.
+
+## 6a. Forgot password (`/buyer-reset-password`)
+
+Headless, two steps, no Clerk-hosted page:
+
+1. `signIn.create({ strategy: 'reset_password_email_code', identifier })` mails a
+   6-digit code.
+2. `signIn.attemptFirstFactor({ strategy: 'reset_password_email_code', code,
+   password })` returns a live session.
+
+The session is then bridged into `coconoto_marketplace_session` by the same
+`/api/auth {action:'clerk-session'}` exchange a normal sign-in uses, so the buyer
+lands on `/cococonnect` already signed in. Nothing on the backend changed.
+
+**Clerk dashboard dependency:** the code email comes from the **"Reset password
+code"** template (Customization → Emails). If it is disabled or the instance is
+in a mode that blocks that strategy, step 1 fails with a strategy error. Verify
+with one real reset before announcing the feature.
+
+**Vendors are not covered** — they still live on bcrypt in `vendors`, so the
+"no account" message points sellers at support@coconoto.africa.
+
+**Content blockers:** clerk-js loads from `clerk.coconoto.africa`. When it is
+blocked, the page cannot reach Clerk at all; the submit now says so explicitly
+instead of doing nothing.
+
+**Local dev caveat:** the production publishable key is domain-locked to
+`coconoto.africa`, so Clerk returns `origin_invalid` on `localhost` and this
+page can only be tested end-to-end on the deployed domain.
 
 ## 7. Vendors are not affected
 
@@ -181,6 +212,8 @@ flight — refresh, don't re-save, and publish anyway. Branding verification is 
 - [ ] Google consent screen published — Audience → **Publish app**
 - [ ] Existing buyers: import bcrypt hashes, or accept Google-only for them
 - [ ] Rotate `sk_live_…` (it was pasted into a chat transcript)
+- [ ] One real reset end-to-end on production (`/buyer-reset-password`) — proves the
+      "Reset password code" email template is enabled on the live instance
 
 ### The two Vercel values
 

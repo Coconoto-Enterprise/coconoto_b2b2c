@@ -40,6 +40,7 @@ import {
   FigmaCococycleHub,
   FigmaLogin,
   FigmaSignup,
+  FigmaResetPassword,
   FigmaContact,
   FigmaBanner,
   SsoCallback,
@@ -202,6 +203,10 @@ function App() {
               same /api/auth buyer endpoints as before. */}
           <Route path="/buyer-login" element={<FigmaLogin />} />
           <Route path="/buyer-signup" element={<FigmaSignup />} />
+          {/* Clerk-driven forgotten-password flow (two steps: email → code +
+              new password). Falls back to a "contact support" screen when
+              Clerk is not configured. */}
+          <Route path="/buyer-reset-password" element={<FigmaResetPassword />} />
           {/* Clerk OAuth round-trip: /sso-callback completes the handshake,
               /auth-complete trades the Clerk session for our cookie. Both are
               no-ops (redirect to /buyer-login) when Clerk is not configured. */}
