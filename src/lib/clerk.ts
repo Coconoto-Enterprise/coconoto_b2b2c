@@ -80,9 +80,33 @@ export async function clerkSessionToken(clerk: {
   return null;
 }
 
+/**
+ * Clerk keeps its own session in the browser, entirely separately from our
+ * signed marketplace cookie. When the two drift apart — the exchange failed, or
+ * our cookie expired while Clerk's refresh token survived — the buyer *looks*
+ * signed out while `signIn.create()` / `signUp.create()` refuse to run with
+ * `session_exists`. Detecting that state is the difference between a dead-end
+ * form and one that can heal itself.
+ */
+export function hasLiveClerkSession(
+  clerk: { session?: unknown; client?: { sessions?: unknown[] } | null } | null | undefined,
+): boolean {
+  if (!clerk) return false;
+  if (clerk.session) return true;
+  const sessions = clerk.client?.sessions;
+  return Array.isArray(sessions) && sessions.length > 0;
+}
+
+type ClerkErrorLike = { errors?: Array<{ code?: string; message?: string }>; message?: string };
+
+/** The Clerk error code, when there is one — used for control flow, not display. */
+export function clerkErrorCode(error: unknown): string | undefined {
+  return (error as ClerkErrorLike)?.errors?.[0]?.code;
+}
+
 /** Clerk error → something a buyer can act on. */
 export function describeClerkError(error: unknown): string {
-  const err = error as { errors?: Array<{ code?: string; message?: string }>; message?: string };
+  const err = error as ClerkErrorLike;
   const first = err?.errors?.[0];
 
   switch (first?.code) {
@@ -99,6 +123,8 @@ export function describeClerkError(error: unknown): string {
       return 'That code did not work. Check your email and try again.';
     case 'verification_expired':
       return 'That code has expired. Send a new one.';
+    case 'session_exists':
+      return 'You are already signed in, but this browser lost its Coconoto session. Sign out and sign in again.';
     default:
       return first?.message || err?.message || 'Something went wrong. Please try again.';
   }

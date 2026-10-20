@@ -10,6 +10,7 @@ import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
 import {
   CLERK_PUBLISHABLE_KEY,
   clerkEnabled,
+  clerkErrorCode,
   clerkSessionToken,
   describeClerkError,
   exchangeClerkSession,
@@ -63,7 +64,7 @@ export default function FigmaSignup() {
   if (!clerkEnabled) return <PasswordSignup />;
 
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} afterSignOutUrl="/cococonnect">
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
       <ClerkSignup />
     </ClerkProvider>
   );
@@ -500,12 +501,24 @@ function ClerkSignup() {
 
     try {
       const { firstName, lastName } = splitName();
-      const created = await signUp.create({
+      const payload = {
         emailAddress: email.trim(),
         password,
         firstName,
         lastName,
-      });
+      };
+
+      // Clerk refuses `signUp.create()` while it still holds a session from an
+      // earlier attempt (`session_exists`). Clear that session and try once
+      // more, so the account the buyer asked for is the one that gets created.
+      let created;
+      try {
+        created = await signUp.create(payload);
+      } catch (createError) {
+        if (clerkErrorCode(createError) !== 'session_exists') throw createError;
+        await clerk.signOut();
+        created = await signUp.create(payload);
+      }
 
       // If email verification is switched off on the Clerk instance the
       // sign-up is already complete; otherwise send the code.
@@ -563,11 +576,19 @@ function ClerkSignup() {
     try {
       // Google carries the name and email, so the profile is created from the
       // Clerk user in the same exchange as the password path.
-      await signUp.authenticateWithRedirect({
-        strategy: 'oauth_google',
+      const redirect = {
+        strategy: 'oauth_google' as const,
         redirectUrl: '/sso-callback',
         redirectUrlComplete: `/auth-complete?returnTo=${encodeURIComponent(exitTo)}`,
-      });
+      };
+
+      try {
+        await signUp.authenticateWithRedirect(redirect);
+      } catch (redirectError) {
+        if (clerkErrorCode(redirectError) !== 'session_exists') throw redirectError;
+        await clerk.signOut();
+        await signUp.authenticateWithRedirect(redirect);
+      }
     } catch (clerkError) {
       setError(describeClerkError(clerkError));
       setGoogleLoading(false);

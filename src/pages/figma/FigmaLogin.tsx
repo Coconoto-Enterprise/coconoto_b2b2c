@@ -11,9 +11,11 @@ import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
 import {
   CLERK_PUBLISHABLE_KEY,
   clerkEnabled,
+  clerkErrorCode,
   clerkSessionToken,
   describeClerkError,
   exchangeClerkSession,
+  hasLiveClerkSession,
 } from '../../lib/clerk';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -45,7 +47,7 @@ export default function FigmaLogin() {
   if (!clerkEnabled) return <PasswordLogin />;
 
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} afterSignOutUrl="/cococonnect">
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
       <ClerkLogin />
     </ClerkProvider>
   );
@@ -65,6 +67,7 @@ type LoginScreenProps = {
   isLoading: boolean;
   googleLoading: boolean;
   error: string;
+  errorAction?: { label: string; onClick: () => void };
   submitAttempted: boolean;
   onSubmit: (event: React.FormEvent) => void;
   onGoogle: () => void;
@@ -82,6 +85,7 @@ function LoginScreen({
   isLoading,
   googleLoading,
   error,
+  errorAction,
   submitAttempted,
   onSubmit,
   onGoogle,
@@ -156,6 +160,16 @@ function LoginScreen({
               />
               <span className="font-lora text-[15px] leading-[1.4] text-[#B42318]">{error}</span>
             </div>
+          )}
+
+          {errorAction && (
+            <button
+              type="button"
+              onClick={errorAction.onClick}
+              className="mt-3 font-lora text-[15px] text-[#17AD10] underline-offset-2 hover:underline"
+            >
+              {errorAction.label}
+            </button>
           )}
 
           <form
@@ -300,21 +314,28 @@ function ClerkLogin() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [sessionConflict, setSessionConflict] = useState(false);
+  const bridgeAttempted = useRef(false);
 
   const returnTo = searchParams.get('returnTo');
   const exitTo = returnTo?.startsWith('/') ? returnTo : '/cococonnect';
 
-  const completeSignIn = async () => {
+  /**
+   * Trades whatever Clerk session is live for the marketplace cookie. Returns
+   * the outcome so callers can decide what to show — the happy path navigates
+   * away, so there is nothing to render.
+   */
+  const completeSignIn = async (): Promise<{ ok: boolean; needsSignup?: boolean }> => {
     const token = await clerkSessionToken(clerk);
     if (!token) {
       setError('Your session could not be read. Please try again.');
-      return;
+      return { ok: false };
     }
 
     const result = await exchangeClerkSession({ token });
     if (!result.success || !result.buyer) {
       setError(result.error || 'Could not start your session.');
-      return;
+      return { ok: false, needsSignup: result.needsSignup };
     }
 
     if (remember) {
@@ -332,6 +353,46 @@ function ClerkLogin() {
 
     await refreshSession();
     navigate(exitTo);
+    return { ok: true };
+  };
+
+  /**
+   * Clerk can hold a live session while our own cookie is gone — the exchange
+   * failed earlier, or the cookie expired before Clerk's refresh token did.
+   * In that state `signIn.create()` always throws `session_exists`, so the form
+   * is a dead end no matter what the buyer types. Bridge the session we already
+   * have instead of asking for a password again.
+   */
+  useEffect(() => {
+    if (!isLoaded || bridgeAttempted.current) return;
+    if (!hasLiveClerkSession(clerk)) return;
+
+    bridgeAttempted.current = true;
+    setIsLoading(true);
+
+    (async () => {
+      const outcome = await completeSignIn();
+      if (outcome.ok) return;
+      setIsLoading(false);
+      setSessionConflict(true);
+    })();
+    // Deps are intentionally just `isLoaded`: this must run once, when Clerk
+    // first reports a session, not on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded]);
+
+  /** Clears Clerk's session so a different account can be used. */
+  const handleSignOut = async () => {
+    setError('');
+    setSessionConflict(false);
+    setPassword('');
+    // Stop the effect above from immediately bridging the same session back in.
+    bridgeAttempted.current = true;
+    try {
+      await clerk.signOut();
+    } catch {
+      /* nothing to clear */
+    }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -364,6 +425,14 @@ function ClerkLogin() {
       await setActive({ session: attempt.createdSessionId });
       await completeSignIn();
     } catch (clerkError) {
+      // A Clerk session is already live but ours is not. The password form can
+      // never succeed in this state, so finish the session we have.
+      if (clerkErrorCode(clerkError) === 'session_exists') {
+        const outcome = await completeSignIn();
+        if (!outcome.ok) setSessionConflict(true);
+        return;
+      }
+
       // Unified login: a seller who never signed up with Clerk still has a
       // password on the legacy `vendors` table.
       const vendorResult = await vendorLogin({ email: email.trim(), password });
@@ -407,7 +476,13 @@ function ClerkLogin() {
         redirectUrlComplete: `/auth-complete?returnTo=${encodeURIComponent(exitTo)}`,
       });
     } catch (clerkError) {
-      setError(describeClerkError(clerkError));
+      if (clerkErrorCode(clerkError) === 'session_exists') {
+        const outcome = await completeSignIn();
+        if (outcome.ok) return;
+        setSessionConflict(true);
+      } else {
+        setError(describeClerkError(clerkError));
+      }
       setGoogleLoading(false);
     }
   };
@@ -425,6 +500,11 @@ function ClerkLogin() {
       isLoading={isLoading}
       googleLoading={googleLoading}
       error={error}
+      errorAction={
+        sessionConflict
+          ? { label: 'Sign out and use a different account', onClick: handleSignOut }
+          : undefined
+      }
       submitAttempted={submitAttempted}
       onSubmit={handleSubmit}
       onGoogle={handleGoogle}
