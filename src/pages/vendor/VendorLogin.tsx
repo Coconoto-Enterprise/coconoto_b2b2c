@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ShoppingBag, Sparkles, ShieldCheck, Loader2, BarChart3, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { vendorLogin } from '../../services/vendorService';
 import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
+import { safeReturnTo } from '../../lib/safeReturnTo';
 
 export function VendorLogin() {
   const [email, setEmail] = useState('');
@@ -57,7 +58,7 @@ export function VendorLogin() {
         name: result.vendor.business_name,
       });
       const returnTo = searchParams.get('returnTo');
-      navigate(returnTo?.startsWith('/') ? returnTo : '/vendor-dashboard');
+      navigate(safeReturnTo(returnTo, '/vendor-dashboard'));
     } else {
       setError(result.error || 'Invalid email or password. Please try again.');
     }

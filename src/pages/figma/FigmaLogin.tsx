@@ -17,6 +17,7 @@ import {
   exchangeClerkSession,
   hasLiveClerkSession,
 } from '../../lib/clerk';
+import { safeReturnTo } from '../../lib/safeReturnTo';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -318,7 +319,7 @@ function ClerkLogin() {
   const bridgeAttempted = useRef(false);
 
   const returnTo = searchParams.get('returnTo');
-  const exitTo = returnTo?.startsWith('/') ? returnTo : '/cococonnect';
+  const exitTo = safeReturnTo(returnTo, '/cococonnect');
 
   /**
    * Trades whatever Clerk session is live for the marketplace cookie. Returns
@@ -528,7 +529,7 @@ function PasswordLogin() {
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const returnTo = searchParams.get('returnTo');
-  const exitTo = returnTo?.startsWith('/') ? returnTo : '/cococonnect';
+  const exitTo = safeReturnTo(returnTo, '/cococonnect');
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

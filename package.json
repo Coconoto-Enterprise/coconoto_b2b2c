@@ -8,7 +8,8 @@
     "dev:api": "node local-api-server.js",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:api\"",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:redirects": "node scripts/test-safe-return-to.mjs"
   },
   "dependencies": {
     "@clerk/backend": "^2.33.7",

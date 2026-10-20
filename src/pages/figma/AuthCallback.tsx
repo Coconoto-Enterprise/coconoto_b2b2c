@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { AuthenticateWithRedirectCallback, ClerkProvider, useClerk } from '@clerk/clerk-react';
 import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
+import { safeReturnTo } from '../../lib/safeReturnTo';
 import {
   CLERK_PUBLISHABLE_KEY,
   clerkEnabled,
@@ -57,7 +58,7 @@ function CompleteInner() {
   const [error, setError] = useState('');
 
   const returnTo = searchParams.get('returnTo');
-  const exitTo = returnTo?.startsWith('/') ? returnTo : '/cococonnect';
+  const exitTo = safeReturnTo(returnTo, '/cococonnect');
 
   useEffect(() => {
     let cancelled = false;

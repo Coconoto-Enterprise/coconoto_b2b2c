@@ -15,6 +15,7 @@ import {
   describeClerkError,
   exchangeClerkSession,
 } from '../../lib/clerk';
+import { safeReturnTo } from '../../lib/safeReturnTo';
 
 /* ───────────────────────────────────────────────────────────────────────────
  *  "S 19" — Create Your Account.  Every number below is lifted straight from
@@ -442,7 +443,7 @@ function ClerkSignup() {
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const returnTo = searchParams.get('returnTo');
-  const exitTo = returnTo?.startsWith('/') ? returnTo : '/buyer-dashboard';
+  const exitTo = safeReturnTo(returnTo, '/buyer-dashboard');
 
   const splitName = () => {
     const parts = fullName.trim().split(/\s+/);
