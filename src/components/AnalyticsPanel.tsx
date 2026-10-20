@@ -23,9 +23,20 @@ export default function AnalyticsPanel() {
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
   const getDateString = (date: Date) => date.toISOString().slice(0, 10);
-  const today = new Date();
-  const [since, setSince] = useState(() => getDateString(today));
-  const [until, setUntil] = useState(() => getDateString(today));
+  /** `n` days before today as YYYY-MM-DD (n=0 is today). */
+  const daysAgo = (n: number) => getDateString(new Date(Date.now() - n * 86_400_000));
+
+  /**
+   * Default to the last 7 days, not today.
+   *
+   * Cloudflare's daily dataset (`httpRequests1dGroups`) is only published once
+   * a day has closed, so asking for today returns an empty timeseries and
+   * all-zero totals — which this panel read as "no data" and blamed on the
+   * zone ID / API token. The credentials were fine all along; the range was
+   * simply guaranteed to be empty.
+   */
+  const [since, setSince] = useState(() => daysAgo(6));
+  const [until, setUntil] = useState(() => daysAgo(0));
   const [fetching, setFetching] = useState(false);
 
   const maxRangeDays = 8;
@@ -86,7 +97,10 @@ export default function AnalyticsPanel() {
   }, []);
 
   if (loading) return <div className="text-center text-gray-600">Loading analytics…</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
+
+  // An error must NOT replace the whole panel: the date controls are how the
+  // user recovers, so they stay on screen and the failure is reported above
+  // them.
 
   // Support both flattened structure (from dashboard.timeseries) and raw GraphQL structure
   const labels = groups.map((g: any) => g.date || g.dimensions?.date || '');
@@ -123,7 +137,62 @@ export default function AnalyticsPanel() {
     topBots?.length
   );
 
-  if (!hasAnalyticsData) return <div className="text-gray-600">No analytics data available for this range. Check your Cloudflare zone ID and API token.</div>;
+  /**
+   * The date pickers are how a user recovers from an empty range, so they are
+   * hoisted into a value that both the populated and the empty view render.
+   */
+  const setQuickRange = async (days: number) => {
+    // "24h" means the last completed day, so it starts yesterday rather than
+    // resolving to today-only (which is always empty).
+    const from = daysAgo(days === 1 ? 1 : days - 1);
+    const to = daysAgo(0);
+    await fetchRange(from, to);
+  };
+
+  const dateControls = (
+    <div className="grid grid-cols-2 gap-2 items-end sm:flex sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-1">
+        <label htmlFor="analytics-since" className="text-sm text-gray-600">From</label>
+        <input id="analytics-since" type="date" value={since} onChange={e => setSince(e.target.value)} className="border rounded px-2 py-1 text-sm w-full" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <label htmlFor="analytics-until" className="text-sm text-gray-600">To</label>
+        <input id="analytics-until" type="date" value={until} onChange={e => setUntil(e.target.value)} className="border rounded px-2 py-1 text-sm w-full" />
+      </div>
+      <div className="col-span-2 flex items-center justify-between gap-2 sm:col-auto sm:ml-2">
+        <button onClick={() => fetchRange(since, until)} disabled={fetching} className="bg-green-600 text-white px-3 py-1.5 rounded text-sm">
+          {fetching ? 'Fetching…' : 'Apply'}
+        </button>
+        <div className="flex gap-2">
+          <button onClick={() => setQuickRange(1)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
+            24h
+          </button>
+          <button onClick={() => setQuickRange(7)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
+            7d
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (!hasAnalyticsData) {
+    return (
+      <div className="space-y-4">
+        {error && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <strong>Analytics request failed:</strong> {error}
+          </div>
+        )}
+        {dateControls}
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
+          No traffic recorded between <strong>{since}</strong> and <strong>{until}</strong>.
+          Cloudflare only publishes a day&apos;s figures once that day has closed, so a range
+          ending today is usually empty — try <strong>7d</strong>, or set <em>To</em> to
+          yesterday.
+        </div>
+      </div>
+    );
+  }
 
   const data = {
     labels,
@@ -160,14 +229,6 @@ export default function AnalyticsPanel() {
     }
   };
 
-  const setQuickRange = async (days: number) => {
-    const to = new Date();
-    const fromDate = new Date(Date.now() - (days === 1 ? 24 * 60 * 60 * 1000 : (days - 1) * 24 * 60 * 60 * 1000));
-    const from = fromDate.toISOString().slice(0, 10);
-    const toDate = to.toISOString().slice(0, 10);
-    await fetchRange(from, toDate);
-  };
-
   return (
     <div className="space-y-4">
       {debugInfo && (
@@ -176,29 +237,12 @@ export default function AnalyticsPanel() {
           <pre className="whitespace-pre-wrap break-words text-xs max-h-64 overflow-auto">{debugInfo}</pre>
         </div>
       )}
-      <div className="grid grid-cols-2 gap-2 items-end sm:flex sm:flex-row sm:items-center">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="analytics-since" className="text-sm text-gray-600">From</label>
-          <input id="analytics-since" type="date" value={since} onChange={e => setSince(e.target.value)} className="border rounded px-2 py-1 text-sm w-full" />
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <strong>Analytics request failed:</strong> {error}
         </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="analytics-until" className="text-sm text-gray-600">To</label>
-          <input id="analytics-until" type="date" value={until} onChange={e => setUntil(e.target.value)} className="border rounded px-2 py-1 text-sm w-full" />
-        </div>
-        <div className="col-span-2 flex items-center justify-between gap-2 sm:col-auto sm:ml-2">
-          <button onClick={() => fetchRange(since, until)} disabled={fetching} className="bg-green-600 text-white px-3 py-1.5 rounded text-sm">
-            {fetching ? 'Fetching…' : 'Apply'}
-          </button>
-          <div className="flex gap-2">
-            <button onClick={() => setQuickRange(1)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
-              24h
-            </button>
-            <button onClick={() => setQuickRange(7)} disabled={fetching} className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded text-sm border border-gray-200">
-              7d
-            </button>
-          </div>
-        </div>
-      </div>
+      )}
+      {dateControls}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-white p-4 rounded-lg border flex flex-col">
           <div className="text-sm text-gray-500">Requests</div>
