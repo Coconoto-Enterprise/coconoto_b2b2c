@@ -103,20 +103,20 @@ export default function FigmaContact() {
           overlay="bg-black/55"
         />
 
-        <div className="relative mx-auto max-w-[1440px] px-5 py-10 sm:px-8 sm:py-16 lg:px-[147px] lg:py-[100px]">
-          <div className="relative rounded-[16px] bg-white p-8 sm:p-12 lg:p-[66px]">
+        <div className="relative mx-auto max-w-[1440px] px-5 py-10 sm:px-8 sm:py-16 lg:flex lg:min-h-[calc(100dvh-72px)] lg:items-center lg:px-[147px] lg:py-8">
+          <div className="relative w-full rounded-[16px] bg-white p-8 sm:p-12 lg:p-10">
             {/* Coconut illustration, flush with the card corner */}
             <ImageSlot
               slot="contact-coconut-icon"
               label="Coconut illustration"
-              hint="128 × 128"
-              className="pointer-events-none absolute left-3 top-2 hidden h-[128px] w-[128px] !bg-transparent [&>div]:border-0 [&>div]:bg-transparent lg:block"
+              hint="96 × 96"
+              className="pointer-events-none absolute left-3 top-2 hidden h-[96px] w-[96px] !bg-transparent [&>div]:border-0 [&>div]:bg-transparent lg:block"
               imgClassName="object-contain"
             />
 
             <div className="grid gap-8 sm:gap-12 lg:grid-cols-[1fr_485px] lg:gap-14">
               {/* Left: contact information */}
-              <div className="lg:pt-[120px]">
+              <div className="lg:pt-16">
                 <h1 className="font-montserrat text-[26px] font-bold text-[#151515] sm:text-[32px]">
                   Contact Information
                 </h1>
@@ -125,7 +125,7 @@ export default function FigmaContact() {
                   our team today.
                 </p>
 
-                <dl className="mt-8 space-y-6 sm:mt-12 sm:space-y-7">
+                <dl className="mt-8 space-y-6 sm:mt-9 sm:space-y-6">
                   {DETAILS.map(({ icon: Icon, label, value, href }) => (
                     <div key={label}>
                       <dt className="flex items-center gap-2 font-quicksand text-[14px] text-[#5B5B5B]">
