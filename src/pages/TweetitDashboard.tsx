@@ -215,7 +215,10 @@ const TweetitDashboard: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
-        showToast('success', 'Email sent successfully!');
+        // The server picks the body from the recipients, so report what it
+        // actually rendered rather than what we asked for.
+        const usedLabel = data.template_used === 'team' ? 'Team' : 'Customer';
+        showToast('success', `Email sent successfully! · ${usedLabel} template`);
         setComposer({ to: '', subject: '', message: '', heading: '', templateType: 'customer', attachments: [] });
         setSelectedTeamEmails([]);
         setShowComposer(false);
@@ -481,6 +484,13 @@ const TweetitDashboard: React.FC = () => {
                       })}
                     </div>
                   )}
+                  {/* The server only renders the internal body when every
+                      recipient is on our own domain — warn before sending. */}
+                  {selectedTeamEmails.some((e) => !e.toLowerCase().endsWith('@coconoto.africa')) && (
+                    <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                      An external address is selected. The Team template is internal-only, so this send will go out with the <strong>Customer</strong> template.
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div>
@@ -514,7 +524,7 @@ const TweetitDashboard: React.FC = () => {
 
               <div>
                 <label htmlFor="tweetit-heading" className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
-                  Heading <span className="text-gray-500 text-xs font-normal">(Optional)</span>
+                  Heading <span className="text-gray-500 text-xs font-normal">(Optional — falls back to the subject)</span>
                 </label>
                 <input
                   id="tweetit-heading"
