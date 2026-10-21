@@ -6,6 +6,7 @@ import { Hero } from './components/Hero';
 // hand-built home chrome (Navbar / Footer) and topic sections (CocotechRD /
 // CococycleHub / CocoConnect / CocoDrinkEat / Features / CTA) are kept on disk
 // but are no longer routed.
+import AnalyticsTracker from './components/AnalyticsTracker';
 import FigmaNav from './components/figma/FigmaNav';
 import FigmaFooter from './components/figma/FigmaFooter';
 import FigmaHomeSections from './components/figma/FigmaHomeSections';
@@ -110,6 +111,7 @@ function LegacyRedirect({ to }: { to: string }) {
 function App() {
   return (
     <BrowserRouter>
+      <AnalyticsTracker />
       <HashScroller />
       <MarketplaceAuthProvider>
       <ToastProvider>
