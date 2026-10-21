@@ -62,7 +62,7 @@ const INTERNAL_DOMAIN = 'coconoto.africa';
 // templates/system/* so a Tweetit mail belongs to the same visual family as
 // the order/receipt mails instead of being a bare-bones block.
 const BRAND = {
-  logo: 'https://www.coconoto.africa/assets/Logo_1-B3jf7GJB.png',
+  logo: 'https://www.coconoto.africa/CoconotoWhitePalmLogo.png',
   green: '#8CC63F',
   greenDark: '#618A42',
   brown: '#a37352',
