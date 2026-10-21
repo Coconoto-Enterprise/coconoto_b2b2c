@@ -129,3 +129,61 @@ export function describeClerkError(error: unknown): string {
       return first?.message || err?.message || 'Something went wrong. Please try again.';
   }
 }
+
+/* ── Logout bookkeeping ──────────────────────────────────────────────────────
+ *
+ * Clerk keeps a session of its own, entirely independent of our signed
+ * marketplace cookie. Clearing only the cookie leaves Clerk's session alive,
+ * and /login then bridges the previous buyer straight back in — so "Log out"
+ * looks like it did nothing, and "Continue with Google" reuses the account the
+ * browser already had instead of showing the chooser.
+ *
+ * Logout is triggered from the dashboards, which render *outside*
+ * <ClerkProvider>, so `useClerk()` is not available there. Two mechanisms
+ * cover it:
+ *   1. `signOutOfClerk()` goes through the global instance clerk-js installs,
+ *      when it happens to be loaded on the page the user logs out from.
+ *   2. `markSignedOut()` records the intent, so /login can still honour it when
+ *      clerk-js was never present there.
+ */
+
+const SIGNED_OUT_KEY = 'coconoto.signedOut';
+
+type GlobalClerk = { signOut?: () => Promise<void> };
+
+/** Record that the buyer asked to leave, so /login does not bridge them back. */
+export function markSignedOut(): void {
+  try {
+    localStorage.setItem(SIGNED_OUT_KEY, '1');
+  } catch {
+    /* private mode — the in-memory logout still applies */
+  }
+}
+
+/** Clear the marker once a sign-in has actually succeeded. */
+export function clearSignedOut(): void {
+  try {
+    localStorage.removeItem(SIGNED_OUT_KEY);
+  } catch {
+    /* nothing to clear */
+  }
+}
+
+export function isMarkedSignedOut(): boolean {
+  try {
+    return localStorage.getItem(SIGNED_OUT_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+/** Best-effort Clerk sign-out from outside <ClerkProvider>. */
+export async function signOutOfClerk(): Promise<void> {
+  if (typeof window === 'undefined') return;
+  const globalClerk = (window as unknown as { Clerk?: GlobalClerk }).Clerk;
+  try {
+    await globalClerk?.signOut?.();
+  } catch {
+    /* no live session to clear */
+  }
+}

@@ -8,6 +8,7 @@ import {
   CLERK_PUBLISHABLE_KEY,
   clerkEnabled,
   clerkSessionToken,
+  clearSignedOut,
   exchangeClerkSession,
 } from '../../lib/clerk';
 
@@ -86,6 +87,8 @@ function CompleteInner() {
         email: result.buyer.email,
         name: `${result.buyer.first_name} ${result.buyer.last_name}`.trim(),
       });
+      // The Google round-trip succeeded, so any earlier logout is spent.
+      clearSignedOut();
       await refreshSession();
       if (!cancelled) navigate(exitTo, { replace: true });
     })();

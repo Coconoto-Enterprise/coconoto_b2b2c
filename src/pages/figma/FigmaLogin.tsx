@@ -13,9 +13,11 @@ import {
   clerkEnabled,
   clerkErrorCode,
   clerkSessionToken,
+  clearSignedOut,
   describeClerkError,
   exchangeClerkSession,
   hasLiveClerkSession,
+  isMarkedSignedOut,
 } from '../../lib/clerk';
 import { safeReturnTo } from '../../lib/safeReturnTo';
 
@@ -345,6 +347,10 @@ function ClerkLogin() {
       localStorage.removeItem('buyerEmailRemember');
     }
 
+    // A sign-in that actually succeeded supersedes any earlier logout, so the
+    // bridge effect is free to run again on the next visit.
+    clearSignedOut();
+
     login({
       id: result.buyer.id,
       role: 'buyer',
@@ -366,6 +372,21 @@ function ClerkLogin() {
    */
   useEffect(() => {
     if (!isLoaded || bridgeAttempted.current) return;
+
+    /**
+     * A deliberate logout must win. Without this, the surviving Clerk session
+     * is bridged straight back in and the buyer is re-authenticated as the
+     * account they just left — which is exactly what "log out then log in as
+     * someone else" was failing to do. Drop the stale session instead.
+     */
+    if (isMarkedSignedOut()) {
+      bridgeAttempted.current = true;
+      void clerk.signOut().catch(() => {
+        /* nothing to clear */
+      });
+      return;
+    }
+
     if (!hasLiveClerkSession(clerk)) return;
 
     bridgeAttempted.current = true;
@@ -426,12 +447,28 @@ function ClerkLogin() {
       await setActive({ session: attempt.createdSessionId });
       await completeSignIn();
     } catch (clerkError) {
-      // A Clerk session is already live but ours is not. The password form can
-      // never succeed in this state, so finish the session we have.
+      // A stale Clerk session blocks a fresh password sign-in. Clear it and
+      // retry once, so the buyer authenticates as the account they typed
+      // instead of silently inheriting the previous session. (The old code
+      // completed the existing session here, which made it impossible to sign
+      // in as anyone else.)
       if (clerkErrorCode(clerkError) === 'session_exists') {
-        const outcome = await completeSignIn();
-        if (!outcome.ok) setSessionConflict(true);
-        return;
+        bridgeAttempted.current = true;
+        await clerk.signOut().catch(() => {
+          /* nothing to clear */
+        });
+        try {
+          const retry = await signIn.create({ identifier: email.trim(), password });
+          if (retry.status === 'complete' && retry.createdSessionId) {
+            await setActive({ session: retry.createdSessionId });
+            await completeSignIn();
+            return;
+          }
+          setError('This account needs extra verification. Please contact support.');
+          return;
+        } catch {
+          /* fall through — could still be a legacy vendor password */
+        }
       }
 
       // Unified login: a seller who never signed up with Clerk still has a
@@ -467,20 +504,40 @@ function ClerkLogin() {
     setError('');
     setGoogleLoading(true);
 
+    /**
+     * `oidcPrompt: 'select_account'` is the entire point of this button for a
+     * buyer switching accounts. Without it Google silently reuses whichever
+     * account the browser is already signed into and never shows the list.
+     */
+    const startGoogleRedirect = () =>
+      signIn.authenticateWithRedirect({
+        strategy: 'oauth_google',
+        redirectUrl: '/sso-callback',
+        redirectUrlComplete: `/auth-complete?returnTo=${encodeURIComponent(exitTo)}`,
+        oidcPrompt: 'select_account',
+      });
+
     try {
       // Full-page redirect (not a popup): works with blockers and does not
       // depend on the tab keeping state. /sso-callback finishes the handshake
       // and /auth-complete trades the session for the marketplace cookie.
-      await signIn.authenticateWithRedirect({
-        strategy: 'oauth_google',
-        redirectUrl: '/sso-callback',
-        redirectUrlComplete: `/auth-complete?returnTo=${encodeURIComponent(exitTo)}`,
-      });
+      await startGoogleRedirect();
     } catch (clerkError) {
       if (clerkErrorCode(clerkError) === 'session_exists') {
-        const outcome = await completeSignIn();
-        if (outcome.ok) return;
-        setSessionConflict(true);
+        // A stale Clerk session blocks a fresh OAuth start. Clear it and retry
+        // so the chooser appears. Completing the existing session here — the
+        // old behaviour — silently signed the buyer back in as the account
+        // they were trying to leave, with no way to pick a different Gmail.
+        bridgeAttempted.current = true;
+        await clerk.signOut().catch(() => {
+          /* nothing to clear */
+        });
+        try {
+          await startGoogleRedirect();
+          return;
+        } catch (retryError) {
+          setError(describeClerkError(retryError));
+        }
       } else {
         setError(describeClerkError(clerkError));
       }

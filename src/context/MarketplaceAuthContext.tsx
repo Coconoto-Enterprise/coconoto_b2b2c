@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { markSignedOut, signOutOfClerk } from '../lib/clerk';
 
 export type MarketplaceRole = 'buyer' | 'vendor';
 
@@ -87,6 +88,12 @@ export function MarketplaceAuthProvider({ children }: { children: React.ReactNod
   }, [refreshSession]);
 
   const logout = useCallback(async () => {
+    // Clerk holds a second, independent session. Clearing only our cookie
+    // leaves it alive, and /login then bridges the same buyer straight back in
+    // — so logging out looks broken, and "Continue with Google" reuses the
+    // account already in the browser instead of offering the chooser. End both.
+    markSignedOut();
+    await signOutOfClerk();
     try {
       await fetch('/api/auth', {
         method: 'POST',
