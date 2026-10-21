@@ -177,12 +177,22 @@ export function isMarkedSignedOut(): boolean {
   }
 }
 
-/** Best-effort Clerk sign-out from outside <ClerkProvider>. */
+/**
+ * Best-effort Clerk sign-out from outside <ClerkProvider>.
+ *
+ * Bounded on purpose: `signOut()` returns a promise that never settles while
+ * clerk-js is still loading or when its FAPI cannot be reached. Callers must
+ * never be able to hang on that, so the wait is capped.
+ */
 export async function signOutOfClerk(): Promise<void> {
   if (typeof window === 'undefined') return;
   const globalClerk = (window as unknown as { Clerk?: GlobalClerk }).Clerk;
+  if (!globalClerk?.signOut) return;
   try {
-    await globalClerk?.signOut?.();
+    await Promise.race([
+      globalClerk.signOut(),
+      new Promise<void>((resolve) => setTimeout(resolve, 2000)),
+    ]);
   } catch {
     /* no live session to clear */
   }

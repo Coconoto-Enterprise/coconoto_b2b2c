@@ -88,22 +88,40 @@ export function MarketplaceAuthProvider({ children }: { children: React.ReactNod
   }, [refreshSession]);
 
   const logout = useCallback(async () => {
-    // Clerk holds a second, independent session. Clearing only our cookie
-    // leaves it alive, and /login then bridges the same buyer straight back in
-    // — so logging out looks broken, and "Continue with Google" reuses the
-    // account already in the browser instead of offering the chooser. End both.
+    /**
+     * Order matters. Local state is torn down FIRST and Clerk is never awaited
+     * on the critical path: clerk-js can be mid-load or its FAPI unreachable,
+     * and a `signOut()` that never settles used to strand the caller — the
+     * session never cleared, so the Log out button looked dead and the
+     * `await logout(); navigate(...)` call sites never navigated.
+     *
+     * The `signedOut` flag is what actually guarantees the previous account
+     * does not come back: /login honours it by dropping any surviving Clerk
+     * session instead of bridging it in. So Clerk's own sign-out is best-effort
+     * and can fail without affecting the outcome.
+     */
     markSignedOut();
-    await signOutOfClerk();
+    setSession(null);
+    clearLocalStorage();
+
+    void signOutOfClerk();
+
+    // Best-effort cookie teardown, bounded so a hung request cannot block the
+    // redirect. If it fails the cookie simply expires on its own.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
     try {
       await fetch('/api/auth', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'marketplace-logout' }),
+        signal: controller.signal,
       });
+    } catch {
+      /* offline or timed out — local state is already cleared */
     } finally {
-      setSession(null);
-      clearLocalStorage();
+      clearTimeout(timer);
     }
   }, []);
 
