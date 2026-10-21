@@ -23,7 +23,7 @@ const DETAILS = [
  * beside it — hence the tighter 46px controls and the smaller gaps below.
  */
 const fieldClass =
-  'h-[46px] w-full rounded-[6px] border border-[#DCDCDC] bg-white px-4 font-lora text-[15px] text-black outline-none transition-colors placeholder:text-[#9A9A9A] focus:border-[#17AD10] disabled:opacity-60';
+  'h-[42px] w-full rounded-[6px] border border-[#DCDCDC] bg-white px-4 font-lora text-[15px] text-black outline-none transition-colors placeholder:text-[#9A9A9A] focus:border-[#17AD10] disabled:opacity-60';
 
 const EMPTY = { name: '', email: '', message: '' };
 
@@ -151,12 +151,12 @@ export default function FigmaContact() {
                   items stretch by default, so once the form got shorter the
                   card kept matching the taller details column and grew a block
                   of empty grey under the button. */}
-              <div className="rounded-[12px] bg-[#F7F5F5] p-6 sm:p-7 lg:self-start">
+              <div className="rounded-[12px] bg-[#F7F5F5] p-5 sm:p-6 lg:self-start">
                 <p className="font-montserrat text-[16px] leading-[1.6] text-[#101010]">
                   Fill out this form correctly and submit to Contact Our Services Team
                 </p>
 
-                <form className="mt-5" onSubmit={handleSubmit}>
+                <form className="mt-4" onSubmit={handleSubmit}>
                   <label htmlFor="contact-name" className="block font-montserrat text-[16px] text-[#101010]">
                     Your Name
                   </label>
@@ -168,12 +168,12 @@ export default function FigmaContact() {
                     value={form.name}
                     onChange={handleChange}
                     disabled={loading}
-                    className={`${fieldClass} mt-2`}
+                    className={`${fieldClass} mt-1.5`}
                   />
 
                   <label
                     htmlFor="contact-email"
-                    className="mt-4 block font-montserrat text-[16px] text-[#101010]"
+                    className="mt-3 block font-montserrat text-[16px] text-[#101010]"
                   >
                     Your Email
                   </label>
@@ -185,30 +185,30 @@ export default function FigmaContact() {
                     value={form.email}
                     onChange={handleChange}
                     disabled={loading}
-                    className={`${fieldClass} mt-2`}
+                    className={`${fieldClass} mt-1.5`}
                   />
 
                   <label
                     htmlFor="contact-message"
-                    className="mt-4 block font-montserrat text-[16px] text-[#101010]"
+                    className="mt-3 block font-montserrat text-[16px] text-[#101010]"
                   >
                     How can we help you
                   </label>
                   <textarea
                     id="contact-message"
                     name="message"
-                    rows={3}
+                    rows={2}
                     required
                     value={form.message}
                     onChange={handleChange}
                     disabled={loading}
-                    className="mt-2 w-full resize-none rounded-[6px] border border-[#DCDCDC] bg-white px-4 py-2.5 font-lora text-[15px] text-black outline-none transition-colors focus:border-[#17AD10] disabled:opacity-60"
+                    className="mt-1.5 w-full resize-none rounded-[6px] border border-[#DCDCDC] bg-white px-4 py-2 font-lora text-[15px] text-black outline-none transition-colors focus:border-[#17AD10] disabled:opacity-60"
                   />
 
                   {success && (
                     <p
                       role="status"
-                      className="mt-5 flex items-start gap-2 rounded-[6px] bg-[#DFFCDE] px-4 py-3 font-lora text-[14px] text-[#167911]"
+                      className="mt-4 flex items-start gap-2 rounded-[6px] bg-[#DFFCDE] px-4 py-3 font-lora text-[14px] text-[#167911]"
                     >
                       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                       {success}
@@ -217,7 +217,7 @@ export default function FigmaContact() {
                   {error && (
                     <p
                       role="alert"
-                      className="mt-5 rounded-[6px] bg-[#FDECEC] px-4 py-3 font-lora text-[14px] text-[#B42318]"
+                      className="mt-4 rounded-[6px] bg-[#FDECEC] px-4 py-3 font-lora text-[14px] text-[#B42318]"
                     >
                       {error}
                     </p>
@@ -226,7 +226,7 @@ export default function FigmaContact() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="mt-5 h-[46px] w-full rounded-[6px] bg-[#1AC212] font-montserrat text-[16px] text-white transition-colors hover:bg-[#17ad10] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-4 h-[42px] w-full rounded-[6px] bg-[#1AC212] font-montserrat text-[16px] text-white transition-colors hover:bg-[#17ad10] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {loading ? 'Sending…' : 'Submit'}
                   </button>
