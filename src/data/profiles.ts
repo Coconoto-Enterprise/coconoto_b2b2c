@@ -1,5 +1,4 @@
 import JacobPhoto from '../assets/team/Jacob.webp';
-import JamiuPhoto from '../assets/team/Jamiu.webp';
 import DanielPhoto from '../assets/team/Daniel.webp';
 import MojolaoluwaPhoto from '../assets/team/Mojolaoluwa Abiodun Jolaoluwa.webp';
 import PreciousCharlesPhoto from '../assets/team/Precious (Charles).webp';
@@ -48,25 +47,6 @@ export const profiles: Profile[] = [
     courseOfStudy: 'Mechanical Engineering',
     institution: 'Federal University of Technology, Akure',
     headshotUrl: 'https://drive.google.com/open?id=1NNblACebm7GO-Krz8DjtU25QiwSjg-Sc'
-  },
-  {
-    id: 'adetonajamiu',
-    firstName: 'Jamiu',
-    middleName: 'Olalekan',
-    lastName: 'Adetona',
-    role: 'Production R&D Engineer',
-    email: 'adetona.jamiu@coconoto.africa',
-    personalEmail: 'Adetonajamiu50@gmail.com',
-    phone: '+2347068957675',
-    linkedIn:
-      'https://www.linkedin.com/in/adetona-jamiu-6bb6981b1?utm_source=share_via&utm_content=profile&utm_medium=member_android',
-    profileImage: JamiuPhoto,
-    description:
-      'Designing the future of agritech hardware through end-to-end 3D CAD development, parametric modeling, and assembly verification. Jamiu bridges virtual engineering with practical fabrication to build patent-backed, high-efficiency industrial processing machinery.',
-    dateOfBirth: 'June 18',
-    courseOfStudy: 'Industrial and Production Engineering',
-    institution: 'Federal University of Technology Akure',
-    headshotUrl: 'https://drive.google.com/open?id=1LfWdsReigpW_udQpfX0fiV8ZBePAwGcQ'
   },
   {
     id: 'daniel-abiodun',
