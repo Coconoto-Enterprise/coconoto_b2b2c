@@ -89,7 +89,7 @@ export const profiles: Profile[] = [
     firstName: 'Mojolaoluwa',
     middleName: 'Folagbade',
     lastName: 'Abiodun',
-    role: 'Technical Writer / Creative Lead',
+    role: 'Business Analyst',
     email: 'jola.abiodun@coconoto.africa',
     personalEmail: 'jolabiodun@gmail.com',
     phone: '+2347016547356',
