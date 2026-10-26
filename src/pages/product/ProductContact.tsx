@@ -139,7 +139,7 @@ export function ProductContact() {
                   <div className="flex items-start space-x-4">
                     <MapPin className="h-6 w-6 text-white" />
                     <div>
-                      <p className="text-gray-100">No 67. Cele estate, mowo kekere, Ikorodu, Lagos, Nigeria</p>
+                      <p className="text-gray-100">No 67. Cele estate, Mowokekere, Ikorodu, Lagos, Nigeria</p>
                     </div>
                   </div>
                   

@@ -78,7 +78,7 @@ export default function AboutFooter() {
                 </a>
               </li>
               <li>
-                No 67, Cele estate, Mowo kekere, Ikorodu, Lagos, Nigeria
+                No 67, Cele estate, Mowokekere, Ikorodu, Lagos, Nigeria
               </li>
               <li>
                 <a href="tel:+2348137775689" className="hover:opacity-70">

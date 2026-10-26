@@ -12,7 +12,7 @@ const DETAILS = [
   {
     icon: MapPin,
     label: 'Address:',
-    value: 'No 67. Cele estate, mowo kekere, Ikorodu, Lagos, Nigeria',
+    value: 'No 67. Cele estate, Mowokekere, Ikorodu, Lagos, Nigeria',
     href: null,
   },
 ];
