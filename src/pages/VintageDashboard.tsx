@@ -16,11 +16,13 @@ import {
   Edit,
   BookOpen,
   Trash2,
-  Menu
+  Menu,
+  Download
 } from 'lucide-react';
 import { MernBlogManagement } from '../components/blog/MernBlogManagement';
 import AnalyticsPanel from '../components/AnalyticsPanel';
 import TeamPanel from '../components/admin/TeamPanel';
+import ExportDataModal from '../components/admin/ExportDataModal';
 import Logo from '../assets/Logo_1.png';
 
 interface Email {
@@ -107,6 +109,8 @@ const VintageDashboard: React.FC = () => {
   const [deleteItemSection, setDeleteItemSection] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportPreselect, setExportPreselect] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const [composer, setComposer] = useState({
@@ -235,6 +239,12 @@ const VintageDashboard: React.FC = () => {
   };
 
   const handleRefresh = () => fetchData();
+
+  /** Open the export dialog, optionally pre-selecting a single section. */
+  const openExport = (sectionId?: string) => {
+    setExportPreselect(sectionId ? [sectionId] : []);
+    setShowExportModal(true);
+  };
 
   const sendEmail = async () => {
     if (!composer.to || !composer.subject || !composer.message) {
@@ -658,6 +668,15 @@ const VintageDashboard: React.FC = () => {
             </div>
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <button
+                onClick={() => openExport()}
+                className="bg-white text-green-700 border border-green-600 px-2 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-green-50 transition-colors inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium"
+                title="Export dashboard data for the data team"
+              >
+                <Download className="h-4 w-4" />
+                <span className="hidden sm:inline">Export Data</span>
+                <span className="sm:hidden">Export</span>
+              </button>
+              <button
                 onClick={handleRefresh}
                 className="bg-green-600 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-green-700 transition-colors inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
                 title="Refresh data"
@@ -931,7 +950,7 @@ const VintageDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">Business Emails ({filterByStatus(businessEmails, statusFilters['business-emails']).length})</h2>
-              <div>
+              <div className="flex items-center gap-2">
                 <select
                   value={statusFilters['business-emails']}
                   onChange={e => setStatusFilters({ ...statusFilters, 'business-emails': e.target.value })}
@@ -942,6 +961,14 @@ const VintageDashboard: React.FC = () => {
                   <option value="completed">Completed</option>
                   <option value="all">Show All</option>
                 </select>
+                <button
+                  onClick={() => openExport('businessEmails')}
+                  className="inline-flex items-center gap-1 rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+                  title="Export this section"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Export</span>
+                </button>
               </div>
             </div>
             
@@ -1048,7 +1075,7 @@ const VintageDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">DrinkEat Requests ({filterByStatus(allData.bookEventRequests, statusFilters['book-events']).length})</h2>
-              <div>
+              <div className="flex items-center gap-2">
                 <select
                   value={statusFilters['book-events']}
                   onChange={e => setStatusFilters({ ...statusFilters, 'book-events': e.target.value })}
@@ -1059,6 +1086,14 @@ const VintageDashboard: React.FC = () => {
                   <option value="completed">Completed</option>
                   <option value="all">Show All</option>
                 </select>
+                <button
+                  onClick={() => openExport('bookEventRequests')}
+                  className="inline-flex items-center gap-1 rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+                  title="Export this section"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Export</span>
+                </button>
               </div>
             </div>
             
@@ -1190,7 +1225,7 @@ const VintageDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">Machine Orders ({filterByStatus(allData.machineOrders, statusFilters['machine-orders']).length})</h2>
-              <div>
+              <div className="flex items-center gap-2">
                 <select
                   value={statusFilters['machine-orders']}
                   onChange={e => setStatusFilters({ ...statusFilters, 'machine-orders': e.target.value })}
@@ -1201,6 +1236,14 @@ const VintageDashboard: React.FC = () => {
                   <option value="completed">Completed</option>
                   <option value="all">Show All</option>
                 </select>
+                <button
+                  onClick={() => openExport('machineOrders')}
+                  className="inline-flex items-center gap-1 rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+                  title="Export this section"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Export</span>
+                </button>
               </div>
             </div>
             
@@ -1330,7 +1373,7 @@ const VintageDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">Product Orders ({filterByStatus(allData.productOrders, statusFilters['product-orders']).length})</h2>
-              <div>
+              <div className="flex items-center gap-2">
                 <select
                   value={statusFilters['product-orders']}
                   onChange={e => setStatusFilters({ ...statusFilters, 'product-orders': e.target.value })}
@@ -1341,6 +1384,14 @@ const VintageDashboard: React.FC = () => {
                   <option value="completed">Completed</option>
                   <option value="all">Show All</option>
                 </select>
+                <button
+                  onClick={() => openExport('productOrders')}
+                  className="inline-flex items-center gap-1 rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+                  title="Export this section"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Export</span>
+                </button>
               </div>
             </div>
             
@@ -1471,7 +1522,7 @@ const VintageDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">Contact Messages ({filterByStatus(allData.serviceContacts, statusFilters['service-contacts']).length})</h2>
-              <div>
+              <div className="flex items-center gap-2">
                 <select
                   value={statusFilters['service-contacts']}
                   onChange={e => setStatusFilters({ ...statusFilters, 'service-contacts': e.target.value })}
@@ -1482,6 +1533,14 @@ const VintageDashboard: React.FC = () => {
                   <option value="completed">Completed</option>
                   <option value="all">Show All</option>
                 </select>
+                <button
+                  onClick={() => openExport('serviceContacts')}
+                  className="inline-flex items-center gap-1 rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+                  title="Export this section"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Export</span>
+                </button>
               </div>
             </div>
             
@@ -1604,7 +1663,7 @@ const VintageDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">Husk Sales ({filterByStatus(allData.huskSaleRequests, statusFilters['husk-sales']).length})</h2>
-              <div>
+              <div className="flex items-center gap-2">
                 <select
                   value={statusFilters['husk-sales']}
                   onChange={e => setStatusFilters({ ...statusFilters, 'husk-sales': e.target.value })}
@@ -1615,6 +1674,14 @@ const VintageDashboard: React.FC = () => {
                   <option value="completed">Completed</option>
                   <option value="all">Show All</option>
                 </select>
+                <button
+                  onClick={() => openExport('huskSaleRequests')}
+                  className="inline-flex items-center gap-1 rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+                  title="Export this section"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Export</span>
+                </button>
               </div>
             </div>
             
@@ -1742,8 +1809,16 @@ const VintageDashboard: React.FC = () => {
         {/* Waitlist Tab */}
         {activeTab === 'waitlist' && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">Waitlist Entries ({allData.waitlist.length})</h2>
+              <button
+                onClick={() => openExport('waitlist')}
+                className="inline-flex items-center gap-1 rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-green-500 hover:bg-green-50 hover:text-green-700"
+                title="Export this section"
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Export</span>
+              </button>
             </div>
             
             {/* Mobile card view */}
@@ -2199,6 +2274,30 @@ const VintageDashboard: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Export Data Modal — sections → format → download */}
+      <ExportDataModal        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        initialSelection={exportPreselect}
+        data={{
+          bookEventRequests: allData.bookEventRequests,
+          machineOrders: allData.machineOrders,
+          productOrders: allData.productOrders,
+          serviceContacts: allData.serviceContacts,
+          huskSaleRequests: allData.huskSaleRequests,
+          waitlist: allData.waitlist,
+          businessEmails,
+          investmentInquiries: allData.investmentInquiries,
+          toxicResults: allData.toxicResults,
+        }}
+        statusFilters={{
+          bookEventRequests: statusFilters['book-events'],
+          machineOrders: statusFilters['machine-orders'],
+          productOrders: statusFilters['product-orders'],
+          serviceContacts: statusFilters['service-contacts'],
+          huskSaleRequests: statusFilters['husk-sales'],
+          businessEmails: statusFilters['business-emails'],
+        }}
+      />
     </div>
   );
 };
