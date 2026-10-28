@@ -105,6 +105,16 @@ const PUBLIC_PAGES = {
     changefreq: 'daily',
     priority: '0.8',
   },
+  // Coco-connect shop — the Figma Desktop 41 build. `/shop/product/:slug` is
+  // deliberately absent: its canonical has to be per-product, and the catalogue
+  // is still placeholder data, so those pages should not be advertised yet.
+  '/shop': {
+    title: 'Shop Fresh Farm Produce & Coconut Products | Coco-connect',
+    description:
+      'Browse fresh produce, coconut products and farm inputs on Coco-connect — the Coconoto marketplace that connects you directly to what you need.',
+    changefreq: 'daily',
+    priority: '0.8',
+  },
   '/blog': {
     title: 'Coconut Industry Insights & News | Coconoto Africa Blog',
     description:

@@ -39,6 +39,13 @@ export const FigmaSignup = lazy(() => import('./pages/figma/FigmaSignup'));
 export const FigmaResetPassword = lazy(() => import('./pages/figma/FigmaResetPassword'));
 export const FigmaContact = lazy(() => import('./pages/figma/FigmaContact'));
 export const FigmaBanner = lazy(() => import('./pages/figma/FigmaBanner'));
+export const FigmaIndex = lazy(() => import('./pages/figma/FigmaIndex'));
+
+// --- Coco-connect shop (Desktop 41 · 49 · checkout · confirmation) ---
+export const FigmaShop = lazy(() => import('./pages/figma/FigmaShop'));
+export const FigmaShopProduct = lazy(() => import('./pages/figma/FigmaShopProduct'));
+export const FigmaShopCheckout = lazy(() => import('./pages/figma/FigmaShopCheckout'));
+export const FigmaShopConfirmed = lazy(() => import('./pages/figma/FigmaShopConfirmed'));
 export const SsoCallback = lazy(() =>
   import('./pages/figma/AuthCallback').then((m) => ({ default: m.SsoCallback })),
 );

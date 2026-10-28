@@ -151,6 +151,31 @@ export const FIGMA_IMAGES: Record<string, string> = {
   // ── Frame 624908 · Decorative banner ─────────────────────────────────────
   //  ⚠️ NOT SUPPLIED. The flat-lay artwork behind "Everything Coconut."
   'banner-image': '', // 1460 × 543
+
+  // ── Coco-connect shop · Desktop 41 / 49 / checkout ───────────────────────
+  //  ⚠️ NONE SUPPLIED. Every slot below renders a dashed placeholder naming
+  //  itself, so drop the file in `src/assets/`, import it above and paste it
+  //  here — no page code changes.
+  'shop-hero-bg': '', // 1440 ×  560  – market produce photo behind Frame 110
+  'shop-nav-avatar': '', //   64 ×   64  – round account photo, right end of the black nav
+
+  //  Product tiles. The Desktop 49 gallery derives three more slots from each:
+  //  `<slot>-thumb-1|2|3` at 88 × 72.
+  'shop-product-broccoli': '', //  300 × 240
+  'shop-product-red-onions': '', //  300 × 240
+  'shop-product-coconut-oil': '', //  300 × 240
+  'shop-product-oat-meal': '', //  300 × 240
+  'shop-product-coconut-threads': '', //  300 × 240
+  'shop-product-charcoal': '', //  300 × 240
+  'shop-product-cocopeat': '', //  300 × 240
+  'shop-product-palm-oil': '', //  300 × 240
+  'shop-product-tomatoes': '', //  300 × 240
+  'shop-product-pepper': '', //  300 × 240
+  'shop-product-honey': '', //  300 × 240
+  'shop-product-briquettes': '', //  300 × 240
+
+  'shop-review-avatar-1': '', //   64 ×  64  – reviewer photo, Desktop 49
+  'shop-review-avatar-2': '', //   64 ×  64  – reviewer photo, Desktop 49
 };
 
 /** Returns the URL for a slot, or `undefined` when it is still a placeholder. */

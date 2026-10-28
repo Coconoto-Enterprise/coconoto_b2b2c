@@ -44,6 +44,11 @@ import {
   FigmaResetPassword,
   FigmaContact,
   FigmaBanner,
+  FigmaIndex,
+  FigmaShop,
+  FigmaShopProduct,
+  FigmaShopCheckout,
+  FigmaShopConfirmed,
   SsoCallback,
   AuthComplete,
 } from './lazyComponents';
@@ -148,6 +153,13 @@ function App() {
           <Route path="/cocotech/*" element={<FigmaEquipment />} />
           <Route path="/cococycle-hub/*" element={<FigmaCococycleHub />} />
           <Route path="/cococonnect" element={<Marketplace />} />
+
+          {/* Coco-connect shop — the Figma frames: Desktop 41 (+ Frame 110 hero),
+              Desktop 49, the checkout form and the confirmation screen. */}
+          <Route path="/shop" element={<FigmaShop />} />
+          <Route path="/shop/product/:slug" element={<FigmaShopProduct />} />
+          <Route path="/shop/checkout" element={<FigmaShopCheckout />} />
+          <Route path="/shop/order-confirmed" element={<FigmaShopConfirmed />} />
           <Route path="/contact" element={<FigmaContact />} />
           {/* /login and /signup were the old site-wide auth frames. The Figma
               sign-in/sign-up screens ARE the CoCo-Connect auth now, so those
@@ -182,10 +194,12 @@ function App() {
           <Route path="/product/*" element={<LegacyRedirect to="/cococycle-hub" />} />
           <Route path="/marketplace/*" element={<LegacyRedirect to="/cococonnect" />} />
 
-          {/* ── The decorative banner strip ────────────────────────────────
-              The `/figma` frame index was a build artefact, not a site page, and
-              has been removed — it now falls through to the 404 page. The
-              flat-lay artwork frame below is still reachable directly. */}
+          {/* ── The frame index and the decorative banner strip ─────────────
+              `/figma` was retired as a build artefact, then brought back on the
+              owner's request as the one place that lists every frame with links
+              and screenshots. It is an internal index, not a site page: it is not
+              in `PUBLIC_PAGES`, so it never reaches the sitemap. */}
+          <Route path="/figma" element={<FigmaIndex />} />
           <Route path="/figma/banner" element={<FigmaBanner />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />

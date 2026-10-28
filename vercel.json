@@ -12,6 +12,7 @@
     { "source": "/cocotech", "destination": "/api/seo?action=page-meta&path=/cocotech" },
     { "source": "/cococycle-hub", "destination": "/api/seo?action=page-meta&path=/cococycle-hub" },
     { "source": "/cococonnect", "destination": "/api/seo?action=page-meta&path=/cococonnect" },
+    { "source": "/shop", "destination": "/api/seo?action=page-meta&path=/shop" },
     { "source": "/blog", "destination": "/api/seo?action=page-meta&path=/blog" },
     { "source": "/contact", "destination": "/api/seo?action=page-meta&path=/contact" },
     { "source": "/help-center", "destination": "/api/seo?action=page-meta&path=/help-center" },

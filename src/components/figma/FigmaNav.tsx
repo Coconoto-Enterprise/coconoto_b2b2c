@@ -29,7 +29,12 @@ interface NavItem {
   dropdown?: { label: string; to: string; scrollTo?: string }[];
 }
 
-const NAV_ITEMS: NavItem[] = [
+/**
+ * Exported so the black shop navbar (`ShopNav`) renders the *same* links. Two
+ * hand-maintained copies of this list is how "About Us" ends up pointing at a
+ * dead route on one page and not the other.
+ */
+export const NAV_ITEMS: NavItem[] = [
   { label: 'Home', to: '/', match: ['/'] },
   {
     label: 'Services',
@@ -49,7 +54,7 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 /** True when `pathname` is `prefix` itself or sits underneath it. */
-function under(pathname: string, prefix: string) {
+export function under(pathname: string, prefix: string) {
   if (prefix === '/') return pathname === '/';
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
