@@ -458,6 +458,16 @@ async function handleVendorLogin(data, res) {
       });
     }
 
+    // Sellers created from the buyer dashboard have no password_hash — they
+    // sign in through Clerk and land on /seller-dashboard instead.
+    if (!vendor.password_hash) {
+      console.log('❌ Vendor has no password (Clerk seller):', email);
+      return res.status(401).json({
+        success: false,
+        error: 'This seller account signs in with Google. Use the main sign-in page instead.',
+      });
+    }
+
     const passwordMatch = await bcrypt.compare(password, vendor.password_hash);
 
     if (!passwordMatch) {
@@ -577,11 +587,13 @@ async function handleBuyerBecomeSeller(req, data, res) {
     return res.status(401).json({ success: false, error: 'Please sign in as a buyer to continue' });
   }
 
+  // No password: the seller is identified by the buyer session (Clerk), and
+  // vendors.password_hash is only a legacy /vendor-login credential.
   const { password, business_name, contact_name, phone, address, description } = data;
-  if (!password || !business_name || !contact_name) {
+  if (!business_name || !contact_name) {
     return res.status(400).json({
       success: false,
-      error: 'Password, business name, and contact name are required'
+      error: 'Business name and contact name are required'
     });
   }
 
@@ -596,7 +608,7 @@ async function handleBuyerBecomeSeller(req, data, res) {
 
     let vendor = existing;
     if (!vendor) {
-      const passwordHash = await bcrypt.hash(password, 10);
+      const passwordHash = password ? await bcrypt.hash(password, 10) : null;
       const { data: created, error: insertError } = await getSupabaseClient()
         .from('vendors')
         .insert([{

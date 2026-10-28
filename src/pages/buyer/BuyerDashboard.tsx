@@ -742,7 +742,6 @@ function BecomeSellerTab({
 }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    password: '',
     business_name: '',
     contact_name: '',
     phone: '',
@@ -761,10 +760,6 @@ function BecomeSellerTab({
     setError('');
     setMessage('');
 
-    if (form.password.length < 6) {
-      setError('Your login password must be at least 6 characters.');
-      return;
-    }
     if (!form.business_name.trim() || !form.contact_name.trim()) {
       setError('Business name and contact name are required.');
       return;
@@ -772,7 +767,6 @@ function BecomeSellerTab({
 
     setIsSaving(true);
     const result = await buyerBecomeSeller({
-      password: form.password,
       business_name: form.business_name,
       contact_name: form.contact_name,
       phone: form.phone,
@@ -784,7 +778,7 @@ function BecomeSellerTab({
     if (result.success) {
       await onBecameSeller();
       setMessage('You are now a seller on Coconoto. You can add and manage your products from your seller dashboard.');
-      setForm({ password: '', business_name: '', contact_name: '', phone: '', address: '', description: '' });
+      setForm({ business_name: '', contact_name: '', phone: '', address: '', description: '' });
     } else {
       setError(result.error || 'Failed to create your seller account.');
     }
@@ -829,7 +823,7 @@ function BecomeSellerTab({
       <CardHeader>
         <CardTitle>Become a Seller</CardTitle>
         <CardDescription>
-          Want to sell on Coconoto? Set up your seller account using your login password so everything stays under one account.
+          Want to sell on Coconoto? Add your business details and your seller account is created under the login you're already using.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -845,10 +839,6 @@ function BecomeSellerTab({
           </div>
         )}
         <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <Label>Login password *</Label>
-            <Input type="password" value={form.password} onChange={(e) => setField('password', e.target.value)} placeholder="Your account password" />
-          </div>
           <div className="sm:col-span-2">
             <Label>Business name *</Label>
             <Input value={form.business_name} onChange={(e) => setField('business_name', e.target.value)} placeholder="e.g. Green Coconut Farms" />

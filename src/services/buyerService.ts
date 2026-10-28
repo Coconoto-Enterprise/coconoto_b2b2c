@@ -64,8 +64,9 @@ export async function buyerLogin(input: BuyerLoginInput): Promise<BuyerAuthRespo
 }
 
 // Buyer "Become a Seller" — upgrades the logged-in buyer to also sell on Coconoto.
+// No password: the seller is identified by the buyer session (Clerk identity).
 export async function buyerBecomeSeller(input: {
-  password: string;
+  password?: string;
   business_name: string;
   contact_name: string;
   phone?: string;
