@@ -1,6 +1,6 @@
 import formidable from 'formidable';
 import fs from 'fs';
-import { getMarketplaceSupabase, requireSession } from './_marketplace-session.js';
+import { getMarketplaceSupabase, requireSeller } from './_marketplace-session.js';
 
 export const config = {
   api: {
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const session = requireSession(req, res, 'vendor');
+    const session = requireSeller(req, res);
     if (!session) return;
     const supabase = getMarketplaceSupabase();
 
@@ -42,7 +42,9 @@ export default async function handler(req, res) {
     });
 
     const uploadedFile = files.image?.[0] || files.image;
-    const vendorId = session.id;
+    // For a buyer who became a seller this is the linked vendor id, not the
+    // buyer id — `requireSeller` normalises both session shapes.
+    const vendorId = session.vendorId;
 
     if (!uploadedFile) {
       return res.status(400).json({ 

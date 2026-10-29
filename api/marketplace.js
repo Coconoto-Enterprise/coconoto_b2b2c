@@ -1,20 +1,4 @@
-import { getMarketplaceSupabase, requireSession, readSession } from './_marketplace-session.js';
-
-// Resolve the vendor id for any authenticated seller: a pure 'vendor' session,
-// or a 'buyer' session that has opted in to sell (isSeller + vendorId).
-function requireSeller(req, res) {
-  const session = readSession(req);
-  if (!session) {
-    res.status(401).json({ success: false, error: 'Please sign in to continue' });
-    return null;
-  }
-  const vendorId = session.role === 'vendor' ? session.id : (session.isSeller ? session.vendorId : null);
-  if (!vendorId) {
-    res.status(403).json({ success: false, error: 'Seller access required' });
-    return null;
-  }
-  return { ...session, vendorId };
-}
+import { getMarketplaceSupabase, requireSeller, requireSession } from './_marketplace-session.js';
 
 const ORDER_STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 const PROFILE_FIELDS = ['first_name', 'last_name', 'phone', 'address', 'city', 'state', 'country', 'postal_code'];
