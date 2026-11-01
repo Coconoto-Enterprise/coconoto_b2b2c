@@ -138,14 +138,6 @@ export const EXPORT_SECTIONS: ExportSectionDef[] = [
     columns: ['name', 'email', 'phone', 'company', 'amount', 'message', 'status', 'created_at'],
     dateFields: ['created_at'],
   },
-  {
-    id: 'toxicResults',
-    label: 'Toxic Results',
-    table: 'toxic_results',
-    description: 'Product toxicity / lab result submissions',
-    columns: ['name', 'email', 'phone', 'company', 'result', 'status', 'created_at'],
-    dateFields: ['created_at'],
-  },
 ];
 
 const CURRENCY_KEYS = new Set(['price', 'total_price', 'amount', 'unit_price', 'subtotal']);

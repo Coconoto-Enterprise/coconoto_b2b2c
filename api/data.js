@@ -230,7 +230,6 @@ async function handleGetAllData(res) {
         machineOrders: [],
         productOrders: [],
         serviceContacts: [],
-        toxicResults: [],
         waitlist: [],
         huskSaleRequests: []
       },
@@ -268,7 +267,6 @@ async function handleGetAllData(res) {
   allTables.machineOrders = await fetchTable('machine_orders');
   allTables.productOrders = await fetchTable('product_orders');
   allTables.serviceContacts = await fetchTable('service_contacts');
-  allTables.toxicResults = await fetchTable('toxic_results');
   allTables.waitlist = await fetchTable('waitlist');
   allTables.huskSaleRequests = await fetchTable('husk_sale_requests');
 

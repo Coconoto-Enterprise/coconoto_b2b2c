@@ -54,7 +54,6 @@ interface AllData {
   machineOrders: any[];
   productOrders: any[];
   serviceContacts: any[];
-  toxicResults: any[];
   waitlist: any[];
   huskSaleRequests: any[];
 }
@@ -84,7 +83,6 @@ const VintageDashboard: React.FC = () => {
     machineOrders: [],
     productOrders: [],
     serviceContacts: [],
-    toxicResults: [],
     waitlist: [],
     huskSaleRequests: []
   });
@@ -164,7 +162,6 @@ const VintageDashboard: React.FC = () => {
         machineOrders: [],
         productOrders: [],
         serviceContacts: [],
-        toxicResults: [],
         waitlist: [],
         huskSaleRequests: []
       });
@@ -214,7 +211,6 @@ const VintageDashboard: React.FC = () => {
         machineOrders: [],
         productOrders: [],
         serviceContacts: [],
-        toxicResults: [],
         waitlist: [],
         huskSaleRequests: []
       });
@@ -2287,7 +2283,6 @@ const VintageDashboard: React.FC = () => {
           waitlist: allData.waitlist,
           businessEmails,
           investmentInquiries: allData.investmentInquiries,
-          toxicResults: allData.toxicResults,
         }}
         statusFilters={{
           bookEventRequests: statusFilters['book-events'],
