@@ -291,14 +291,14 @@ const injectSeoNav = (html) =>
 async function serveShell(req, res, headReplacer, fallbackPath = '/') {
   const origin = getOrigin(req);
   try {
-    const shellRes = await fetch(`${origin}/index.html`);
+    const shellRes = await fetch(`${origin}/shell.html`);
     let html = await shellRes.text();
     if (headReplacer) html = headReplacer(html);
     html = injectSeoNav(html);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
-    // Explicitly indexable — the catch-all /index.html carries noindex, but
-    // these pages are real content served through the SEO API.
+    // Explicitly indexable — the catch-all serves these through the SEO API
+    // with real content, not the empty SPA shell.
     res.setHeader('X-Robots-Tag', 'index, follow');
     return res.status(200).send(html);
   } catch (err) {
@@ -821,7 +821,7 @@ async function handleNotFound(req, res) {
 
   const origin = getOrigin(req);
   try {
-    const shellRes = await fetch(`${origin}/index.html`);
+    const shellRes = await fetch(`${origin}/shell.html`);
     let html = await shellRes.text();
     html = injectSeoNav(html);
 

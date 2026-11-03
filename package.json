@@ -7,7 +7,7 @@
     "dev": "vite",
     "dev:api": "node local-api-server.js",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:api\"",
-    "build": "vite build",
+    "build": "vite build && node -e \"require('fs').renameSync('dist/index.html','dist/shell.html')\"",
     "preview": "vite preview",
     "test:redirects": "node scripts/test-safe-return-to.mjs"
   },

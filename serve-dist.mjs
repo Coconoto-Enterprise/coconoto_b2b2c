@@ -59,7 +59,7 @@ const server = http.createServer((req, res) => {
 
   let filePath = candidate;
   if (!isInsideRoot || !fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
-    filePath = path.join(ROOT, 'index.html'); // SPA fallback
+    filePath = path.join(ROOT, 'shell.html'); // SPA fallback
   }
 
   const ext = path.extname(filePath).toLowerCase();
