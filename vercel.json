@@ -1,4 +1,20 @@
 {
+  "redirects": [
+    { "source": "/services", "destination": "/cocotech", "permanent": true },
+    { "source": "/services/:path*", "destination": "/cocotech/:path*", "permanent": true },
+    { "source": "/product", "destination": "/cococycle-hub", "permanent": true },
+    { "source": "/product/:path*", "destination": "/cococycle-hub/:path*", "permanent": true },
+    { "source": "/marketplace", "destination": "/cococonnect", "permanent": true },
+    { "source": "/marketplace/:path*", "destination": "/cococonnect/:path*", "permanent": true },
+
+    { "source": "/figma/home", "destination": "/", "permanent": true },
+    { "source": "/figma/about", "destination": "/about", "permanent": true },
+    { "source": "/figma/equipment", "destination": "/cocotech", "permanent": true },
+    { "source": "/figma/cococycle-hub", "destination": "/cococycle-hub", "permanent": true },
+    { "source": "/figma/contact", "destination": "/contact", "permanent": true },
+    { "source": "/figma/login", "destination": "/buyer-login", "permanent": true },
+    { "source": "/figma/signup", "destination": "/buyer-signup", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/seo?action=sitemap" },
     { "source": "/Sitemap.xml", "destination": "/api/seo?action=sitemap" },
@@ -32,7 +48,8 @@
     {
       "source": "/index.html",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "X-Robots-Tag", "value": "noindex, follow" }
       ]
     }
   ]

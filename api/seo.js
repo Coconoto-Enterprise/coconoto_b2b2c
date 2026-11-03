@@ -260,8 +260,33 @@ const injectHead = (html, metaBlock) =>
     .replace('</head>', `${metaBlock}\n  </head>`);
 
 /**
+ * A visually-hidden navigation block that gives crawlers real <a href> links to
+ * follow. Without this, the HTML shell contains zero internal links — a crawler
+ * that does not execute JavaScript sees a dead end. The block is hidden from
+ * human visitors (CSS clips it to 1px) and React overwrites it on mount.
+ */
+const SEO_NAV_HTML = `
+    <nav aria-hidden="true" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/cocotech">CocoTech — Processing Equipment</a>
+      <a href="/cococycle-hub">CocoCycle Hub — Eco-Friendly Products</a>
+      <a href="/cococonnect">CocoConnect — Marketplace</a>
+      <a href="/shop">Shop</a>
+      <a href="/blog">Blog</a>
+      <a href="/contact">Contact</a>
+      <a href="/help-center">Help Center</a>
+      <a href="/privacy-policy">Privacy Policy</a>
+      <a href="/terms-of-service">Terms of Service</a>
+    </nav>`;
+
+const injectSeoNav = (html) =>
+  html.replace(/<body([^>]*)>/, `<body$1>${SEO_NAV_HTML}`);
+
+/**
  * Fetch the built SPA shell and serve it, optionally with rewritten tags.
- * `headReplacer` is omitted for the plain fallback.
+ * `headReplacer` is omitted for the plain fallback. The SEO nav is always
+ * injected so every page has crawlable internal links.
  */
 async function serveShell(req, res, headReplacer, fallbackPath = '/') {
   const origin = getOrigin(req);
@@ -269,8 +294,12 @@ async function serveShell(req, res, headReplacer, fallbackPath = '/') {
     const shellRes = await fetch(`${origin}/index.html`);
     let html = await shellRes.text();
     if (headReplacer) html = headReplacer(html);
+    html = injectSeoNav(html);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+    // Explicitly indexable — the catch-all /index.html carries noindex, but
+    // these pages are real content served through the SEO API.
+    res.setHeader('X-Robots-Tag', 'index, follow');
     return res.status(200).send(html);
   } catch (err) {
     console.error('seo shell fetch error:', err);
@@ -367,6 +396,284 @@ const injectBody = (html, bodyHtml) => {
   return html.replace('</body>', `${bodyHtml}\n  </body>`);
 };
 
+// ─── Server-rendered page bodies (SEO) ────────────────────────────────────────
+//
+// Every page that is not a legal page used to ship `<div id="root"></div>` — an
+// empty body. Google deprioritised them ("Discovered – currently not indexed")
+// because the crawler saw a page with a correct title but zero body text. The
+// bodies below put real, keyword-rich content into the HTML response so Google
+// has something to index. React replaces all of it on mount — no hydrateRoot, so
+// there is no markup mismatch to reconcile.
+//
+// The styling reuses the legal-doc / legal-card shell so the pre-hydration view
+// is not jarring. Each page provides an h1, intro paragraph, and section
+// headings with real text — enough for Google to understand the page without
+// executing JavaScript.
+
+const PAGE_STYLES = LEGAL_STYLES;
+
+/**
+ * Server-rendered body content for each public page. The text mirrors what the
+ * React component renders, but is intentionally condensed — headings, intro
+ * paragraphs, and key bullet points. The full designed experience loads when
+ * React hydrates.
+ */
+const PAGE_BODIES = {
+  '/about': `
+    <article class="legal-doc"><div class="legal-card">
+      <h1>About Coconoto Africa</h1>
+      <p>Coconoto is a Smart Agritech company focused on creating technology, accessibility, and sustainability across the coconut value chain. We connect farmers, processors and buyers across Africa, turning coconut waste into wealth through equipment, products and a marketplace.</p>
+      <section>
+        <h2>Our Mission</h2>
+        <p>To empower coconut farmers and processors with the technology, market access and knowledge needed to build profitable and sustainable businesses.</p>
+      </section>
+      <section>
+        <h2>Our Vision</h2>
+        <p>To become Africa's leading platform for the coconut value chain, where every part of the coconut creates value for farmers, processors and communities.</p>
+      </section>
+      <section>
+        <h2>What We Do</h2>
+        <ul>
+          <li><strong>CocoTech</strong> — Coconut processing equipment including deshellers, dehuskers and milk extractors, plus production management and staff training.</li>
+          <li><strong>CocoCycle Hub</strong> — Eco-friendly coconut products: cocopeat, coconut fibre, cocopot and biochar made from every part of the coconut.</li>
+          <li><strong>CocoConnect</strong> — A marketplace to buy and sell coconuts, coconut products and processing equipment across Africa.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Our Social Impact</h2>
+        <p>We contribute to UN Sustainable Development Goals: SDG 5 (gender equality), SDG 8 (decent work and economic growth), and SDG 12 (responsible consumption and production).</p>
+      </section>
+    </div></article>`,
+
+  '/cocotech': `
+    <article class="legal-doc"><div class="legal-card">
+      <h1>Coconut Processing Equipment &amp; Services</h1>
+      <p>We design, fabricate, and sell innovative coconut processing machines for the entire value chain. Our equipment is engineered for commercial processing operations in Nigeria and across Africa, built to be durable, efficient and safe.</p>
+      <section>
+        <h2>Processing Equipment</h2>
+        <ul>
+          <li><strong>Coconut Desheller</strong> — Removes the coconut shell with minimal damage to the meat, designed for high-throughput processing.</li>
+          <li><strong>Coconut Dehusker</strong> — Strips the fibrous husk from the coconut quickly and safely, reducing manual labour and injury risk.</li>
+          <li><strong>Coconut Milk Extractor (Auto)</strong> — Automated extraction of fresh coconut milk with high yield and consistent quality.</li>
+          <li><strong>Coconut Milk Extractor (Manual)</strong> — A cost-effective manual option for smaller operations and startups.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Production Management, Made Simple</h2>
+        <ul>
+          <li><strong>Process Optimization</strong> — We analyse your production line and recommend improvements to increase throughput and reduce waste.</li>
+          <li><strong>Efficiency Improvement</strong> — Training and workflow redesign to help your team get more from existing equipment.</li>
+          <li><strong>Staff Training</strong> — Hands-on training for your operators on safe and efficient machine use.</li>
+          <li><strong>Quality Assurance</strong> — Systems and protocols to ensure consistent product quality across every batch.</li>
+        </ul>
+      </section>
+    </div></article>`,
+
+  '/cococycle-hub': `
+    <article class="legal-doc"><div class="legal-card">
+      <h1>CocoCycle Hub</h1>
+      <p>CocoCycle Hub transforms every part of the coconut into value. Instead of burning or burying coconut husks and shells, we turn them into products that farmers, growers and businesses actually need.</p>
+      <section>
+        <h2>Eco-Friendly Coconut Products</h2>
+        <ul>
+          <li><strong>Cocopeat</strong> — A soilless growing medium made from coconut husk fibre. High water retention, excellent aeration, and ideal for hydroponic farming and seed starting.</li>
+          <li><strong>Coconut Fibre (Cocofiber)</strong> — Durable natural fibre for erosion control, mulch, rope, mats and upholstery. Sells by the bag or by the ton.</li>
+          <li><strong>Cocopot</strong> — Biodegradable plant pots made from coconut husk. Plastic-free, compostable and perfect for nurseries and transplanting.</li>
+          <li><strong>Biochar</strong> — Carbon-rich soil amendment produced from coconut shells. Improves soil fertility, retains water and sequesters carbon for centuries.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Coco DrinkEat: Event Experience</h2>
+        <p>We bring fresh coconuts to your events with trained service teams, eco-friendly presentation and custom serving stations. Perfect for weddings, corporate events and festivals.</p>
+      </section>
+    </div></article>`,
+
+  '/cococonnect': `
+    <article class="legal-doc"><div class="legal-card">
+      <h1>Coconut Marketplace — Buy and Sell on Coconoto</h1>
+      <p>Discover quality coconut products direct from verified farmers and processors across the value chain. Coconoto's marketplace connects buyers and sellers across Africa with nationwide delivery and quality guarantees.</p>
+      <section>
+        <h2>Why Buy on Coconoto</h2>
+        <ul>
+          <li><strong>Verified vendors</strong> — Every seller is vetted to ensure product quality and reliability.</li>
+          <li><strong>Nationwide delivery</strong> — We ship coconut products and equipment across Nigeria.</li>
+          <li><strong>Quality guaranteed</strong> — If a product doesn't meet expectations, our support team will make it right.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Sell on Coconoto</h2>
+        <p>Are you a coconut farmer, processor or equipment manufacturer? List your products on Coconoto and reach buyers across Africa. Create a vendor account to start selling.</p>
+      </section>
+      <section>
+        <h2>Product Categories</h2>
+        <ul>
+          <li>Fresh coconuts and coconut meat</li>
+          <li>Cocopeat, cocofiber and biochar</li>
+          <li>Coconut oil, milk and water</li>
+          <li>Processing equipment and machines</li>
+        </ul>
+      </section>
+    </div></article>`,
+
+  '/shop': `
+    <article class="legal-doc"><div class="legal-card">
+      <h1>Coco-connect Shop</h1>
+      <p>Welcome to our marketplace where we connect you directly to what you need. Browse fresh produce, coconut products and farm inputs from verified vendors.</p>
+      <section>
+        <h2>Categories</h2>
+        <ul>
+          <li>Fresh farm produce</li>
+          <li>Coconut products — oil, milk, water, snacks</li>
+          <li>Cocopeat and growing media</li>
+          <li>Farm inputs and equipment</li>
+        </ul>
+      </section>
+    </div></article>`,
+
+  '/blog': `
+    <article class="legal-doc"><div class="legal-card">
+      <h1>Coconoto Blog</h1>
+      <p>Insights and stories from our community. Guides, news and analysis on coconut farming, processing technology and the coconut value chain in Nigeria and across Africa.</p>
+      <section>
+        <h2>Topics We Cover</h2>
+        <ul>
+          <li>Coconut farming and agricultural practices</li>
+          <li>Processing technology and equipment</li>
+          <li>Cocopeat, cocofiber and sustainable products</li>
+          <li>Market trends and industry insights</li>
+        </ul>
+      </section>
+    </div></article>`,
+
+  '/contact': `
+    <article class="legal-doc"><div class="legal-card">
+      <h1>Contact Coconoto Africa</h1>
+      <p>Have questions, ideas, or want to learn more about what we do? Get in touch with our team today.</p>
+      <section>
+        <h2>Contact Information</h2>
+        <ul>
+          <li><strong>Email:</strong> coconotoenterprise@gmail.com</li>
+          <li><strong>Phone:</strong> +234 813 777 5689</li>
+          <li><strong>Address:</strong> No 67. Cele estate, Mowokekere, Ikorodu, Lagos, Nigeria</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Send Us a Message</h2>
+        <p>Fill out our contact form and our services team will get back to you. Whether you're asking about processing equipment, coconut products, partnerships or support, we're here to help.</p>
+      </section>
+    </div></article>`,
+
+  '/help-center': `
+    <article class="legal-doc"><div class="legal-card">
+      <h1>How Can We Help You?</h1>
+      <p>Find answers to common questions about ordering, delivery, machines and using the Coconoto Africa platform. Our support team is available 24/7 to assist you.</p>
+      <section>
+        <h2>Getting Started</h2>
+        <ul>
+          <li><strong>Account Setup</strong> — How to create and verify your account.</li>
+          <li><strong>Platform Overview</strong> — A guide to navigating the Coconoto platform.</li>
+          <li><strong>Trading Basics</strong> — How buying and selling works on the marketplace.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Trading &amp; Transactions</h2>
+        <ul>
+          <li><strong>Making Offers</strong> — How to make and receive offers.</li>
+          <li><strong>Payment Methods</strong> — Accepted payment options and how payments work.</li>
+          <li><strong>Escrow Service</strong> — How our escrow protects both buyers and sellers.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Documentation</h2>
+        <ul>
+          <li><strong>Required Documents</strong> — What you need to verify your account.</li>
+          <li><strong>Verification Process</strong> — Step-by-step guide to getting verified.</li>
+          <li><strong>Trade Agreements</strong> — Understanding your trade terms and conditions.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Still Need Help?</h2>
+        <p>If you can't find the answer you're looking for, contact our support team at coconotoenterprise@gmail.com or call +234 813 777 5689. We're available 24/7.</p>
+      </section>
+    </div></article>`,
+
+  '/': `
+    <article class="legal-doc"><div class="legal-card">
+      <h1>Coconoto Africa — B2B2C Platform for Africa's Coconut Value Chain</h1>
+      <p>Coconoto is Africa's B2B2C platform for the coconut value chain — connecting farmers, processors and buyers with machines, services and a marketplace that turns coconut waste into wealth.</p>
+      <section>
+        <h2>What Coconoto Offers</h2>
+        <ul>
+          <li><strong>CocoTech</strong> — Coconut processing equipment: deshellers, dehuskers, milk extractors, plus production management and staff training.</li>
+          <li><strong>CocoCycle Hub</strong> — Eco-friendly coconut products: cocopeat, coconut fibre, cocopot and biochar from a circular coconut economy.</li>
+          <li><strong>CocoConnect</strong> — A marketplace to buy and sell coconuts, coconut products and processing equipment across Africa.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Serving Africa's Coconut Industry</h2>
+        <p>From farmers in Lagos to processors in the Niger Delta, Coconoto builds the technology and market connections that make every part of the coconut valuable. We turn husks into cocopeat, shells into biochar, and waste into income.</p>
+      </section>
+    </div></article>`,
+};
+
+// ─── Blog body rendering (EditorJS blocks → HTML) ─────────────────────────────
+
+/**
+ * Convert EditorJS content blocks to server-rendered HTML. This mirrors the
+ * client-side rendering in BlogDetail.tsx but produces static HTML for crawlers.
+ * Only text-bearing block types are handled — images and embeds are skipped
+ * because they add no SEO value without captions.
+ */
+const stripHtml = (s = '') => String(s).replace(/<[^>]*>/g, '');
+
+const renderEditorJsBlock = (block = {}) => {
+  const data = block.data || {};
+  switch (block.type) {
+    case 'header': {
+      const level = Math.min(Math.max(data.level || 2, 1), 6);
+      return `<h${level}>${escapeHtml(stripHtml(data.text))}</h${level}>`;
+    }
+    case 'paragraph':
+      return `<p>${escapeHtml(stripHtml(data.text))}</p>`;
+    case 'list': {
+      const tag = data.style === 'ordered' ? 'ol' : 'ul';
+      const items = (data.items || [])
+        .map((item) => {
+          const text = typeof item === 'string' ? item : (item.content || item.text || '');
+          return `<li>${escapeHtml(stripHtml(text))}</li>`;
+        })
+        .join('');
+      return `<${tag}>${items}</${tag}>`;
+    }
+    case 'quote':
+      return `<blockquote><p>${escapeHtml(stripHtml(data.text))}</p>` +
+        (data.caption ? `<footer>— ${escapeHtml(stripHtml(data.caption))}</footer>` : '') +
+        `</blockquote>`;
+    case 'code':
+      return `<pre><code>${escapeHtml(data.code || '')}</code></pre>`;
+    case 'image':
+      return data.caption
+        ? `<figure><figcaption>${escapeHtml(stripHtml(data.caption))}</figcaption></figure>`
+        : '';
+    case 'delimiter':
+      return '<hr/>';
+    default:
+      return '';
+  }
+};
+
+const renderBlogBody = (blog) => {
+  const blocks = (blog.content || []).map(renderEditorJsBlock).filter(Boolean).join('\n');
+  const author = blog.blog_authors?.fullname || blog.blog_authors?.username || '';
+
+  return `<article class="legal-doc"><div class="legal-card">` +
+    `<h1>${escapeHtml(blog.title)}</h1>` +
+    (blog.des ? `<p>${escapeHtml(blog.des)}</p>` : '') +
+    (author ? `<p class="legal-meta">By ${escapeHtml(author)}</p>` : '') +
+    (blocks || '<p>This article is loading.</p>') +
+    `</div></article>`;
+};
+
 // ─── Per-route meta for the static pages ──────────────────────────────────────
 
 async function handlePageMeta(req, res) {
@@ -389,12 +696,23 @@ async function handlePageMeta(req, res) {
     type: 'website',
   });
 
-  // Legal pages additionally get their body rendered into the shell — see the
-  // "Legal body" block above for why.
+  // Build the transform: head injection + body injection.
+  // Legal pages get their own structured body; other public pages get
+  // pre-rendered SEO bodies; the homepage gets a summary body.
   const legal = LEGAL_PAGES[path];
-  const transform = legal
-    ? (html) => injectBody(injectLegalStyles(injectHead(html, metaBlock)), renderLegalBody(legal))
-    : (html) => injectHead(html, metaBlock);
+  const pageBody = PAGE_BODIES[path];
+
+  const transform = (html) => {
+    let out = injectHead(html, metaBlock);
+    if (legal) {
+      out = injectLegalStyles(out);
+      out = injectBody(out, renderLegalBody(legal));
+    } else if (pageBody) {
+      out = injectLegalStyles(out);
+      out = injectBody(out, pageBody);
+    }
+    return out;
+  };
 
   return serveShell(req, res, transform, path);
 }
@@ -409,7 +727,7 @@ async function handleBlogMeta(req, res) {
   try {
     const { data: allBlogs, error: listError } = await supabase
       .from('mern_blogs')
-      .select('blog_id, title, slug, des, banner, published')
+      .select('blog_id, title, slug, des, banner, published, content')
       .eq('published', true)
       .order('published_at', { ascending: false });
 
@@ -421,7 +739,7 @@ async function handleBlogMeta(req, res) {
     if (!blog) {
       const { data: legacyBlog, error } = await supabase
         .from('mern_blogs')
-        .select('blog_id, title, slug, des, banner, published')
+        .select('blog_id, title, slug, des, banner, published, content')
         .eq('blog_id', blogId)
         .eq('published', true)
         .single();
@@ -441,10 +759,41 @@ async function handleBlogMeta(req, res) {
       type: 'article',
     });
 
-    return serveShell(req, res, (html) => injectHead(html, metaBlock), pageUrl);
+    // Server-render the blog body from EditorJS content blocks so Google sees
+    // the actual article text, not an empty div.
+    const transform = (html) => {
+      let out = injectHead(html, metaBlock);
+      out = injectLegalStyles(out);
+      out = injectBody(out, renderBlogBody(blog));
+      return out;
+    };
+
+    return serveShell(req, res, transform, pageUrl);
   } catch (err) {
     console.error('blog-meta error:', err);
     return serveShell(req, res, null, `/blog/${blogId}`);
+  }
+}
+
+// ─── 404 handler (soft-404 fix) ───────────────────────────────────────────────
+//
+// The catch-all rewrite `/(.*)` → `/index.html` makes every unknown URL return
+// HTTP 200, which Google treats as a soft-404. This handler serves the SPA shell
+// (so human visitors see the React NotFound component) but with a real 404 status
+// and X-Robots-Tag: noindex so Google stops indexing junk URLs.
+
+async function handleNotFound(req, res) {
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+  const origin = getOrigin(req);
+  try {
+    const shellRes = await fetch(`${origin}/index.html`);
+    let html = await shellRes.text();
+    html = injectSeoNav(html);
+    return res.status(404).send(html);
+  } catch (err) {
+    return res.status(404).send('<!DOCTYPE html><html><head><title>Page Not Found</title></head><body><h1>404 — Page Not Found</h1></body></html>');
   }
 }
 
@@ -459,6 +808,7 @@ export default async function handler(req, res) {
   if (action === 'sitemap') return handleSitemap(req, res);
   if (action === 'page-meta') return handlePageMeta(req, res);
   if (action === 'blog-meta') return handleBlogMeta(req, res);
+  if (action === 'not-found') return handleNotFound(req, res);
 
-  return res.status(400).json({ error: 'Missing ?action=sitemap|page-meta|blog-meta' });
+  return res.status(400).json({ error: 'Missing ?action=sitemap|page-meta|blog-meta|not-found' });
 }
