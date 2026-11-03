@@ -775,22 +775,63 @@ async function handleBlogMeta(req, res) {
   }
 }
 
-// ─── 404 handler (soft-404 fix) ───────────────────────────────────────────────
+// ─── Catch-all handler (soft-404 fix + SPA route noindex) ────────────────────
 //
-// The catch-all rewrite `/(.*)` → `/index.html` makes every unknown URL return
-// HTTP 200, which Google treats as a soft-404. This handler serves the SPA shell
-// (so human visitors see the React NotFound component) but with a real 404 status
-// and X-Robots-Tag: noindex so Google stops indexing junk URLs.
+// The catch-all rewrite `/(.*)` → `/api/seo?action=not-found` routes every
+// non-API, non-asset, non-explicit-rewrite path through here. This lets us:
+//
+//   1. Serve the SPA shell (200) for valid client-side routes (dashboards,
+//      login, profile, etc.) with X-Robots-Tag: noindex — they're disallowed
+//      in robots.txt but we still want them to render for human visitors.
+//   2. Return a real 404 for truly unknown paths with X-Robots-Tag: noindex,
+//      so Google stops indexing junk URLs.
+//
+// Without this, every unknown URL returned 200 via the SPA fallback, which
+// Google treated as soft-404s.
+
+const SPA_ROUTES = [
+  '/login', '/signup', '/500',
+  '/buyer-login', '/buyer-signup', '/buyer-dashboard', '/buyer-reset-password',
+  '/seller-dashboard',
+  '/vendor-login', '/vendor-signup', '/vendor-dashboard',
+  '/vintage', '/vintage-dashboard',
+  '/tweetit', '/tweetit-dashboard',
+  '/profile', '/profile/links',
+  '/sso-callback', '/auth-complete',
+  '/figma', '/figma/banner',
+  '/shop/checkout', '/shop/order-confirmed',
+];
+
+const isSpaRoute = (path) => {
+  const p = normalizePath(path);
+  // Exact matches
+  if (SPA_ROUTES.includes(p)) return true;
+  // Pattern matches — routes with params
+  if (p.startsWith('/blog-editor/')) return true;
+  if (p.startsWith('/profile/')) return true;
+  if (p.startsWith('/shop/product/')) return true;
+  return false;
+};
 
 async function handleNotFound(req, res) {
-  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  const path = normalizePath(req.query.path || req.url || '/');
+
+  res.setHeader('X-Robots-Tag', 'noindex, follow');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+
   const origin = getOrigin(req);
   try {
     const shellRes = await fetch(`${origin}/index.html`);
     let html = await shellRes.text();
     html = injectSeoNav(html);
+
+    // Valid SPA route → serve shell (200) so React can render it.
+    // Unknown path → 404 so Google drops it.
+    if (isSpaRoute(path)) {
+      res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+      return res.status(200).send(html);
+    }
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
     return res.status(404).send(html);
   } catch (err) {
     return res.status(404).send('<!DOCTYPE html><html><head><title>Page Not Found</title></head><body><h1>404 — Page Not Found</h1></body></html>');

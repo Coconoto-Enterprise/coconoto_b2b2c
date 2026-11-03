@@ -16,6 +16,8 @@
     { "source": "/figma/signup", "destination": "/buyer-signup", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/", "destination": "/api/seo?action=page-meta&path=/" },
+
     { "source": "/sitemap.xml", "destination": "/api/seo?action=sitemap" },
     { "source": "/Sitemap.xml", "destination": "/api/seo?action=sitemap" },
     { "source": "/sitemap.XML", "destination": "/api/seo?action=sitemap" },
@@ -40,20 +42,15 @@
     { "source": "/api/update-status", "destination": "/api/admin?action=update-status" },
     { "source": "/api/update-price", "destination": "/api/admin?action=update-price" },
 
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/api/seo?action=not-found&path=/$1" }
   ],
   "headers": [
     {
       "source": "/assets/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
-    },
-    {
-      "source": "/index.html",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
-        { "key": "X-Robots-Tag", "value": "noindex, follow" }
       ]
     }
   ]
