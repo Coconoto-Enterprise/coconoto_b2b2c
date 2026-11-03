@@ -6,8 +6,8 @@ import {
   applyCorsAllowlist,
   escapeHtml,
   sanitizeHeaderValue,
-} from './_shared-auth.js';
-import { detectMimeFromBuffer } from './_attachment-magic.js';
+} from '../lib/shared-auth.js';
+import { detectMimeFromBuffer } from '../lib/attachment-magic.js';
 
 function determineEmailStatus(result) {
   if (!result) return 'failed';

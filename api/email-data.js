@@ -30,7 +30,7 @@
 // =============================================================================
 
 import { createClient } from '@supabase/supabase-js';
-import { applyCorsAllowlist } from './_shared-auth.js';
+import { applyCorsAllowlist } from '../lib/shared-auth.js';
 
 const MAX_LIMIT = 200;
 const DEFAULT_LIMIT = 25;

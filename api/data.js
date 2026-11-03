@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
-import { applyCorsAllowlist } from './_shared-auth.js';
+import { applyCorsAllowlist } from '../lib/shared-auth.js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 // Server-side read path for the admin dashboard: use the service role key

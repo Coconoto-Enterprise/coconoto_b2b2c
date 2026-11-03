@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { LEGAL_PAGES, LEGAL_UPDATED } from './_legal-content.js';
+import { LEGAL_PAGES, LEGAL_UPDATED } from '../lib/legal-content.js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;

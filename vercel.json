@@ -36,6 +36,10 @@
     { "source": "/terms-of-service", "destination": "/api/seo?action=page-meta&path=/terms-of-service" },
     { "source": "/cookie-policy", "destination": "/api/seo?action=page-meta&path=/cookie-policy" },
 
+    { "source": "/api/delete-record", "destination": "/api/admin?action=delete-record" },
+    { "source": "/api/update-status", "destination": "/api/admin?action=update-status" },
+    { "source": "/api/update-price", "destination": "/api/admin?action=update-price" },
+
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [

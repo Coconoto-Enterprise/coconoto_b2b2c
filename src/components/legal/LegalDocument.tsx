@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import FigmaNav from '@/components/figma/FigmaNav';
 import Footer from '@/components/Footer';
-import { LEGAL_UPDATED } from '../../../api/_legal-content.js';
+import { LEGAL_UPDATED } from '../../../lib/legal-content.js';
 import type { LegalBlock, LegalPage } from '@/types/legal';
 
 /**

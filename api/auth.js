@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
-import { clearSessionCookie, publicSession, readSession, setSessionCookie } from './_marketplace-session.js';
+import { clearSessionCookie, publicSession, readSession, setSessionCookie } from '../lib/marketplace-session.js';
 
 // Initialize Supabase only when needed
 let supabase;

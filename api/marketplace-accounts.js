@@ -7,8 +7,8 @@
 // the Supabase service-role key. It is gated by the same CORS allowlist as
 // the other admin endpoints. Real dashboard auth is tracked separately.
 
-import { applyCorsAllowlist } from './_shared-auth.js';
-import { getMarketplaceSupabase } from './_marketplace-session.js';
+import { applyCorsAllowlist } from '../lib/shared-auth.js';
+import { getMarketplaceSupabase } from '../lib/marketplace-session.js';
 
 export default async function handler(req, res) {
   applyCorsAllowlist(req, res);

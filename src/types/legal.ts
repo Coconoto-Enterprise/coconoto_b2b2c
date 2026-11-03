@@ -1,5 +1,5 @@
 /**
- * Shape of the data exported by `api/_legal-content.js`.
+ * Shape of the data exported by `lib/legal-content.js`.
  *
  * That file is plain JavaScript because `api/seo.js` (the Vercel Node runtime)
  * cannot import TypeScript. This mirrors its structure so the React pages get

@@ -1,11 +1,11 @@
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
-import { TemplateService } from './_templateService.js';
+import { TemplateService } from '../lib/templateService.js';
 import {
   applyCorsAllowlist,
   escapeHtml,
   sanitizeHeaderValue,
-} from './_shared-auth.js';
+} from '../lib/shared-auth.js';
 
 // Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY);

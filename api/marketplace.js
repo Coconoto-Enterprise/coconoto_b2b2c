@@ -1,4 +1,4 @@
-import { getMarketplaceSupabase, requireSeller, requireSession } from './_marketplace-session.js';
+import { getMarketplaceSupabase, requireSeller, requireSession } from '../lib/marketplace-session.js';
 
 const ORDER_STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
 const PROFILE_FIELDS = ['first_name', 'last_name', 'phone', 'address', 'city', 'state', 'country', 'postal_code'];

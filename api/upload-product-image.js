@@ -1,6 +1,6 @@
 import formidable from 'formidable';
 import fs from 'fs';
-import { getMarketplaceSupabase, requireSeller } from './_marketplace-session.js';
+import { getMarketplaceSupabase, requireSeller } from '../lib/marketplace-session.js';
 
 export const config = {
   api: {
