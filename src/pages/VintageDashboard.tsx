@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { 
-  Mail, 
-  Users, 
-  ShoppingCart, 
-  BarChart3, 
-  Send, 
+import {
+  Mail,
+  Users,
+  ShoppingCart,
+  BarChart3,
+  Send,
   Eye,
   Calendar,
   RefreshCw,
@@ -17,7 +17,12 @@ import {
   BookOpen,
   Trash2,
   Menu,
-  Download
+  Download,
+  UserCircle,
+  Shield,
+  Search,
+  AlertTriangle,
+  RotateCcw,
 } from 'lucide-react';
 import { MernBlogManagement } from '../components/blog/MernBlogManagement';
 import AnalyticsPanel from '../components/AnalyticsPanel';
@@ -47,6 +52,42 @@ const sanitizeEmailHtml = (html: any) => {
 };
 
 
+
+interface MarketplaceAccount {
+  id: string;
+  email: string;
+  account_type: 'buyer' | 'vendor';
+  display_name: string;
+  is_active: boolean;
+  order_count: number;
+  product_count?: number;
+  is_seller?: boolean;
+  // buyer fields
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postal_code?: string;
+  clerk_user_id?: string | null;
+  // vendor fields
+  business_name?: string;
+  contact_name?: string;
+  description?: string | null;
+  logo_url?: string | null;
+  is_verified?: boolean;
+  // shared
+  created_at: string;
+  updated_at?: string;
+}
+
+interface AccountDetail {
+  account: MarketplaceAccount & { linked_vendor?: { id: string; business_name: string; is_active: boolean } | null };
+  orders: any[];
+  products?: any[];
+}
 
 interface AllData {
   bookEventRequests: any[];
@@ -109,6 +150,18 @@ const VintageDashboard: React.FC = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportPreselect, setExportPreselect] = useState<string[]>([]);
+  // Marketplace accounts state
+  const [marketplaceAccounts, setMarketplaceAccounts] = useState<{ buyers: MarketplaceAccount[]; vendors: MarketplaceAccount[] }>({ buyers: [], vendors: [] });
+  const [accountsLoading, setAccountsLoading] = useState(false);
+  const [accountsFilter, setAccountsFilter] = useState<'all' | 'buyers' | 'vendors' | 'active' | 'inactive'>('all');
+  const [accountsSearch, setAccountsSearch] = useState('');
+  const [accountDetail, setAccountDetail] = useState<AccountDetail | null>(null);
+  const [showAccountDetailModal, setShowAccountDetailModal] = useState(false);
+  const [accountDetailLoading, setAccountDetailLoading] = useState(false);
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [deleteAccountTarget, setDeleteAccountTarget] = useState<MarketplaceAccount | null>(null);
+  const [deleteAccountMode, setDeleteAccountMode] = useState<'deactivate' | 'permanent'>('deactivate');
+  const [deleteAccountLoading, setDeleteAccountLoading] = useState(false);
   const navigate = useNavigate();
 
   const [composer, setComposer] = useState({
@@ -410,6 +463,127 @@ const VintageDashboard: React.FC = () => {
     setShowDeleteModal(true);
   };
 
+  // ── Marketplace Accounts ────────────────────────────────────────────
+
+  const fetchMarketplaceAccounts = async () => {
+    try {
+      setAccountsLoading(true);
+      const res = await fetch('/api/marketplace-accounts?action=list');
+      const json = await res.json();
+      if (json.success) {
+        setMarketplaceAccounts({ buyers: json.buyers || [], vendors: json.vendors || [] });
+      }
+    } catch (err) {
+      console.error('Failed to fetch marketplace accounts:', err);
+    } finally {
+      setAccountsLoading(false);
+    }
+  };
+
+  const fetchAccountDetail = async (accountType: string, accountId: string) => {
+    try {
+      setAccountDetailLoading(true);
+      const res = await fetch('/api/marketplace-accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'detail', accountType, accountId }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setAccountDetail(json);
+        setShowAccountDetailModal(true);
+      } else {
+        alert(`Failed to load account details: ${json.error}`);
+      }
+    } catch (err) {
+      console.error('Account detail fetch error:', err);
+      alert('Network error loading account details');
+    } finally {
+      setAccountDetailLoading(false);
+    }
+  };
+
+  const openDeleteAccountModal = (account: MarketplaceAccount, mode: 'deactivate' | 'permanent') => {
+    setDeleteAccountTarget(account);
+    setDeleteAccountMode(mode);
+    setShowDeleteAccountModal(true);
+  };
+
+  const executeAccountAction = async () => {
+    if (!deleteAccountTarget) return;
+    const action = deleteAccountMode === 'deactivate' ? 'deactivate' : 'delete';
+    try {
+      setDeleteAccountLoading(true);
+      const res = await fetch('/api/marketplace-accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          accountType: deleteAccountTarget.account_type,
+          accountId: deleteAccountTarget.id,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setShowDeleteAccountModal(false);
+        fetchMarketplaceAccounts(); // Refresh list
+      } else {
+        alert(`Failed: ${json.error}`);
+      }
+    } catch (err) {
+      console.error('Account action error:', err);
+      alert('Network error');
+    } finally {
+      setDeleteAccountLoading(false);
+    }
+  };
+
+  const reactivateAccount = async (account: MarketplaceAccount) => {
+    try {
+      const res = await fetch('/api/marketplace-accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reactivate',
+          accountType: account.account_type,
+          accountId: account.id,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        fetchMarketplaceAccounts();
+      } else {
+        alert(`Failed to reactivate: ${json.error}`);
+      }
+    } catch (err) {
+      alert('Network error');
+    }
+  };
+
+  // Filter + search helpers for accounts
+  const allAccountsFiltered = (() => {
+    let list = [...marketplaceAccounts.buyers, ...marketplaceAccounts.vendors];
+    // Filter
+    switch (accountsFilter) {
+      case 'buyers': list = list.filter((a) => a.account_type === 'buyer'); break;
+      case 'vendors': list = list.filter((a) => a.account_type === 'vendor'); break;
+      case 'active': list = list.filter((a) => a.is_active); break;
+      case 'inactive': list = list.filter((a) => !a.is_active); break;
+      default: break;
+    }
+    // Search
+    if (accountsSearch.trim()) {
+      const q = accountsSearch.toLowerCase();
+      list = list.filter((a) =>
+        a.email?.toLowerCase().includes(q) ||
+        a.display_name?.toLowerCase().includes(q) ||
+        a.phone?.toLowerCase().includes(q) ||
+        a.business_name?.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  })();
+
   // Delete record function
   const deleteRecord = async () => {
     if (!deleteItem || !deleteItemSection) {
@@ -570,6 +744,23 @@ const VintageDashboard: React.FC = () => {
     );
   };
 
+  // Small helper for rendering account detail fields
+  const DetailField: React.FC<{ label: string; value?: any; statusColor?: 'green' | 'red' }> = ({ label, value, statusColor }) => {
+    const display = !value || value === '' || value === 'N/A'
+      ? 'N/A'
+      : typeof value === 'string' && value.includes('T')
+        ? formatDate(value)
+        : String(value);
+    return (
+      <div className="bg-gray-50 p-2 sm:p-3 rounded-lg border border-gray-200">
+        <div className="text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</div>
+        <div className={`text-sm mt-0.5 ${statusColor === 'green' ? 'text-green-700 font-semibold' : statusColor === 'red' ? 'text-red-700 font-semibold' : 'text-gray-900'}`}>
+          {display}
+        </div>
+      </div>
+    );
+  };
+
   // Filter emails by type
   const businessEmailsRaw = Array.isArray(emails) ? emails.filter(email => 
     email?.from?.includes('team@') || email?.to?.some(recipient => recipient.includes('coconoto'))
@@ -632,6 +823,13 @@ const VintageDashboard: React.FC = () => {
       window.clearInterval(interval);
     };
   }, []);
+
+  // Fetch marketplace accounts when the accounts tab is first opened
+  useEffect(() => {
+    if (activeTab === 'accounts' && marketplaceAccounts.buyers.length === 0 && marketplaceAccounts.vendors.length === 0) {
+      fetchMarketplaceAccounts();
+    }
+  }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (
@@ -718,6 +916,7 @@ const VintageDashboard: React.FC = () => {
             { id: 'service-contacts', name: `Contact (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Send },
             { id: 'husk-sales', name: `Husk (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
             { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
+            { id: 'accounts', name: 'Accounts', icon: UserCircle },
             { id: 'team', name: 'Team', icon: Users },
             { id: 'analytics', name: 'Analytics', icon: BarChart3 },
             
@@ -757,6 +956,7 @@ const VintageDashboard: React.FC = () => {
               { id: 'service-contacts', name: `Contact (${filterByStatus(allData.serviceContacts, 'pending').length || 0})`, icon: Mail },
               { id: 'husk-sales', name: `Husk (${filterByStatus(allData.huskSaleRequests, 'pending').length || 0})`, icon: ShoppingCart },
               { id: 'waitlist', name: `Waitlist (${allData.waitlist?.length || 0})`, icon: Users },
+              { id: 'accounts', name: 'Accounts', icon: UserCircle },
               { id: 'team', name: 'Team', icon: Users },
               { id: 'analytics', name: 'Analytics', icon: BarChart3 },
               
@@ -1909,6 +2109,244 @@ const VintageDashboard: React.FC = () => {
           </div>
         )}
 
+        {/* Accounts Tab */}
+        {activeTab === 'accounts' && (
+          <div className="space-y-4">
+            {/* Header with stats + search */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="bg-green-100 p-2 rounded-lg">
+                    <UserCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">Marketplace Accounts</h2>
+                    <p className="text-xs text-gray-500">
+                      {marketplaceAccounts.buyers.length} buyers, {marketplaceAccounts.vendors.length} vendors
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      type="text"
+                      value={accountsSearch}
+                      onChange={(e) => setAccountsSearch(e.target.value)}
+                      placeholder="Search name, email, phone..."
+                      className="pl-8 pr-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 w-48 sm:w-64"
+                    />
+                  </div>
+                  <select
+                    value={accountsFilter}
+                    onChange={(e) => setAccountsFilter(e.target.value as any)}
+                    className="border rounded px-2 py-1.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="all">All Accounts</option>
+                    <option value="buyers">Buyers Only</option>
+                    <option value="vendors">Vendors Only</option>
+                    <option value="active">Active Only</option>
+                    <option value="inactive">Inactive Only</option>
+                  </select>
+                  <button
+                    onClick={() => fetchMarketplaceAccounts()}
+                    className="inline-flex items-center gap-1 rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                    title="Refresh accounts"
+                  >
+                    <RefreshCw className={`h-3.5 w-3.5 ${accountsLoading ? 'animate-spin' : ''}`} />
+                    <span className="hidden sm:inline">Refresh</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Accounts Table */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+              {accountsLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <RefreshCw className="animate-spin h-6 w-6 text-green-600" />
+                  <span className="ml-3 text-sm text-gray-600">Loading accounts...</span>
+                </div>
+              ) : allAccountsFiltered.length === 0 ? (
+                <div className="px-6 py-12 text-center text-gray-500">
+                  <UserCircle className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+                  <p className="text-sm">No marketplace accounts found.</p>
+                  <button
+                    onClick={() => fetchMarketplaceAccounts()}
+                    className="mt-3 text-green-600 hover:text-green-700 text-sm font-medium"
+                  >
+                    Refresh data
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* Mobile card view */}
+                  <div className="sm:hidden divide-y">
+                    {allAccountsFiltered.map((account) => (
+                      <div key={`${account.account_type}-${account.id}`} className="p-4 space-y-3 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium text-gray-900 truncate">{account.display_name}</p>
+                              <span className={`px-1.5 py-0.5 text-[10px] rounded-full whitespace-nowrap ${
+                                account.account_type === 'vendor'
+                                  ? 'bg-purple-100 text-purple-700'
+                                  : 'bg-blue-100 text-blue-700'
+                              }`}>
+                                {account.account_type === 'vendor' ? 'Vendor' : 'Buyer'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-0.5">{account.email}</p>
+                          </div>
+                          <span className={`px-2 py-0.5 text-xs rounded-full whitespace-nowrap flex-shrink-0 ${
+                            account.is_active
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-red-100 text-red-700'
+                          }`}>
+                            {account.is_active ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                          <div>Phone: {account.phone || 'N/A'}</div>
+                          <div>Orders: {account.order_count || 0}</div>
+                          {account.account_type === 'vendor' && <div>Products: {account.product_count || 0}</div>}
+                          {account.business_name && <div>Business: {account.business_name}</div>}
+                          <div>Joined: {account.created_at ? formatDate(account.created_at).split(',')[0] : 'Unknown'}</div>
+                        </div>
+                        <div className="flex items-center gap-1.5 pt-2 border-t flex-wrap">
+                          <button
+                            onClick={() => fetchAccountDetail(account.account_type, account.id)}
+                            className="text-green-600 hover:text-green-900 text-xs px-2 py-1 rounded hover:bg-green-50 inline-flex items-center gap-1"
+                          >
+                            <Eye className="h-3.5 w-3.5" /> Details
+                          </button>
+                          {account.is_active ? (
+                            <button
+                              onClick={() => openDeleteAccountModal(account, 'deactivate')}
+                              className="text-orange-600 hover:text-orange-900 text-xs px-2 py-1 rounded hover:bg-orange-50 inline-flex items-center gap-1"
+                            >
+                              <Shield className="h-3.5 w-3.5" /> Deactivate
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => reactivateAccount(account)}
+                              className="text-green-600 hover:text-green-900 text-xs px-2 py-1 rounded hover:bg-green-50 inline-flex items-center gap-1"
+                            >
+                              <RotateCcw className="h-3.5 w-3.5" /> Reactivate
+                            </button>
+                          )}
+                          <button
+                            onClick={() => openDeleteAccountModal(account, 'permanent')}
+                            className="text-red-600 hover:text-red-900 text-xs px-2 py-1 rounded hover:bg-red-50 inline-flex items-center gap-1"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" /> Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop table view */}
+                  <div className="hidden sm:block overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
+                          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Orders</th>
+                          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Joined</th>
+                          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {allAccountsFiltered.map((account) => (
+                          <tr key={`${account.account_type}-${account.id}`} className={`hover:bg-gray-50 ${!account.is_active ? 'bg-red-50/40' : ''}`}>
+                            <td className="px-6 py-4">
+                              <div className="text-sm font-medium text-gray-900">{account.display_name}</div>
+                              <div className="text-xs text-gray-500">{account.email}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`px-2 py-1 text-xs rounded-full ${
+                                account.account_type === 'vendor'
+                                  ? 'bg-purple-100 text-purple-700'
+                                  : 'bg-blue-100 text-blue-700'
+                              }`}>
+                                {account.account_type === 'vendor' ? 'Vendor' : 'Buyer'}
+                              </span>
+                              {account.account_type === 'vendor' && account.is_verified && (
+                                <span className="ml-1 text-[10px] text-green-600 font-medium">Verified</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-900">
+                              <div>{account.phone || 'N/A'}</div>
+                              {account.city && <div className="text-xs text-gray-500">{account.city}{account.country ? `, ${account.country}` : ''}</div>}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-900">
+                              {account.order_count || 0}
+                              {account.account_type === 'vendor' && account.product_count !== undefined && (
+                                <div className="text-xs text-gray-500">{account.product_count} products</div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`px-2 py-1 text-xs rounded-full ${
+                                account.is_active
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-red-100 text-red-700'
+                              }`}>
+                                {account.is_active ? 'Active' : 'Inactive'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-900">
+                              {account.created_at ? formatDate(account.created_at).split(',')[0] : 'Unknown'}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => fetchAccountDetail(account.account_type, account.id)}
+                                  className="text-green-600 hover:text-green-900 inline-flex items-center gap-1 text-xs"
+                                  title="View details"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </button>
+                                {account.is_active ? (
+                                  <button
+                                    onClick={() => openDeleteAccountModal(account, 'deactivate')}
+                                    className="text-orange-600 hover:text-orange-900 inline-flex items-center gap-1 text-xs"
+                                    title="Deactivate account"
+                                  >
+                                    <Shield className="h-4 w-4" />
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => reactivateAccount(account)}
+                                    className="text-green-600 hover:text-green-900 inline-flex items-center gap-1 text-xs"
+                                    title="Reactivate account"
+                                  >
+                                    <RotateCcw className="h-4 w-4" />
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => openDeleteAccountModal(account, 'permanent')}
+                                  className="text-red-600 hover:text-red-900 inline-flex items-center gap-1 text-xs"
+                                  title="Permanently delete"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Analytics Tab */}
         {activeTab === 'analytics' && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
@@ -2270,6 +2708,265 @@ const VintageDashboard: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Account Detail Modal */}
+      {showAccountDetailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${accountDetail?.account.account_type === 'vendor' ? 'bg-purple-100' : 'bg-blue-100'}`}>
+                  <UserCircle className={`h-5 w-5 sm:h-6 sm:w-6 ${accountDetail?.account.account_type === 'vendor' ? 'text-purple-600' : 'text-blue-600'}`} />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-xl font-bold text-gray-900">{accountDetail?.account.display_name}</h2>
+                  <p className="text-xs text-gray-500">{accountDetail?.account.email}</p>
+                </div>
+              </div>
+              <button onClick={() => setShowAccountDetailModal(false)} className="text-gray-400 hover:text-gray-600" title="Close">
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+            </div>
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1">
+              {accountDetailLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <RefreshCw className="animate-spin h-6 w-6 text-green-600" />
+                </div>
+              ) : accountDetail ? (
+                <div className="space-y-6">
+                  {/* Account Info Grid */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Account Information</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <DetailField label="Account Type" value={accountDetail.account.account_type === 'vendor' ? 'Vendor / Seller' : 'Buyer'} />
+                      <DetailField label="Status" value={accountDetail.account.is_active ? 'Active' : 'Inactive'} statusColor={accountDetail.account.is_active ? 'green' : 'red'} />
+                      {accountDetail.account.account_type === 'buyer' ? (
+                        <>
+                          <DetailField label="First Name" value={accountDetail.account.first_name} />
+                          <DetailField label="Last Name" value={accountDetail.account.last_name} />
+                        </>
+                      ) : (
+                        <>
+                          <DetailField label="Business Name" value={accountDetail.account.business_name} />
+                          <DetailField label="Contact Name" value={accountDetail.account.contact_name} />
+                        </>
+                      )}
+                      <DetailField label="Email" value={accountDetail.account.email} />
+                      <DetailField label="Phone" value={accountDetail.account.phone} />
+                      <DetailField label="Address" value={accountDetail.account.address} />
+                      <DetailField label="City" value={accountDetail.account.city} />
+                      <DetailField label="State" value={accountDetail.account.state} />
+                      <DetailField label="Country" value={accountDetail.account.country} />
+                      {accountDetail.account.postal_code && <DetailField label="Postal Code" value={accountDetail.account.postal_code} />}
+                      {accountDetail.account.account_type === 'vendor' && (
+                        <>
+                          <DetailField label="Verified" value={accountDetail.account.is_verified ? 'Yes' : 'No'} />
+                          {accountDetail.account.description && <DetailField label="Description" value={accountDetail.account.description} />}
+                        </>
+                      )}
+                      {accountDetail.account.clerk_user_id && <DetailField label="Auth Method" value="Clerk (Google)" />}
+                      <DetailField label="Joined" value={accountDetail.account.created_at ? formatDate(accountDetail.account.created_at) : 'Unknown'} />
+                      {accountDetail.account.updated_at && <DetailField label="Last Updated" value={formatDate(accountDetail.account.updated_at)} />}
+                    </div>
+                    {/* Linked vendor for buyers who are also sellers */}
+                    {accountDetail.account.linked_vendor && (
+                      <div className="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                        <p className="text-xs text-purple-700">
+                          <Shield className="inline h-3.5 w-3.5 mr-1" />
+                          Also registered as a seller: <strong>{accountDetail.account.linked_vendor.business_name}</strong>
+                          {!accountDetail.account.linked_vendor.is_active && ' (inactive)'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Orders section */}
+                  {accountDetail.orders && accountDetail.orders.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                        Orders ({accountDetail.orders.length})
+                      </h3>
+                      <div className="space-y-2 max-h-60 overflow-y-auto">
+                        {accountDetail.orders.slice(0, 10).map((order, idx) => (
+                          <div key={order.id || idx} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                              <div><span className="font-medium text-gray-600">ID:</span> <span className="text-gray-900 font-mono">{order.id?.slice(0, 8)}...</span></div>
+                              <div><span className="font-medium text-gray-600">Status:</span> <span className="text-gray-900">{order.status || 'N/A'}</span></div>
+                              <div><span className="font-medium text-gray-600">Date:</span> <span className="text-gray-900">{order.created_at ? formatDate(order.created_at).split(',')[0] : 'N/A'}</span></div>
+                              {order.total_amount && <div><span className="font-medium text-gray-600">Total:</span> <span className="text-gray-900">{order.total_amount}</span></div>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Products section (vendor only) */}
+                  {accountDetail.products && accountDetail.products.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                        Products ({accountDetail.products.length})
+                      </h3>
+                      <div className="space-y-2 max-h-60 overflow-y-auto">
+                        {accountDetail.products.slice(0, 10).map((product, idx) => (
+                          <div key={product.id || idx} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                              <div><span className="font-medium text-gray-600">Name:</span> <span className="text-gray-900">{product.product_name || 'N/A'}</span></div>
+                              <div><span className="font-medium text-gray-600">Category:</span> <span className="text-gray-900">{product.category || 'N/A'}</span></div>
+                              <div><span className="font-medium text-gray-600">Price:</span> <span className="text-gray-900">{product.price ? `₦${Number(product.price).toLocaleString()}` : 'N/A'}</span></div>
+                              <div><span className="font-medium text-gray-600">Stock:</span> <span className="text-gray-900">{product.stock_quantity ?? 'N/A'}</span></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-500">No data available</div>
+              )}
+            </div>
+            <div className="flex justify-end gap-2 p-4 sm:p-6 border-t flex-shrink-0">
+              <button
+                onClick={() => setShowAccountDetailModal(false)}
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+              >
+                Close
+              </button>
+              {accountDetail?.account && (
+                <>
+                  {accountDetail.account.is_active ? (
+                    <button
+                      onClick={() => {
+                        setShowAccountDetailModal(false);
+                        openDeleteAccountModal(accountDetail.account as MarketplaceAccount, 'deactivate');
+                      }}
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors inline-flex items-center gap-1"
+                    >
+                      <Shield className="h-3.5 w-3.5" /> Deactivate
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        reactivateAccount(accountDetail.account as MarketplaceAccount);
+                        setShowAccountDetailModal(false);
+                      }}
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors inline-flex items-center gap-1"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" /> Reactivate
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      setShowAccountDetailModal(false);
+                      openDeleteAccountModal(accountDetail.account as MarketplaceAccount, 'permanent');
+                    }}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors inline-flex items-center gap-1"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Delete Permanently
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete / Deactivate Account Confirmation Modal */}
+      {showDeleteAccountModal && deleteAccountTarget && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-md">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex items-center justify-between">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                {deleteAccountMode === 'deactivate' ? (
+                  <><Shield className="h-5 w-5 text-orange-600" /> Deactivate Account</>
+                ) : (
+                  <><AlertTriangle className="h-5 w-5 text-red-600" /> Delete Account</>
+                )}
+              </h3>
+              <button
+                onClick={() => setShowDeleteAccountModal(false)}
+                title="Close"
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+            </div>
+            <div className="p-4 sm:p-6">
+              <div className="mb-4 space-y-2">
+                <p className="text-sm font-medium text-gray-700">
+                  {deleteAccountMode === 'deactivate'
+                    ? 'Deactivate this account?'
+                    : 'Permanently delete this account?'}
+                </p>
+                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <div className="text-sm text-gray-900 font-medium">{deleteAccountTarget.display_name}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{deleteAccountTarget.email}</div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className={`px-1.5 py-0.5 text-[10px] rounded-full ${
+                      deleteAccountTarget.account_type === 'vendor'
+                        ? 'bg-purple-100 text-purple-700'
+                        : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {deleteAccountTarget.account_type === 'vendor' ? 'Vendor' : 'Buyer'}
+                    </span>
+                    <span className="text-xs text-gray-500">{deleteAccountTarget.order_count || 0} orders</span>
+                  </div>
+                </div>
+                {deleteAccountMode === 'deactivate' ? (
+                  <div className="text-xs text-gray-600 space-y-1">
+                    <p>The account will be deactivated. The user can no longer log in, but their data (orders, products, profile) is preserved.</p>
+                    <p className="text-green-600 font-medium">This can be reversed by reactivating the account.</p>
+                  </div>
+                ) : (
+                  <div className="text-xs space-y-1">
+                    <p className="text-red-600 font-medium flex items-center gap-1">
+                      <AlertTriangle className="h-3.5 w-3.5 inline" />
+                      This will permanently delete the account and all related data (orders, products, profile).
+                    </p>
+                    <p className="text-red-600 font-medium">This action CANNOT be undone.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-t flex justify-end gap-2 sm:gap-3">
+              <button
+                onClick={() => setShowDeleteAccountModal(false)}
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={executeAccountAction}
+                disabled={deleteAccountLoading}
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-white rounded-md disabled:opacity-50 inline-flex items-center gap-1 sm:gap-2 ${
+                  deleteAccountMode === 'deactivate'
+                    ? 'bg-orange-600 hover:bg-orange-700'
+                    : 'bg-red-600 hover:bg-red-700'
+                }`}
+              >
+                {deleteAccountLoading ? (
+                  <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
+                ) : deleteAccountMode === 'deactivate' ? (
+                  <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                )}
+                <span className="hidden sm:inline">
+                  {deleteAccountLoading
+                    ? 'Processing...'
+                    : deleteAccountMode === 'deactivate'
+                      ? 'Deactivate'
+                      : 'Delete Permanently'}
+                </span>
+                <span className="sm:hidden">
+                  {deleteAccountLoading ? '...' : deleteAccountMode === 'deactivate' ? 'Deactivate' : 'Delete'}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Export Data Modal — sections → format → download */}
       <ExportDataModal        isOpen={showExportModal}
         onClose={() => setShowExportModal(false)}
