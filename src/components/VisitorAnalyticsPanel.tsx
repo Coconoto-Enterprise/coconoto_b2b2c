@@ -12,7 +12,6 @@ ChartJS.register(
 );
 
 const GREEN = '#17AD10';
-const BROWN = '#8b5e47';
 const BLUE = '#2563eb';
 
 type Tab = 'overview' | 'heatmaps' | 'funnel' | 'sessions' | 'live' | 'frustration';
@@ -215,17 +214,11 @@ export default function VisitorAnalyticsPanel() {
         className="bg-gray-100 border border-gray-200 px-3 py-1.5 rounded text-sm text-gray-700">7d</button>
       <button onClick={() => { const f = daysAgo(29), t = daysAgo(0); setDraftSince(f); setDraftUntil(t); setSince(f); setUntil(t); }}
         className="bg-gray-100 border border-gray-200 px-3 py-1.5 rounded text-sm text-gray-700">30d</button>
-      <span className="ml-auto text-xs text-gray-400">Data from your own Supabase · no third party</span>
     </div>
   );
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 flex-wrap">
-        <h3 className="text-sm font-semibold" style={{ color: BROWN }}>Visitor Analytics</h3>
-        <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded">Self-hosted</span>
-      </div>
-
       {/* Sub-tabs */}
       <div className="flex gap-1 flex-wrap border-b border-gray-200">
         {TABS.map(t => (
@@ -448,12 +441,7 @@ export default function VisitorAnalyticsPanel() {
       {/* ═══════════════════ FUNNEL ═══════════════════ */}
       {tab === 'funnel' && (
         <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <h4 className="text-sm font-semibold text-gray-800 mb-1">Shop conversion funnel</h4>
-          <p className="text-xs text-gray-500 mb-4">
-            Unique sessions at each step of the real <code className="bg-gray-100 px-1 rounded">/shop</code> flow:
-            landing → browse → product → checkout → confirmation. This is the analysis
-            Clarity cannot do — it has raw sessions, not a business-defined funnel.
-          </p>
+          <h4 className="text-sm font-semibold text-gray-800 mb-4">Shop conversion funnel</h4>
           {funnel?.length ? (
             <>
               <div className="space-y-2">
