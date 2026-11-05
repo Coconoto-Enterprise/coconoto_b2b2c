@@ -623,7 +623,10 @@ async function handleHeatmap(supabase, res, req, sinceDate, untilDate) {
 }
 
 async function handleFunnel(supabase, res, sinceDate, untilDate) {
-  // Must match getFunnelStage() in src/lib/visitorTracking.ts exactly.
+  // Must match getFunnelStage() in src/lib/visitorTracking.ts exactly — these
+  // are the real /shop steps: / → /shop → /shop/product/:slug →
+  // /shop/checkout → /shop/order-confirmed. /cococonnect is a separate
+  // marketplace funnel and is intentionally not a stage here.
   const stages = ['landing', 'browse', 'product', 'checkout', 'confirmation'];
 
   const { data } = await supabase.from('page_views')
@@ -641,7 +644,12 @@ async function handleFunnel(supabase, res, sinceDate, untilDate) {
   const funnel = stages.map((stage, i) => {
     const count = stageSessions[stage].size;
     const prevCount = i > 0 ? stageSessions[stages[i - 1]].size : count;
-    const dropOff = i > 0 && prevCount > 0 ? Math.round(((prevCount - count) / prevCount) * 100) : 0;
+    // A session can enter mid-funnel (e.g. a saved /shop/checkout link), so a
+    // later stage may legitimately outnumber an earlier one. Clamp to 0 rather
+    // than rendering a nonsensical negative "drop".
+    const dropOff = i > 0 && prevCount > 0
+      ? Math.max(0, Math.min(100, Math.round(((prevCount - count) / prevCount) * 100)))
+      : 0;
     return { stage, count, drop_off_rate: dropOff };
   });
 

@@ -450,8 +450,9 @@ export default function VisitorAnalyticsPanel() {
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <h4 className="text-sm font-semibold text-gray-800 mb-1">Shop conversion funnel</h4>
           <p className="text-xs text-gray-500 mb-4">
-            Unique sessions that reached each stage. This is the analysis Clarity cannot do —
-            it has raw sessions, not a business-defined funnel.
+            Unique sessions at each step of the real <code className="bg-gray-100 px-1 rounded">/shop</code> flow:
+            landing → browse → product → checkout → confirmation. This is the analysis
+            Clarity cannot do — it has raw sessions, not a business-defined funnel.
           </p>
           {funnel?.length ? (
             <>
@@ -473,12 +474,6 @@ export default function VisitorAnalyticsPanel() {
                     </div>
                   );
                 })}
-              </div>
-              <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
-                Funnel stages are derived from route patterns in{' '}
-                <code className="bg-amber-100 px-1 rounded">getFunnelStage()</code>. Edit that function
-                in <code className="bg-amber-100 px-1 rounded">src/lib/visitorTracking.ts</code> to
-                match your real checkout steps.
               </div>
             </>
           ) : <div className="text-sm text-gray-500 py-6 text-center">No funnel data in this range yet.</div>}

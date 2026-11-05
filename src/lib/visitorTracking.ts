@@ -46,23 +46,39 @@ function isTrackable(pathname: string): boolean {
 }
 
 // ── Funnel staging ──────────────────────────────────────────────────────────
+/**
+ * Maps a route to a stage of the real /shop checkout flow (see src/App.tsx):
+ *
+ *   /                        landing
+ *   /shop                    browse      product grid
+ *   /shop/product/:slug      product     detail; "Buy now" adds to cart
+ *   /shop/checkout           checkout    single-page form (no multi-step routes)
+ *   /shop/order-confirmed    confirmation
+ *
+ * There is NO /shop/cart route — the cart lives in ShopNav's drawer and links
+ * straight to /shop/checkout, so no "cart" stage exists.
+ *
+ * /cococonnect is deliberately excluded: that marketplace has its own order
+ * dialog on a single URL, so routes cannot express its steps. Its conversions
+ * are captured separately with trackCustomEvent('order_placed', ...). Counting
+ * those sessions as shop "browse" would inflate the shop funnel.
+ *
+ * Every other page returns null so page_views.funnel_stage only ever holds real
+ * funnel stages. Stage names MUST stay in sync with the `stages` array in
+ * handleFunnel() in api/visitor-tracking.js — they are joined by string, so a
+ * typo silently drops a stage from the dashboard.
+ */
 function getFunnelStage(path: string): string | null {
-  if (path === '/' || path === '') return 'landing';
-  if (path === '/cococonnect' || path === '/shop') return 'browse';
-  if (path.startsWith('/shop/product/')) return 'product';
-  // NOTE: keep these stage names in sync with the `stages` array in
-  // handleFunnel() in api/visitor-tracking.js — they are matched by string.
-  if (path === '/shop/checkout') return 'checkout';
-  if (path === '/shop/order-confirmed') return 'confirmation';
-  if (path === '/contact') return 'contact';
-  if (path === '/blog') return 'blog_browse';
-  if (path.startsWith('/blog/') && !path.startsWith('/blog-editor')) return 'blog_read';
-  if (path === '/vendor-signup' || path === '/buyer-signup') return 'signup';
-  if (path === '/vendor-login' || path === '/buyer-login') return 'login';
-  if (path === '/cocotech') return 'cocotech';
-  if (path === '/cococycle-hub') return 'cococycle';
-  if (path === '/about') return 'about';
-  return 'other';
+  // Strip query/hash and trailing slashes so /shop/?utm=... and /shop/ both
+  // resolve to the same stage.
+  const clean = path.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
+
+  if (clean === '/') return 'landing';
+  if (clean === '/shop') return 'browse';
+  if (clean.startsWith('/shop/product/') && clean.length > '/shop/product/'.length) return 'product';
+  if (clean === '/shop/checkout') return 'checkout';
+  if (clean === '/shop/order-confirmed') return 'confirmation';
+  return null;
 }
 
 // ── Session ID ──────────────────────────────────────────────────────────────
