@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { vendorSignup } from '../../services/vendorService';
+import { trackCustomEvent } from '../../lib/visitorTracking';
 
 export function VendorSignup() {
   const [formData, setFormData] = useState({
@@ -54,6 +55,8 @@ export function VendorSignup() {
     });
 
     if (result.success && result.vendor) {
+      // Self-hosted analytics: signup conversion. No PII is sent.
+      trackCustomEvent('signup_completed', { role: 'vendor' });
       // Store vendor info in localStorage
       localStorage.setItem('vendorId', result.vendor.id);
       localStorage.setItem('vendorEmail', result.vendor.email);

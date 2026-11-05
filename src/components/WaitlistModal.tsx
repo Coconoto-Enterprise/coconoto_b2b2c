@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { WaitlistService } from '../services/waitlist';
 import { sendWaitlistEmails } from '../utils/vercelEmailService';
+import { trackCustomEvent } from '../lib/visitorTracking';
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -115,6 +116,8 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
       });
 
       if (result.success) {
+        // Self-hosted analytics: counts as a conversion. No PII is sent.
+        trackCustomEvent('waitlist_joined');
         // Send notification via Resend API
         try {
           await sendWaitlistEmails({

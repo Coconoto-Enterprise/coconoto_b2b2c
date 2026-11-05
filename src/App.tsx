@@ -6,7 +6,7 @@ import { Hero } from './components/Hero';
 // hand-built home chrome (Navbar / Footer) and topic sections (CocotechRD /
 // CococycleHub / CocoConnect / CocoDrinkEat / Features / CTA) are kept on disk
 // but are no longer routed.
-import AnalyticsTracker from './components/AnalyticsTracker';
+import VisitorTracker from './components/VisitorTracker';
 import FigmaNav from './components/figma/FigmaNav';
 import FigmaFooter from './components/figma/FigmaFooter';
 import FigmaHomeSections from './components/figma/FigmaHomeSections';
@@ -116,7 +116,11 @@ function LegacyRedirect({ to }: { to: string }) {
 function App() {
   return (
     <BrowserRouter>
-      <AnalyticsTracker />
+      {/* Self-hosted visitor analytics — no third-party script, no Clarity.
+          Sessions, clicks, heatmaps, funnel and exit tracking are written to
+          our own Supabase via /api/visitor-tracking. Dashboard routes are
+          excluded. See src/components/VisitorTracker.tsx. */}
+      <VisitorTracker />
       <HashScroller />
       <MarketplaceAuthProvider>
       <ToastProvider>

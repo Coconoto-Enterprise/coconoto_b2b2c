@@ -8,6 +8,7 @@ import {
   Sparkles, ShieldCheck, Truck, ArrowRight
 } from 'lucide-react';
 import { getAllMarketplaceProducts, createOrder } from '../../services/vendorService';
+import { trackCustomEvent } from '../../lib/visitorTracking';
 import { createOrderWithBuyer, getBuyerProfile } from '../../services/buyerService';
 import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
 import type { VendorProduct, VendorOrderInput } from '../../types/vendor';
@@ -592,6 +593,8 @@ function OrderModal({
     }
 
     if (result.success) {
+      // Self-hosted analytics: marketplace order conversion. No PII is sent.
+      trackCustomEvent('order_placed', { channel: 'cococonnect_marketplace' });
       toast({
         title: 'Order placed!',
         description: 'The vendor will contact you shortly to confirm.',

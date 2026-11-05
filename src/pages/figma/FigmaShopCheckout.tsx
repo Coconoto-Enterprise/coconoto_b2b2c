@@ -7,6 +7,7 @@ import ImageSlot from '../../components/figma/ImageSlot';
 import { ShopCartProvider, useShopCart } from './shop/ShopCartContext';
 import { naira, type ShopProduct } from './shop/shopData';
 import { saveOrder, type OrderSnapshot } from './shop/orderStorage';
+import { trackCustomEvent } from '../../lib/visitorTracking';
 
 /** Express shipping surcharge, added on top of the flat delivery fee. */
 const EXPRESS_FEE = 3000;
@@ -128,6 +129,14 @@ function CheckoutBody() {
     };
 
     saveOrder(snapshot);
+    // Self-hosted analytics: the funnel's terminal conversion. Only order
+    // shape is sent — no name, email or address.
+    trackCustomEvent('order_placed', {
+      reference: snapshot.reference,
+      total: snapshot.total,
+      item_count: snapshot.items.length,
+      payment: snapshot.payment,
+    });
     clear();
     navigate('/shop/order-confirmed');
   };

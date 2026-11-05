@@ -5,6 +5,7 @@ import FigmaFooter from '../../components/figma/FigmaFooter';
 import ImageSlot from '../../components/figma/ImageSlot';
 import { supabase } from '../../lib/supabase';
 import { sendContactEmails } from '../../utils/vercelEmailService';
+import { trackCustomEvent } from '../../lib/visitorTracking';
 
 const DETAILS = [
   { icon: Mail, label: 'Email:', value: 'coconotoenterprise@gmail.com', href: 'mailto:coconotoenterprise@gmail.com' },
@@ -72,6 +73,8 @@ export default function FigmaContact() {
 
     setSuccess('Your message has been sent!');
     setForm(EMPTY);
+    // Self-hosted analytics: counts as a conversion. No PII is sent.
+    trackCustomEvent('contact_form_submitted', { source: 'contact_page' });
 
     // Notification email is best-effort: the lead is already saved, so a mail
     // failure must not surface to the visitor as a failed submission.

@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { MernBlogManagement } from '../components/blog/MernBlogManagement';
 import AnalyticsPanel from '../components/AnalyticsPanel';
+import VisitorAnalyticsPanel from '../components/VisitorAnalyticsPanel';
 import TeamPanel from '../components/admin/TeamPanel';
 import ExportDataModal from '../components/admin/ExportDataModal';
 import Logo from '../assets/Logo_1.png';
@@ -108,6 +109,9 @@ interface DetailModalProps {
 
 const VintageDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  // Analytics tab: 'own' = self-hosted visitor tracking (Supabase),
+  // 'cloudflare' = the older Cloudflare Zone Analytics panel.
+  const [analyticsSource, setAnalyticsSource] = useState<'own' | 'cloudflare'>('own');
   const [statusFilters, setStatusFilters] = useState({
     'business-emails': 'pending',
     'book-events': 'pending',
@@ -2350,11 +2354,29 @@ const VintageDashboard: React.FC = () => {
         {/* Analytics Tab */}
         {activeTab === 'analytics' && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex flex-wrap items-center gap-3">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">Analytics</h2>
+              <div className="ml-auto flex gap-1 bg-gray-100 p-1 rounded-lg">
+                <button
+                  onClick={() => setAnalyticsSource('own')}
+                  className={`px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+                    analyticsSource === 'own' ? 'bg-white text-green-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Visitor Analytics
+                </button>
+                <button
+                  onClick={() => setAnalyticsSource('cloudflare')}
+                  className={`px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+                    analyticsSource === 'cloudflare' ? 'bg-white text-green-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Cloudflare Traffic
+                </button>
+              </div>
             </div>
             <div className="p-4 sm:p-6">
-              <AnalyticsPanel />
+              {analyticsSource === 'own' ? <VisitorAnalyticsPanel /> : <AnalyticsPanel />}
             </div>
           </div>
         )}

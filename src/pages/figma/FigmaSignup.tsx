@@ -6,6 +6,7 @@ import ImageSlot from '../../components/figma/ImageSlot';
 import { GoogleMark } from '../../components/figma/BrandMarks';
 import { img } from './images';
 import { buyerSignup } from '../../services/buyerService';
+import { trackCustomEvent } from '../../lib/visitorTracking';
 import { useMarketplaceAuth } from '../../context/MarketplaceAuthContext';
 import {
   CLERK_PUBLISHABLE_KEY,
@@ -473,6 +474,7 @@ function ClerkSignup() {
       name: `${result.buyer.first_name} ${result.buyer.last_name}`.trim(),
     });
 
+    trackCustomEvent('signup_completed', { role: 'buyer', method: 'clerk' });
     await refreshSession();
     navigate(exitTo);
   };
@@ -681,6 +683,7 @@ function PasswordSignup() {
     });
 
     if (result.success && result.buyer) {
+      trackCustomEvent('signup_completed', { role: 'buyer', method: 'email' });
       // The signup endpoint already set the session cookie; mirror it into the
       // SPA context so the protected dashboard doesn't bounce us straight back
       // here on the very next render.
